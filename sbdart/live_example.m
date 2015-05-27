@@ -1,0 +1,36 @@
+%
+% An SBDART 'Live' example
+%
+% This shows how your code can be made to be dynamic.  That is, it will
+% change based on what time it is ran and where it is ran in the world. 
+%
+
+[mylat mylon myloc] = latlon(); % Look up on the internet where we are
+jday = floor(now) - datenum(clock .* [1 0 0 0 0 0]); % Julian day
+hours = rem(now,1)*24; % Current hour
+
+% Run SBDART where we are at and the current time
+[WL,FFV,TOPDN,TOPUP,TOPDIR,BOTDN,BOTUP,BOTDIR] = ...
+sbdart('idatm',4, ...
+        'isat',0, ...
+        'wlinf',4, ...
+        'wlsup',20, ...
+        'wlinc',.05, ...
+        'alat',mylat, ...
+        'alon',mylon, ...
+        'iday',jday, ...
+        'time',hours, ...
+        'nf',3, ...
+        'iout',1);
+plot(WL,[TOPDN,TOPUP,TOPDIR,BOTDN,BOTUP,BOTDIR])
+
+title(['Live SBDART Flux Model For ' myloc ' at ' datestr(now,0)])
+ylabel('w/m^2/{\mu}m');xlabel('wavelength (microns)');
+legend('TOPDN','TOPUP','TOPDIR','BOTDN','BOTUP','BOTDIR')
+
+figure
+
+% Plot a map of where we are at
+load coast;
+plot(long,lat,'k',mylon,mylat,'*b','MarkerSize',20);
+axis tight
