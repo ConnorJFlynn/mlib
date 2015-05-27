@@ -1,0 +1,15 @@
+    V = datevec(nc.time);
+    yyyy = V(:,1);
+    mm = V(:,2);
+    dd = V(:,3);
+    HH = V(:,4);
+    MM = V(:,5);
+    SS = V(:,6);
+    doy1 = serial2doy1(nc.time)';
+    HHhh = (doy1 - floor(doy1)) *24;
+    txt_out = [yyyy, doy1, HHhh, mm, dd, HH, MM, SS, alive.aod_1(aod_times)', alive.aod_bscat(aod_times)',alive.aod_1(aod_times)'- alive.aod_bscat(aod_times)' ]; 
+        fid = fopen([pname, 'named_output_file.txt'],'wt');
+        fprintf(fid, '%s \n','yyyy, doy1, HHhh, mm, dd, HH, MM, SS, aod_1, aod_bscat, aod_diff');
+        fprintf(fid,'%d, %d, %d, %d, %d, %d, %d, %d, %3.6f, %3.6f, %3.6f \n',txt_out');
+        fclose(fid);
+    close('all'); 

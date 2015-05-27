@@ -1,0 +1,32 @@
+
+
+
+On Oct 14, 2010, at 4:50 PM, Flynn, Connor J wrote:
+
+> Hi Von,
+>  
+> It was good seeing you when you were here at PNNL.  That would be cool if we can get you here. 
+>  
+> You mentioned having worked out the noise filter routine in Matlab including the determination of the various metrics for selecting the number of components to save.  I’d love to have a copy of that if you’re willing to share it.  Full credit will be given, for sure.  I want to apply it to the ASSIST spectra (Luc’s alternative to the AERI) and also see what modifications are necessary in applying it to my shortwave spectrometer.  Looks like I’ll need to pre-normalize my spectra versus the NESR to ensure that the errors are normal and Gaussian.
+>  
+> I’m at the ASR meeting in Boulder CO this week and am totally saturated on meetings.  It would be great to reset my brain by doing some coding and data analysis.
+>  
+> Cheers, and many thanks in advance -
+> Connor
+>  
+> __________________________________________________ 
+> Connor J. Flynn, Ph.D. 
+> Scientist 
+> Atmospheric Sciences & Global Change
+> Pacific Northwest National Laboratory 
+> 902 Battelle Boulevard 
+> P.O. Box 999, MSIN K9-24 
+> Richland, WA  99352 USA 
+> Tel:  509-375-2041 
+> Cel: 509-554-7791 
+> Connor.Flynn@pnl.gov 
+> www.pnl.gov
+>  
+>  
+>  
+
