@@ -1,0 +1,11 @@
+First, use std_atm for temperature and pressure or provide other profiles.
+Then, with the TP profs, calculating Rayleigh alpha and beta.
+
+Then add whatever alpha and beta profiles to the above as desired.
+
+Then calculate optical depth as a function of altitude and extinction profile too.
+
+Then calculate attenuated backscatter profile.
+
+
+

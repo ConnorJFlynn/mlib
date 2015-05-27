@@ -1,0 +1,52 @@
+
+This series of files provides an interface to the following AER codes:
+
+LNFL version 2.0
+LBLRTM version 11.3
+RADSUM version 2.4
+RRTM_LW version 3.01
+RRTM_SW version 2.5
+
+These programs must be installed on your system and running properly.  
+If you have compiled these programs under something other than
+the PGF 90 compiler for linux using double-precision,  you will need to modify
+the names of the executables which are listed in the call_* scripts
+
+The matlab script that can be called is 'call_run_radsum_mod_atm_example.m'
+to recreate the data for the figure seen at http://rtweb.aer.com/lblrtm_frame.html
+Another matlab script that can be called is 'call_run_lblrtm_sgp_aeri_comparison.m' which 
+recreates the data for the figure seen at http://rtweb.aer.com/ .  The actual aeri spectrum is also included.
+Also, the matlab script 'call_run_lblrtm_camex_comparison.m' recreates
+the data for the example given by the lblrtm website.  The actual camex spectrum is also included
+
+call_run_radsum_mod_atm_example.m = 
+     sample case for calling run_radsum for mid-latitude summer conditions as posted in the Clough and Iacono, 1995 (JGR-Atmospheres)
+     (note, this case is computationally intensive and takes around 1 hour on a Xeon 3.2 GHz processor)
+
+run_radsum.m = copies relevant files for radsum,lblrtm,lnfl and executes these programs after calling write_radsum_tape5.m, reads results
+run_lblrtm.m = copies relevant files for lblrtm,lnfl and executes these programs after calling write_lblrtm_tape5.m, reads results
+write_radsum_tape5.m = writes input files for lnfl, lblrtm, and radsum according to inputs
+write_lblrtm_tape5.m = writes input files for lnfl and lblrtm according to inputs
+
+read_radsum.m = reads OUTPUT_RADSUM file into matlab
+truncate_header.m = modifies TAPE27 and TAPE28 files (radiance and brightness temperature) so they can be read quickly into matlab
+
+convert_to_BT.m = gets brightness temperature from radiance values
+get_flag.m = gets value of flag/switch from flag/switch vector
+get_directory.m = gets value of directory from directory_mat
+set_directory.m = sets value of directory from directory_mat
+
+I have included the lnfl, lblrtm, and radsum input files from the call_run_radsum_mod_atm_example.m routine as well 
+and these are labeled MLS_example*
+
+I have also included the lnfl and lblrtm input files produced by call_run_lblrtm_sgp_aeri_comparison.m
+and these files are labeled sgp_aeri*
+
+Also, the calls to charts are currently experimental and do not work properly yet.
+
+
+If you have any questions, feel free to contact me:
+Dan Feldman
+feldman.daniel.r@gmail.com
+
+September 5, 2009

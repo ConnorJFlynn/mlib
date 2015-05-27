@@ -1,0 +1,419 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+<html xmlns:mwsh="http://www.mathworks.com/namespace/mcode/v1/syntaxhighlight.dtd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      -->
+      <title>final_dust_screen2</title>
+      <meta name="generator" content="MATLAB 7.6">
+      <meta name="date" content="2008-09-28">
+      <meta name="m-file" content="final_dust_screen2"><style>
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head>
+   <body>
+      <div class="content">
+         <h2>Contents</h2>
+         <div>
+            <ul>
+               <li><a href="#3">Bsp (1um 10um), Bap (1um 10um), Ang, and submicron ratios 4x2</a></li>
+               <li><a href="#4">Single-scattering albedo at both size cuts, 3x2</a></li>
+            </ul>
+         </div><pre class="codeinput"><span class="keyword">function</span>   aip_1h = final_dust_screen(aip_1h);
+</pre><pre class="codeinput"><span class="comment">% Apply tests that define metric.</span>
+Bsp_G_10_1 = 400; <span class="comment">%gte test1</span>
+Bsp_G_10 = 150; <span class="comment">%gte test1</span>
+Ang_Bs_BG_10 = .5; <span class="comment">%lte test2</span>
+Ang_Bs_BG_1 = .8;  <span class="comment">%lte test 3</span>
+<span class="comment">% subfrac_Ba_R = .5; %lte</span>
+<span class="comment">% Ang_Ba_GR_1 = 2; %gte</span>
+subfrac_Bs_G = 0.25; <span class="comment">%lte test 4</span>
+subfrac_Bs_G2 = 0.6; <span class="comment">%lte test 5 , with below is test 6</span>
+w_G_10um = .9; <span class="comment">% gte test5, with above is test 6</span>
+
+test1 = true(size(aip_1h.time));
+test2 = test1; test3 = test1; test4 = test1; test5 = test1; test6= test1;
+
+test1 = (aip_1h.Bsp_G_Dry_10um &gt; Bsp_G_10);
+test2 = (aip_1h.Ang_Bs_B_G_10um&lt;Ang_Bs_BG_10) ;
+NaNs = isNaN(aip_1h.Ang_Bs_G_R_1um);
+test3(~NaNs) = (aip_1h.Ang_Bs_B_G_1um(~NaNs)&lt;Ang_Bs_BG_1) ;
+NaNs = isNaN(aip_1h.subfrac_Bs_G)|isNaN(aip_1h.w_G_10um);
+test4(~NaNs) = (aip_1h.subfrac_Bs_G(~NaNs)&lt;subfrac_Bs_G);
+test5(~NaNs) = ((aip_1h.subfrac_Bs_G(~NaNs)&lt;subfrac_Bs_G2)&amp;(aip_1h.w_G_10um(~NaNs)&gt;w_G_10um));
+test6(~NaNs) = test4(~NaNs) | test5(~NaNs);
+   dust = test1 &amp; test2 &amp; test3  &amp; test6;
+
+windowSize = 3;
+dust = filter(ones(1,windowSize)/windowSize,1,dust)==1;
+sum(dust)
+dust_days = (unique(serial2doy(floor(aip_1h.time(dust)))));
+length(dust_days)
+dust = filter(ones(1,windowSize)/windowSize,1,dust)&gt;=1;
+sum(dust)
+dust_days = (unique(serial2doy(floor(aip_1h.time(dust)))));
+length(dust_days)
+
+ fig = figure; plot(serial2doy(aip_1h.time), [test1, 2*test2, 3*test3, 4*test4, 5*test5, 6*test6, 10*dust], <span class="string">'.'</span>)
+pause(.1);ax(fig).sub = gca;pause(.1);
+
+<span class="comment">% for d = 1:length(dust_days);</span>
+<span class="comment">% dust = dust|(floor(serial2doy(aip_1h.time))==dust_days(d));</span>
+<span class="comment">% end</span>
+
+<span class="comment">% plot the results.</span>
+</pre><pre class="codeoutput">Input argument "aip_1h" is undefined.
+
+Error in ==&gt; final_dust_screen2 at 13
+test1 = true(size(aip_1h.time));
+
+</pre><h2>Bsp (1um 10um), Bap (1um 10um), Ang, and submicron ratios 4x2<a name="3"></a></h2><pre class="codeinput">fig = figure;
+ax(fig).sub(1) = subplot(4,2,1);
+ plot(serial2doy(aip_1h.time), aip_1h.Bsp_B_Dry_10um,<span class="string">'-b.'</span>,<span class="keyword">...</span>
+   serial2doy(aip_1h.time), aip_1h.Bsp_G_Dry_10um,<span class="string">'-g.'</span>,<span class="keyword">...</span>
+serial2doy(aip_1h.time(dust)), aip_1h.Bsp_B_Dry_10um(dust),<span class="string">'-k.'</span>);
+ln = line([xlim],[Bsp_G_10,Bsp_G_10]); set(ln,<span class="string">'color'</span>,<span class="string">'m'</span>,<span class="string">'linestyle'</span>,<span class="string">'--'</span>);
+lg = title(<span class="string">'Scattering coefficient, 10 um size cut'</span>); set(lg,<span class="string">'interp'</span>,<span class="string">'none'</span>);
+ylabel(<span class="string">'1/Mm'</span>);
+
+ax(fig).sub(2) = subplot(4,2,3);
+plot(serial2doy(aip_1h.time), aip_1h.Ang_Bs_B_G_1um,<span class="string">'-g.'</span>,<span class="keyword">...</span>
+   serial2doy(aip_1h.time), aip_1h.Ang_Bs_B_G_10um,<span class="string">'-b.'</span>,<span class="keyword">...</span>
+serial2doy(aip_1h.time(dust)), aip_1h.Ang_Bs_B_G_1um(dust),<span class="string">'k.'</span>,<span class="keyword">...</span>
+serial2doy(aip_1h.time(dust)), aip_1h.Ang_Bs_B_G_10um(dust),<span class="string">'k.'</span>);
+ln = line([xlim],[Ang_Bs_BG_10,Ang_Bs_BG_10]);
+set(ln,<span class="string">'color'</span>,<span class="string">'m'</span>,<span class="string">'linestyle'</span>,<span class="string">'--'</span>);
+ln = line([xlim],[Ang_Bs_BG_1,Ang_Bs_BG_1]);
+set(ln,<span class="string">'color'</span>,<span class="string">'b'</span>,<span class="string">'linestyle'</span>,<span class="string">'--'</span>);
+lg = title(<span class="string">'Scattering angstrom exponent'</span>); set(lg,<span class="string">'interp'</span>,<span class="string">'none'</span>)
+ylabel(<span class="string">'unitless exponent'</span>)
+<span class="comment">% plot(serial2doy(aip_1h.time), aip_1h.Bsp_B_Dry_1um,'-b.',...</span>
+<span class="comment">%    serial2doy(aip_1h.time), aip_1h.Bsp_G_Dry_1um,'-g.',...</span>
+<span class="comment">%    serial2doy(aip_1h.time), aip_1h.Bsp_R_Dry_1um,'-r.',...</span>
+<span class="comment">% serial2doy(aip_1h.time(dust)), aip_1h.Bsp_B_Dry_1um(dust),'k.');</span>
+<span class="comment">% lg = title('Scattering coefficient, 1 um size cut'); set(lg,'interp','none')</span>
+<span class="comment">% ylabel('1/Mm');</span>
+
+ax(fig).sub(3) = subplot(4,2,5);
+plot(serial2doy(aip_1h.time), aip_1h.subfrac_Bs_G,<span class="string">'-g.'</span>,<span class="keyword">...</span>
+   serial2doy(aip_1h.time(dust)), aip_1h.subfrac_Bs_G(dust),<span class="string">'k.'</span>);
+ln = line([xlim],[subfrac_Bs_G,subfrac_Bs_G]);
+set(ln,<span class="string">'color'</span>,<span class="string">'m'</span>,<span class="string">'linestyle'</span>,<span class="string">'--'</span>);
+ln = line([xlim],[subfrac_Bs_G2,subfrac_Bs_G2]);
+set(ln,<span class="string">'color'</span>,<span class="string">'g'</span>,<span class="string">'linestyle'</span>,<span class="string">'--'</span>);
+lg = title(<span class="string">'Submicron scattering fraction'</span>); set(lg,<span class="string">'interp'</span>,<span class="string">'none'</span>)
+ylabel(<span class="string">'unitless ratio'</span>)
+
+ax(fig).sub(4) = subplot(4,2,7);
+plot(serial2doy(aip_1h.time), aip_1h.w_B_10um,<span class="string">'-b.'</span>,<span class="keyword">...</span>
+   serial2doy(aip_1h.time), aip_1h.w_G_10um,<span class="string">'-g.'</span>,<span class="keyword">...</span>
+      serial2doy(aip_1h.time), aip_1h.w_R_10um,<span class="string">'-r.'</span>,<span class="keyword">...</span>
+serial2doy(aip_1h.time(dust)), aip_1h.w_B_10um(dust),<span class="string">'k.'</span>);
+ln = line([xlim],[w_G_10um,w_G_10um]);
+set(ln,<span class="string">'color'</span>,<span class="string">'m'</span>,<span class="string">'linestyle'</span>,<span class="string">'--'</span>);
+title(<span class="string">'Single-scattering albedo'</span>);
+xlabel(<span class="string">'day of year (Jan. 1 2006 = 1)'</span>);
+
+ax(fig).sub(5) = subplot(4,2,2);
+plot(   serial2doy(aip_1h.time), aip_1h.Bap_G_3W_10um,<span class="string">'-g.'</span>,<span class="keyword">...</span>
+   serial2doy(aip_1h.time), aip_1h.Bap_R_3W_10um,<span class="string">'-r.'</span>,<span class="keyword">...</span>
+   serial2doy(aip_1h.time(dust)), aip_1h.Bap_G_3W_10um(dust),<span class="string">'-k.'</span>);
+lg = title(<span class="string">'Aerosol absorption coefficient, 10 um size cut'</span>); set(lg,<span class="string">'interp'</span>,<span class="string">'none'</span>);
+ylabel(<span class="string">'1/Mm'</span>);
+
+ax(fig).sub(6) = subplot(4,2,4);
+plot( serial2doy(aip_1h.time), aip_1h.Bap_G_3W_1um,<span class="string">'-g.'</span>,<span class="keyword">...</span>
+   serial2doy(aip_1h.time), aip_1h.Bap_R_3W_1um,<span class="string">'-r.'</span>,<span class="keyword">...</span>
+   serial2doy(aip_1h.time(dust)), aip_1h.Bap_G_3W_1um(dust),<span class="string">'k.'</span>);
+lg = title(<span class="string">'Aerosol absorption coefficient, 1 um size cut'</span>); set(lg,<span class="string">'interp'</span>,<span class="string">'none'</span>);
+ylabel(<span class="string">'1/Mm'</span>);
+<span class="comment">% legend('Blue','Green','Red')</span>
+
+ax(fig).sub(7) = subplot(4,2,6);
+plot(serial2doy(aip_1h.time), aip_1h.subfrac_Ba_R,<span class="string">'-r.'</span>,<span class="keyword">...</span>
+serial2doy(aip_1h.time(dust)), aip_1h.subfrac_Ba_R(dust),<span class="string">'k.'</span>);
+lg = title(<span class="string">'Submicron absorption fraction'</span>); set(lg,<span class="string">'interp'</span>,<span class="string">'none'</span>);
+ylabel(<span class="string">'unitless ratio'</span>)
+<span class="comment">% legend('Blue','Green','Red')</span>
+
+ax(fig).sub(8) = subplot(4,2,8);
+plot(   serial2doy(aip_1h.time), aip_1h.Ang_Ba_G_R_1um,<span class="string">'-r.'</span>, <span class="keyword">...</span>
+   serial2doy(aip_1h.time(dust)), aip_1h.Ang_Ba_G_R_1um(dust),<span class="string">'k.'</span>);
+lg = title(<span class="string">'Absorption angstrom exponents'</span>); set(lg,<span class="string">'interp'</span>,<span class="string">'none'</span>)
+ylabel(<span class="string">'unitless exponent'</span>);
+xlabel(<span class="string">'day of year (Jan. 1 2006 = 1)'</span>); <span class="comment">% linkaxes(ax(fig).sub,'x')</span>
+<span class="comment">% ln = line([xlim],[Ang_Ba_GR_1,Ang_Ba_GR_1]);</span>
+set(ln,<span class="string">'color'</span>,<span class="string">'m'</span>,<span class="string">'linestyle'</span>,<span class="string">'--'</span>);
+</pre><h2>Single-scattering albedo at both size cuts, 3x2<a name="4"></a></h2>
+         <p>fig = figure; ax(fig).sub(1) = subplot(3,2,1); plot(serial2doy(aip_1h.time), aip_1h.Bsp_B_Dry_10um,'-b.',...    serial2doy(aip_1h.time),
+            aip_1h.Bsp_G_Dry_10um,'-g.',...    serial2doy(aip_1h.time), aip_1h.Bsp_R_Dry_10um,'-r.', ...    serial2doy(aip_1h.time(dust)),
+            aip_1h.Bsp_B_Dry_10um(dust),'k.'); lg = title('Total scattering coefficient, 10 um size cut'); set(lg,'interp','none') ylabel('1/Mm');
+            legend('Blue','Green','Red') ax(fig).sub(2) = subplot(3,2,3); plot(serial2doy(aip_1h.time), aip_1h.Bap_B_3W_10um,'-b.',...
+               serial2doy(aip_1h.time), aip_1h.Bap_G_3W_10um,'-g.',...    serial2doy(aip_1h.time), aip_1h.Bap_R_3W_10um,'-r.',... serial2doy(aip_1h.time(dust)),
+            aip_1h.Bap_B_3W_10um(dust),'k.') lg = title('Absorption coefficient, 10 um size cut'); set(lg,'interp','none'); ylabel('1/Mm');
+            ax(fig).sub(3) = subplot(3,2,5); plot(serial2doy(aip_1h.time), aip_1h.w_B_10um,'-b.',...    serial2doy(aip_1h.time), aip_1h.w_G_10um,'-g.',...
+                  serial2doy(aip_1h.time), aip_1h.w_R_10um,'-r.',... serial2doy(aip_1h.time(dust)), aip_1h.w_B_10um(dust),'k.'); ln =
+            line([xlim],[w_G_10um,w_G_10um]); set(ln,'color','m','linestyle','--');
+         </p>
+         <p>lg = title('Single scattering albedo, 10 um size cut'); set(lg,'interp','none'); xlabel('day of year (Jan. 1 2006 = 1)');
+            ylabel('unitless ratio') ax(fig).sub(4) = subplot(3,2,2); plot(serial2doy(aip_1h.time), aip_1h.Bsp_B_Dry_1um,'-b.',...   
+            serial2doy(aip_1h.time), aip_1h.Bsp_G_Dry_1um,'-g.',...    serial2doy(aip_1h.time), aip_1h.Bsp_R_Dry_1um,'-r.',... serial2doy(aip_1h.time(dust)),
+            aip_1h.Bsp_B_Dry_1um(dust),'k.'); lg = title('Total scattering coefficient, 1 um size cut'); set(lg,'interp','none') ylabel('1/Mm');
+            legend('Blue','Green','Red') ax(fig).sub(5) = subplot(3,2,4); plot(serial2doy(aip_1h.time), aip_1h.Bap_B_3W_1um,'-b.',...
+               serial2doy(aip_1h.time), aip_1h.Bap_G_3W_1um,'-g.',...    serial2doy(aip_1h.time), aip_1h.Bap_R_3W_1um,'-r.',... serial2doy(aip_1h.time(dust)),
+            aip_1h.Bap_R_3W_1um(dust),'k.') lg = title('Absorption coefficient, 1 um size cut'); set(lg,'interp','none'); ylabel('1/Mm');
+            ax(fig).sub(6) = subplot(3,2,6); plot(serial2doy(aip_1h.time), aip_1h.w_B_1um,'-b.',...    serial2doy(aip_1h.time), aip_1h.w_G_1um,'-g.',...
+                  serial2doy(aip_1h.time), aip_1h.w_R_1um,'-r.',... serial2doy(aip_1h.time(dust)), aip_1h.w_B_1um(dust),'k.'); lg = title('Single
+            scattering albedo, 1 um size cut'); set(lg,'interp','none') ylabel('unitless ratio') xlabel('day of year (Jan. 1 2006 = 1)');
+            % linkaxes(ax(fig).sub,'x') %
+         </p>
+         <p>linkaxes([ax(2).sub(:)],'x');</p><pre class="codeinput">linkaxes([ax(1).sub(:); ax(2).sub(:)],<span class="string">'x'</span>)
+<span class="comment">%</span>
+</pre><pre class="codeoutput">WDEavRCxrA000020000</pre><p class="footer"><br>
+            Published with MATLAB&reg; 7.6<br></p>
+      </div>
+      <!--
+##### SOURCE BEGIN #####
+function   aip_1h = final_dust_screen(aip_1h);
+% Apply tests that define metric.
+Bsp_G_10_1 = 400; %gte test1
+Bsp_G_10 = 150; %gte test1
+Ang_Bs_BG_10 = .5; %lte test2
+Ang_Bs_BG_1 = .8;  %lte test 3
+% subfrac_Ba_R = .5; %lte
+% Ang_Ba_GR_1 = 2; %gte
+subfrac_Bs_G = 0.25; %lte test 4
+subfrac_Bs_G2 = 0.6; %lte test 5 , with below is test 6
+w_G_10um = .9; % gte test5, with above is test 6
+
+test1 = true(size(aip_1h.time));
+test2 = test1; test3 = test1; test4 = test1; test5 = test1; test6= test1;
+
+test1 = (aip_1h.Bsp_G_Dry_10um > Bsp_G_10);
+test2 = (aip_1h.Ang_Bs_B_G_10um<Ang_Bs_BG_10) ;
+NaNs = isNaN(aip_1h.Ang_Bs_G_R_1um);
+test3(~NaNs) = (aip_1h.Ang_Bs_B_G_1um(~NaNs)<Ang_Bs_BG_1) ;
+NaNs = isNaN(aip_1h.subfrac_Bs_G)|isNaN(aip_1h.w_G_10um);
+test4(~NaNs) = (aip_1h.subfrac_Bs_G(~NaNs)<subfrac_Bs_G);
+test5(~NaNs) = ((aip_1h.subfrac_Bs_G(~NaNs)<subfrac_Bs_G2)&(aip_1h.w_G_10um(~NaNs)>w_G_10um));
+test6(~NaNs) = test4(~NaNs) | test5(~NaNs);
+   dust = test1 & test2 & test3  & test6;
+
+windowSize = 3;
+dust = filter(ones(1,windowSize)/windowSize,1,dust)==1;
+sum(dust)
+dust_days = (unique(serial2doy(floor(aip_1h.time(dust)))));
+length(dust_days)
+dust = filter(ones(1,windowSize)/windowSize,1,dust)>=1;
+sum(dust)
+dust_days = (unique(serial2doy(floor(aip_1h.time(dust)))));
+length(dust_days)
+
+ fig = figure; plot(serial2doy(aip_1h.time), [test1, 2*test2, 3*test3, 4*test4, 5*test5, 6*test6, 10*dust], '.')
+pause(.1);ax(fig).sub = gca;pause(.1);
+
+% for d = 1:length(dust_days);
+% dust = dust|(floor(serial2doy(aip_1h.time))==dust_days(d));
+% end
+
+% plot the results.
+%% Bsp (1um 10um), Bap (1um 10um), Ang, and submicron ratios 4x2
+
+fig = figure;
+ax(fig).sub(1) = subplot(4,2,1);
+ plot(serial2doy(aip_1h.time), aip_1h.Bsp_B_Dry_10um,'-b.',...
+   serial2doy(aip_1h.time), aip_1h.Bsp_G_Dry_10um,'-g.',...
+serial2doy(aip_1h.time(dust)), aip_1h.Bsp_B_Dry_10um(dust),'-k.');
+ln = line([xlim],[Bsp_G_10,Bsp_G_10]); set(ln,'color','m','linestyle','REPLACE_WITH_DASH_DASH');
+lg = title('Scattering coefficient, 10 um size cut'); set(lg,'interp','none');
+ylabel('1/Mm');
+
+ax(fig).sub(2) = subplot(4,2,3);
+plot(serial2doy(aip_1h.time), aip_1h.Ang_Bs_B_G_1um,'-g.',...
+   serial2doy(aip_1h.time), aip_1h.Ang_Bs_B_G_10um,'-b.',...
+serial2doy(aip_1h.time(dust)), aip_1h.Ang_Bs_B_G_1um(dust),'k.',...
+serial2doy(aip_1h.time(dust)), aip_1h.Ang_Bs_B_G_10um(dust),'k.');
+ln = line([xlim],[Ang_Bs_BG_10,Ang_Bs_BG_10]); 
+set(ln,'color','m','linestyle','REPLACE_WITH_DASH_DASH');
+ln = line([xlim],[Ang_Bs_BG_1,Ang_Bs_BG_1]);
+set(ln,'color','b','linestyle','REPLACE_WITH_DASH_DASH');
+lg = title('Scattering angstrom exponent'); set(lg,'interp','none')
+ylabel('unitless exponent')
+% plot(serial2doy(aip_1h.time), aip_1h.Bsp_B_Dry_1um,'-b.',...
+%    serial2doy(aip_1h.time), aip_1h.Bsp_G_Dry_1um,'-g.',...
+%    serial2doy(aip_1h.time), aip_1h.Bsp_R_Dry_1um,'-r.',...
+% serial2doy(aip_1h.time(dust)), aip_1h.Bsp_B_Dry_1um(dust),'k.');
+% lg = title('Scattering coefficient, 1 um size cut'); set(lg,'interp','none')
+% ylabel('1/Mm');
+
+ax(fig).sub(3) = subplot(4,2,5);
+plot(serial2doy(aip_1h.time), aip_1h.subfrac_Bs_G,'-g.',...
+   serial2doy(aip_1h.time(dust)), aip_1h.subfrac_Bs_G(dust),'k.');
+ln = line([xlim],[subfrac_Bs_G,subfrac_Bs_G]);
+set(ln,'color','m','linestyle','REPLACE_WITH_DASH_DASH');
+ln = line([xlim],[subfrac_Bs_G2,subfrac_Bs_G2]);
+set(ln,'color','g','linestyle','REPLACE_WITH_DASH_DASH');
+lg = title('Submicron scattering fraction'); set(lg,'interp','none')
+ylabel('unitless ratio')
+
+ax(fig).sub(4) = subplot(4,2,7);
+plot(serial2doy(aip_1h.time), aip_1h.w_B_10um,'-b.',...
+   serial2doy(aip_1h.time), aip_1h.w_G_10um,'-g.',...
+      serial2doy(aip_1h.time), aip_1h.w_R_10um,'-r.',...
+serial2doy(aip_1h.time(dust)), aip_1h.w_B_10um(dust),'k.');
+ln = line([xlim],[w_G_10um,w_G_10um]);
+set(ln,'color','m','linestyle','REPLACE_WITH_DASH_DASH');
+title('Single-scattering albedo');
+xlabel('day of year (Jan. 1 2006 = 1)');
+
+ax(fig).sub(5) = subplot(4,2,2);
+plot(   serial2doy(aip_1h.time), aip_1h.Bap_G_3W_10um,'-g.',...
+   serial2doy(aip_1h.time), aip_1h.Bap_R_3W_10um,'-r.',...
+   serial2doy(aip_1h.time(dust)), aip_1h.Bap_G_3W_10um(dust),'-k.');
+lg = title('Aerosol absorption coefficient, 10 um size cut'); set(lg,'interp','none');
+ylabel('1/Mm');
+
+ax(fig).sub(6) = subplot(4,2,4);
+plot( serial2doy(aip_1h.time), aip_1h.Bap_G_3W_1um,'-g.',...
+   serial2doy(aip_1h.time), aip_1h.Bap_R_3W_1um,'-r.',...
+   serial2doy(aip_1h.time(dust)), aip_1h.Bap_G_3W_1um(dust),'k.');
+lg = title('Aerosol absorption coefficient, 1 um size cut'); set(lg,'interp','none');
+ylabel('1/Mm');
+% legend('Blue','Green','Red')
+
+ax(fig).sub(7) = subplot(4,2,6);
+plot(serial2doy(aip_1h.time), aip_1h.subfrac_Ba_R,'-r.',...
+serial2doy(aip_1h.time(dust)), aip_1h.subfrac_Ba_R(dust),'k.');
+lg = title('Submicron absorption fraction'); set(lg,'interp','none');
+ylabel('unitless ratio')
+% legend('Blue','Green','Red')
+
+ax(fig).sub(8) = subplot(4,2,8);
+plot(   serial2doy(aip_1h.time), aip_1h.Ang_Ba_G_R_1um,'-r.', ...
+   serial2doy(aip_1h.time(dust)), aip_1h.Ang_Ba_G_R_1um(dust),'k.');
+lg = title('Absorption angstrom exponents'); set(lg,'interp','none')
+ylabel('unitless exponent');
+xlabel('day of year (Jan. 1 2006 = 1)'); % linkaxes(ax(fig).sub,'x')
+% ln = line([xlim],[Ang_Ba_GR_1,Ang_Ba_GR_1]);
+set(ln,'color','m','linestyle','REPLACE_WITH_DASH_DASH');
+
+%% Single-scattering albedo at both size cuts, 3x2
+% 
+% fig = figure;
+% ax(fig).sub(1) = subplot(3,2,1);
+% plot(serial2doy(aip_1h.time), aip_1h.Bsp_B_Dry_10um,'-b.',...
+%    serial2doy(aip_1h.time), aip_1h.Bsp_G_Dry_10um,'-g.',...
+%    serial2doy(aip_1h.time), aip_1h.Bsp_R_Dry_10um,'-r.', ...
+%    serial2doy(aip_1h.time(dust)), aip_1h.Bsp_B_Dry_10um(dust),'k.');
+% lg = title('Total scattering coefficient, 10 um size cut'); set(lg,'interp','none')
+% ylabel('1/Mm');
+% legend('Blue','Green','Red')
+% ax(fig).sub(2) = subplot(3,2,3);
+% plot(serial2doy(aip_1h.time), aip_1h.Bap_B_3W_10um,'-b.',...
+%    serial2doy(aip_1h.time), aip_1h.Bap_G_3W_10um,'-g.',...
+%    serial2doy(aip_1h.time), aip_1h.Bap_R_3W_10um,'-r.',...
+% serial2doy(aip_1h.time(dust)), aip_1h.Bap_B_3W_10um(dust),'k.')
+% lg = title('Absorption coefficient, 10 um size cut'); set(lg,'interp','none');
+% ylabel('1/Mm');
+% ax(fig).sub(3) = subplot(3,2,5);
+% plot(serial2doy(aip_1h.time), aip_1h.w_B_10um,'-b.',...
+%    serial2doy(aip_1h.time), aip_1h.w_G_10um,'-g.',...
+%       serial2doy(aip_1h.time), aip_1h.w_R_10um,'-r.',...
+% serial2doy(aip_1h.time(dust)), aip_1h.w_B_10um(dust),'k.');
+% ln = line([xlim],[w_G_10um,w_G_10um]);
+% set(ln,'color','m','linestyle','REPLACE_WITH_DASH_DASH');
+% 
+% lg = title('Single scattering albedo, 10 um size cut'); set(lg,'interp','none');
+% xlabel('day of year (Jan. 1 2006 = 1)');
+% ylabel('unitless ratio')
+% ax(fig).sub(4) = subplot(3,2,2);
+% plot(serial2doy(aip_1h.time), aip_1h.Bsp_B_Dry_1um,'-b.',...
+%    serial2doy(aip_1h.time), aip_1h.Bsp_G_Dry_1um,'-g.',...
+%    serial2doy(aip_1h.time), aip_1h.Bsp_R_Dry_1um,'-r.',...
+% serial2doy(aip_1h.time(dust)), aip_1h.Bsp_B_Dry_1um(dust),'k.');
+% lg = title('Total scattering coefficient, 1 um size cut'); set(lg,'interp','none')
+% ylabel('1/Mm');
+% legend('Blue','Green','Red')
+% ax(fig).sub(5) = subplot(3,2,4);
+% plot(serial2doy(aip_1h.time), aip_1h.Bap_B_3W_1um,'-b.',...
+%    serial2doy(aip_1h.time), aip_1h.Bap_G_3W_1um,'-g.',...
+%    serial2doy(aip_1h.time), aip_1h.Bap_R_3W_1um,'-r.',...
+% serial2doy(aip_1h.time(dust)), aip_1h.Bap_R_3W_1um(dust),'k.')
+% lg = title('Absorption coefficient, 1 um size cut'); set(lg,'interp','none');
+% ylabel('1/Mm');
+% ax(fig).sub(6) = subplot(3,2,6);
+% plot(serial2doy(aip_1h.time), aip_1h.w_B_1um,'-b.',...
+%    serial2doy(aip_1h.time), aip_1h.w_G_1um,'-g.',...
+%       serial2doy(aip_1h.time), aip_1h.w_R_1um,'-r.',...
+% serial2doy(aip_1h.time(dust)), aip_1h.w_B_1um(dust),'k.');
+% lg = title('Single scattering albedo, 1 um size cut'); set(lg,'interp','none')
+% ylabel('unitless ratio')
+% xlabel('day of year (Jan. 1 2006 = 1)'); % linkaxes(ax(fig).sub,'x')
+% %
+% 
+% linkaxes([ax(2).sub(:)],'x');
+linkaxes([ax(1).sub(:); ax(2).sub(:)],'x')
+%
+
+##### SOURCE END #####
+-->
+   </body>
+</html>
