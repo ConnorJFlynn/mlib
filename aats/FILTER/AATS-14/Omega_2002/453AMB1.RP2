@@ -1,0 +1,114 @@
+
+Continuum:          CURRENT:46
+
+Date/Time Stored:   Mon Jul 22, 2002 12:09:14
+Application:        Cary
+Method:             SAMPLES:DEFAULT
+
+
+Comment:            NASA, AMES RESEARCH CENTER, 453DF5, #877/0229  GWJ (@ 23-c-%T, #1)
+Calculation:        
+
+
+UV SBW:                       0.50 nanometers
+Wavelength UV Rate:           50.000 nanometers/minute
+Wavelength UV Interval:       0.030 nanometers
+Wavelength UV SAT:            0.0333 seconds
+UV Energy:                    131.826 
+
+Indep NIR Mode:               Off 
+
+Baseline Correct:             On  
+
+Current Cycle No:             1 
+
+Source Change WL:             360.0 nanometers
+Detector Change WL:           860.0 nanometers
+
+Beam Mode:                    Double beam 
+Beam Interchange:             Normal 
+
+Slit Height:                  Full height 
+
+Signal/Noise Mode:            Off 
+
+Abscissa Mode:                Wavelength /nm 
+Abscissa Control:             Normal
+Min. Abscissa Value:          425.02 
+Max. Abscissa Value:          475 
+
+Prim Ordinate Mode:           %T 
+Prim Ord Factor:              1 
+Min. Ordinate Value:          -0.0116535 
+Max. Ordinate Value:          54.1036 
+
+
+
+
+
+
+
+
+
+
+X-Y PAIRS
+
+Over Abscissa Range 425.02 Wavelength /nm to 475 Wavelength /nm
+Using Abscissa Interval: 1 Wavelength /nm
+
+ Wavelength /nm     %T      
+ ============== =========== 
+
+  475.0         -0.002011
+  474.0         -0.001159
+  473.0          0.0005504
+  472.0          0.003137
+  471.0          0.002447
+  470.0          0.0006991
+  469.0          0.002088
+  468.0          0.0003356
+  467.0          0.001735
+  466.0         -0.002138
+  465.0          0.007373
+  464.0          0.005969
+  463.0          0.007386
+  462.0          0.01230
+  461.0          0.01950
+  460.0          0.04100
+  459.0          0.08949
+  458.0          0.2733
+  457.0          1.126
+  456.0          6.205
+  455.0          28.75
+  454.0          50.46
+  453.0          53.81
+  452.0          53.75
+  451.0          51.95
+  450.0          41.39
+  449.0          10.29
+  448.0          1.455
+  447.0          0.2732
+  446.0          0.07640
+  445.0          0.02392
+
+  444.0          0.007608
+  443.0          0.002965
+  442.0          0.002632
+  441.0          0.002120
+  440.0         -0.002335
+  439.0          0.001060
+  438.0          0.002429
+  437.0         -0.002632
+  436.0         -0.0008848
+  435.0          0.0009112
+  434.0          0.002607
+  433.0         -0.002282
+  432.0          0.0006106
+  431.0         -0.0003183
+  430.0         -0.001789
+  429.0         -0.0005873
+  428.0         -0.003306
+  427.0         -0.01124
+  426.0          0.004650
+
+[Graphics:Overlaid 1]

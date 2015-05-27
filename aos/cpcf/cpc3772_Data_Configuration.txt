@@ -1,0 +1,11 @@
+Data Configuration Text File For 3772 CPC				
+CPC Flow Correction	FALSE			
+Long Description	Variable Name	Lower Bound	Upper Bound	Units
+Particle Number	Concentration	0	50000	#/cc
+Saturation Temperature	Temp_sat	38.5	39.5	degC
+Condenser Temperature	Temp_con	21.5	22.5	degC
+Optics Temperature	Temp_opt	38.0	42.0	degC
+Cabinet Temperature	Temp_cab	-40	60	degC
+Ambient Pressure	Press_amb	80	110	kPa
+Orifice Pressure	Press_orf	10	90	kPa
+Nozzle Pressure	Press_noz	1	6	kPa

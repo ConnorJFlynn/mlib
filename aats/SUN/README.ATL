@@ -1,0 +1,27 @@
+		Extraterrestrial Solar Spectrum
+		
+			Ch. Wehrli
+			
+		
+		Publication No. 615, July 1985
+		
+		Physikalisch-Meteorologisches Observatorium
+		Weltstrahlungszentrum
+		CH-7260 Davos-Dorf
+		
+
+This compilation of the extraterrestrial solar spectrum is based on the 
+following publications:
+
+200..310nm	G.Brasseur, P.Simon (1981) J.Geophys. Res. 86: 7343
+310..330nm	J.C.Arvesen, R.N.Griffin and B.D.Pearson (1969) 
+		Appl.Opt. 8:2215
+330..869nm	H.Neckel, D.labs (1984) Solar Physics 90:205
+870..IR		E.V.P.Smith, D.M.Gottlieb (1974) Space Sci.Rev. 16:771
+
+At the wavelength limits between different spectra, the values are forced
+to be equal. After these adjustments, the total spectrum is scaled in 
+order to yield a solar constant of 1367W/m^2.
+
+
+The first column is wavelength [nm], the second solar irradiance [W/m^2/nm]

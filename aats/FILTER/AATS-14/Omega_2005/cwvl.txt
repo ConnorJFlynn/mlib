@@ -1,0 +1,3 @@
+ c:\beat\data\filter\AATS-14\Omega_2005\ff1240-NB5 SHO-27175.txt  1241.21     6.05    41.40
+ c:\beat\data\filter\AATS-14\Omega_2005\ff1558-NB5 SHO-27176.txt  1558.53     4.70    49.39
+ c:\beat\data\filter\AATS-14\Omega_2005\ff354-NB2 SHO-27174.txt   354.37     2.53    36.26

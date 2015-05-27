@@ -1,0 +1,6 @@
+AATS-14 940-nm for COAST 102811...includes all 6 atmo models...these are coeff for slant H2O in atm-cm
+zkm    a        b       c
+  0  0.0048  0.6514  1.00000
+  1  0.0051  0.6393  1.00000
+  2  0.0052  0.6286  1.00000
+

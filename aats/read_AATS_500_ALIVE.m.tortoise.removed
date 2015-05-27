@@ -1,0 +1,228 @@
+%plots AATS14 result files and compares with other measurements as an option 
+% clear all
+% close all
+% clear
+close('all')
+UT_start=0
+UT_end=inf
+site='ALIVE'
+
+%product='aod_normal'  %aod_normal result produced by plot_re4.m
+product='aod_profile' % AOD profile produced by ext_profile_ave.m
+%product='h2o_profile' % H2O profile produced by h2o_profile_ave.m
+
+%Reads in data based on product selected
+switch lower(product)
+    case 'aod_profile'
+        [filename,pathname]=uigetfile('C:\case_studies\Alive\data\schmid-aats\atts.01-Mar-2006\Ver2\ext_profs\*p.asc','Choose file');
+        fid=fopen([pathname filename]);
+        fgetl(fid);
+        title1=fgetl(fid);
+        file_date=sscanf(title1,'ALIVE %g/%g/%g');     %get date
+        month=file_date(1);
+        day=file_date(2);
+        year=file_date(3);
+        serialday = datenum(year, month, day);
+        version=fscanf(fid,'%*s %*s %*s %*s %*s %*s %*s %g',[1,1])
+        for i=1:10
+            fgetl(fid);
+        end
+        lambda=fscanf(fid,'aerosol wavelengths [10^-6 m]%g%g%g%g%g%g%g%g%g%g%g%g%g')
+        fgetl(fid);
+        fgetl(fid);
+        data=fscanf(fid,'%g',[64,inf]);
+        fclose(fid);
+        UT=data(1,:);
+        time = serialday + UT/24;
+        pname = ['C:\case_studies\Alive\data\sgpmplC1.a1\ext\Nov2006\'];
+        files = dir([pname,'*',datestr(time(1),'yyyymmdd'),'*.cdf'])
+        if length(files)==1
+            mpl = ancload([pname, files(1).name]);
+        else
+            [fname, pname] = uigetfile(['pname',datestr(time(1),'yyyymmdd'),'.cdf']);
+            mpl = ancload([pname, fname]);
+        end
+        mpl_time = find(mpl.time>(min([time(1),time(end)]))&(mpl.time<=max([time(1),time(end)])));
+        if length(mpl_time)>1
+           mpl4_prof = mean(mpl.vars.alpha_a_Klett.data(:,mpl_time),2);
+           mpl4_time = mean(mpl_time);
+        else
+           mpl4_prof = (mpl.vars.alpha_a_Klett.data(:,mpl_time));
+        end
+        mpl4_range = mpl.vars.range.data;
+        clear mpl
+        pname = ['C:\case_studies\Alive\data\flynn-mpl-102\Nov2006\ext\Nov2006\'];
+        files = dir([pname,'*',datestr(time(1),'yyyymmdd'),'*.cdf'])
+        if length(files)==1
+            mpl = ancload([pname, files(1).name]);
+        else
+            [fname, pname] = uigetfile(['pname',datestr(time(1),'yyyymmdd'),'.cdf']);
+            mpl = ancload([pname, fname]);
+        end
+        mpl_time = find(mpl.time>(min([time(1),time(end)]))&(mpl.time<=max([time(1),time(end)])));
+        if length(mpl_time)>1
+           mpl102_prof = mean(mpl.vars.alpha_a_Klett.data(:,mpl_time)')';
+           mpl102_time = mean(mpl_time);
+        else
+           mpl102_prof = (mpl.vars.alpha_a_Klett.data(:,mpl_time));
+        end
+        mpl102_range = mpl.vars.range.data;
+        clear mpl
+         [pname] = ['C:\case_studies\Alive\data\ferrare-carl\Oct2006\'];
+        files = dir([pname,'*',datestr(time(1),'yyyymmdd'),'*.cdf'])
+        if length(files)==1
+            rl = ancload([pname, files(1).name]);
+        else
+            [fname, pname] = uigetfile(['pname',datestr(time(1),'yyyymmdd'),'.cdf']);
+            rl = ancload([pname, fname]);
+        end
+        rl_time = find((rl.time>min([time(1),time(end)]))&(rl.time<=max([time(1),time(end)])));
+        if length(rl_time)>1
+           rl_prof = mean(rl.vars.extinction_married1.data(:,rl_time)')';
+           rl_time = mean(rl_time);
+        else
+           rl_prof = rl.vars.extinction_from_backscatter.data(:,rl_time);
+        end
+        rl_range = rl.vars.height_high.data;
+        Latitude=data(2,:);
+        Longitude=data(3,:);
+        GPS_Altitude=data(4,:);
+        Pressure_Altitude=data(5,:);
+        Pressure=data(6,:);
+        AOD=data(7:19,:);
+        AOD_Error=data(20:32,:);
+        gamma=-data(33,:);
+        alpha=-data(34,:);
+        a0=data(35,:);
+        Extinction=data(36:48,:);
+        Extinction_Error=data(49:61,:);
+        gamma_ext=-data(62,:);
+        alpha_ext=-data(63,:);
+        a0_ext=data(64,:);                                   
+end
+
+%plots data based on product selected
+switch lower(product)
+    case 'aod_profile'
+        Altitude=GPS_Altitude;    
+        
+        %plot AOD and Extinction profile with error bars
+        figure(1)
+%         subplot(1,2,1)
+%         %xerrorbar('linlin',-inf, inf, -inf, inf, AOD', (ones(13,1)*Altitude)', AOD_Error','.')
+%         plot(AOD(5,:), Altitude,'.')
+%         xlabel('Aerosol Optical Depth','FontSize',14)
+%         ylabel('Altitude [km]','FontSize',14)
+%         grid on
+%         set(gca,'FontSize',14) 
+%         set(gca,'ylim',[0 8])
+%         set(gca,'xlim',[0 0.4])
+%         title(title1);
+%         subplot(1,2,2)
+        %xerrorbar('linlin',-inf, inf, -inf, inf, Extinction', (ones(13,1)*Altitude)', Extinction_Error','.')
+        subplot(1,2,1); plot(Extinction(1,:),Altitude,'bx', ...
+            rl_prof, rl_range, 'b.'); 
+            ylabel('Altitude [km]','FontSize',14)
+        xlabel('Aerosol Extinction [1/km]','FontSize',14)
+        legend(['AATS ',num2str(1000*lambda(1),'%d nm')],'CARL');
+        grid on
+        set(gca,'ylim',[0 8])
+        set(gca,'xlim',[-0.005 0.2])
+
+        subplot(1,2,2); plot(Extinction(5,:),Altitude,'gx', ...
+           mpl4_prof, mpl4_range, 'r.', ...
+           mpl102_prof, mpl102_range, 'k.');
+        xlabel('Aerosol Extinction [1/km]','FontSize',14)
+        legend(['AATS ',num2str(1000*lambda(5),'%d nm')],'MPL 004','MPL 102');
+        grid on
+        set(gca,'ylim',[0 8])
+        set(gca,'xlim',[-0.005 0.2])
+        title(sprintf('%5.2f-%5.2f %s',min(UT),max(UT),' UT'),'FontSize',14);
+        set(gca,'FontSize',14) 
+         print(gcf, ['C:\case_studies\Alive\data\schmid-aats\plots\alive_ext_profs_split.',datestr(time(1),'yyyymmdd.HHMM'),'.png'],'-dpng');
+%         figure(2)
+%         orient landscape
+%         subplot(1,2,1)
+%         plot(alpha,Altitude,'c.',gamma,Altitude,'m.')
+%         xlabel('AOD Spectrum','FontSize',14)
+%         ylabel('Altitude [km]','FontSize',14)
+%         set(gca,'FontSize',14)
+%         grid on
+%         legend('alpha','gamma')
+%         set(gca,'ylim',[0 8])
+%         set(gca,'xlim',[-2 2])
+%         title(title1);
+%         subplot(1,2,2)
+%         plot(alpha_ext,Altitude,'c.',gamma_ext,Altitude,'m.')
+%         xlabel('Extinction Spectrum','FontSize',14)
+%         ylabel('Altitude [km]','FontSize',14)
+%         set(gca,'FontSize',14)
+%         set(gca,'ylim',[0 8])
+%         set(gca,'xlim',[-2 2])
+%         title(sprintf('%5.2f-%5.2f %s',min(UT),max(UT),' UT'),'FontSize',14);
+%         grid on
+%         legend('alpha','gamma')
+%         
+%         figure(4)
+%         % AOD movie
+%         ind=length(AOD);
+%         for i=1:ind
+%             loglog(lambda,AOD(:,i),'mo');
+%             hold on
+%             yerrorbar('loglog',0.3,1.6, 0.001, 0.5,lambda,AOD(:,i),AOD_Error(:,i),AOD_Error(:,i),'mo')
+%             AOD_fit=exp(polyval([-gamma(i),-alpha(i),a0(i)],log([0.3:0.1:2.2])));
+%             loglog([0.3:0.1:2.2],AOD_fit);
+%             hold off
+%             set(gca,'xlim',[.300 2.20]);
+%             set(gca,'xtick',[0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.2,1.4,1.6,1.8,2.0,2.2]);
+%             set(gca,'ylim',[0.001 .5]);
+%             title(title1);
+%             xlabel('Wavelength [\mum]');
+%             ylabel('Aerosol Optical Depth')
+%             pause (0.01)
+%         end
+%         
+%         figure(5)
+%         % Extinction movie
+%         ind=length(AOD);
+%         for i=1:ind
+%             loglog(lambda,Extinction(:,i),'mo');
+%             hold on
+%             %yerrorbar('loglog',0.3,1.6,1e-3, 1,lambda,Extinction(:,i),Extinction_Error(:,i),'mo')
+%             %0.005*ones(1,length(lambda))
+%             ext_fit=exp(polyval([-gamma_ext(i),-alpha_ext(i),a0_ext(i)],log([0.3:0.1:2.2])));
+%             loglog([0.3:0.1:2.2],ext_fit);
+%             hold off
+%             set(gca,'xlim',[.300 2.20]);
+%             set(gca,'xtick',[0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.2,1.4,1.6, 1.8,2.0 2.2]);
+%             set(gca,'ylim',[1e-3 .2]);
+%             xlabel('Wavelength [\mum]','FontSize',14);
+%             ylabel('Aerosol Extinction [1/km]','FontSize',14)
+%             title(title1);
+%             text(0.4,0.1,sprintf('Altitude= %5.3f alpha= %4.2f gamma= %4.2f',GPS_Altitude(i),alpha_ext(i),gamma_ext(i)),'FontSize',14)
+%             set(gca,'FontSize',14)
+%             grid on
+%             pause (0.01)
+%         end
+    case 'h2o_profile'
+        Altitude=GPS_Altitude;    
+        figure(6)
+        orient landscape
+        subplot(1,2,1)
+        xerrorbar('linlin',-inf, inf, -inf, inf, H2O, Altitude, H2O_Error,'.')
+        xlabel('Columnar Water Vapor [g/cm^2]','FontSize',14)
+        ylabel('Altitude [km]','FontSize',14)
+        grid on
+        title(title1,'FontSize',14);
+        axis([0 1.5 0 4])
+        set(gca,'FontSize',14)
+        
+        subplot(1,2,2)
+        xerrorbar('linlin',-inf, inf, -inf, inf, H2O_dens, Altitude, H2O_dens_err,'.')
+        xlabel('Water Vapor Density [g/m^3]','FontSize',14)
+        ylabel('Altitude [km]','FontSize',14)
+        grid on
+        title(sprintf('%5.2f-%5.2f %s',min(UT),max(UT),' UT'),'FontSize',14);
+        axis([0 10 0 4])
+        set(gca,'FontSize',14)
+end

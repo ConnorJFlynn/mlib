@@ -1,0 +1,8 @@
+ c:\beat\data\filter\AATS-14\Omega_2002\ff453-877-0229-40C-#1.txt   452.56     5.58    53.52
+ c:\beat\data\filter\AATS-14\Omega_2002\ff453-877-0229-40C-#2.txt   452.66     5.56    53.93
+ c:\beat\data\filter\AATS-14\Omega_2002\ff520-881-0229-40C-#1.txt   519.38     5.37    54.92
+ c:\beat\data\filter\AATS-14\Omega_2002\ff520-881-0229-40C-#2.txt   519.40     5.42    60.04
+ c:\beat\data\filter\AATS-14\Omega_2002\ff605-883-0229-40C-#1.txt   604.63     4.95    57.29
+ c:\beat\data\filter\AATS-14\Omega_2002\ff605-883-0229-40C-#2.txt   604.44     4.94    57.59
+ c:\beat\data\filter\AATS-14\Omega_2002\ff940-885-0229-40C-#1.txt   940.62     5.02    50.89
+ c:\beat\data\filter\AATS-14\Omega_2002\ff940-885-0229-40C-#2.txt   940.08     5.09    50.49

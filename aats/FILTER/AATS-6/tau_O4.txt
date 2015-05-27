@@ -1,0 +1,6 @@
+ c:\beat\data\filter\AATS-6\ff1020-aats6.txt  6.86087e-004  6.78608e-004 -2.02207e-001 -3.36292e-003
+ c:\beat\data\filter\AATS-6\ff380-aats6.txt  2.20941e-003  2.18532e-003 -2.02207e-001 -3.36292e-003
+ c:\beat\data\filter\AATS-6\ff450-aats6.txt  2.91135e-004  2.87962e-004 -2.02207e-001 -3.36292e-003
+ c:\beat\data\filter\AATS-6\ff525-aats6.txt  1.01513e-003  1.00406e-003 -2.02207e-001 -3.36292e-003
+ c:\beat\data\filter\AATS-6\ff864-aats6.txt  0.00000e+000           NaN           NaN           NaN
+ c:\beat\data\filter\AATS-6\ff940-aats6.txt  0.00000e+000           NaN           NaN           NaN

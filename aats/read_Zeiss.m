@@ -1,0 +1,18 @@
+function [wvl,counts,day,month,year,hour,min,sec]=read_Zeiss;
+[filename,pathname]=uigetfile('c:\beat\data\DDF\*.txt','Choose data file');
+fid=fopen([pathname filename]);
+data=fscanf(fid,'#ASCII	%d.%d.%d %d:%d:%d');
+day=data(1);
+month=data(2);
+year=data(3);
+hour=data(4);
+min=data(5);
+sec=data(6);
+fgetl(fid);
+fgetl(fid);
+fgetl(fid);
+data=fscanf(fid,'%i %g',[2,inf]);
+pixel=data(1,:);
+counts=data(2,:);
+fclose(fid);
+wvl=polyval([-1.41576e-8,-5.1811e-6,0.799856,206.412],pixel);

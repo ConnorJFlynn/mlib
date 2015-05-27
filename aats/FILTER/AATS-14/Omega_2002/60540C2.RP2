@@ -1,0 +1,114 @@
+
+Continuum:          CURRENT:45A
+
+Date/Time Stored:   Mon Jul 22, 2002 12:02:19
+Application:        Cary
+Method:             SAMPLES:DEFAULT
+
+
+Comment:            NASA, AMES RESEARCH CENTER, 605DF5, #883/0229  GWJ (@ 40-c-%T,#2)
+Calculation:        
+
+
+UV SBW:                       0.50 nanometers
+Wavelength UV Rate:           50.000 nanometers/minute
+Wavelength UV Interval:       0.030 nanometers
+Wavelength UV SAT:            0.0333 seconds
+UV Energy:                    57.544 
+
+Indep NIR Mode:               Off 
+
+Baseline Correct:             On  
+
+Current Cycle No:             1 
+
+Source Change WL:             360.0 nanometers
+Detector Change WL:           860.0 nanometers
+
+Beam Mode:                    Double beam 
+Beam Interchange:             Normal 
+
+Slit Height:                  Full height 
+
+Signal/Noise Mode:            Off 
+
+Abscissa Mode:                Wavelength /nm 
+Abscissa Control:             Normal
+Min. Abscissa Value:          575.02 
+Max. Abscissa Value:          625 
+
+Prim Ordinate Mode:           %T 
+Prim Ord Factor:              1 
+Min. Ordinate Value:          -0.0066409 
+Max. Ordinate Value:          57.8686 
+
+
+
+
+
+
+
+
+
+
+X-Y PAIRS
+
+Over Abscissa Range 575.02 Wavelength /nm to 625 Wavelength /nm
+Using Abscissa Interval: 1 Wavelength /nm
+
+ Wavelength /nm     %T      
+ ============== =========== 
+
+  625.0         -0.001188
+  624.0          0.0002155
+  623.0         -0.001506
+  622.0         -0.003544
+  621.0         -0.001337
+  620.0          0.0008658
+  619.0          0.0002506
+  618.0          0.0007271
+  617.0          0.0007330
+  616.0          0.001670
+  615.0          0.005097
+  614.0          0.01043
+  613.0          0.02523
+  612.0          0.06554
+  611.0          0.1865
+  610.0          0.5912
+  609.0          2.101
+  608.0          8.223
+  607.0          27.08
+  606.0          47.98
+  605.0          55.82
+  604.0          57.59
+  603.0          52.12
+  602.0          29.47
+  601.0          6.758
+  600.0          1.162
+  599.0          0.2675
+  598.0          0.08669
+  597.0          0.03251
+  596.0          0.01382
+  595.0          0.005476
+
+  594.0          0.002684
+  593.0          0.004675
+  592.0          0.0006519
+  591.0          0.001224
+  590.0         -0.0002159
+  589.0         -0.0009056
+  588.0          0.001862
+  587.0          0.001759
+  586.0         -0.001473
+  585.0         -0.0003849
+  584.0         -0.00005046
+  583.0         -0.0009687
+  582.0         -0.001239
+  581.0         -0.001321
+  580.0          0.0005912
+  579.0         -0.001497
+  578.0          0.0008498
+  577.0         -0.003757
+  576.0         -0.002038
+
+[Graphics:Overlaid 1]
