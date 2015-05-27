@@ -1,0 +1,11 @@
+% newmplbg reads one file at a time.
+% fix_bg:   read mpl binary files, recalculates bkgnd, and saves new value to file
+% get_dark: read mpl binary "darkcounts" measurement (with laser off and lid on)
+% get_ap:   read mpl binary "afterpulse" measurement (laser on, lid on)
+% read_mpl: read mpl binary file (any raw binary file)
+% mplprofs: generate range-normalized, background-subtracted, afterpulse-subtracted profiles
+% mplolaps: displays range-squared data in log plot for evaluation of horizontal profile.
+% exclude: interactively step through profiles to exclude undesired records
+% ol_corr: interactively define region over which to calculate overlap corrections, 
+% specify region for best-line fit, and produce an overlap.dat file for WMPL.EXE.
+

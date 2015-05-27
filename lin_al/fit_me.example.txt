@@ -1,0 +1,30 @@
+>> eq = strvcat('1','X')
+eq =
+1
+X
+>> mu = [0.0001:.01:1];
+>> a = 1340;
+>> b = 1.276;
+>> y = a*(mu.^b);
+>> X = log(mu);
+>> Y = log(y);
+>> [K,Z] = fit_it(X,Y,eq);
+>> K
+K =
+    7.2004    1.2760
+>> whos
+  Name      Size           Bytes  Class
+
+  K         1x2               16  double array
+  X         1x100            800  double array
+  Y         1x100            800  double array
+  Z         1x100            800  double array
+  a         1x1                8  double array
+  ans       1x1                8  double array
+  b         1x1                8  double array
+  eq        2x1                4  char array
+  mu        1x100            800  double array
+  y         1x100            800  double array
+
+Grand total is 507 elements using 4044 bytes
+
