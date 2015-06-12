@@ -5,7 +5,7 @@ function [status,polavg] = batch_b1tomat3(in_dir, hour_chunk);
 
 status = 0;
 if ~exist('in_dir','var')||~exist(in_dir,'dir')
-   [in_dir] = getdir([],'mpl_data','Select directory containing mplpol b1 data');
+   [in_dir] = getdir('mpl_data','Select directory containing mplpol b1 data');
 end
 if ~exist('hour_chunk','var')
    hour_chunk = 12;

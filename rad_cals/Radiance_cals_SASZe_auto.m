@@ -37,7 +37,7 @@ while isNaN(rad.nm(end))
     end
 end
 if ~exist('sas_pname','var')||~exist(sas_pname, 'dir')
-    sas_pname = getdir('','rad_cals', 'Select directory containing radiance calibrations');
+    sas_pname = getdir('rad_cals', 'Select directory containing radiance calibrations');
 end
 
 lamp_dirs = dir([sas_pname,'Lamps_*']);

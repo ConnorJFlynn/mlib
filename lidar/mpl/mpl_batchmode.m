@@ -3,7 +3,7 @@ function [status,polavg] = mpl_batchmode(in_dir);
 % persistent polavg;
 status = 0;
 if ~exist('in_dir','var')||~exist(in_dir,'dir')
-   [in_dir] = getdir([],'mpl_data','Select directory containing MPL raw data');
+   [in_dir] = getdir('mpl_data','Select directory containing MPL raw data');
 end
 mpl_inarg.Nsamples = 10;
 mpl_inarg.fstem = 'isdac_mplpol_1flynn.';

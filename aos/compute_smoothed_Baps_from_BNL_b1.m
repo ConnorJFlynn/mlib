@@ -5,7 +5,8 @@ bnl_raw_pname = 'D:\case_studies\aos\harmony_summary\PSAP\Ab\maoaospsap3wS1.00\m
 psapr_00 = read_psap3w_bnlr([bnl_raw_pname, 'maoaospsap3wS1.00.20140207.151101.raw.maomaosas1.psap3wR.01s.00.20140207.140000.raw.tsv']);
 springston_path = ['D:\case_studies\aos\harmony_summary\PSAP\Springston 14-02 PSAP MAOS A\'];
 erm = anc_load;
-k1=1.317; ko=0.866; 
+k1=1.317; ko=0.866;  % Weiss f(tau) = 1/(1.0796 Tr + 0.71),  % Bond1999 includes new factor of 1/1.22
+                     % which yields f(tau) = 1/(1.317 Tr + 0.866)
 kf = 1./(k1.*erm.vdata.transmittance_green + ko);
 figure; plot(serial2hs(erm.time), kf.*erm.vdata.Ba_G, 'rx');
 erm_17 = anc_sift(erm, serial2hs(erm.time)>=17&serial2hs(erm.time)<=18);

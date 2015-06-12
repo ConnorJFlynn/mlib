@@ -1,4 +1,4 @@
-toms_path = getdir([],'dust_ozone','Select ozone source.');
+toms_path = getdir('dust_ozone','Select ozone source.');
 
 toms_list = dir([toms_path, filesep,'*.cdf']);
 for t =  1:length(toms_list);

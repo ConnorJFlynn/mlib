@@ -4,7 +4,7 @@ function [status,polavg] = mpl_sparcs_realtime(in_dir);
 % Still may need improvement in splitting hourly/daily files
 status = 0;
 if ~exist('in_dir','var')||~exist(id_dir,'dir')
-   [in_dir] = getdir([],'mpl_data','Select directory containing MPL raw data');
+   [in_dir] = getdir('mpl_data','Select directory containing MPL raw data');
 end
 mpl_inarg.Nsamples = 10;
    mpl_inarg.dtc = str2func(['dtc_sgp_']);

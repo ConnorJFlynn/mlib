@@ -10,7 +10,7 @@ close('all');
 % Read in the black body sequence and corresponding annot file
 % % read ASSIST A and B mat files.
 while ~exist('pname','var')||~exist(pname, 'dir')
-   [pname] = getdir([],'assist');
+   [pname] = getdir('assist');
 end
 %%
 

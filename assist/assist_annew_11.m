@@ -28,7 +28,7 @@
 emis  = loadinto(['D:\case_studies\assist\compares\LRT_BB_Emiss_FullRes.mat']);
 emis = repack_edgar(emis);
 while ~exist('pname','var')||~exist(pname, 'dir')
-   [pname] = getdir([],'assist');
+   [pname] = getdir('assist');
 end
 raw_files = dir([pname, '*_ann_*.csv']);
 N = length(raw_files);
@@ -275,7 +275,7 @@ assist.IRT_C = assist.IRT_K-273.17;
 
 
 % Assess difference between Andre' and my derived products
-[pname_A] = getdir([],'assist_proc','Select location of Andre''s results');
+[pname_A] = getdir('assist_proc','Select location of Andre''s results');
   %%
   % So, first compare the spectral quantities
 % %%

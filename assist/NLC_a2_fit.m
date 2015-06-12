@@ -9,7 +9,7 @@ range = [200 2100];
 range = [1237 2180];
 Detector = 'A';
 
-test_dir = getdir('','assist_nlc','Select NLC test directory');
+test_dir = getdir('assist_nlc','Select NLC test directory');
 % abbs = length(dir([test_dir,filesep,'ABB_*_A.igm']));
 % hbbs = length(dir([test_dir,filesep,'HBB_*_A.igm']));
 % ln2s = length(dir([test_dir,filesep,'LN2_*_A.igm']));

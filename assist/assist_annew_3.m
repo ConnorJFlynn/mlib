@@ -2,7 +2,7 @@ function assist = assist_annew_3(pname)% ASSIST annew
 % Looking at even and odd reflections yielding an igram of even/odd length.
       
 while ~exist('pname','var')||~exist(pname, 'dir')
-   [pname] = getdir([],'assist');
+   [pname] = getdir('assist');
 end
 
 ann_ls = dir([pname, '*ann*.xls']);

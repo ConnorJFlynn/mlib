@@ -6,7 +6,7 @@ if isfield(fiq,'IQF')
    fiq = fiq.IQF;
 end
 if ~exist('in_dir','var')
-   in_dir = getdir([],'aod_dir','Select directory containing aod files to be corrected.')
+   in_dir = getdir('aod_dir','Select directory containing aod files to be corrected.')
 end
 if exist(in_dir,'dir')
    in_file = dir([in_dir,'*.cdf']);

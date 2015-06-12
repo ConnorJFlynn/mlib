@@ -27,7 +27,7 @@ function [status,polavg] = batch_plot_mplpol_mat(mpl_inarg);
 status = 0;
 
 if ~exist('mpl_inarg','var')
-   mpl_inarg.in_dir = getdir([],'mpl_data','Select directory containing mplpol b1 data');
+   mpl_inarg.in_dir = getdir('mpl_data','Select directory containing mplpol b1 data');
    rid_ni = fliplr(mpl_inarg.in_dir(1:end-1));
    tok = strtok(rid_ni,filesep);
    kot = fliplr(tok);
@@ -66,7 +66,7 @@ else
       mpl_inarg.fstem = [mpl_inarg.tla, '_mplpol_3flynn'];
    end
    if ~isfield(mpl_inarg,'mat_dir')
-      mpl_inarg.mat_dir = getdir(['*,mat'],'mpl_data','Select directory containing mplpol mat files.');
+      mpl_inarg.mat_dir = getdir('mpl_data','Select directory containing mplpol mat files.');
    end
    if ~isfield(mpl_inarg,'fig_dir')
       mpl_inarg.fig_dir = [mpl_inarg.mat_dir,'..',filesep, 'fig',filesep];

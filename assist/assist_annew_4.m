@@ -20,7 +20,7 @@ fclose(fid)
 
 %%
 while ~exist('pname','var')||~exist(pname, 'dir')
-   [pname] = getdir([],'assist');
+   [pname] = getdir('assist');
 end
 
 ann_ls = dir([pname, '*ann*.xls']);

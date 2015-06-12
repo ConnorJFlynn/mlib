@@ -4,7 +4,7 @@
 % Populate a structure for each incoming channel 
 clear
 close('all')
-[pname] = getdir([],'assist');
+[pname] = getdir('assist');
 % aeri_pname = getdir('C:\case_studies\assist\integration\data_integration\at_SGP\aeri_data\','sgpaeri');
 aeri_pname = 'C:\case_studies\assist\integration\data_integration\at_SGP\aeri_data\20100523\hourly\';
 % pname ='C:\case_studies\assist\integration\data_integration\at_SGP\MG Sky

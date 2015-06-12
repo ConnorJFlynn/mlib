@@ -24,7 +24,7 @@ function assist = assist_annew_9(pname)% ASSIST annew
 %%
 pname = 'C:\case_studies\assist\200110928_tests\check_derived\RAW\R1\';
 while ~exist('pname','var')||~exist(pname, 'dir')
-   [pname] = getdir([],'assist');
+   [pname] = getdir('assist');
 end
 
 B4_mat = loadinto([pname, '20110529_145924_chA_HC.mat']);

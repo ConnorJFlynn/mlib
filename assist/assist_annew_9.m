@@ -24,7 +24,7 @@ function assist = assist_annew_9(pname)% ASSIST annew
 
 %%
 while ~exist('pname','var')||~exist(pname, 'dir')
-   [pname] = getdir([],'assist');
+   [pname] = getdir('assist');
 end
 ann_ls = dir([pname, '*ann*.xls']);
 for a = length(ann_ls):-1:1

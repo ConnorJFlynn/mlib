@@ -25,7 +25,7 @@ function [vis_cal, nir_cal] = Sphere_cals_SASZe_auto(sas_pname);
 % data directory = C:\case_studies\radiation_cals\2013_05_07.NASA_ARC_SASZe1_cals
 
 if ~exist('sas_pname','var')||~exist(sas_pname, 'dir')
-    sas_pname = getdir('','rad_cals', 'Select directory containing radiance calibrations');
+    sas_pname = getdir('rad_cals', 'Select directory containing radiance calibrations');
 end
 
 lamp_dirs = dir([sas_pname,'Lamps_*']);

@@ -3,7 +3,7 @@ clear
 
 Detector = 'B';
 Direction = 'R';
-test_dir = getdir('','assist_nlc','Select NLC test directory');
+test_dir = getdir('assist_nlc','Select NLC test directory');
 Nb_of_Runs = 2;
 a_2 = zeros(Nb_of_Runs, 1);
 T_ABB = zeros(Nb_of_Runs, 1);

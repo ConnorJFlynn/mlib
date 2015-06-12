@@ -20,7 +20,7 @@ Detector = 'A'; in_band = [800,1100]; % Select in-band region of desired detecto
 Detector = 'B'; in_band = [1400,1600]; % Select in-band region of desired detector
 
 
-test_dir = getdir('','assist_nlc','Select NLC test directory');
+test_dir = getdir('assist_nlc','Select NLC test directory');
 % Did the following in order to be able to count runs in network directory.
 % A simple dir with wildcard did not work.
 test_dir_content = dir(test_dir);

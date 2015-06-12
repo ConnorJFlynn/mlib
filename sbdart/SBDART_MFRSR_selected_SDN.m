@@ -71,16 +71,16 @@ else
 end
 
 if ~exist(paths.pbar.path,'dir')
-   paths.pbar.path =  getdir([],'pbar',['Select a directory containing netcdf files with ',paths.pbar.field]);
+   paths.pbar.path =  getdir('pbar',['Select a directory containing netcdf files with ',paths.pbar.field]);
 end
 if ~exist(paths.uw.path,'dir')
-   paths.uw.path = getdir([],'uw',['Select a directory containing netcdf files with ',paths.uw.field]);
+   paths.uw.path = getdir('uw',['Select a directory containing netcdf files with ',paths.uw.field]);
 end
 if ~exist(paths.uo3.path,'dir')
-   paths.uo3.path = getdir([],'uo3',['Select a directory containing netcdf files with ',paths.uo3.field]);
+   paths.uo3.path = getdir('uo3',['Select a directory containing netcdf files with ',paths.uo3.field]);
 end
 if ~exist(paths.rad.path,'dir')
-   paths.rad.path = getdir([],'rad',['Select a directory containing netcdf files with ',paths.rad.field]);
+   paths.rad.path = getdir('rad',['Select a directory containing netcdf files with ',paths.rad.field]);
 end
 % if ~exist(paths.match.path,'dir')
 %    paths.match.path = getdir([],'match',['Select a directory to save the comparisons.']);

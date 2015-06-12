@@ -142,7 +142,7 @@ disp('done!')
 return
 
 function mpl_inarg = define_mpl_inarg
-   mpl_inarg.in_dir = getdir([],'mpl_data','Select directory containing mplpol b1 data');
+   mpl_inarg.in_dir = getdir('mpl_data','Select directory containing mplpol b1 data');
    rid_ni = fliplr(mpl_inarg.in_dir(1:end-1));
    tok = strtok(rid_ni,filesep);
    kot = fliplr(tok);
@@ -172,7 +172,7 @@ function mpl_inarg = define_mpl_inarg
 return
 function mpl_inarg = populate_mpl_inarg(mpl_inarg);
    if ~isfield(mpl_inarg,'in_dir')
-      mpl_inarg.in_dir = getdir([],'mpl_data','Select directory containing mplpol b1 data');
+      mpl_inarg.in_dir = getdir('mpl_data','Select directory containing mplpol b1 data');
    end
    if ~isfield(mpl_inarg,'tla')
       mpl_inarg.tla = 'ufo';

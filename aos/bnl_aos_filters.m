@@ -15,23 +15,23 @@
 % (generalization of Bond et all correction). 
 met_dir = 'H:\data\dmf\sbs\sbsaosmetS2.a1\';
 if ~exist(met_dir,'dir')
-    met_dir = getdir('','aos_met','Select directory for BNL AOS Met data.');
+    met_dir = getdir('aos_met','Select directory for BNL AOS Met data.');
 end
 cpc_dir = 'H:\data\dmf\sbs\sbsaoscpcS2.a1\';
 if ~exist(cpc_dir,'dir')
-    cpc_dir = getdir('','aos_cpc','Select directory for BNL AOS CPC data.');
+    cpc_dir = getdir('aos_cpc','Select directory for BNL AOS CPC data.');
 end
 psap3w_dir = 'H:\data\dmf\sbs\sbsaospsap3wS2.a1\';
 if ~exist(psap3w_dir,'dir')
-    psap3w_dir = getdir('','aos_psap3w','Select directory for BNL AOS PSAP-3w data.');
+    psap3w_dir = getdir('aos_psap3w','Select directory for BNL AOS PSAP-3w data.');
 end
 neph_ref_dir = 'H:\data\dmf\sbs\sbsaosnephdryS2.a1\';
 if ~exist(neph_ref_dir,'dir')
-    neph_ref_dir = getdir('','aos_neph_ref','Select directory for BNL AOS Ref Neph data.');
+    neph_ref_dir = getdir('aos_neph_ref','Select directory for BNL AOS Ref Neph data.');
 end
 neph_ramp_dir = 'H:\data\dmf\sbs\sbsaosnephwetS2.a1\';
 if ~exist(neph_ramp_dir,'dir')
-    neph_ramp_dir = getdir('','aos_neph_ramp','Select directory for BNL AOS Ramp Neph.');
+    neph_ramp_dir = getdir('aos_neph_ramp','Select directory for BNL AOS Ramp Neph.');
 end
 
 [pname, fname, ext] = fileparts(neph_ramp_dir);

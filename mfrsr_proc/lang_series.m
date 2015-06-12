@@ -211,11 +211,11 @@ if isempty(inarg)
    inarg.tests.prescreen.on = false;
    inarg.tests.std_max = 1e-2;
    inarg.tests.min_am_span = 1.5;
-   inarg.indir = getdir([],'mfr_lang_in','Select directory containing data for Langley analysis.');
+   inarg.indir = getdir('mfr_lang_in','Select directory containing data for Langley analysis.');
    inarg.filter.W = 90; % default filter width is +/- 30 = 60 days
 else
    if ~isfield(inarg,'indir')
-      inarg.indir = getdir([],'mfr_lang_in','Select directory containing data for Langley analysis.');
+      inarg.indir = getdir('mfr_lang_in','Select directory containing data for Langley analysis.');
    end
    if ~isfield(inarg,'show');
       inarg.show = 0;

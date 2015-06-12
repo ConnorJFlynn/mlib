@@ -2,7 +2,7 @@ function [status] = isdac_ingest(mat_dir);
 % Processes mplpol_avg data into netcdf files
 status = 0;
 if ~exist('mat_dir','var')||~exist(mat_dir,'dir')
-   [mat_dir] = getdir([],'mpl_data','Select directory containing MPL raw data');
+   [mat_dir] = getdir('mpl_data','Select directory containing MPL raw data');
 end
 % Okay, so we need to "get" the dod file and read it in.
 

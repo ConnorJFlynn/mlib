@@ -1,6 +1,6 @@
 clear; 
 
-indir = getdir('sgpswsC1*.cdf', 'swsb1');
+indir = getdir('swsb1');
 [files] = dir_('sgpswsC1*.cdf',indir);
 %%
          maxmem = 60*60*2048;

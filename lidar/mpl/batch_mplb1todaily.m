@@ -27,7 +27,7 @@ function [status,mpl] = batch_mplb1todaily(mpl_inarg);
 status = 0;
 
 if ~exist('mpl_inarg','var')
-   mpl_inarg.in_dir = getdir([],'mpl_data','Select directory containing (unpolarized) mpl b1 data');
+   mpl_inarg.in_dir = getdir('mpl_data','Select directory containing (unpolarized) mpl b1 data');
    rid_ni = fliplr(mpl_inarg.in_dir(1:end-1));
    tok = strtok(rid_ni,filesep);
    kot = fliplr(tok);
@@ -51,7 +51,7 @@ if ~exist('mpl_inarg','var')
    mpl_inarg.plot_ranges = [15,5,2];
 else
    if ~isfield(mpl_inarg,'in_dir')
-      mpl_inarg.in_dir = getdir([],'mpl_data','Select directory containing mpl a1  or b1 data');
+      mpl_inarg.in_dir = getdir('mpl_data','Select directory containing mpl a1  or b1 data');
    end
    if ~isfield(mpl_inarg,'tla')
       mpl_inarg.tla = 'ufo';

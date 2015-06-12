@@ -3,7 +3,7 @@ function [status,polavg] = mpl_batch_mat(mat_dir,mpl_inarg);
 % persistent polavg;
 status = 0;
 if ~exist('mat_dir','var')||~exist(mat_dir,'dir')
-   [mat_dir] = getdir([],'mpl_data','Select directory containing processed/averaged MPLpol mat files');
+   [mat_dir] = getdir('mpl_data','Select directory containing processed/averaged MPLpol mat files');
 end
 if ~exist('mpl_inarg','var')
    % mpl_inarg.Nsamples = 10;

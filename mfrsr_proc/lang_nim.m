@@ -859,7 +859,7 @@ end
 function arg = setarg;
 pname = [];
 while ~exist(pname,'dir')
-   pname = getdir([],'dust');
+   pname = getdir('dust');
 end
 % arg.pname = 'C:\case_studies\dust\nimmfrsrM1.b1\solarday\';
 arg.pname = [pname, filesep];

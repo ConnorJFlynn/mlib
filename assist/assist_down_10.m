@@ -25,7 +25,7 @@ function assist = assist_annew_10(pname)% ASSIST annew
 
 %%
 while ~exist('pname','var')||~exist(pname, 'dir')
-   [pname] = getdir([],'assist');
+   [pname] = getdir('assist');
 end
 emis  = loadinto(['C:\case_studies\assist\compares\validationConnorNov2011\RAW\R1\LRT_BB_Emiss_FullRes.mat']);
 emis = repack_edgar(emis);
@@ -230,7 +230,7 @@ down.chB.R = fftshift(down.chB.R,dim_n);
 [down.chB.cxs.x,down.chB.cxs.R] = RawIgm2RawSpc(down.chB.x,down.chB.R,assist.chB.laser_wl);
 
 
-[pname_A] = getdir([],'assist_int','Select location of Andre''s results');
+[pname_A] = getdir('assist_int','Select location of Andre''s results');
 % Sky_cal_file = [pname_A, '20110324_051618_chA_SKY1.coad.mrad.mat.calibrated.preFFOV.real.mat'];
 % Sky_cal_edgar = loadinto(Sky_cal_file);
 % Sky_cal_pre  = repack_edgar(Sky_cal_edgar); 

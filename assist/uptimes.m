@@ -1,5 +1,5 @@
 %%
-assist_dir = getdir('*.*','ASSIST');
+assist_dir = getdir('ASSIST');
 temp_dir = [assist_dir,'temp'];
 if ~exist([assist_dir,'temp'],'dir')
     mkdir(temp_dir);

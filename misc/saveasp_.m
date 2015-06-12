@@ -15,7 +15,7 @@ if ~exist('pfnt','var')
 end
 [pname, fname, ext] = fileparts(pfnt);
 if isempty(pname)
-   [pname] = getdir('*.m','p_files');
+   [pname] = getdir('p_files');
 end
 fid = fopen([pname,filesep,fname,'.m'],'w+');
 fprintf(fid, '%s \n',['function A = ',fname]);

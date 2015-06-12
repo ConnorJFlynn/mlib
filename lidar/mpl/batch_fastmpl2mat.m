@@ -3,7 +3,7 @@ function [status,polavg] = batch_fastmpl2mat(in_dir, hour_chunk);
 
 status = 0;
 if ~exist('in_dir','var')||~exist(in_dir,'dir')
-   [in_dir] = getdir([],'mpl_data','Select directory containing MPL raw data');
+   [in_dir] = getdir('mpl_data','Select directory containing MPL raw data');
 end
 if ~exist('hour_chunk','var')
    hour_chunk = 12;

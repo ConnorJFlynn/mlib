@@ -1,7 +1,7 @@
 function sws_cal = read_sws_cal(in_dir);
 % sws_cal = read_sws_cal(in_dir);
 if ~exist('in_dir','var')
-   in_dir = getdir([],'sws_cals');
+   in_dir = getdir('sws_cals');
 end
 if exist([in_dir,filesep,'light'],'dir')&&exist([in_dir,filesep,'dark'],'dir')
    darkfile = dir([in_dir,'dark',filesep,'*.dat']);

@@ -4,7 +4,7 @@ function nc = anc_catall;
 % directory together. Returned as "nc"
 
 disp('Please select a directory.');
-directoryname = getdir('*', 'nc_files','Select directory containing files to concatenate.');
+directoryname = getdir('nc_files','Select directory containing files to concatenate.');
 
 flist = dir([directoryname,'*.cdf']);
 flist = [flist;dir([directoryname,'*.nc'])]

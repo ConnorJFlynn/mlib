@@ -4,7 +4,7 @@ mpl_png = 'C:\case_studies\tnmpl\day_png\';
 mpl_txt = 'C:\case_studies\tnmpl\day_txt\';
 ol_corr_ray = loadinto(['C:\case_studies\tnmpl\ol_corr_frac.mat']);
 if ~exist(mpl_dir,'dir')
-   mpl_dir = getdir('c:\case_stutides\tnmpl','tnmpl');
+   mpl_dir = getdir('tnmpl');
 end
 mpl_file = dir([mpl_dir, '*.mat']);
 

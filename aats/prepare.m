@@ -54,7 +54,7 @@ data_dir = 'C:\case_studies\4STAR\ftp.science.arc.nasa.gov\Data\aats14_4star_sta
 data_dir = 'C:\case_studies\4STAR\ftp.science.arc.nasa.gov\Data\MLO_Aug_2008\AATS\mauna loa\'; % CJF
 data_dir = 'C:\case_studies\4STAR\Data\2009\2009_12_23\ames\'; % CJF 2009-12-28
 data_dir = 'C:\case_studies\4STAR\data\2012\2012_09_07_4STAR_AATS_tints\Ames\';
-% data_dir = getdir([],'AATS');
+% data_dir = getdir('AATS');
 
 %data_dir='c:\beat\data\Everett\';
 %data_dir='c:\beat\data\SAFARI-2000\';

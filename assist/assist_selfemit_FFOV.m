@@ -26,7 +26,7 @@ pname = 'C:\case_studies\assist\issues\self_light\';
 pname = 'C:\case_studies\assist\cross_test_code\';
 pname = 'C:\case_studies\assist\200110928_tests\check_derived\RAW\R1\';
 while ~exist('pname','var')||~exist(pname, 'dir')
-   [pname] = getdir([],'assist');
+   [pname] = getdir('assist');
 end
 
 B4_mat = loadinto([pname, '20110529_145924_chA_HC.mat']);

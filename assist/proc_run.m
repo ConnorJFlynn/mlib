@@ -4,7 +4,7 @@ close('all')
 % Read in the black body sequence and corresponding annot file
 % % read ASSIST A and B mat files.
 while ~exist('pname','var')||~exist(pname, 'dir')
-   [pname] = getdir([],'assist');
+   [pname] = getdir('assist');
 end
 
 ann_ls = dir([pname, '*ann*.xls']);
@@ -294,7 +294,7 @@ linkaxes(ax,'x');zoom('on')
 % Next, check against Luc's calibration
 %%
 while ~exist('andre_dir','var')||~exist(pname, 'dir')
-   andre_dir = getdir([],'edgar');
+   andre_dir = getdir('edgar');
 end
 
 % andre_dir = ['C:\case_studies\assist\integration\data_integration\remote_SGP\processedData\2010_06_18\R50_02_13_53\'];

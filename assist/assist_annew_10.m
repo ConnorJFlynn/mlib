@@ -25,7 +25,7 @@ function assist = assist_annew_10(pname)% ASSIST annew
 
 %%
 while ~exist('pname','var')||~exist(pname, 'dir')
-   [pname] = getdir([],'assist');
+   [pname] = getdir('assist');
 end
 emis  = loadinto(['C:\case_studies\assist\compares\validationConnorNov2011\RAW\R1\LRT_BB_Emiss_FullRes.mat']);
 emis = repack_edgar(emis);
@@ -474,7 +474,7 @@ assist.IRT_C = assist.IRT_K-273.17;
 
 
 % Assess difference between Andre' and my derived products
-[pname_A] = getdir([],'assist_proc','Select location of Andre''s results');
+[pname_A] = getdir('assist_proc','Select location of Andre''s results');
   %%
   % So, first compare the spectral quantities
 % %%

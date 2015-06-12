@@ -151,7 +151,7 @@ mpl_inarg.in_dir = 'E:\case_studies\hfe\China_Taihu\mpl\raw\';
 return
 function mpl_inarg = populate_mpl_inarg(mpl_inarg);
    if ~isfield(mpl_inarg,'in_dir')
-      mpl_inarg.in_dir = getdir([],'mpl_data','Select directory containing mplpol b1 data');
+      mpl_inarg.in_dir = getdir('mpl_data','Select directory containing mplpol b1 data');
    end
    if ~isfield(mpl_inarg,'tla')
       mpl_inarg.tla = 'ufo';

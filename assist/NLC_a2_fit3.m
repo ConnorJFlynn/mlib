@@ -13,7 +13,7 @@ emis = repack_edgar(emis);
 range = [200 2100];
 Detector = 'B';
 
-test_dir = getdir('','assist_nlc','Select NLC test directory');
+test_dir = getdir('assist_nlc','Select NLC test directory');
 % Did the following in order to be able to count runs in network directory.
 % A simple dir with wildcard did not work.
 test_dir_content = dir(test_dir);

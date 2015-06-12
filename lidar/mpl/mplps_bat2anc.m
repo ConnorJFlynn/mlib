@@ -3,7 +3,7 @@ function [anc_mplps] = mplps_bat2anc(mat_dir);
 % persistent polavg;
 status = 0;
 if ~exist('mat_dir','var')||~exist(mat_dir,'dir')
-   [mat_dir] = getdir([],'mpl_data','Select directory containing processed/averaged MPLpol mat files');
+   [mat_dir] = getdir('mpl_data','Select directory containing processed/averaged MPLpol mat files');
 end
 % mpl_inarg.Nsamples = 10;
 mpl_inarg.fstem = 'ISDAC_mplpol_1flynn.';

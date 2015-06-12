@@ -4,7 +4,7 @@ function assist = assist_annew_4(pname)% ASSIST annew
 % formed from flip-centered scans
       
 while ~exist('pname','var')||~exist(pname, 'dir')
-   [pname] = getdir([],'assist');
+   [pname] = getdir('assist');
 end
 
 ann_ls = dir([pname, '*ann*.xls']);

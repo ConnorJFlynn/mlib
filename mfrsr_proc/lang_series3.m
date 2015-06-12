@@ -225,11 +225,11 @@ return % of gen_langplot
          inarg.tests.std_max = 2.5e-2;
          inarg.tests.min_am_span = 1.125;
          inarg.tests.prescreen.on = true;
-         inarg.indir = getdir([],'mfr_lang_in','Select directory containing data for Langley analysis.');
+         inarg.indir = getdir('mfr_lang_in','Select directory containing data for Langley analysis.');
          inarg.filter.W = 90; % default filter width is 90 days = +/- 45 days
       else
          if ~isfield(inarg,'indir')
-            inarg.indir = getdir([],'mfr_lang_in','Select directory containing data for Langley analysis.');
+            inarg.indir = getdir('mfr_lang_in','Select directory containing data for Langley analysis.');
          end
          if ~isfield(inarg,'show');
             inarg.show = 1;
