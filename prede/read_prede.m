@@ -2,9 +2,9 @@ function prede = read_prede(filename,prede);
 % prede = read_prede(filename,prede)
 %This should read Prede sun/sky files of all types except disk scan.
 if ~exist('filename', 'var')
-   filename= getfullname_('*.*','prede_scan');
+   filename= getfullname('*.*','prede_scan');
 elseif ~exist(filename,'file')
-   filename= getfullname_(filename,'prede_scan');
+   filename= getfullname(filename,'prede_scan');
 end
 [pname, fname,ext] = fileparts(filename);
 fname = [fname,ext];

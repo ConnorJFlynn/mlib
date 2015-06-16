@@ -3,7 +3,7 @@ function ins = rd_SAS_resp(infile)
 % outs = rd_raw_SAS(infile)
 
 if ~exist('infile','var')
-    infile= getfullname_('*.dat','sas_resp');
+    infile= getfullname('*.dat','sas_resp');
 end
 % [pname, fname,ext] = fileparts(infile);
 % fname = [fname,ext];

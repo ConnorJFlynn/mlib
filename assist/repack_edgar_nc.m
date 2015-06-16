@@ -1,6 +1,6 @@
 function mat = repack_edgar_nc(edgar)
 if ~exist('edgar','var')
-   edgar =anc_load(getfullname_('*.nc','edgar_nc','Select an Edgar nc file.'));
+   edgar =anc_load(getfullname('*.nc','edgar_nc','Select an Edgar nc file.'));
 end
 if ~isstruct(edgar)&&exist(edgar,'file')
    edgar =anc_load(edgar);

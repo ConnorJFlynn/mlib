@@ -3,7 +3,7 @@ for lin = 1:length(line_num)
 end
 %%
 % MODIS, BRDF, HDF...
-BRDF_file = getfullname_('*.hdf','modis');
+BRDF_file = getfullname('*.hdf','modis');
 BRDF_info = hdfinfo(BRDF_file);
 % Data field names:
 BRDF_info.Vgroup.Vgroup(1).SDS(1).Name

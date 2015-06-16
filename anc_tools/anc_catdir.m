@@ -4,7 +4,7 @@ function nc = anc_catdir
 % *.cdf files in the directory together.  Returned as "nc" and saved in "catdir" subdirectory.
 
 disp('Please select a file within the directory that you want to create a bundle for.');
-[filelist] = getfullname_('*.cdf;*.nc','bundle_dir','Select a file in the directory to bundle.');
+[filelist] = getfullname('*.cdf;*.nc','bundle_dir','Select a file in the directory to bundle.');
 [pname, fname, ext] = fileparts(filelist); 
 pname = [pname, filesep];
 catdir = [pname, 'catdir',filesep];

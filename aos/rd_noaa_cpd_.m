@@ -1,9 +1,9 @@
 function cpd = rd_noaa_cpd(infile)
 % cpd = rd_noaa_cpd(infile);
 if ~exist('infile','var')
-   infile = getfullname__('*.*','noaa_cpd');
+   infile = getfullname('*.*','noaa_cpd');
 elseif ~exist(infile,'file')
-   infile = getfullname__(infile,'noaa_cpd');
+   infile = getfullname(infile,'noaa_cpd');
 end
 cpd = [];
 fid = fopen(infile);

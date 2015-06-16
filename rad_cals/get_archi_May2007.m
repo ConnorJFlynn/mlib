@@ -32,7 +32,7 @@ if ~exist('in','var')
     in = ['C:\case_studies\4STAR\Calibration\new_bigsphere_cal_20070809\20070518083800Archi.txt'];
 else
     while ~exist(in,'file')
-        in = getfullname_(in,'radcals','Select a calibrated radiance file');
+        in = getfullname(in,'radcals','Select a calibrated radiance file');
     end
     
 end

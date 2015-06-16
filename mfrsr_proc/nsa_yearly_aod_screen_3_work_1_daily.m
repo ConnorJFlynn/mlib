@@ -16,7 +16,7 @@ function ann = nsa_yearly_aod_screen_3c
 % % remove all direct_horiz and qc_direct_horiz
 % % remove all filter 1 3 4 6
 % % remove all total_optical_depth
-% mfr = getfullname_('*mfr*.cdf','nimfr','Select an NIMFR file from the directory you want to process.');
+% mfr = getfullname('*mfr*.cdf','nimfr','Select an NIMFR file from the directory you want to process.');
 % [pname, fname, ext] = fileparts(mfr);
 % pname = [pname, filesep];
 % subdir = [pname, 'subdir',filesep];
@@ -118,7 +118,7 @@ function ann = nsa_yearly_aod_screen_3c
 % 
 
 %%
-infile = getfullname_('*.cdf','aod_cat','Select the annual aod file.');
+infile = getfullname('*.cdf','aod_cat','Select the annual aod file.');
 nc = ancload(infile);
 %%
 

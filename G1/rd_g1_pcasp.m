@@ -1,7 +1,7 @@
 function pcasp = rd_g1_pcasp(infile)
 
 if ~exist('infile','var')||~exist(infile,'file')
-   infile = getfullname__('*.ict','g1','Select G1 PCASP ICCART file.');
+   infile = getfullname('*.ict','g1','Select G1 PCASP ICCART file.');
 end
 ict = rd_ict(infile);
 pcasp.time = ict.time;

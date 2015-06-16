@@ -11,7 +11,7 @@ while ~done
         done= true;
     else
         pause(.05);
-        infile = getfullname_('*.raw.dat.mat','sws_cal','Select one SWS file in desired Lamp directory');
+        infile = getfullname('*.raw.dat.mat','sws_cal','Select one SWS file in desired Lamp directory');
         
         [pname, fname] = fileparts(infile);pname = [pname, filesep];
         lamp_i = strfind(pname, 'lamp')

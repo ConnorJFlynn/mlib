@@ -5,7 +5,7 @@ function nc = anc_bundle_files(filelist)
 pause(.1);
 if ~exist('filelist','var')||isempty(filelist)
 disp('Please select one or more files having the same DOD.');
-[filelist] = getfullname__('*.cdf;*.nc');
+[filelist] = getfullname('*.cdf;*.nc');
 end
 if ~iscell(filelist)&&exist(filelist,'file')
    [pname, fname, ext] = fileparts(filelist);

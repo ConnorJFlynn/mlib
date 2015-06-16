@@ -1,9 +1,7 @@
-function [pname] = getdir(start,pathfile,dialog);
-% function [pname] = getdir(start,pathfile);
-% usage 1: [pname] = getdir(start,pathfile);
-% usage 2: [pname] = getdir(start);
+function [pname] = getdir(pathfile,dialog);
+% function [pname] = getdir(pathfile,dialog);
+% usage 1: [pname] = getdir(pathfile);
 % usage 3: [pname] = getdir;
-% start is a string indicating a starting directory
 % pathfile is a string indicating the filename stem of the mat-file to use
 % as a starting path.
 % if unsuccessful, pname is empty
@@ -65,9 +63,9 @@ else
    pname = [pwd,filesep];
 end;
 % The above should load an pre-saved path into pname.
-if exist('start','var')&&~isempty(start)&&exist(start,'dir')
-   pname = start;
-end
+% if exist('start','var')&&~isempty(start)&&exist(start,'dir')
+%    pname = start;
+% end
 
 
 [pname] = uigetdir(pname,dialog);

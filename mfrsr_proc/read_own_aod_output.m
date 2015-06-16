@@ -1,7 +1,7 @@
 function all = read_own_aod_output;
 % all = read_own_aod_output;
 % reads the AOD files I provided to Evgueni
-aod_file = getfullname_('*.txt');
+aod_file = getfullname('*.txt');
 
 % 1997 5 1 0 0 0 121.000000 0.0000 0.125 0.087 0.070 0.062 0.040 1.593 
 % yyyy m d H M S doy.ff UTC.hh aod415, aod500, aod615, aod676, aod870, ang

@@ -8,15 +8,15 @@ end
 %%
 discs = dir([indir,'*connect.']);
 %%
-spec.con(1).vis = SAS_read_ava(getfullname_([indir,discs(1).name,filesep,'*.csv']));
+spec.con(1).vis = SAS_read_ava(getfullname([indir,discs(1).name,filesep,'*.csv']));
 [~,tmp] = strtok(spec.con(1).vis.fname,'_');
 tmp = tmp{:};
 vis_sn = strtok(tmp(2:end),'.');
-spec.con(1).nir = SAS_read_ava(getfullname_([indir,discs(1).name,filesep,'*.csv']));
+spec.con(1).nir = SAS_read_ava(getfullname([indir,discs(1).name,filesep,'*.csv']));
 [~,tmp] = strtok(spec.con(1).nir.fname,'_');
 tmp = tmp{:};
 nir_sn = strtok(tmp(2:end),'.');
-spec.trh(1).trh = SAS_read_trh(getfullname_([indir,discs(1).name,filesep,'*T_RH.csv']));
+spec.trh(1).trh = SAS_read_trh(getfullname([indir,discs(1).name,filesep,'*T_RH.csv']));
 %%  
 for d = length(discs):-1:2
    vis_file = dir([indir,discs(d).name,filesep,'*',vis_sn,'.csv']);

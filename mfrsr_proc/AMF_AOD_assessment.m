@@ -2,11 +2,11 @@
 
 %% FKB plots
 
-fkb = ancload(getfullname_('*.cdf','amfaod')); % loads one file
+fkb = ancload(getfullname('*.cdf','amfaod')); % loads one file
 fkb.vars = rmfield(fkb.vars, 'alltime_hemisp_broadband');
 
 %%
-tmp = ancload(getfullname_('*.cdf','amfaod'));
+tmp = ancload(getfullname('*.cdf','amfaod'));
 tmp.vars = rmfield(tmp.vars, 'alltime_hemisp_broadband');
 
 fkb = anccat(fkb,tmp); % concatenating two structures 

@@ -2,8 +2,8 @@ function sws_sasze_same_source
 % Compare SASZe and SWS raw measurements of the same source without explicit calibration
 
 sws = bundle_sws_raw_2;
-sas_vis = bundle_sas_raw(getfullname__('*_vis_*.csv','sasze_vis','Select a SASZe vis file'));
-sas_nir = bundle_sas_raw(getfullname__('*_nir_*.csv','sasze_vis','Select a SASZe nir file'));
+sas_vis = bundle_sas_raw(getfullname('*_vis_*.csv','sasze_vis','Select a SASZe vis file'));
+sas_nir = bundle_sas_raw(getfullname('*_nir_*.csv','sasze_vis','Select a SASZe nir file'));
 
 [sas_vis.rate] = sasze_raw_to_rate(sas_vis);
 [sas_nir.rate] = sasze_raw_to_rate(sas_nir);

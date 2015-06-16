@@ -3,7 +3,7 @@ function anetaip = star_anet_aip_process_seac4rs(s)
 % Check to see if telemetry is changing.  If so, then use Euler angles, if
 % not then determine ground offsets.
 if ~exist('s','var')
-    s = getfullname_('*sky*.mat','starsky','Select star sky mat file.');
+    s = getfullname('*sky*.mat','starsky','Select star sky mat file.');
 end
 if ~isstruct(s) && exist(s,'file')
     if ~isempty(strfind(s, 'starsky.mat'))

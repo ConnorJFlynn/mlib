@@ -3,10 +3,10 @@
 % forcing us to have two bundled files rather than one.  No matter...
 
 % Load the first bundled file ganmfrsrlangleyM1.c1.20110924.021740.cdf
-ganlang1 = ancload(getfullname_('*.cdf','ganlang','select Gan Langley file'));
+ganlang1 = ancload(getfullname('*.cdf','ganlang','select Gan Langley file'));
 
 % load the second bundled file ganmfrsrlangleyM1.c1.20120103.023600
-ganlang2 = ancload(getfullname_('*.cdf','ganlang','select Gan Langley file'));
+ganlang2 = ancload(getfullname('*.cdf','ganlang','select Gan Langley file'));
 %%
 % Screen the data for values < 0 (includes "missing value" = -9999 and
 % other bad points

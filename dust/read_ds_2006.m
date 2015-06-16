@@ -1,7 +1,7 @@
 function [aos,fid] = read_ds_2006(filename);
 %This reads ONLY the special file ds_2006.amf containing raw CNC and supersats...
 if ~exist('filename', 'var')||~exist(filename,'file')
-   filename = getfullname_('ds_2006.amf','noaa_aos','Select a NOAA AOS a_ file.');
+   filename = getfullname('ds_2006.amf','noaa_aos','Select a NOAA AOS a_ file.');
 end
 % Stn,year,time,N_ccn_raw,calc_%SS
 % AMF,2006,001.00001,00639.09,00.638

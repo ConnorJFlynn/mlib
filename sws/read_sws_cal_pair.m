@@ -1,7 +1,7 @@
 function lights = read_sws_cal_pair;
 % Reads a pair of selected calibration files for light and dark.  Compute
 % stuff.
-lights = read_sws_raw(getfullname_('*.*','sws_cal_light'));
+lights = read_sws_raw(getfullname('*.*','sws_cal_light'));
 [pname,fname, ext] = fileparts(lights.filename);
 if exist([pname,filesep, '..',filesep,'dark'],'dir')
    dk_files = dir([pname,filesep, '..',filesep,'dark',filesep,'*.mat']);
@@ -10,14 +10,14 @@ if exist([pname,filesep, '..',filesep,'dark'],'dir')
    else
       dk_files = dir([pname,filesep, '..',filesep,'dark',filesep,'*.dat']);
       if length(dk_files)==1
-         darks = read_sws_raw(getfullname_([pname,filesep,'..',filesep,'dark',filesep,dk_files(1).name]));
+         darks = read_sws_raw(getfullname([pname,filesep,'..',filesep,'dark',filesep,dk_files(1).name]));
       end
    end
    if ~exist('darks','var')
-      darks = read_sws_raw(getfullname_([pname,filesep, '..',filesep,'dark',filesep,'*.dat;*.mat']));
+      darks = read_sws_raw(getfullname([pname,filesep, '..',filesep,'dark',filesep,'*.dat;*.mat']));
    end
 else
-      darks = read_sws_raw(getfullname_([pname,filesep, '..',filesep,'*.dat;*.mat']));
+      darks = read_sws_raw(getfullname([pname,filesep, '..',filesep,'*.dat;*.mat']));
 end
    dark = ~(darks.shutter==0);
    %%

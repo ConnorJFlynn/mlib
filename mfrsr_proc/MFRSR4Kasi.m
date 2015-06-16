@@ -1,7 +1,7 @@
 function xMFRxKasi(mfr)
 % xMFRxKas(mfr): Uses MFRSR for Evgueni's CIP
 if ~exist('mfr','var')
-    mfr = getfullname_('*mfrsr*.cdf','mfrsraod');
+    mfr = getfullname('*mfrsr*.cdf','mfrsraod');
 end
 if ~isstruct(mfr)&&exist(mfr,'file')
     mfr = ancload(mfr);
@@ -10,7 +10,7 @@ end
 % nimfr = strrep(mfr.fname, 'mfrsr','nimfr')
 % if ~exist(nimfr,'file')
 %     [pname, fname, ext] = fileparts(mfr.fname);
-%      nimfr = getfullname_('*nimfr*.cdf','nimfraod');
+%      nimfr = getfullname('*nimfr*.cdf','nimfraod');
 % end
 % nimfr = ancload(nimfr);
 % [ainb, bina] = nearest(mfr.time, nimfr.time);

@@ -86,21 +86,21 @@ function assist = assist_annew_11(pname)% ASSIST annew
 % end
 
 % save([pname, filesep,'assist_degraded.mat'],'-struct','assist');
-assist = load(getfullname_('*.mat','assist_compare'));
+assist = load(getfullname('*.mat','assist_compare'));
 chA = assist.chA.mrad.x>550 & assist.chA.mrad.x<1830;
 chB = assist.chB.mrad.x>1800&assist.chB.mrad.x<3200;
 sky = assist.isSky;
 
-aeri = ancload(getfullname_('*sgpaerisummaryC1*.cdf','aeri'));
+aeri = ancload(getfullname('*sgpaerisummaryC1*.cdf','aeri'));
 xl = aeri.time>assist.time(1)&aeri.time<assist.time(end);
-aericha = ancload(getfullname_('*sgpaeri*.cdf','aeri'));
+aericha = ancload(getfullname('*sgpaeri*.cdf','aeri'));
 aericha = ancsift(aericha, aericha.dims.time, xl);
 %%
 figure; plot(aericha.vars.wnum.data, mean(aericha.vars.mean_rad.data,2),'k-',(1329.76./1329.93).*assist.chA.mrad.x(chA), mean(assist.chA.mrad.y(sky,chA)),'r-'); 
 title(['AERI and ASSIST sky radiances: ',datestr(aericha.time(1),'mmm dd yyyy')]);
 legend('AERI','ASSIST')
 %%
-chA_lbl_fname = getfullname_('*lbl*.csv','eli_lbl');
+chA_lbl_fname = getfullname('*lbl*.csv','eli_lbl');
 fid1 = fopen(chA_lbl_fname);
 chA_lbl = textscan(fid1,'%f %f %*[^\n]','delimiter',',','headerlines',1);
 fclose(fid1);
@@ -309,7 +309,7 @@ assist.IRT_C = assist.IRT_K-273.17;
   % So, first compare the spectral quantities
 % %%
 % % 20110324_051618_chA_HBBNen1.coad.mrad.pro.degraded.truncated.mat
-% infileA = getfullname_([pname_A,'20110324_051618_chA_Nen.coad.mrad.pro.degraded.truncated.mat'],'edgar_mat','Select ch A truncated mrad')
+% infileA = getfullname([pname_A,'20110324_051618_chA_Nen.coad.mrad.pro.degraded.truncated.mat'],'edgar_mat','Select ch A truncated mrad')
 % matA = repack_edgar(infileA); 
 % [mat_pname, mat_fname, ext] = fileparts(infileA);
 % [fname_a,fname_b]=strtok(mat_fname,'.');
@@ -334,7 +334,7 @@ assist.IRT_C = assist.IRT_K-273.17;
 % ylabel('radiance [RU]');
 %%
 
-infileA = getfullname_([pname_A,'*_chA_SKY.coad.mrad.coad.merged.truncated.mat'],'edgar_mat','Select ch A truncated mrad')
+infileA = getfullname([pname_A,'*_chA_SKY.coad.mrad.coad.merged.truncated.mat'],'edgar_mat','Select ch A truncated mrad')
 matA = repack_edgar(infileA); 
 [mat_pname, mat_fname, ext] = fileparts(infileA);
 [fname_a,fname_b]=strtok(mat_fname,'.');
@@ -391,7 +391,7 @@ linkaxes(sb4,'x');
 
 %%
 
-infileA = getfullname_([pname_A,'20110324_051618_chA_HBBNen2.coad.mrad.pro.degraded.truncated.mat'],'edgar_mat','Select ch A truncated mrad')
+infileA = getfullname([pname_A,'20110324_051618_chA_HBBNen2.coad.mrad.pro.degraded.truncated.mat'],'edgar_mat','Select ch A truncated mrad')
 matA = repack_edgar(infileA); 
 [mat_pname, mat_fname, ext] = fileparts(infileA);
 [fname_a,fname_b]=strtok(mat_fname,'.');
@@ -418,7 +418,7 @@ ylabel('radiance [RU]');
 %%
 %%
 
-infileA = getfullname_([pname_A,'20110324_051618_chA_Nen.coad.mrad.pro.degraded.truncated.mat'],'edgar_mat','Select ch A truncated mrad')
+infileA = getfullname([pname_A,'20110324_051618_chA_Nen.coad.mrad.pro.degraded.truncated.mat'],'edgar_mat','Select ch A truncated mrad')
 matA = repack_edgar(infileA); 
 [mat_pname, mat_fname, ext] = fileparts(infileA);
 [fname_a,fname_b]=strtok(mat_fname,'.');
@@ -462,7 +462,7 @@ saveas(gcf,png_file);
   % Then, define the different sub-bands and compute related quantities
   % Then, load each mat file and check content.
 proc_pname = ['C:\case_studies\assist\data\post_Feb_repair\20110222_1157\one_sequence\processed'];
-infileA = getfullname_('*_chA_BTemp_SKY*.mat','edgar_mat','Select ch A Brightness temperature')
+infileA = getfullname('*_chA_BTemp_SKY*.mat','edgar_mat','Select ch A Brightness temperature')
 matA = repack_edgar(infileA); 
 [mat_pname, mat_fname, ext] = fileparts(infileA);
 [fname_a,fname_b]=strtok(mat_fname,'.');
@@ -495,7 +495,7 @@ while exist(png_file,'file')
 end
 saveas(gcf,png_file);
 %%
-infileA = getfullname_('*_chA_HBBNen1.coad.mrad.pro.truncated.degraded.mat','edgar_mat','Select ch A NEN1')
+infileA = getfullname('*_chA_HBBNen1.coad.mrad.pro.truncated.degraded.mat','edgar_mat','Select ch A NEN1')
 matA = repack_edgar(infileA); 
 [mat_pname, mat_fname, ext] = fileparts(infileA);
 [fname_a,fname_b]=strtok(mat_fname,'.');
@@ -525,7 +525,7 @@ while exist(png_file,'file')
 end
 saveas(gcf,png_file);
 %%
-infileA = getfullname_('*_chA_HBBNen2.coad.mrad.pro.truncated.degraded.mat','edgar_mat','Select ch A NEN2')
+infileA = getfullname('*_chA_HBBNen2.coad.mrad.pro.truncated.degraded.mat','edgar_mat','Select ch A NEN2')
 matA = repack_edgar(infileA); 
 [mat_pname, mat_fname, ext] = fileparts(infileA);
 [fname_a,fname_b]=strtok(mat_fname,'.');
@@ -555,7 +555,7 @@ while exist(png_file,'file')
 end
 saveas(gcf,png_file);
 %%
-infileA = getfullname_('*_chA_SKY.coad.mrad.coad.merged.truncated.degraded.mat','edgar_mat','Select ch A degraded mrad')
+infileA = getfullname('*_chA_SKY.coad.mrad.coad.merged.truncated.degraded.mat','edgar_mat','Select ch A degraded mrad')
 matA = repack_edgar(infileA); 
 [mat_pname, mat_fname, ext] = fileparts(infileA);
 [fname_a,fname_b]=strtok(mat_fname,'.');
@@ -587,26 +587,26 @@ saveas(gcf,png_file);
 
 %%
 % Load real and imaginary responsivity for Ch A and Ch B
-infileA = getfullname_('*_chA_SKY_RESP_REAL_SKY.coad.mrad.pro.truncated.degraded.mat','edgar_mat','Select ch A real responsivity')
+infileA = getfullname('*_chA_SKY_RESP_REAL_SKY.coad.mrad.pro.truncated.degraded.mat','edgar_mat','Select ch A real responsivity')
 Re_matA = repack_edgar(infileA); 
 [mat_pname, mat_fname, ext] = fileparts(infileA);
 [fname_a,fname_b]=strtok(mat_fname,'.');
 infileB = strrep(infileA,'_chA_','_chB_');
 Re_matB = repack_edgar(infileB); 
-infileA = getfullname_('*_chA_SKY_RESP_IMA_SKY.coad.mrad.pro.truncated.degraded.mat','edgar_mat','Select ch A imag responsivity')
+infileA = getfullname('*_chA_SKY_RESP_IMA_SKY.coad.mrad.pro.truncated.degraded.mat','edgar_mat','Select ch A imag responsivity')
 Im_matA = repack_edgar(infileA); 
 [mat_pname, mat_fname, ext] = fileparts(infileA);
 [fname_a,fname_b]=strtok(mat_fname,'.');
 infileB = strrep(infileA,'_chA_','_chB_');
 Im_matB = repack_edgar(infileB); 
 
-infileA = getfullname_('*_chA_SKY_OFF_REAL_SKY.coad.mrad.pro.truncated.degraded.mat','edgar_mat','Select ch A real offset')
+infileA = getfullname('*_chA_SKY_OFF_REAL_SKY.coad.mrad.pro.truncated.degraded.mat','edgar_mat','Select ch A real offset')
 Re_offA = repack_edgar(infileA); 
 [mat_pname, mat_fname, ext] = fileparts(infileA);
 [fname_a,fname_b]=strtok(mat_fname,'.');
 infileB = strrep(infileA,'_chA_','_chB_');
 Re_offB = repack_edgar(infileB); 
-infileA = getfullname_('*_chA_SKY_OFF_IMA_SKY.coad.mrad.pro.truncated.degraded.mat','edgar_mat','Select ch A imag offset')
+infileA = getfullname('*_chA_SKY_OFF_IMA_SKY.coad.mrad.pro.truncated.degraded.mat','edgar_mat','Select ch A imag offset')
 Im_offA = repack_edgar(infileA); 
 [mat_pname, mat_fname, ext] = fileparts(infileA);
 [fname_a,fname_b]=strtok(mat_fname,'.');
@@ -698,7 +698,7 @@ return
 
 % function mat = repack_edgar(edgar)
 % if ~exist('edgar','var')
-%    edgar =loadinto(getfullname_('*.mat','edgar_mat','Select an Edgar mat file.'));
+%    edgar =loadinto(getfullname('*.mat','edgar_mat','Select an Edgar mat file.'));
 % end
 % if ~isstruct(edgar)&&exist(edgar,'file')
 %    edgar =loadinto(edgar);

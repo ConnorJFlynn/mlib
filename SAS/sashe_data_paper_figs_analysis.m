@@ -1,9 +1,9 @@
 % figures for Kassianov SASHe paper
 % D:\SASHe_Ze\Kassianov data paper\Fig3_HyperAOD
-pvc_vis_Io = anc_load(getfullname__('*.cdf','pvcsashe'));
-pvc_nir_Io = anc_load(getfullname__('*.cdf','pvcsashe'));
-pvc_vis_lang = anc_load(getfullname__('*.cdf','pvcsashe'));
-pvc_nir_lang = anc_load(getfullname__('*.cdf','pvcsashe'));
+pvc_vis_Io = anc_load(getfullname('*.cdf','pvcsashe'));
+pvc_nir_Io = anc_load(getfullname('*.cdf','pvcsashe'));
+pvc_vis_lang = anc_load(getfullname('*.cdf','pvcsashe'));
+pvc_nir_lang = anc_load(getfullname('*.cdf','pvcsashe'));
 figure; plot(pvc_vis_Io.vdata.wavelength, pvc_vis_Io.vdata.smoothed_Io_values,'.')
 %figure; semilogy(pvc_vis_lang.vdata.airmass, pvc_vis_lang.vdata.direct_normal_irradiance
 
@@ -34,7 +34,7 @@ size(mean(clear_sky_aod,2))
 figure; plot(pvc_vis_Io.vdata.wavelength, mean(clear_sky_aod,2)),'.')
 figure; plot(pvc_vis_Io.vdata.wavelength, mean(clear_sky_aod,2),'.')
 logy
-pvc_vis_Io = anc_load(getfullname__('*.cdf','pvcsashe'));
+pvc_vis_Io = anc_load(getfullname('*.cdf','pvcsashe'));
 clear_sky_aod = pvc_vis_Io.vdata.aerosol_optical_depth(:,(serial2hs(pvc_vis_Io.time)>18)&(serial2hs(pvc_vis_Io.time)<19));
 figure; plot(pvc_vis_Io.vdata.wavelength, mean(clear_sky_aod,2),'.'); logy
 liny

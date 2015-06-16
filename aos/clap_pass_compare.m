@@ -1,6 +1,6 @@
 %%
-clap = ancload(getfullname_('*.cdf','aos_abs'));
-pass = ancload(getfullname_('*.cdf','aos_abs'));
+clap = ancload(getfullname('*.cdf','aos_abs'));
+pass = ancload(getfullname('*.cdf','aos_abs'));
 %%
 zeds = pass.vars.sample_measurement_flag.data>0;
 figure; 

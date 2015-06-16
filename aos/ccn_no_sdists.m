@@ -1,5 +1,5 @@
 
-in_files = getfullname__('*.cdf;*.nc','cnc','Select one or more cnc files');
+in_files = getfullname('*.cdf;*.nc','cnc','Select one or more cnc files');
 if ~iscell(in_files)
     in_files = {in_files};
 end

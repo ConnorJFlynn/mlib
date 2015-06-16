@@ -2,7 +2,7 @@ function nrel = read_stormpeak_met_a(filename);
 % Read Storm Peak met data from web page of such
 
 if ~exist('filename', 'var')
-   filename= getfullname_('*.met','sp_met');
+   filename= getfullname('*.met','sp_met');
    [pname, fname,ext] = fileparts(filename);
    fname = [fname,ext];
 end

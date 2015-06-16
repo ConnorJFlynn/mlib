@@ -1,7 +1,7 @@
 function GSFC_lamp_cals_hdf_reads
 %%
 
-% line_lib = getfullname_('*.h5');
+% line_lib = getfullname('*.h5');
 line_lib = 'D:\case_studies\radiation_cals\spectral_lines_library.h5';
 %%
 h5disp(line_lib,'/','min')
@@ -25,7 +25,7 @@ Ne = h5read(line_lib,'/Ne');
 Xe = h5read(line_lib,'/Xe');
 [Xe, Xe_] = clean_lines(Xe);
 %%
-% infile = getfullname_('20130321*.mat','gsfc_lamp_cals');
+% infile = getfullname('20130321*.mat','gsfc_lamp_cals');
 
 infile = 'D:\data\4STAR\2013\2013_03_21_4STAR_GSFC\20130321starHgAr_25.mat';
 [~,fname] = fileparts(infile);

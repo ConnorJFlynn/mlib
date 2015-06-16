@@ -1,8 +1,8 @@
-[sasvis he_vis_1,he_vis_2] = proc_sashe_hisun_cdf(getfullname_('sgpsashe*.cdf','sashevis'));
+[sasvis he_vis_1,he_vis_2] = proc_sashe_hisun_cdf(getfullname('sgpsashe*.cdf','sashevis'));
 %%
-[sasnir, he_nir_1,he_nir_2] = proc_sashe_hisun_cdf(getfullname_(['sgpsashe*',datestr(sasvis.time(1),'yyyymmdd'),'*.cdf'],'sashenir'));
+[sasnir, he_nir_1,he_nir_2] = proc_sashe_hisun_cdf(getfullname(['sgpsashe*',datestr(sasvis.time(1),'yyyymmdd'),'*.cdf'],'sashenir'));
 %%
-nim = ancload(getfullname_(['sgpnimfr*',datestr(sasvis.time(1),'yyyymmdd'),'*.cdf'],'nimfr'));
+nim = ancload(getfullname(['sgpnimfr*',datestr(sasvis.time(1),'yyyymmdd'),'*.cdf'],'nimfr'));
 %%
 nim_base = interp1(nim.time, nim.vars.direct_normal_narrowband_filter2.data, sasvis.time,'pchip');
 

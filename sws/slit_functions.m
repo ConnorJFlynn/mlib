@@ -1,4 +1,4 @@
- vis_slit.I = load(getfullname__('*.dat'));
+ vis_slit.I = load(getfullname('*.dat'));
  [~,mi] = max(vis_slit.I);
  vis_slit.nm = 0.25.*([1:length(vis_slit.I)]-mi)';
  
@@ -19,7 +19,7 @@ xlabel('wavelength [nm]');
 ylabel('log response')
 
 %%
- nir_slit.I = load(getfullname__('*.dat'));
+ nir_slit.I = load(getfullname('*.dat'));
  [~,mi] = max(nir_slit.I);
  nir_slit.nm = 0.25.*([1:length(nir_slit.I)]-mi)';
  

@@ -27,7 +27,7 @@ if ~exist('in','var')
     in = ['D:\case_studies\radiation_cals\spheres\HISS\201112131052Hiss-corrected.txt'];
 else
     while ~exist(in,'file')
-        in = getfullname_(in,'radcals','Select a calibrated radiance file');
+        in = getfullname(in,'radcals','Select a calibrated radiance file');
     end
     
 end

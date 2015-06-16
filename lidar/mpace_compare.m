@@ -66,7 +66,7 @@ xlim([0,5]);ylim([0,6]);% These limits are for Oct 18 comparison
 
 %%
 
-pdl = loadinto(getfullname_('*.mat','pdl_down','Select downsampled pdl file.'));
+pdl = loadinto(getfullname('*.mat','pdl_down','Select downsampled pdl file.'));
 %%
 %Why do the following?  Correcting for wrong background subraction?
 % pdl.vis_v = pdl.vis_v + 10;

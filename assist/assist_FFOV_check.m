@@ -168,7 +168,7 @@ return
 
 function mat = repack_edgar(edgar)
 if ~exist('edgar','var')
-   edgar =loadinto(getfullname_('*.mat','edgar_mat','Select an Edgar mat file.'));
+   edgar =loadinto(getfullname('*.mat','edgar_mat','Select an Edgar mat file.'));
 end
 if ~isstruct(edgar)&&exist(edgar,'file')
    edgar =loadinto(edgar);

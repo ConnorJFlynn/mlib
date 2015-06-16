@@ -12,12 +12,12 @@ Skipping='ON';
 %opens data file
 if exist('pathname','var')
    if exist(pathname,'dir')
-      [pathname]=getfullname_(pathname,'aats','Choose a File');
+      [pathname]=getfullname(pathname,'aats','Choose a File');
    elseif ~exist(pathname, 'file')
-      [pathname]=getfullname_('R*.*','aats','Choose a File');
+      [pathname]=getfullname('R*.*','aats','Choose a File');
    end
 else
-   [pathname]=getfullname_('R*.*','aats','Choose a File');
+   [pathname]=getfullname('R*.*','aats','Choose a File');
 end
 [pathname, filename, ext] = fileparts(pathname);
 pathname = [pathname filesep];

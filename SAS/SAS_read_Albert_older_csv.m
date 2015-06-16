@@ -3,7 +3,7 @@ function outs = SAS_read_Albert_older_csv(infile)
 % Read older SAS CSV files by Albert containing only a single spectra. (I
 % think...)
 if ~exist('infile','var')
-   infile= getfullname_('*.csv','ascii');
+   infile= getfullname('*.csv','ascii');
 end
 [pname, fname,ext] = fileparts(infile);
 fname = [fname,ext];

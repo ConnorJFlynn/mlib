@@ -5,9 +5,9 @@ function [sws_raw] = read_sws_raw(filename);
 %%
 
 if ~exist('filename', 'var')
-   filename = getfullname_('*.*','sws_raw');
+   filename = getfullname('*.*','sws_raw');
 else
-   filename = getfullname_(filename,'sws_raw');
+   filename = getfullname(filename,'sws_raw');
 end
 [pname, fname,ext] = fileparts(filename);
 pname = [pname, filesep];

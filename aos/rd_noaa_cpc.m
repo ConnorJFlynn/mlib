@@ -1,7 +1,7 @@
 function cpc = rd_noaa_cpc(infile);
 
 if ~exist('infile','var')
-    infile = getfullname_('N61_*','NOAA_AOS_raw','Select an N61 cpc file.');
+    infile = getfullname('N61_*','NOAA_AOS_raw','Select an N61 cpc file.');
 end
 if exist(infile,'file')
     %   Detailed explanation goes here

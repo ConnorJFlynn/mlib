@@ -1,4 +1,4 @@
-sasze = ancload(getfullname_('pvc*.cdf','pvcsasze'));
+sasze = ancload(getfullname('pvc*.cdf','pvcsasze'));
 %%
 
 fields = fieldnames(sasze.vars);
@@ -29,8 +29,8 @@ good_ti = find(good_t);
 figure; lines = plot(sasze.vars.wavelength.data(good_wl), sasze.vars.zenith_transmittance.data(good_wl,good_ti(1:100:end)),'-'); recolor(lines,serial2Hh(sasze.time(good_ti(1:100:end)))); colorbar
 % radiance units W/(m^2 um sr)
 %% NFOV2
-nfov2 = ancload(getfullname_('pvc*.cdf','pvcnfov2'));
-nfov2 = anccat(nfov2, ancload(getfullname_('pvc*.cdf','pvcnfov2')));
+nfov2 = ancload(getfullname('pvc*.cdf','pvcnfov2'));
+nfov2 = anccat(nfov2, ancload(getfullname('pvc*.cdf','pvcnfov2')));
 
 %%
 ppl = aeronet_zenith_radiance;

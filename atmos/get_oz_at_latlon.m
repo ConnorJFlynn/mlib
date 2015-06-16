@@ -6,7 +6,7 @@ function toms = get_oz_at_latlon(lat,lon,toms)
 % with the more restricted set and outputs the results as netcdf struct.
 
 if ~exist('toms','var')
-   toms.fname = getfullname_('*.cdf','ozone');
+   toms.fname = getfullname('*.cdf','ozone');
    toms = ancload(toms.fname);
 end
 miss = toms.vars.ozone.data <0;

@@ -1,7 +1,7 @@
 function mplbase = read_mplnor_baseline(filename);
 %This reads MPLnor baseline files...
 if ~exist('filename', 'var')||~exist(filename,'file')
-   [filename] = getfullname_('*.dat','mplbase');
+   [filename] = getfullname('*.dat','mplbase');
 end
 % Header is 3 lines, one text, one with update time in yyyymmdd.hhmmss,
 % third with number of lines of data

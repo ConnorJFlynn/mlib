@@ -22,7 +22,7 @@ end
 
 % 2. Load aeronet sun and sky AOD and AOT data sets
 anet_aod = read_cimel_aod;
-anet_fullname = getfullname_('*.aot','anet');
+anet_fullname = getfullname('*.aot','anet');
 anet_aip = read_cimel_aip(anet_fullname);
 
 

@@ -1,6 +1,6 @@
 function fix_aod_series(fiq, in_dir);
 if ~exist('fiq','var')||isempty(fiq)
-   fiq = loadinto(getfullname_('*.mat','fiq','Select a common langley file (with IQF).'));
+   fiq = loadinto(getfullname('*.mat','fiq','Select a common langley file (with IQF).'));
 end
 if isfield(fiq,'IQF')
    fiq = fiq.IQF;

@@ -48,7 +48,7 @@ subplot(3,1,2); plot(pres.time, pres.pres, 'm.');
 subplot(3,1,3); plot(ozone.time, ozone.dob, 'g.');
 datetick('keeplimits')
 
-% mfr = ancload(getfullname_([],'dust_mfrsr','Select an MFRSR file for coords.'));
+% mfr = ancload(getfullname([],'dust_mfrsr','Select an MFRSR file for coords.'));
 
 %%
 

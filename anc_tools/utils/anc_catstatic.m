@@ -4,7 +4,7 @@ function nc = anc_catstatic(filelist)
 % loops over the user specified actions for each file.
 if ~exist('filelist','var')||isempty(filelist)
 disp('Please select one or more files to concatenate the static elements.');
-[filelist] = getfullname__('*.cdf;*.nc');
+[filelist] = getfullname('*.cdf;*.nc');
 end
 
 if ~iscell(filelist)&&exist(filelist,'file')

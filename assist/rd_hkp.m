@@ -2,7 +2,7 @@ function [hkp, hkp_raw] = rd_hkp(infile);
 % read hkp file [hkp, hkp_raw] = rd_hkp(infile);
 % Read each line, parse into bits
 if ~exist('infile','var')||~exist(infile,'file')
-infile = getfullname_('*_hkp_*.csv','assist_hkp','Select house-keeping file.');
+infile = getfullname('*_hkp_*.csv','assist_hkp','Select house-keeping file.');
 end
 %%
 

@@ -1,9 +1,9 @@
 function cimel = read_cimel_cloudrad(filename)
 %cimel = read_cimel_cloudrad(filename);
 if ~exist('filename', 'var')
-   filename = getfullname_('*.*','cimel_cloud');
+   filename = getfullname('*.*','cimel_cloud');
 elseif ~exist(filename,'file')
-   filename = getfullname_(filename,'cimel_cloud');
+   filename = getfullname(filename,'cimel_cloud');
 end
 [pname, fname,ext] = fileparts(filename);
 fname = [fname,ext];

@@ -1,7 +1,7 @@
 function mfrsrcip_checks
 %%
 %dV(r)/dln(r)= (C/sqrt(2pi)*sigma)*exp[-(ln(r) – ln(R))^2 / (2*sigma^2) 
-cip = ancload(getfullname_('*.cdf','cip'));
+cip = ancload(getfullname('*.cdf','cip'));
 n = 0;
 %%
 good = cip.vars.aerosol_optical_depth_filter2_observed.data>0;

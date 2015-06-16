@@ -1,7 +1,7 @@
 function [ict_data ict_meta] = rd_ict(infile)
 %[ict_data ict_meta] = rd_ict(infile)
 while ~exist('infile','var')||~exist(infile,'file')
-    infile = getfullname__('*.ict','icart','Select ICARTT file');
+    infile = getfullname('*.ict','icart','Select ICARTT file');
 end
 fid  = fopen(infile);
 line = fgetl(fid);

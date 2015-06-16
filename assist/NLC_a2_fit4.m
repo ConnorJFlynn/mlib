@@ -11,7 +11,7 @@ emis = repack_edgar(emis);
 % which the y-axis is auto-ranged.  By restricting this x-range to a
 % region that is not too noisy the graph should scale well.
 range = [200 2100];
-Detector = 'B';
+Detector = 'A';
 
 test_dir = getdir('assist_nlc','Select NLC test directory');
 % Did the following in order to be able to count runs in network directory.
@@ -214,7 +214,7 @@ ln2s = sum(cell2mat(regexp({test_dir_content.name}, 'LN2_[0-9]_B\.igm')));
                 -(SPC_A_O_F.y_raw - SPC_C_O_F.y_raw)./(BB_1 - BB_0);
             Diff_Resp_fit_F.y_pc = (SPC_H_O_F.y_pc - SPC_A_O_F.y_pc)./(BB_2 - BB_1) ...
                 -(SPC_A_O_F.y_pc - SPC_C_O_F.y_pc)./(BB_1 - BB_0);
-            
+            % This was SSEC's sign error in the paper
             a2_F_raw = -real(diff_resp_F) ./ real(Diff_Resp_fit_F.y_raw);
             a2_F_pc = -real(diff_resp_F) ./ real(Diff_Resp_fit_F.y_pc);
 
@@ -237,14 +237,14 @@ ln2s = sum(cell2mat(regexp({test_dir_content.name}, 'LN2_[0-9]_B\.igm')));
             %contamination by actual signal. Note that it doesn't matter
             %whether we scale over a region where resp_diff is positive or
             %negative.  We just want it to be substantial.
-            sub2 = (CalSet_HA_F.x>1160&CalSet_HA_F.x<1190);
+            sub2 = (CalSet_HA_F.x>2200&CalSet_HA_F.x<2300);
             % Here is a subrange from above the responsivity.  Note that I
             % had to go well above in order to get to a regions where
-            % diff_resp was not near-zero.
+            % diff_resp was not near-ze.
             sub3 = (CalSet_HA_F.x>2800&CalSet_HA_F.x<3000);
             
             % I think this third subrange from the higher end is too noisy.
-            sub = sub1;
+            sub = sub2;
             
             A2_F_raw(Run_number) = mean(a2_F_raw(sub));
             A2_F_pc(Run_number) = mean(a2_F_pc(sub));
@@ -469,7 +469,7 @@ ln2s = sum(cell2mat(regexp({test_dir_content.name}, 'LN2_[0-9]_B\.igm')));
             Run{Run_number}.V_C_R_pc = V_C_R_pc(Run_number);
             Run{Run_number}.A2_R_pc = A2_R_pc(Run_number);
             %%
-            figure; sb(1) = subplot(2,1,1);
+            figure(17); sb(1) = subplot(2,1,1);
             plot(SPC_H_F.x, SPC_H_F.y,'r-',SPC_A_F.x, SPC_A_F.y,'-g',SPC_C_F.x, SPC_C_F.y,'b-');
             title(['Run: ',num2str(Run_number)]);
             sb(2) = subplot(2,1,2);
@@ -553,8 +553,40 @@ ln2s = sum(cell2mat(regexp({test_dir_content.name}, 'LN2_[0-9]_B\.igm')));
         nlc_raw.IHLAB = (nlc_raw.IHLAB_F + nlc_raw.IHLAB_R)./2;
         nlc_raw.ICLAB = (nlc_raw.ICLAB_F + nlc_raw.ICLAB_R)./2;
         
-        %     save([test_dir,filesep,'nlc_pc.',nlc_pc.time_str,'.mat'],'-struct','nlc_pc');
-        %     save([test_dir,filesep,'nlc_raw.',nlc_raw.time_str,'.mat'],'-struct','nlc_raw');
+            save([test_dir,filesep,'nlc_pc.',nlc_pc.time_str,'.mat'],'-struct','nlc_pc');
+            save([test_dir,filesep,'nlc_raw.',nlc_raw.time_str,'.mat'],'-struct','nlc_raw');
+   nlc.time = nlc_raw.time;
+   nlc.time_str = nlc_raw.time_str;
+   
+   nlc.raw_F.a2 = nlc_raw.a2_F
+   nlc.raw_F.IHLAB = nlc_raw.IHLAB_F;
+   nlc.raw_F.ICLAB = nlc_raw.ICLAB_F;
+   
+   nlc.raw_R.a2 = nlc_raw.a2_R
+   nlc.raw_R.IHLAB = nlc_raw.IHLAB_R;
+   nlc.raw_R.ICLAB = nlc_raw.ICLAB_R;
+   
+   nlc.raw_avg.a2 = nlc_raw.a2
+   nlc.raw_avg.IHLAB = nlc_raw.IHLAB;
+   nlc.raw_avg.ICLAB = nlc_raw.ICLAB;
+   
+   nlc.PC_F.a2 = nlc_pc.a2_F
+   nlc.PC_F.IHLAB = nlc_pc.IHLAB_F;
+   nlc.PC_F.ICLAB = nlc_pc.ICLAB_F;
+   
+   nlc.PC_R.a2 = nlc_pc.a2_R
+   nlc.PC_R.IHLAB = nlc_pc.IHLAB_R;
+   nlc.PC_R.ICLAB = nlc_pc.ICLAB_R;
+   
+   nlc.PC_avg.a2 = nlc_pc.a2;
+   nlc.PC_avg.IHLAB = nlc_pc.IHLAB;
+   nlc.PC_avg.ICLAB = nlc_pc.ICLAB;
+   
+%    save([test_dir,filesep,'nlc_pc.',nlc_pc.time_str,'.mat'],'-struct','nlc_pc');
+%    save([test_dir,filesep,'nlc_raw.',nlc_raw.time_str,'.mat'],'-struct','nlc_raw');
+   save([test_dir,filesep,'nlc.',nlc.time_str,'.mat'],'-struct','nlc');
+            
+            
         %     saveas(51, [test_dir,filesep,'nlc_F_raw.',nlc_raw.time_str,'.png']);
         %     saveas(52, [test_dir,filesep,'nlc_F_PC.',nlc_raw.time_str,'.png']);
         %     saveas(53, [test_dir,filesep,'nlc_R_raw.',nlc_raw.time_str,'.png']);

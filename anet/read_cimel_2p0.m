@@ -2,7 +2,7 @@ function cimel = read_cimel_2p0(filename);
 %%
 
 if ~exist('filename', 'var')
-   filename = getfullname_('*.txt;*.dat','aeronet_aip','Select Aeronet AIP file');
+   filename = getfullname('*.txt;*.dat','aeronet_aip','Select Aeronet AIP file');
    [pname, fname, ext] = fileparts(filename);
    fname = [fname ext];
 %     [fname, pname] = uigetfile('C:\case_studies\Alive\data\flynn-cimel\*.txt');

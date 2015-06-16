@@ -1,7 +1,7 @@
 function cl51_and_mpl_for_vic_ASR2014
 %%
 plots_vic;
-vc51 = ancload([getfullname_('sgpvc*.cdf','vcl')]);
+vc51 = ancload([getfullname('sgpvc*.cdf','vcl')]);
 %%
 fig1 = figure; imagesc(serial2Hh(vc51.time), vc51.vars.range.data./1000, real(log10(vc51.vars.backscatter.data))); axis('xy');
 title(['Vaisala Ceilometer CL51 Backscatter: ',datestr(vc51.time(1), 'yyyy/mm/dd')]);
@@ -33,7 +33,7 @@ set(gca,'outerposition',outpos);
 
 %%
 
- mplps = ancload(getfullname_(['sgpmplpolfs*.',datestr(vc51.time(1),'yyyymmdd'),'*.cdf'],'vcl'));
+ mplps = ancload(getfullname(['sgpmplpolfs*.',datestr(vc51.time(1),'yyyymmdd'),'*.cdf'],'vcl'));
  %
  copol = mplps.vars.signal_return_co_pol.data - ones(size(mplps.vars.range.data))*mplps.vars.background_signal_co_pol.data;
 copol_ol = ones(size(mplps.vars.range.data));
@@ -57,7 +57,7 @@ ax(2) = gca;
 xlabel('time [UTC]'); 
 ylabel('height [km AGL]')
 title(['MPL Attenuated Backscatter Fraction: ',datestr(mplps.time(1),'yyyy/mm/dd')]);
-vc_file = [getfullname_(['sgpceilpblhtC1.a0.*',datestr(vc51.time(1),'yyyymmdd'),'*.cdf'],'vcl')];
+vc_file = [getfullname(['sgpceilpblhtC1.a0.*',datestr(vc51.time(1),'yyyymmdd'),'*.cdf'],'vcl')];
 
 if ~isempty(vc_file)
     vc_pbl = ancload(vc_file);

@@ -1,6 +1,6 @@
-hsrl = ancload(getfullname_('*.cdf','Select HSRL file','hsrl_nsa'));
+hsrl = ancload(getfullname('*.cdf','Select HSRL file','hsrl_nsa'));
 %%
-ahsrl = ancload(getfullname_('*.nc','Select a UW HSRL file','ahsrl'));
+ahsrl = ancload(getfullname('*.nc','Select a UW HSRL file','ahsrl'));
 %%
 figure; 
 axx(1) = subplot(2,1,1); 

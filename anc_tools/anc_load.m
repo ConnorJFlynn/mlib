@@ -54,7 +54,7 @@ function [cdf] = anc_load (ncfile, arm_time)
 
 status = 0;
 if ~exist('ncfile','var')||~exist(ncfile,'file')
-   ncfile = getfullname_('*.cdf;*.nc','nc_file');
+   ncfile = getfullname('*.cdf;*.nc','nc_file');
 end
 
 % Open netcdf file.

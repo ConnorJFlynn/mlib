@@ -3,8 +3,8 @@ function sws_sasze_check
 % calibration
 % sws = cat_sws_raw_2;
 sws = bundle_sws_raw_2;
-sas_vis = bundle_sas_raw(getfullname__('*_vis_*.csv','sasze_vis','Select a SASZe vis file'));
-sas_nir = bundle_sas_raw(getfullname__('*_nir_*.csv','sasze_vis','Select a SASZe nir file'));
+sas_vis = bundle_sas_raw(getfullname('*_vis_*.csv','sasze_vis','Select a SASZe vis file'));
+sas_nir = bundle_sas_raw(getfullname('*_nir_*.csv','sasze_vis','Select a SASZe nir file'));
 [vins, sinv] = nearest(sas_vis.time,sas_nir.time);
 sas_vis = sift_raw_sas(sas_vis,vins);
 sas_nir = sift_raw_sas(sas_nir,sinv);

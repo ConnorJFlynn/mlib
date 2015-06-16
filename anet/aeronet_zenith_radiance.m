@@ -3,7 +3,7 @@ function aip = aeronet_zenith_radiance(infile)
 % Reads AERONET PPL file to yield SA vs SKY_RAD and interpolates to ZEN_RAD
 
 if ~exist('infile','var')||~exist(infile,'file')
-    infile = getfullname_('*.*','aeronet_ppl','Select AERONET AIP PPL file.');
+    infile = getfullname('*.*','aeronet_ppl','Select AERONET AIP PPL file.');
 end
 
 %%

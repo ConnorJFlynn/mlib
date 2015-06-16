@@ -8,7 +8,7 @@ function ins = SAS_Integ_cavity_tests(infile)
 % Reads one of Albert's Labview files for with multiple AvaSpec spectra per data file.
 %
 if ~exist('infile','var')
-   infile= getfullname_('*.csv','ascii');
+   infile= getfullname('*.csv','ascii');
 end
 [pname, fname,ext] = fileparts(infile);
 fname = [fname,ext];

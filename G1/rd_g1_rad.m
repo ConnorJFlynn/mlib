@@ -1,7 +1,7 @@
 function flight = rd_g1_rad(rad_file) 
 
 if ~exist('rad_file','var')||~exist(rad_file,'file')
-rad_file = getfullname_('*rad*.txt','tcap_g1','Select rad file');
+rad_file = getfullname('*rad*.txt','tcap_g1','Select rad file');
 end
 
 fid = fopen(rad_file);

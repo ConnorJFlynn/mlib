@@ -2,7 +2,7 @@ function assist = assist_annew_4(pname)% ASSIST annew
 % First load the entire calibration sequence
 % Assess difference between a2 Vm model and Griffith's 3-point 
   %%
-infileA = getfullname_('*_chA_SKY.coad.mrad.coad.merged.truncated*.mat','edgar_mat','Select degraded sky')
+infileA = getfullname('*_chA_SKY.coad.mrad.coad.merged.truncated*.mat','edgar_mat','Select degraded sky')
 chA_sky = repack_edgar(infileA); 
 IRT = irt_rel_resp;
 
@@ -162,10 +162,10 @@ linkaxes(yy,'x');
 xlim([600,1700]);
 
 %%
-infileA = getfullname_('*_chA_HBBNen1*.mat','edgar_mat','Select Re Resp')
+infileA = getfullname('*_chA_HBBNen1*.mat','edgar_mat','Select Re Resp')
 chA_NEN1 = repack_edgar(infileA); 
 %
-infileA = getfullname_('*_chA_HBBNen2*.mat','edgar_mat','Select Im Resp.');
+infileA = getfullname('*_chA_HBBNen2*.mat','edgar_mat','Select Im Resp.');
 chA_NEN2 = repack_edgar(infileA); 
 %%
 figure; 
@@ -174,7 +174,7 @@ plot(chA_NEN1.x, chA_NEN1.y(1,:),'ro',...
 legend('NEN1','NEN2')
 
 %%
-infileA = getfullname_('*_chA_SKY.coad.mrad.coad.merged.truncated.degraded*.mat','edgar_mat','Select degraded sky')
+infileA = getfullname('*_chA_SKY.coad.mrad.coad.merged.truncated.degraded*.mat','edgar_mat','Select degraded sky')
 chA_sky = repack_edgar(infileA); 
 %%
 figure; yx(1) = subplot(2,1,1);
@@ -237,7 +237,7 @@ figure;
 plot(assist.chA.cxs.x,[mean(assist.chA.spc.y(sky_ii(1),:),1)-mean(assist_NLC.chA.spc.y(sky_ii(1),:),1);...
 mean(assist.chA.spc.y(sky_ii(1),:),1)-mean(assist_grf.chA.spc.y(sky_ii(1),:),1)],'-');
 %%
-infileA = getfullname_('*_chA_*.mat','edgar_mat','Select an Edgar mat file.');
+infileA = getfullname('*_chA_*.mat','edgar_mat','Select an Edgar mat file.');
 [pname, fname, ext] = fileparts(infileA);
 matA = repack_edgar(infileA); 
 plot(assist.chA.cxs.x,real(assist.down.chA.mrad.y(assist.down.Sky_ii(1),:)),' b-',matA.x, 1000.*matA.y(1,:),'k-');
@@ -269,7 +269,7 @@ return
 
 function mat = repack_edgar(edgar)
 if ~exist('edgar','var')
-   edgar =loadinto(getfullname_('*.mat','edgar_mat','Select an Edgar mat file.'));
+   edgar =loadinto(getfullname('*.mat','edgar_mat','Select an Edgar mat file.'));
 end
 if ~isstruct(edgar)&&exist(edgar,'file')
    edgar =loadinto(edgar);

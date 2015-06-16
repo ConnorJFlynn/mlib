@@ -19,12 +19,12 @@
 % Check June 19 during which impactor state reporting was fixed by BNL.
 % Examine M1 and S1 neph dry data, pressure, dP, etc.
 
-impa1 = anc_bundle_files(getfullname__('*.nc','mao','Select impactor a1 files.'));
+impa1 = anc_bundle_files(getfullname('*.nc','mao','Select impactor a1 files.'));
 impa1_ = anc_downsample_nomiss(impa1,60);
-impb1 = anc_bundle_files(getfullname__('*.nc','mao','Select impactor b1 files.'));
+impb1 = anc_bundle_files(getfullname('*.nc','mao','Select impactor b1 files.'));
 impb1_ = anc_downsample_nomiss(impb1,60);
 
-nephS1 = anc_bundle_files(getfullname__('*.nc','nephb1S1','Select neph dry S1 files'));
+nephS1 = anc_bundle_files(getfullname('*.nc','nephb1S1','Select neph dry S1 files'));
 [ainb, bina] = nearest(impb1.time, nephS1.time);
 impb = anc_sift(impb1, ainb);
 % nephS.vdata.impactor_state = impb.vdata.impactor_state;
@@ -34,10 +34,10 @@ impb = anc_sift(impb1, ainb);
 % anc_plot_qcs(nephS);
 
 nephS1_ = anc_downsample_nomiss(nephS1,60);
-wetS1 = anc_bundle_files(getfullname__('*.cdf','mao','Select neph wet S1 files'));
+wetS1 = anc_bundle_files(getfullname('*.cdf','mao','Select neph wet S1 files'));
 wetS1_ = anc_downsample_nomiss(wetS1, 60);
-nephM1 = anc_bundle_files(getfullname__('*.cdf','mao','Select neph dry M1 files')); %b-level
-aosmet = anc_bundle_files(getfullname__('*.cdf','mao','Select aos met files'));
+nephM1 = anc_bundle_files(getfullname('*.cdf','mao','Select neph dry M1 files')); %b-level
+aosmet = anc_bundle_files(getfullname('*.cdf','mao','Select aos met files'));
 aosmet_ = anc_downsample_nomiss(aosmet,60);
 t_1 = datenum(2014,4,20);t_2 = datenum(2014,5,10);
 t_a = impA1.time>t_1 & impA1.time<t_2;

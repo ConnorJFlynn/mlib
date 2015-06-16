@@ -11,7 +11,7 @@ function all_oz = gen_site_oz(anc,lon);
 % anc = 61 + (50+37.73./60)./60;
 % lon = 24 + (17 + 16.25./60)./60;
 if ~exist('anc','var') || (exist('anc','var')&&~isstruct(anc)&&~exist('lon','var'))
-    anc = ancloadcoords(getfullname_('*.cdf;*.nc','arm_site','Select a file from the desired site'));
+    anc = ancloadcoords(getfullname('*.cdf;*.nc','arm_site','Select a file from the desired site'));
 end
 
 if isstruct(anc) && isfield(anc,'vars') && isfield(anc.vars,'lat')&& isfield(anc.vars,'lon')...

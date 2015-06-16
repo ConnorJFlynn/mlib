@@ -1,5 +1,5 @@
 
-fullname = getfullname_('*.hdf','hsrl','Select hdf file')
+fullname = getfullname('*.hdf','hsrl','Select hdf file')
 %Get HDF info
 [pathname, filename, ext] = fileparts(fullname);
 pathname = [pathname filesep];

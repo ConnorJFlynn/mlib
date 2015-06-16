@@ -4,7 +4,7 @@ function outs = SAS_compare_bare_He_Ze;
 % sphere with V = 10.42, I = 2.78
 
 % Read bare_fiber:
-bare = SAS_read_ava(getfullname_('*.csv','ava','Select bare fiber spectra'));
+bare = SAS_read_ava(getfullname('*.csv','ava','Select bare fiber spectra'));
 bare.dark = sum(bare.spec,2)<mean(sum(bare.spec,2));
 bare.darks = mean(bare.spec(bare.dark,:),1);
 bare.lights = mean(bare.spec(~bare.dark,:),1)-bare.darks;
@@ -14,12 +14,12 @@ subplot(2,1,2); semilogy(bare.nm, bare.lights,'b-');
 title('Bare DN-darks');
 
 
-He = SAS_read_ava(getfullname_('*.csv','ava','Select Hemispheric diffuser spectra'));
+He = SAS_read_ava(getfullname('*.csv','ava','Select Hemispheric diffuser spectra'));
 He.dark = sum(He.spec,2)<mean(sum(He.spec,2));
 He.darks = mean(He.spec(He.dark,:),1);
 He.lights = mean(He.spec(~He.dark,:),1)-He.darks;
 
-Ze = SAS_read_ava(getfullname_('*.csv','ava','Select Zenith collimator spectra'));
+Ze = SAS_read_ava(getfullname('*.csv','ava','Select Zenith collimator spectra'));
 Ze.dark = sum(Ze.spec,2)<mean(sum(Ze.spec,2));
 Ze.darks = mean(Ze.spec(Ze.dark,:),1);
 Ze.lights = mean(Ze.spec(~Ze.dark,:),1)-Ze.darks;

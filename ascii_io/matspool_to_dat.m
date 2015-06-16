@@ -6,7 +6,7 @@ function dat_filename = matspool_to_dat(infile)
 % corresponding mat spool file in bundlefnt which checks for mat files.
 
 if ~exist('infile','var')
-    infile = getfullname_('*.mat','spool','Select mat spool file for data file.');
+    infile = getfullname('*.mat','spool','Select mat spool file for data file.');
 end
 if ~isstruct(infile)&&exist(infile,'file')
     infile = load(infile);

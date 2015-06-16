@@ -1,7 +1,7 @@
 function ts = get_Io_ts(in_dir)
 
 if ~exist('in_dir','var')||~exist(in_dir,'dir')
-    in_dir = getfullname_('*.cdf','saslang');
+    in_dir = getfullname('*.cdf','saslang');
     [in_dir, ~,~] = fileparts(in_dir);
     in_dir = [in_dir, filesep];
 end

@@ -1,6 +1,6 @@
 function outfile = annot2csv(infile);
 if ~exist('infile','var')
-   infile = getfullname_('*.xls','xls_data','Select xls file');
+   infile = getfullname('*.xls','xls_data','Select xls file');
 end
 [pname, fname, ext] = fileparts(infile);
 [xl_num, xl_txt, xl_raw]= xlsread(infile);

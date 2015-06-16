@@ -3,7 +3,7 @@
 % Read raw cpcf, cpcu, cpc
 % Read netcdf cpcf, cpcu, cpc
 % D:\dmf\data\datastream\mao\maoaoscpcfS1.a1\
-cpcf = anc_load(getfullname__('maoaoscpcf*.cdf','cpcf'));
+cpcf = anc_load(getfullname('maoaoscpcf*.cdf','cpcf'));
 [cpcf_tsv, fmt_str] = rd_bnl_tsv3;
 
 cpcf_tsv.Concentration = cpcf_tsv.Concentration *(1000/970); 

@@ -1,7 +1,7 @@
 function ins = SAS_read_trh(infile)
 %ins = SAS_read_cvs(infile)
 if ~exist('infile','var')
-   infile= getfullname_('*.csv','ascii');
+   infile= getfullname('*.csv','ascii');
 end
 [pname, fname,ext] = fileparts(infile);
 fname = [fname,ext];

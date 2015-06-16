@@ -1,8 +1,8 @@
 % wavelength pixel map registration
 % number 7
-cmos_1000 = read_avantes_trt(getfullname_('*.trt'));
+cmos_1000 = read_avantes_trt(getfullname('*.trt'));
 % number 6?
-cmos_1000_dark = read_avantes_trt(getfullname_('*.trt'));
+cmos_1000_dark = read_avantes_trt(getfullname('*.trt'));
 %
 %%
 nm_in = [312.57	400	

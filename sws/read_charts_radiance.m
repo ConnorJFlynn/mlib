@@ -2,7 +2,7 @@ function charts_rad = read_charts_radiance(rad_file);
 %%
 if ~exist('rad_file','var')||~exist(rad_file,'file')
    disp('Select radiance file.')
-   rad_file = getfullname_('*.dat','charts')
+   rad_file = getfullname('*.dat','charts')
 end
 %
 fid1 = fopen(rad_file);
@@ -32,7 +32,7 @@ charts_rad.Eperphoton = Eperphoton;
 % charts_irrad = read_charts_irradiance;
 % %%
 % if ~exist('irad_file','var')||~exist(irad_file,'file')
-%    infile2 = getfullname_('*.dat','charts')
+%    infile2 = getfullname('*.dat','charts')
 % end
 % fid2 = fopen(infile2);
 % 

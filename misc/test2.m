@@ -1,7 +1,7 @@
 function test2
 
 %%
-vis = rd_spc_TCAP_v2(getfullname_('*_VIS_*.dat','STAR_MLO'));
+vis = rd_spc_TCAP_v2(getfullname('*_VIS_*.dat','STAR_MLO'));
 nir = rd_spc_TCAP_v2([vis.pname, strrep(vis.fname,'_VIS_','_NIR_')]);
 %%
 darks = vis.spectra(vis.t.shutter==0,:);

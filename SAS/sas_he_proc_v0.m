@@ -1,19 +1,19 @@
 % SAS He shadowband processing test
 
 % Open nir_1s, vis_1s, vis_ms.
-vis_1s = SAS_read_ava(getfullname_('sashe_vis_1s*.csv','vis_1s','Select vis 1s file.'));
+vis_1s = SAS_read_ava(getfullname('sashe_vis_1s*.csv','vis_1s','Select vis 1s file.'));
 %%
 [~,tok] = strtok(vis_1s.fname,'.');
-vis_nm = read_avantes_trt(getfullname_('*.trt','sashe','Select CCD file for pixel map.')); 
+vis_nm = read_avantes_trt(getfullname('*.trt','sashe','Select CCD file for pixel map.')); 
 vis_1s.nm = vis_nm.nm;
 %%
 proc_sashe_1s(vis_1s);
 %%
-nir_1s = SAS_read_ava(getfullname_(['sashe_nir_1s*',tok{1}],'nir_1s','Select NIR 1s file.'));
-nir_nm = read_avantes_trt(getfullname_('*.trt','sashe','Select NIR file for pixel map.')); % Read in a file from nir SN 69 to use as the wavelength scale
+nir_1s = SAS_read_ava(getfullname(['sashe_nir_1s*',tok{1}],'nir_1s','Select NIR 1s file.'));
+nir_nm = read_avantes_trt(getfullname('*.trt','sashe','Select NIR file for pixel map.')); % Read in a file from nir SN 69 to use as the wavelength scale
 nir_1s.nm = nir_nm.nm;
 %%
-vis_ms = SAS_read_ava(getfullname_(['sashe_vis_ms*',tok{1}],'vis_ms','Select vis ms file.'));
+vis_ms = SAS_read_ava(getfullname(['sashe_vis_ms*',tok{1}],'vis_ms','Select vis ms file.'));
 vis_ms.nm = vis_1s.nm;
 %%
 clear vis_nm

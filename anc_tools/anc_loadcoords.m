@@ -53,7 +53,7 @@ function [cdf] = anc_loadcoords (ncfile)
 %-------------------------------------------------------------------
 status = 0;
 if ~exist('ncfile','var')||~exist(ncfile,'file')
-   ncfile = getfullname_('*.cdf;*.nc','nc_file');
+   ncfile = getfullname('*.cdf;*.nc','nc_file');
 end
 
 % Open netcdf file.

@@ -3,7 +3,7 @@ function sws = proc_sws_raw;
 % pname = ['C:\case_studies\SGP\July23\sws_raw\'];
 
 sws =bundle_sws_raw_2;
-% infile = getfullname_('sgpsws*.00.*.raw.dat','sws_raw','Select a raw SWS file or mat file');
+% infile = getfullname('sgpsws*.00.*.raw.dat','sws_raw','Select a raw SWS file or mat file');
 % 
 % 
 %         [pname, fname] = fileparts(infile);pname = [pname, filesep];

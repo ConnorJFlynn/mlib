@@ -21,7 +21,7 @@ postclean_dir = ['D:\case_studies\radiation_cals\2013_12_20.SGP_LAB12_SASZe1_cal
 % times, even though these may not be  optimal given vastly different lamp
 % intensities.
 % [rate, signal, mean_dark_time, mean_dark_spec] = sasze_raw_to_rate(ze)
-vis_preclean = bundle_sas_raw(getfullname_([preclean_dir,'*.csv']));
+vis_preclean = bundle_sas_raw(getfullname([preclean_dir,'*.csv']));
 [vis_preclean.rate, vis_preclean.signal, vis_preclean.mean_dark_time, vis_preclean.mean_dark_spec] = sasze_raw_to_rate(vis_preclean);
 
 vis_postclean = rd_raw_SAS([postclean_dir,'']);

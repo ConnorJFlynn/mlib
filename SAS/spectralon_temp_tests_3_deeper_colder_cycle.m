@@ -176,7 +176,7 @@ return
 function specs = pack_specs_in_dir
 % % read ReferenceFiber data
 % %%
-infile = getfullname_('*.csv','ref_spec','Select a file from the reference spec directory');
+infile = getfullname('*.csv','ref_spec','Select a file from the reference spec directory');
 [pname, fname,ext] = fileparts(infile);
 mets = strtok(fliplr(pname),filesep); stem = fliplr(mets);
 %%

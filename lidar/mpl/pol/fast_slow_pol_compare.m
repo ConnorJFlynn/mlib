@@ -3,7 +3,7 @@
 
 lidar = rd_sigma;
 
-mpl = ancload(getfullname_('*.cdf','mpl'));
+mpl = ancload(getfullname('*.cdf','mpl'));
 
 % Then read in some other days of slow, process with existing code to look
 % for interesting times.  

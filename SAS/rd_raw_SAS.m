@@ -3,7 +3,7 @@ function ins = rd_raw_SAS(infile)
 % outs = rd_raw_SAS(infile)
 
 if ~exist('infile','var')
-    infile= getfullname_('*.csv','ascii');
+    infile= getfullname('*.csv','ascii');
 end
 % [pname, fname,ext] = fileparts(infile);
 % fname = [fname,ext];

@@ -46,14 +46,14 @@ linkaxes(s,'x')
 %%
 % find SWS cal data for PNNL PS1 and PS2, lamps A-D
 pnnl_path = 'C:\case_studies\SWS\calibration\PNNL_preAMES_2011_03_02\';
-in_file = getfullname_([pnnl_path,'*.dat'],'sws_cals');
+in_file = getfullname([pnnl_path,'*.dat'],'sws_cals');
 %
 figure;
 PNNL_ps1_lampA = read_sws_raw(in_file);
 
 %%
 ames_path = 'C:\case_studies\SWS\calibration\NASA_ARC_2011_03_07\March7_Monday\';
-in_file = getfullname_([ames_path,'*.dat'],'sws_cals');
+in_file = getfullname([ames_path,'*.dat'],'sws_cals');
 figure;
 Ames_ps1_lampA = read_sws_raw(in_file);
 %% Checking SWS response as function of distance from sphere
@@ -62,7 +62,7 @@ Ames_ps1_lampA = read_sws_raw(in_file);
 ames_path = 'C:\case_studies\SWS\calibration\NASA_ARC_2011_03_07\March7_Monday\ARC455\back_reflection_tests\D_20\';
 fname = ['sgpswscf.00.20110307.171438.raw.dat'];
 in_file = [ames_path, fname];
-% in_file = getfullname_([ames_path,'*.dat'],'sws_cals');
+% in_file = getfullname([ames_path,'*.dat'],'sws_cals');
 
 figure;
 A455_D20 = read_sws_raw(in_file);
@@ -83,11 +83,11 @@ A455_D20.mean_In_sig = A455_D20.mean_In_sig./mean(A455_D20.In_ms);
 ames_path = 'C:\case_studies\SWS\calibration\NASA_ARC_2011_03_07\March7_Monday\ARC455\back_reflection_tests\D_15\';
 % fname = ['sgpswscf.00.20110307.171618.raw.dat'];
 % in_file = [ames_path, fname];
-in_file = getfullname_([ames_path,'*.dat'],'sws_cals');
+in_file = getfullname([ames_path,'*.dat'],'sws_cals');
 
 figure;
 A455_D15_a = read_sws_raw(in_file);
-in_file = getfullname_([ames_path,'*.dat'],'sws_cals');
+in_file = getfullname([ames_path,'*.dat'],'sws_cals');
 % fname = ['sgpswscf.00.20110307.171758.raw.dat'];
 A455_D15_b = read_sws_raw(in_file);
 %%
@@ -128,7 +128,7 @@ A455_D15.mean_In_sig = mean(A455_D15.In_spec(:,10:69),2)./mean(A455_D15.In_ms(10
 ames_path = 'C:\case_studies\SWS\calibration\NASA_ARC_2011_03_07\March7_Monday\ARC455\back_reflection_tests\D_7p5\';
 % fname = ['sgpswscf.00.20110307.171618.raw.dat'];
 % in_file = [ames_path, fname];
-in_file = getfullname_([ames_path,'*.dat'],'sws_cals');
+in_file = getfullname([ames_path,'*.dat'],'sws_cals');
 %%
 figure;
 A455_D7p5 = read_sws_raw(in_file);
@@ -168,7 +168,7 @@ A455_D7p5.mean_In_sig = mean(A455_D7p5.In_spec(:,A455_D7p5.shutter==0),2)./mean(
 ames_path = 'C:\case_studies\SWS\calibration\NASA_ARC_2011_03_07\March7_Monday\ARC455\back_reflection_tests\D_4\';
 % fname = ['sgpswscf.00.20110307.171618.raw.dat'];
 % in_file = [ames_path, fname];
-in_file = getfullname_([ames_path,'*.dat'],'sws_cals');
+in_file = getfullname([ames_path,'*.dat'],'sws_cals');
 %%
 figure;
 A455_D4 = read_sws_raw(in_file);
@@ -215,7 +215,7 @@ legend('20','15','7p5','4')
 ames_path = 'C:\case_studies\SWS\calibration\NASA_ARC_2011_03_07\March7_Monday\ARC455\back_reflection_tests\D_7p5\';
 % fname = ['sgpswscf.00.20110307.171618.raw.dat'];
 % in_file = [ames_path, fname];
-in_file = getfullname_([ames_path,'*.dat'],'sws_cals');
+in_file = getfullname([ames_path,'*.dat'],'sws_cals');
 %%
 figure;
 A455_D7p5 = read_sws_raw(in_file);

@@ -1,7 +1,7 @@
 function prede = read_prede_disk(filename);
 %This should read Prede disk scan files
 if ~exist('filename', 'var')
-   filename= getfullname_('*.V*','prede_disk');
+   filename= getfullname('*.V*','prede_disk');
    [pname, fname,ext] = fileparts(filename);
    fname = [fname,ext];
 end

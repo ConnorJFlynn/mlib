@@ -1,7 +1,7 @@
 function cldrad = read_chiu_cloudrads(infile)
 
 if ~exist('infile','var')||~exist(infile,'file')
-    infile = getfullname_('*.*','cloudrad');
+    infile = getfullname('*.*','cloudrad');
 end
 fid = fopen(infile);
 tmp = [];

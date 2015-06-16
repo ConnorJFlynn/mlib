@@ -1,6 +1,6 @@
 % Check SWS aux files
 %%
-sws_aux = ancload(getfullname_('*.cdf','swsaux'));
+sws_aux = ancload(getfullname('*.cdf','swsaux'));
 %
 % plot_qcs(sws_aux)
 [pname, fname, ext] = fileparts(sws_aux.fname);

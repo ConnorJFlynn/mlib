@@ -1,6 +1,6 @@
 function [m300] = read_m300(fullname)
 if ~exist('fullname','var')
-   fullname = getfullname_('*.sea','m300','Select SEA M300 file.');
+   fullname = getfullname('*.sea','m300','Select SEA M300 file.');
 end
 m300.fullname = fullname;
 %%

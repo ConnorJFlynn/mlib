@@ -15,7 +15,7 @@ function nc = subcat_mfrsrb1_for_clong
 % % remove all direct_horiz and qc_direct_horiz
 % % remove all filter 1 3 4 6
 % % remove all total_optical_depth
-mfr = getfullname_('*mfr*.cdf','cip','Select an MFRSR file from the directory you want to process.');
+mfr = getfullname('*mfr*.cdf','cip','Select an MFRSR file from the directory you want to process.');
 if iscell(mfr)
     mfr = mfr{1};
 end

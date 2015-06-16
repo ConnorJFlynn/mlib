@@ -12,7 +12,7 @@ function plot_pol_lin_bs(polavg,inarg)
 %    
 % Now plotting attenuated backscatter ratio (using std atm for Rayleigh)
 if ~exist('polavg','var')
-   polavg_file = getfullname_('*.mat','polavg');
+   polavg_file = getfullname('*.mat','polavg');
    polavg = loadinto(polavg_file);
    polavg.statics.fname = polavg_file;
 end

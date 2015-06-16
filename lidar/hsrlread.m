@@ -10,7 +10,7 @@ vars={'532_ext' 'Altitude' '532_AOT_hi'};
 % 
 % Yohei, 2012/08/03
 if ~exist('h5file','var')
-    h5file = getfullname_('*.h5','hdf5');
+    h5file = getfullname('*.h5','hdf5');
 end
 
 

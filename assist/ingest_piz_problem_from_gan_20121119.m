@@ -1,7 +1,7 @@
 %% Checking ASSIST data from Gan, trying to find source of crash in ingest
 % causes core dump on two piz packets.
 clear
-matfile = getfullname_('*chA_BTemp_SKY.coad.mrad.coad.merged.degraded.truncated.mat','edgar_mat','Select and edgar mat file')
+matfile = getfullname('*chA_BTemp_SKY.coad.mrad.coad.merged.degraded.truncated.mat','edgar_mat','Select and edgar mat file')
 
 [pname, fname] = fileparts(matfile);
 
@@ -32,7 +32,7 @@ toc
 end
 
 %%
-matfile = getfullname_('*chA_BTemp_SKY.coad.mrad.coad.merged.degraded.truncated.mat','edgar_mat','Select and edgar mat file');
+matfile = getfullname('*chA_BTemp_SKY.coad.mrad.coad.merged.degraded.truncated.mat','edgar_mat','Select and edgar mat file');
 
 [pname, fname] = fileparts(matfile);
 infile = '20111011_000426_chA_RESP_IMA_SKY.coad.mrad.pro.merged.degraded.truncated.mat';

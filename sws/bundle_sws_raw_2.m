@@ -3,7 +3,7 @@ function sws =bundle_sws_raw_2(files,pname);
 % bundles selected raw sws files into one continuous strucutre 
 % Uses rd_sws_raw_2 and cat_sws_raw_2 so also computes rate
 if ~exist('files','var')
-    files = getfullname_('*.raw.dat','sws_raw','Select raw SWS files to bundle.');
+    files = getfullname('*.raw.dat','sws_raw','Select raw SWS files to bundle.');
 end
 
 if ~iscell(files)&&~isstruct(files)

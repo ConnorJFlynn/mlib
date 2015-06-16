@@ -8,7 +8,7 @@ function [outfile,outname,s,w] = run_AERONET_retr_wi_selected_input
 
 pname = 'C:\z_4STAR\work_2aaa__\';
 fname = ['4STAR_.input'];
-skyinput = getfullname_([pname, '*.input']);
+skyinput = getfullname([pname, '*.input']);
 [pname_tagged,fname_tagged,ext] = fileparts(skyinput); 
 pname_tagged = [pname_tagged filesep];
 
@@ -17,7 +17,7 @@ pname_tagged = [pname_tagged filesep];
 edit(skyinput);
 OK = menu('Edit and save the config file if necessary. Select OK when done.','Use existing', 'Use edited file...');
 if OK==2
-    [skyinput] = getfullname_(['*.input'],'anet_input');
+    [skyinput] = getfullname(['*.input'],'anet_input');
     [pname_tagged,fname_tagged,ext] = fileparts(skyinput); 
     pname_tagged = [pname_tagged filesep];
 end

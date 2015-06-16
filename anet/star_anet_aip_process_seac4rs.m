@@ -4,7 +4,7 @@ function anetaip = star_anet_aip_process_seac4rs(s)
 % assign this based on actual land surface mapping.
 % Attempting to set ground level at the altitude of 4STAR.
 if ~exist('s','var')
-    s = getfullname_('*sky*.mat','starsky','Select star sky mat file.');
+    s = getfullname('*sky*.mat','starsky','Select star sky mat file.');
 end
 if ~isstruct(s) && exist(s,'file')
     if ~isempty(strfind(s, 'starsky.mat'))

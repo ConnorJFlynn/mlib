@@ -10,8 +10,7 @@ function [SUCCESS,MESSAGE,MESSAGEID] = load_editor_proj(proj_name)
 
 if ~exist('proj_name','var')
     list_editor_proj
-    projname = getfullname_('*.ed; *.prev','editor_projs','Select editor project or MatlabDesktop.xml.prev file.');
-%     projname = [prefdir,filesep,'MATLABDesktop.xml.prev'];
+    projname = getfullname('*.ed; *.prev','editor_projs','Select editor project or MatlabDesktop.xml.prev file.');
 else
     [pn,fn,ex] = fileparts(proj_name);
     if isempty(ex)
@@ -28,8 +27,13 @@ if exist(projname,'file')
             mark = found+length('<ClientData EditorFileName="');
             open_me = textscan(line(mark:end),'%s',1,'delimiter','"');
             open_me = open_me{:};
+            [~, fname, ext] = fileparts(open_me{:});
             if exist(open_me{:},'file')
                 edit(open_me{:});
+            elseif exist([fname,ext], 'file')
+               disp(['Could not find "',fname,'" on explicit path.'])
+               disp(['Opening version found within Matlab path.'])
+               edit([fname,ext]);
             end
         end
     end

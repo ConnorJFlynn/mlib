@@ -1,6 +1,6 @@
 function lamp_cal = rd_sasze_resp_file(infile)
 if ~exist('infile','var')
-    infile = getfullname_('*.dat','sasze_resp','Select a SASZe responsivity file.');
+    infile = getfullname('*.dat','sasze_resp','Select a SASZe responsivity file.');
 end
 [pname, fname, ext] = fileparts(infile); 
 pname = [pname, filesep];

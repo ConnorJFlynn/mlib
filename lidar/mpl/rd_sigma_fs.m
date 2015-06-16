@@ -4,7 +4,7 @@ function [lidar, status] = rd_sigma_fs(filename,start_here);
 
 if nargin==0
    disp('Select a raw ASRC MPL file:');
-   filename = getfullname_('*.*','mplpol');
+   filename = getfullname('*.*','mplpol');
    %      = [pname fname];
 end
 if ~exist('start_here','var')

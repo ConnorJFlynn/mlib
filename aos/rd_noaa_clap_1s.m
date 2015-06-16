@@ -1,7 +1,7 @@
 function [clap, raw] = rd_noaa_clap_1s(infile);
 
 if ~exist('infile','var')
-    infile = getfullname_('a12_*','NOAA_AOS_raw','Select an a12 clap file.');
+    infile = getfullname('a12_*','NOAA_AOS_raw','Select an a12 clap file.');
 end
 if exist(infile,'file')
     %   Detailed explanation goes here

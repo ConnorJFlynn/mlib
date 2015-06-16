@@ -13,10 +13,10 @@ function [Si_resp, In_resp] = radcal_sws_vs_lamps_at_Co_Sebastian_Schmidt
 %%
 sws = [];
 done = false;
-sws_name = getfullname_('*raw.dat','sws_raw');
+sws_name = getfullname('*raw.dat','sws_raw');
 sws = read_sws_raw_2(sws_name);
 while ~isempty(sws_name)
-    sws_name = getfullname_('*raw.dat','sws_raw');
+    sws_name = getfullname('*raw.dat','sws_raw');
     if ~isempty(sws_name)
         sws = cat_sws_raw_2(sws,read_sws_raw_2(sws_name));
     end    

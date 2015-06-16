@@ -1,7 +1,7 @@
 function clr_sky = rd_clong_clr(in_file)
 
 if ~exist('in_file','var')||~exist(in_file,'file')
-    in_file = getfullname_('*.asc;*.dat','clr_times','Select clear sky file');
+    in_file = getfullname('*.asc;*.dat','clr_times','Select clear sky file');
 end
 
 % Zdate  Ztim     Ldate  Ltim  Gclr  Sclr       dra       drb       swa       swb      CosZ      SWdn     CSWdn     DifSW    CDifSW      DifR     CDifR     NDifR

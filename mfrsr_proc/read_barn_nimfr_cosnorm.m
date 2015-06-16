@@ -2,7 +2,7 @@ function nimfr = read_barn_nimfr_cosnorm(filename);
 %This should read barnard nimfr cos_normal files
 % Time is in LST. 
 if ~exist('filename', 'var')
-   filename= getfullname_('*.txt','barn_nimfr');
+   filename= getfullname('*.txt','barn_nimfr');
    [pname, fname,ext] = fileparts(filename);
    fname = [fname,ext];
 end

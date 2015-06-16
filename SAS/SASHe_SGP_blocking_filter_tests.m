@@ -31,7 +31,7 @@ function SASHe_SGP_blocking_filter_tests
 %%
 pname = ['D:\case_studies\SAS\testing_and_characterization\2013_03_26.SASHe_SGP_filter_tests\'];
 nirfile = [pname, 'SASHe_HiSun_nir_1s.20130326_224254.csv'];
-% nirfile = getfullname_([pname, 'SASHe_HiSun_nir_1s.*.csv'],'SASHe_filtertests');
+% nirfile = getfullname([pname, 'SASHe_HiSun_nir_1s.*.csv'],'SASHe_filtertests');
 % SASHe_HiSun_nir_1s.20130326_224254.csv for RG830 test
 nir = rd_raw_SAS(nirfile);
 visfile = strrep(nirfile,'_nir_','_vis_');
@@ -123,7 +123,7 @@ title('Percent of unfilterd signal with RG830 long pass filter in place');
 %% Now OG570
 
 pname = ['D:\case_studies\SAS\testing_and_characterization\2013_03_26.SASHe_SGP_filter_tests\'];
-% nirfile = getfullname_([pname, 'SASHe_HiSun_nir_1s.*.csv'],'SASHe_filtertests');
+% nirfile = getfullname([pname, 'SASHe_HiSun_nir_1s.*.csv'],'SASHe_filtertests');
 nirfile = [pname, 'SASHe_HiSun_nir_1s.20130326_224754.csv'];
 nir2 = rd_raw_SAS(nirfile);
 visfile = strrep(nirfile,'_nir_','_vis_');
@@ -225,7 +225,7 @@ title('Percent of unfilterd signal with OG570 long pass filter in place');
 % SASHe_HiSun_nir_1s.20130326_225137.csv for KG5 test
 pname = ['D:\case_studies\SAS\testing_and_characterization\2013_03_26.SASHe_SGP_filter_tests\'];
 nirfile = [pname, 'SASHe_HiSun_nir_1s.20130326_225137.csv'];
-% nirfile = getfullname_([pname, 'SASHe_HiSun_nir_1s.*.csv'],'SASHe_filtertests');
+% nirfile = getfullname([pname, 'SASHe_HiSun_nir_1s.*.csv'],'SASHe_filtertests');
 nir = rd_raw_SAS(nirfile);
 visfile = strrep(nirfile,'_nir_','_vis_');
 vis = rd_raw_SAS(visfile);

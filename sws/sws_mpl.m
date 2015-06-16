@@ -1,8 +1,8 @@
 %%
-sws = ancload(getfullname_('*.cdf','sws','Select sws file.'));
+sws = ancload(getfullname('*.cdf','sws','Select sws file.'));
 %%
 
-sws_aux = ancload(getfullname_('*.cdf','sws_aux','Select SWS aux file.'));
+sws_aux = ancload(getfullname('*.cdf','sws_aux','Select SWS aux file.'));
 %%
 figure; 
 ax(1) = subplot(3,1,1); semilogy(serial2Hh(sws.time), sws.vars.zen_spec_calib.data(300,:),'r-')
@@ -18,7 +18,7 @@ linkaxes(ax,'x'); zoom('on')
 xlim(xl)
 
 %%
-sws_noon = ancload(getfullname_('*.cdf','sws','Select sws file.'));
+sws_noon = ancload(getfullname('*.cdf','sws','Select sws file.'));
 %%
 figure; semilogy(serial2Hh(sws_noon.time), sws_noon.vars.zen_spec_calib.data([100,200,300,400],:),'-');
 title('sky radiance, Oct 31 2008')
@@ -29,9 +29,9 @@ legend(sprintf('%1.0f nm',sws_noon.vars.wavelength.data(100)),sprintf('%1.0f nm'
 
 %%
 
-mpl = ancload(getfullname_('*.cdf','mpl','Select mpl file.'));
+mpl = ancload(getfullname('*.cdf','mpl','Select mpl file.'));
 %%
-vceil = ancload(getfullname_('*.cdf','vceil','Select mpl file.'));
+vceil = ancload(getfullname('*.cdf','vceil','Select mpl file.'));
 %%
 cop = mpl.vars.polarization_control_voltage.data < mean(mpl.vars.polarization_control_voltage.data);
 %%

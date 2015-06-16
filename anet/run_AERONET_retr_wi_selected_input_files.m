@@ -2,7 +2,7 @@ function [outfile,outname,s,w] = run_AERONET_retr_wi_selected_input_files
 % run_4STAR_AERONET_retrieval(skytag, line_num,)
 % No customization, just pick files and run retrieval for all selected
 
-skyinput = getfullname__(['*.input'],'4STAR_retr','Select one or more input files.');
+skyinput = getfullname(['*.input'],'4STAR_retr','Select one or more input files.');
 if ischar(skyinput)&&~iscell(skyinput)&&exist(skyinput,'file')
     skyinput ={skyinput};
 end

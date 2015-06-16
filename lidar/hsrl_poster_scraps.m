@@ -8,7 +8,7 @@ function status = hsrl_poster_scraps
 % Repeat of previous work...
 % Then look at addt. days
 
-fullname = getfullname_('*.hdf','hsrl','Select hdf file')
+fullname = getfullname('*.hdf','hsrl','Select hdf file')
 %Get HDF info
 [pathname, filename, ext] = fileparts(fullname);
 pathname = [pathname filesep];

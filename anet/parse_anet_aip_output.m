@@ -1,7 +1,7 @@
 function anetaip = parse_anet_aip_output(outname)
 % Search for "Wavelength Dependence" and read the block of
 if ~exist('outname','var')
-    outname = getfullname_('4STAR_*.output','anet_results');
+    outname = getfullname('4STAR_*.output','anet_results');
 end
 
 if exist('outname','var')&&exist(outname, 'file')

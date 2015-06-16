@@ -22,7 +22,7 @@ end
 save([cim_dir, '..',filesep,'magcsphotM1.catall.mat'],'-struct','cimel');
 end
 
-ssfr = anc_load(getfullname__('*spectra.nc','ssfr','Select ssfr file'));
+ssfr = anc_load(getfullname('*spectra.nc','ssfr','Select ssfr file'));
 [~,fname] = fileparts(ssfr.fname);
 wrapped = ssfr.vdata.hours<ssfr.vdata.hours(1);
 ssfr.vdata.hours(wrapped) = ssfr.vdata.hours(wrapped) + 24;
@@ -41,9 +41,9 @@ ssfr.ncdef.recdim.name = 'hours';
 ssfr.ncdef.recdim.id = 0;
 ssfr.ncdef.recdim.length = ssfr.ncdef.dims.hours.length;
 
-sasfilt = anc_load(getfullname__(['magsaszefilt*.',fname(1:8),'*.cdf'],'sasf_mag'));
-sasnir = anc_load(getfullname__(['magsaszenir*.',fname(1:8),'*.cdf'],'sasze_mag'));
-sasvis = anc_load(getfullname__(['magsaszevis*.',fname(1:8),'*.cdf'],'sasze_mag'));
+sasfilt = anc_load(getfullname(['magsaszefilt*.',fname(1:8),'*.cdf'],'sasf_mag'));
+sasnir = anc_load(getfullname(['magsaszenir*.',fname(1:8),'*.cdf'],'sasze_mag'));
+sasvis = anc_load(getfullname(['magsaszevis*.',fname(1:8),'*.cdf'],'sasze_mag'));
 
 [cins, sinc] = nearest(cimel.time, ssfr.time);
 [sinn, nins] = nearest(ssfr.time, sasnir.time);

@@ -1,9 +1,9 @@
 function cimel = read_cimel_aip(filename);
 %This should read any of the Aeronet files.  Not fully tested...
 if ~exist('filename', 'var')
-   filename = getfullname_('*.*','cimel');
+   filename = getfullname('*.*','cimel');
 elseif ~exist(filename,'file')
-   filename = getfullname_(filename,'cimel');
+   filename = getfullname(filename,'cimel');
 end
 [pname, fname,ext] = fileparts(filename);
 fname = [fname,ext];

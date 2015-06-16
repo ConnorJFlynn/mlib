@@ -92,17 +92,17 @@ linkaxes(s,'xy')
 %%
    %%
    
-infileA = getfullname_('*_chA_SKY.coad.mrad.coad.merged.truncated.mat','edgar_mat','Select an Edgar mat file.');
+infileA = getfullname('*_chA_SKY.coad.mrad.coad.merged.truncated.mat','edgar_mat','Select an Edgar mat file.');
 [pname, fname, ext] = fileparts(infileA);
 A_mrad = repack_edgar(infileA); 
-infileA = getfullname_('*_chA_SKY.coad.mrad.coad.merged.truncated.degraded.mat','edgar_mat','Select an Edgar mat file.');
+infileA = getfullname('*_chA_SKY.coad.mrad.coad.merged.truncated.degraded.mat','edgar_mat','Select an Edgar mat file.');
 [pname, fname, ext] = fileparts(infileA);
 A_mrad_deg = repack_edgar(infileA);    
    
-infileA = getfullname_('*_chB_SKY.coad.mrad.coad.merged.truncated.mat','edgar_mat','Select an Edgar mat file.');
+infileA = getfullname('*_chB_SKY.coad.mrad.coad.merged.truncated.mat','edgar_mat','Select an Edgar mat file.');
 [pname, fname, ext] = fileparts(infileA);
 B_mrad = repack_edgar(infileA); 
-infileA = getfullname_('*_chB_SKY.coad.mrad.coad.merged.truncated.degraded.mat','edgar_mat','Select an Edgar mat file.');
+infileA = getfullname('*_chB_SKY.coad.mrad.coad.merged.truncated.degraded.mat','edgar_mat','Select an Edgar mat file.');
 [pname, fname, ext] = fileparts(infileA);
 B_mrad_deg = repack_edgar(infileA); 
 
@@ -117,7 +117,7 @@ figure;
 plot(B_mrad.x, BT(1,:), 'k',B_BT.x, B_BT.y(1,:), 'r.',B_mrad_deg.x, BT_deg(1,:),'go',BT_deg2.x,BT_deg2.y(1,:),'bx')
 figure; plot(B_mrad.x, B_mrad.y(1,:), 'k',B_mrad_deg.x, B_mrad_deg.y(1,:),'go')
 %%
-infileA = getfullname_('*_chB_SkyNEN*.mat','edgar_mat','Select an Edgar mat file.');
+infileA = getfullname('*_chB_SkyNEN*.mat','edgar_mat','Select an Edgar mat file.');
 [pname, fname, ext] = fileparts(infileA);
 NEN = repack_edgar(infileA); 
 %%
@@ -135,7 +135,7 @@ semilogy(matA.x, matA.y,'k-')
 [tl_str,tl_tail] = strtok(fname,'.');
 tl = title({tl_str;tl_tail(2:end)}); set(tl,'interp','none');
 %%
-infileA = getfullname_('*_chA_BTemp_SKY*.mat','edgar_mat','Select an Edgar mat file.');
+infileA = getfullname('*_chA_BTemp_SKY*.mat','edgar_mat','Select an Edgar mat file.');
 [pname, fname, ext] = fileparts(infileA);
 %
 
@@ -162,17 +162,17 @@ subplot(2,1,1); plot(sky_A.x, sky_A.y(1,:)-sky_A.y(2,:), 'k-',matA.x, matA.y(1,:
 subplot(2,1,2); plot(sky_A.x,sky_A.y(1,:)-sky_A.y(2,:) - matA.y(1,:),'-o')
 
 %%
-infileA = getfullname_('*_chA_*RESP_REAL_SKY1*.mat','edgar_mat','Select Re Resp')
+infileA = getfullname('*_chA_*RESP_REAL_SKY1*.mat','edgar_mat','Select Re Resp')
 chA_resp_Re = repack_edgar(infileA); 
 %
-infileA = getfullname_('*_chA_*RESP_IMA_SKY1*.mat','edgar_mat','Select Im Resp.');
+infileA = getfullname('*_chA_*RESP_IMA_SKY1*.mat','edgar_mat','Select Im Resp.');
 chA_resp_Im = repack_edgar(infileA); 
 %
 
-infileA = getfullname_('*_chA_*OFF_REAL_SKY1*.mat','edgar_mat','Select Re Offset cts')
+infileA = getfullname('*_chA_*OFF_REAL_SKY1*.mat','edgar_mat','Select Re Offset cts')
 chA_offset_Re = repack_edgar(infileA); 
 %
-infileA = getfullname_('*_chA_*OFF_IMA_SKY1*.mat','edgar_mat','Select Im Offset cts.');
+infileA = getfullname('*_chA_*OFF_IMA_SKY1*.mat','edgar_mat','Select Im Offset cts.');
 chA_offset_Im = repack_edgar(infileA); 
 %%
 

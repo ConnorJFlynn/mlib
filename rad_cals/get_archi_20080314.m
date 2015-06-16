@@ -20,7 +20,7 @@ if ~exist('in','var')
     in = ['C:\case_studies\radiation_cals\spheres\ARCHI\20080314_v1.Archi.txt'];
 else
     while ~exist(in,'file')
-        in = getfullname_(in,'radcals','Select a calibrated radiance file');
+        in = getfullname(in,'radcals','Select a calibrated radiance file');
     end
     
 end

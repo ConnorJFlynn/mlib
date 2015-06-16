@@ -1,10 +1,10 @@
 %% 
 % open SWS
 
-sws = ancload(getfullname_('sgpsws*.cdf','sws'));
+sws = ancload(getfullname('sgpsws*.cdf','sws'));
 %%
-sasze = ancload(getfullname_('sgpsasze*.cdf','sasze'));
-% sasze = anccat(sasze, ancload(getfullname_('sgpsasze*.cdf','sasze')));
+sasze = ancload(getfullname('sgpsasze*.cdf','sasze'));
+% sasze = anccat(sasze, ancload(getfullname('sgpsasze*.cdf','sasze')));
 %%
 
 

@@ -1,5 +1,5 @@
 %%
-mfr_aod = plot_qcs(ancload(getfullname_('*.cdf','mfr_aodaod')));
+mfr_aod = plot_qcs(ancload(getfullname('*.cdf','mfr_aodaod')));
 %%
 % The function "qc_impacts" rolls up the individual QC tests to yield
 % values of 0, 1, 2 for 'good', 'indeterminate', and 'bad'.

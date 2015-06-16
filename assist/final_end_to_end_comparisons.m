@@ -1,11 +1,11 @@
 %%
 clear
 %%
-chA_file = getfullname_('*.mat','assist_int', 'Select Andre''s file');
+chA_file = getfullname('*.mat','assist_int', 'Select Andre''s file');
 chA_edgar = loadinto(chA_file);
 chA  = repack_edgar(chA_edgar);
 
-% chA_file_re = getfullname_('*.mat','assist_int', 'Select Andre''s file');
+% chA_file_re = getfullname('*.mat','assist_int', 'Select Andre''s file');
 % chA_edgar_re = loadinto(chA_file_re);
 % chA_re  = repack_edgar(chA_edgar_re);
 

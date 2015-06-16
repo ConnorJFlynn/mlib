@@ -1,7 +1,7 @@
 function sws_sas_now_and_then
 
-older = load(getfullname__('sws_sasze_check*.mat','sws_sasze_compares','Select previous comparison'));
-newer = load(getfullname__('sws_sasze_check*.mat','sws_sasze_compares','Select newer comparison'));
+older = load(getfullname('sws_sasze_check*.mat','sws_sasze_compares','Select previous comparison'));
+newer = load(getfullname('sws_sasze_check*.mat','sws_sasze_compares','Select newer comparison'));
 
 figure; plot(older.Si_lambda, older.sws_over_sas_Si_rate,'-',newer.Si_lambda, newer.sws_over_sas_Si_rate,'-');
 legend('older','newer');

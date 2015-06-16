@@ -2,9 +2,9 @@ function mono = SAS_temp_test_interp_dk_with_headers(indir)
 % The case of the NIR has been removed to speed approach of thermal
 % equilibrium
 
-inside_spec = SAS_read_ava(getfullname_('*.csv','ava','Select inside spectrometer'));
-outside_spec = SAS_read_ava(getfullname_('*.csv','ava','Select outside spectrometer'));
-trh = SAS_read_trh(getfullname_('*.csv','ava','Select trh file'));
+inside_spec = SAS_read_ava(getfullname('*.csv','ava','Select inside spectrometer'));
+outside_spec = SAS_read_ava(getfullname('*.csv','ava','Select outside spectrometer'));
+trh = SAS_read_trh(getfullname('*.csv','ava','Select trh file'));
 
 ins_dark = (inside_spec.Shuttered_0==0);
 for m = length(inside_spec.time):-1:1

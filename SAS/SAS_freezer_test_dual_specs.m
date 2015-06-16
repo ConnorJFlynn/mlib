@@ -1,11 +1,11 @@
 function mono = SAS_temp_test_interp_dk_with_headers(indir)
 % Now reading new data format with 1 file per spectrometer, each file has a
 % header row identifying the measurements in underlying columns.
-nir_tmp = getfullname_('*.csv;*.mat','ava','Select NIR spectrometer 46');
+nir_tmp = getfullname('*.csv;*.mat','ava','Select NIR spectrometer 46');
 [p,f,x] = fileparts(nir_tmp);
 [A,~] = strtok(f,'_');
-vis_tmp = getfullname_([A,'*.csv;',A,'*.mat'],'ava','Select VIS spectrometer 47');
-trh_tmp = getfullname_([A,'*T_RH.csv;',A,'*T_RH.mat'],'ava','Select trh file');
+vis_tmp = getfullname([A,'*.csv;',A,'*.mat'],'ava','Select VIS spectrometer 47');
+trh_tmp = getfullname([A,'*T_RH.csv;',A,'*T_RH.mat'],'ava','Select trh file');
 
 if strcmp(nir_tmp(end-2:end),'mat')
    NIR_spec = loadinto(nir_tmp);

@@ -2,7 +2,7 @@ function [aos] = read_aos_h(filename);
 %This reads h_eX.amf, the year-long collection of corrected AOS data from
 %Anne Jefferson
 if ~exist('filename', 'var')||~exist(filename,'file')
-   filename = getfullname_('*.*','noaa_aos','Select a NOAA AOS a_ file.');
+   filename = getfullname('*.*','noaa_aos','Select a NOAA AOS a_ file.');
 end
 
 fid = fopen(filename);

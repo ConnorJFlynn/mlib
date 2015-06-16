@@ -32,7 +32,7 @@ if ~exist('in','var')
     in = ['C:\case_studies\radiation_cals\GSFC_AMES\201112150930ARS.txt'];
 else
     while ~exist(in,'file')
-        in = getfullname_(in,'radcals','Select a calibrated radiance file');
+        in = getfullname(in,'radcals','Select a calibrated radiance file');
     end
     
 end

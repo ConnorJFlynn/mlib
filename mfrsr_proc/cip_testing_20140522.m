@@ -1,9 +1,9 @@
 % Examine MFRSR_CIP and  surfspecalb files to make sense of status fields
-mfr = ancload(getfullname_('sgp*.cdf','cip','Select aod file'));
+mfr = ancload(getfullname('sgp*.cdf','cip','Select aod file'));
 plot_qcs(mfr)
 
-cip = ancload(getfullname_('sgp*.cdf','cip','Select cip file'));
-surf = ancload(getfullname_('sgp*.cdf','cip','Select surfspec file'));
+cip = ancload(getfullname('sgp*.cdf','cip','Select cip file'));
+surf = ancload(getfullname('sgp*.cdf','cip','Select surfspec file'));
 figure; plot(serial2hs(surf.time), surf.vars.cosine_solar_zenith_angle_mfr25mC1.data - surf.vars.cosine_solar_zenith_angle_mfr10mC1.data,'o')
 
 good = qc_impacts(cip.vars.qc_aerosol_optical_depth_filter2_observed)==0;
@@ -149,13 +149,13 @@ recolor(lines,[415, 500, 615,676,870]);colorbar; title('ssa')
     %command history
     load_editor_proj('assist_sri.ed')
 list_editor_proj
-cip = ancload(getfullname_('sgp*.cdf','cip','Select cip file'));
+cip = ancload(getfullname('sgp*.cdf','cip','Select cip file'));
 good = qc_impacts(cip.vars.qc_aerosol_optical_depth_filter2_observed)==0;
 figure; plot([1:length(good)],good,'o')
-mfr = ancload(getfullname_('sgp*.cdf','cip','Select aod file'));
+mfr = ancload(getfullname('sgp*.cdf','cip','Select aod file'));
 plot_qcs(mfr)
 figure; plot(serial2hs(cip.time),good,'o')
-surf = ancload(getfullname_('sgp*.cdf','cip','Select surfspec file'));
+surf = ancload(getfullname('sgp*.cdf','cip','Select surfspec file'));
 fieldnames(surf.vars)
 figure; plot(serial2hs(surf.time), surf.vars.cosine_solar_zenith_angle_mfr25mC1.data - surf.vars.cosine_solar_zenith_angle_mfr10mC1.data,'o')
 [cip_good] = ancsift(cip,cip.dims.time,good);

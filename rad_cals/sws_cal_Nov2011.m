@@ -4,8 +4,8 @@ function resp = sws_cal_Nov2011
 % Check ARS cals
 %%
 in = '*ars*.txt';
-[ars455_1] = get_ars455_Nov2011(getfullname_(in,'radcals','Select a calibrated radiance file'));
-[ars455_2] = get_ars455_Nov2011(getfullname_(in,'radcals','Select a calibrated radiance file'));
+[ars455_1] = get_ars455_Nov2011(getfullname(in,'radcals','Select a calibrated radiance file'));
+[ars455_2] = get_ars455_Nov2011(getfullname(in,'radcals','Select a calibrated radiance file'));
 %%
 [ainb, bina] = nearest(ars455_1.nm, ars455_2.nm);
 figure; plot(ars455_1.nm(ainb), [ars455_1.Aper_A(ainb)./ars455_2.Aper_A(bina),...

@@ -2,10 +2,10 @@
 % First load aeri and assist data
 % This presupposes that you have already processed some ASSIST data that
 % is at the same time as some collocated AERI data. 
-assist = load(getfullname__('assist_degraded.mat','assist_aeri_compare'));
+assist = load(getfullname('assist_degraded.mat','assist_aeri_compare'));
 
-aeri_ch1 = ancload(getfullname__('tmpaeri*.cdf','assist_aeri_compare'));
-aeri_ch2 = ancload(getfullname__('tmpaerich2M1.b1.*.cdf','assist_aeri_compare'));
+aeri_ch1 = ancload(getfullname('tmpaeri*.cdf','assist_aeri_compare'));
+aeri_ch2 = ancload(getfullname('tmpaerich2M1.b1.*.cdf','assist_aeri_compare'));
 
 
 % Next, identify a clear sky time period by plotting radiance at 900 1/cm

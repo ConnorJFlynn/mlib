@@ -2,7 +2,7 @@ function [aos,fid] = read_cpcCCN_2006(filename);
 %This reads ONLY the special file CpcCNN2006.amf containing corrected CPC and CCN counts...
 % Don't use the flags, they are corrupt.
 if ~exist('filename', 'var')||~exist(filename,'file')
-   filename = getfullname_('CpcCCN2006.amf','noaa_aos','Select a NOAA AOS a_ file.');
+   filename = getfullname('CpcCCN2006.amf','noaa_aos','Select a NOAA AOS a_ file.');
 end
 % Year, time,flag,N_cpc_corr,N_ccn_corr
 % 2006,001.00000,0F00,99999.9,01090.8

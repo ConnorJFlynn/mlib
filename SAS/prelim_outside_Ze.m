@@ -11,7 +11,7 @@ function prelim_outside_Ze
 % SN 0911134U1: CCD
 % SN 0911129U1: CMOS
 %%
-NIR = SAS_read_ava(getfullname_('*.csv','ava','Select NIR 0911146U1 spectrometer'));
+NIR = SAS_read_ava(getfullname('*.csv','ava','Select NIR 0911146U1 spectrometer'));
 NIR.time(NIR.Intgration==100) = [];
 NIR.Averages(NIR.Intgration==100) = [];
 NIR.Temp(NIR.Intgration==100) = [];
@@ -28,7 +28,7 @@ figure; semilogy(NIR.nm, NIR.spec(~NIR.dark,:)-ones([sum(~NIR.dark),1])*mean(NIR
 title('NIR dark-subtracted zenith signal')
 %%
 %
-CCD = SAS_read_ava(getfullname_('*.csv','ava','Select CCD 0911134U1spectrometer'));
+CCD = SAS_read_ava(getfullname('*.csv','ava','Select CCD 0911134U1spectrometer'));
 CCD.time(CCD.Intgration>=100) = [];
 CCD.Averages(CCD.Intgration>=100) = [];
 CCD.Temp(CCD.Intgration>=100) = [];
@@ -45,7 +45,7 @@ figure; semilogy(CCD.nm, CCD.spec(~CCD.dark,:)-ones([sum(~CCD.dark),1])*mean(CCD
 title('CCD dark-subtracted zenith signal')
 
 %%
-CCDx = SAS_read_ava(getfullname_('*.csv','ava','Select CCD 0911137U1 spectrometer'));
+CCDx = SAS_read_ava(getfullname('*.csv','ava','Select CCD 0911137U1 spectrometer'));
 %
 % CCDx.time(CCDx.Intgration>=100) = [];
 % CCDx.Averages(CCDx.Intgration>=100) = [];
@@ -62,7 +62,7 @@ subplot(2,1,2); plot(CCDx.nm, CCDx.spec(CCDx.dark,:),'-')
 figure; semilogy(CCDx.nm, CCDx.spec(~CCDx.dark,:)-ones([sum(~CCDx.dark),1])*mean(CCDx.spec(CCDx.dark,:)),'-')
 title('CCDx14 dark-subtracted zenith signal')
 %%
-CMOS = SAS_read_ava(getfullname_('*.csv','ava','Select CCD 0911129U1 spectrometer'));
+CMOS = SAS_read_ava(getfullname('*.csv','ava','Select CCD 0911129U1 spectrometer'));
 %%
 CMOS.time(CMOS.Intgration==100) = [];
 CMOS.Averages(CMOS.Intgration==100) = [];

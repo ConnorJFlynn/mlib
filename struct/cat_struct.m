@@ -1,6 +1,9 @@
-function newstruct = catstruct(struct1, struct2);
-% newstruct = catstruct(struct1, struct2);
+function newstruct = cat_struct(struct1, struct2);
+% newstruct = cat_struct(struct1, struct2);
 % Concatenates two like-formed structure
+% This is distinct from "catstruct" that was developed to handle Matlab
+% program versions
+
 fields1 = fieldnames(struct1);
 fields2 = fieldnames(struct2);
 newstruct = struct2;

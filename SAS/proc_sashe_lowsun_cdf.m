@@ -25,7 +25,7 @@ function [sashe, he_low] = proc_sashe_lowsun(sashe)
 % Divide direct_corr by diffuse_corr to get dir/dif
 % divide by responsivity
 %%
-sashe = ancload(getfullname_('*sashe???lowsun*.cdf','sashevislowsun_cdf'));
+sashe = ancload(getfullname('*sashe???lowsun*.cdf','sashevislowsun_cdf'));
 
 %%
 nm = sashe.vars.wavelength.data>=340 & sashe.vars.wavelength.data<1020;
@@ -106,7 +106,7 @@ ylabel('degrees')
 % ylabel('irrad W/m2-um');
 
 %%
-% nimfr = ancload(getfullname_('sgpnimfr*.cdf'));
+% nimfr = ancload(getfullname('sgpnimfr*.cdf'));
 % [ainb, bina] = nearest(he_low.time, nimfr.time);
 % %%
 % wl = [sscanf(nimfr.atts.filter1_CWL_measured.data,'%f'), sscanf(nimfr.atts.filter2_CWL_measured.data,'%f'),...

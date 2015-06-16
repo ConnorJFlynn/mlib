@@ -36,7 +36,7 @@ mpl_inarg.fstem = [mpl_inarg.tla,'_mplpol_3flynn.'];
    
    % Or alternately, comment out the above lines and uncomment the lines below to 
    % manually load a processed mat file and generate plots.
-   % polavg = loadinto(getfullname_('*.mat','hfe_data','Select hfe mpl mat file.'));
+   % polavg = loadinto(getfullname('*.mat','hfe_data','Select hfe mpl mat file.'));
    % plot_pol_log_bs(polavg,mpl_inarg);
 
    %%

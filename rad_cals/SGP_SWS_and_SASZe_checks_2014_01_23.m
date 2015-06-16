@@ -19,7 +19,7 @@ sws_rate.Si_rad = sws_rate.Si_rate ./ (sws_vis_resp(:,2)*ones([1,size(sws_rate.S
 sws_rate.In_rad = sws_rate.In_rate ./ (sws_nir_resp(:,2)*ones([1,size(sws_rate.Si_rate,2)]));
 figure; plot(sws_rate.Si_lambda, sws_rate.Si_rad(:,1111),'-',sws_rate.In_lambda, sws_rate.In_rad(:,1111),'-');
 %These match up OK
-sws_nc = ancload(getfullname_([pname, 'sgpsws*.cdf']));
+sws_nc = ancload(getfullname([pname, 'sgpsws*.cdf']));
 sws_ii = interp1(sws_nc.time, [1:length(sws_nc.time)], sws_rate.time(1111),'nearest');
 plot(sws_rate.Si_lambda, sws_rate.Si_rad(:,1111),'-',sws_rate.In_lambda, sws_rate.In_rad(:,1111),'-', ...
     sws_nc.vars.wavelength.data, sws_nc.vars.zen_spec_calib.data(:,sws_ii),'k-');
@@ -65,13 +65,13 @@ postclean2_dir = ['D:\case_studies\radiation_cals\2013_12_20.SGP_LAB12_SASZe1_ca
 % times, even though these may not be  optimal given vastly different lamp
 % intensities.
 % [rate, signal, mean_dark_time, mean_dark_spec] = sasze_raw_to_rate(ze)
-vis_preclean = bundle_sas_raw(getfullname_([preclean_dir,'*_vis_1s*.csv'],'preclean','Select preclean files.'));
-vis_postclean = bundle_sas_raw(getfullname_([postclean_dir,'*_vis_1s*.csv'],'postclean','Select postclean files.'));
-vis_postclean2 = bundle_sas_raw(getfullname_([postclean2_dir,'*_vis_1s*.csv'],'postclean2','Select postclean files.'));
+vis_preclean = bundle_sas_raw(getfullname([preclean_dir,'*_vis_1s*.csv'],'preclean','Select preclean files.'));
+vis_postclean = bundle_sas_raw(getfullname([postclean_dir,'*_vis_1s*.csv'],'postclean','Select postclean files.'));
+vis_postclean2 = bundle_sas_raw(getfullname([postclean2_dir,'*_vis_1s*.csv'],'postclean2','Select postclean files.'));
 
-nir_preclean = bundle_sas_raw(getfullname_([preclean_dir,'*_nir_1s*.csv'],'preclean','Select preclean files.'));
-nir_postclean = bundle_sas_raw(getfullname_([postclean_dir,'*_nir_1s*.csv'],'postclean','Select postclean files.'));
-nir_postclean2 = bundle_sas_raw(getfullname_([postclean2_dir,'*_nir_1s*.csv'],'postclean2','Select postclean files.'));
+nir_preclean = bundle_sas_raw(getfullname([preclean_dir,'*_nir_1s*.csv'],'preclean','Select preclean files.'));
+nir_postclean = bundle_sas_raw(getfullname([postclean_dir,'*_nir_1s*.csv'],'postclean','Select postclean files.'));
+nir_postclean2 = bundle_sas_raw(getfullname([postclean2_dir,'*_nir_1s*.csv'],'postclean2','Select postclean files.'));
 
 [vis_preclean.rate, vis_preclean.signal, vis_preclean.mean_dark_time, vis_preclean.mean_dark_spec] = sasze_raw_to_rate(vis_preclean);
 [vis_postclean.rate, vis_postclean.signal, vis_postclean.mean_dark_time, vis_postclean.mean_dark_spec] = sasze_raw_to_rate(vis_postclean);
@@ -124,4 +124,4 @@ figure; plot(serial2doy(vis_preclean.time), vis_preclean.T_avantes_bench_C,'bx',
     serial2doy(sas_vis.time), sas_vis.T_avantes_bench_C, 'k.')
 %%
 % cloudy
-sws_nc_cloud = ancload(getfullname_([pname, 'sgpsws*.cdf']));
+sws_nc_cloud = ancload(getfullname([pname, 'sgpsws*.cdf']));

@@ -1,11 +1,11 @@
 function anetaip = rd_anet_aip_output(output_file);
 if ~exist('output_file','var')||~exist(output_file,'file')
-    output_file = getfullname_('*.output','aip_output','Select output file to plot...');
+    output_file = getfullname('*.output','aip_output','Select output file to plot...');
 end
 
 % output_file_4STAR = ['c:\z_4STAR\work_2aaa__\4STAR_.output'];
 % if ~exist(output_file_4STAR,'file')
-%     output_file_4STAR = [getfullname_('4STAR_.output','STARanet','Select output file from AERONET retrieval.')];
+%     output_file_4STAR = [getfullname('4STAR_.output','STARanet','Select output file from AERONET retrieval.')];
 % end
 
 fid=fopen(output_file,'r');

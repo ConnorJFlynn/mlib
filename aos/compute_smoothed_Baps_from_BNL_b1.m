@@ -1,46 +1,47 @@
 function compute_smoothed_Baps_from_BNL_b1
 
-psapb1 = anc_bundle_files(getfullname__('*.nc','psapb','Select psap b1 file'));
-bnl_raw_pname = 'D:\case_studies\aos\harmony_summary\PSAP\Ab\maoaospsap3wS1.00\maoaospsap3wS1.00.20140207\';
-psapr_00 = read_psap3w_bnlr([bnl_raw_pname, 'maoaospsap3wS1.00.20140207.151101.raw.maomaosas1.psap3wR.01s.00.20140207.140000.raw.tsv']);
-springston_path = ['D:\case_studies\aos\harmony_summary\PSAP\Springston 14-02 PSAP MAOS A\'];
-erm = anc_load;
-k1=1.317; ko=0.866;  % Weiss f(tau) = 1/(1.0796 Tr + 0.71),  % Bond1999 includes new factor of 1/1.22
-                     % which yields f(tau) = 1/(1.317 Tr + 0.866)
-kf = 1./(k1.*erm.vdata.transmittance_green + ko);
-figure; plot(serial2hs(erm.time), kf.*erm.vdata.Ba_G, 'rx');
-erm_17 = anc_sift(erm, serial2hs(erm.time)>=17&serial2hs(erm.time)<=18);
-Ba_G_17 = kf(serial2hs(erm.time)>=17&serial2hs(erm.time)<=18).*erm_17.vdata.Ba_G;
-erm_time_s = (erm_17.time-erm_17.time(1)).*24*60.*60;
-[P,sigma] = gaussian_fwhm(erm_time_s, 1800, 30); 
-P_ = fftshift(P);
-P_area = P_ ./ (sigma .* sqrt(2.*pi));
-fft_p_area = fft(P_area);
-fft_Ba = fft(Ba_G_17);
-fft_by_fft = fft_Ba.*fft_p_area;
-Ba_G_ifft = ifft(fft_by_fft);
-figure; plot(serial2hs(erm_17.time), Ba_G_17, 'o',serial2hs(erm_17.time), Ba_G_ifft,'.')
-
-
-% [spring] = rd_bnl_tsv3; 
-% save([springston_path, 'maomaosas1.psap.01s.00.20140201.000000.m02.tsv.mat'],'-struct','spring');
-spring = load([springston_path, 'maomaosas1.psap.01s.00.20140201.000000.m02.tsv.mat']);
-% ss = spring.time>=psapr_00.time(1691)&spring.time<=psapr_00.time(end);
-ss = spring.time>=psapb1.time(1)&spring.time<=psapb1.time(end);
-ss_ii = find(ss);
-[ainb,bina] = nearest(psapb1.time, spring.time(ss));
-psapb1 = anc_sift(psapb1,ainb);
-K0 = psapb1.vatts.sample_flow_rate.K0;
-K1 = psapb1.vatts.sample_flow_rate.K1;
-K2 = psapb1.vatts.sample_flow_rate.K2;
-% K0 = 923.6; K1 = 752.8; K2 = 38.2;
-sample_flow = (-K1 + (K1.^2 - 4.*(K0-double(psapr_00.flow_AD)).*K2).^0.5)./(2.*K2) ;
-% figure;  plot(psapb1.time, psapb1.vdata.sample_flow_rate,'o', psapr_00.time, sample_flow, '.');
-% sample_flow = psapb1.vdata.sample_flow_rate;
- 
-Tr_grn = psapr_00.grn_rel./psapr_00.grn_rel(1691);
-Tr_blu = psapr_00.blu_rel./psapr_00.blu_rel(1691);
-Tr_red = psapr_00.red_rel./psapr_00.red_rel(1691);
+psapb1 = anc_bundle_files(getfullname('*.nc','psapb','Select psap b1 file'));
+% bnl_raw_pname = 'D:\case_studies\aos\harmony_summary\PSAP\Ab\maoaospsap3wS1.00\maoaospsap3wS1.00.20140207\';
+% psapr_00 = read_psap3w_bnlr([bnl_raw_pname, 'maoaospsap3wS1.00.20140207.151101.raw.maomaosas1.psap3wR.01s.00.20140207.140000.raw.tsv']);
+% springston_path = ['D:\case_studies\aos\harmony_summary\PSAP\Springston 14-02 PSAP MAOS A\'];
+% erm = anc_load;
+% k1=1.317; ko=0.866;  % Weiss f(tau) = 1/(1.0796 Tr + 0.71),  % Bond1999 includes new factor of 1/1.22
+%                      % which yields f(tau) = 1/(1.317 Tr + 0.866)
+% kf = 1./(k1.*erm.vdata.transmittance_green + ko);
+% figure; plot(serial2hs(erm.time), kf.*erm.vdata.Ba_G, 'rx');
+% erm_17 = anc_sift(erm, serial2hs(erm.time)>=17&serial2hs(erm.time)<=18);
+% Ba_G_17 = kf(serial2hs(erm.time)>=17&serial2hs(erm.time)<=18).*erm_17.vdata.Ba_G;
+% erm_time_s = (erm_17.time-erm_17.time(1)).*24*60.*60;
+% [P,sigma] = gaussian_fwhm(erm_time_s, 1800, 30); 
+% P_ = fftshift(P);
+% P_area = P_ ./ (sigma .* sqrt(2.*pi));
+% fft_p_area = fft(P_area);
+% fft_Ba = fft(Ba_G_17);
+% fft_by_fft = fft_Ba.*fft_p_area;
+% Ba_G_ifft = ifft(fft_by_fft);
+% figure; plot(serial2hs(erm_17.time), Ba_G_17, 'o',serial2hs(erm_17.time), Ba_G_ifft,'.')
+% 
+% 
+% % [spring] = rd_bnl_tsv3; 
+% % save([springston_path, 'maomaosas1.psap.01s.00.20140201.000000.m02.tsv.mat'],'-struct','spring');
+% spring = load([springston_path, 'maomaosas1.psap.01s.00.20140201.000000.m02.tsv.mat']);
+% % ss = spring.time>=psapr_00.time(1691)&spring.time<=psapr_00.time(end);
+% ss = spring.time>=psapb1.time(1)&spring.time<=psapb1.time(end);
+% ss_ii = find(ss);
+% [ainb,bina] = nearest(psapb1.time, spring.time(ss));
+% psapb1 = anc_sift(psapb1,ainb);
+sample_flow = psapb1.vdata.sample_flow_rate;
+% K0 = psapb1.vatts.sample_flow_rate.K0;
+% K1 = psapb1.vatts.sample_flow_rate.K1;
+% K2 = psapb1.vatts.sample_flow_rate.K2;
+% % K0 = 923.6; K1 = 752.8; K2 = 38.2;
+% sample_flow = (-K1 + (K1.^2 - 4.*(K0-double(psapr_00.flow_AD)).*K2).^0.5)./(2.*K2) ;
+% % figure;  plot(psapb1.time, psapb1.vdata.sample_flow_rate,'o', psapr_00.time, sample_flow, '.');
+% % sample_flow = psapb1.vdata.sample_flow_rate;
+%  
+% Tr_grn = psapr_00.grn_rel./psapr_00.grn_rel(1691);
+% Tr_blu = psapr_00.blu_rel./psapr_00.blu_rel(1691);
+% Tr_red = psapr_00.red_rel./psapr_00.red_rel(1691);
 % figure; plot(psapb1.time, psapb1.vdata.transmittance_red, 'k.', psapr_00.time, Tr_red,'ro');
 
 Tr_grn = psapb1.vdata.transmittance_green;
@@ -55,10 +56,10 @@ Bab_10s = smooth_Tr_Bab(psapb1.time, psapb1.vdata.sample_flow_rate, Tr_grn,SS(3)
 Bab_15s = smooth_Tr_Bab(psapb1.time, psapb1.vdata.sample_flow_rate, Tr_grn,SS(4));
 Bab_30s = smooth_Tr_Bab(psapb1.time, psapb1.vdata.sample_flow_rate, Tr_grn,SS(5));
 Bab_45s = smooth_Tr_Bab(psapb1.time, psapb1.vdata.sample_flow_rate, Tr_grn,SS(6));
-Bab_60s = smooth_Tr_Bab(psapb1.time, psapb1.vdata.sample_flow_rate, Tr_grn,SS(7));
+Bab_60s = smooth_Tr_Bab(psapb1.time, psapb1.vdata.sample_flow_rate./psapb1.vdata.dilution_correction_factor, Tr_blu,SS(7));
 
 k1=1.317; ko=0.866; 
-kf = 1./(k1.*Tr_grn + ko)';
+kf = 1./(k1.*Tr_blu + ko)';
 
 Bab_1s = Bab_1s .*kf;
 Bab_5s =Bab_5s .*kf;

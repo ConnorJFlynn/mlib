@@ -1,6 +1,6 @@
 function aats = rd_aats_trans(filename);
 if ~exist('filename','var')||~exist(filename,'file');
-   filename = getfullname_('*_trans.*','aats_trans');
+   filename = getfullname('*_trans.*','aats_trans');
 end
 %      [aatsfilename,pathname]=uigetfile('C:\case_studies\4STAR\ftp.science.arc.nasa.gov\Data\aats14_4star_stability\*_trans.*','Choose data file');
 fid=fopen(filename);

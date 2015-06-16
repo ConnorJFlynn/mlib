@@ -1,10 +1,10 @@
 function status = check_files;
 %%
-b1 = ancload(getfullname_('*b1.*cdf','b1'));
+b1 = ancload(getfullname('*b1.*cdf','b1'));
 [pname,fname,ext] = fileparts(b1.fname);
 [~,stem] = strtok([fname,ext],'.');
 [~,stem] = strtok(stem,'.');
-c1.fname = getfullname_([pname,filesep,fname(1:8),'aod1mich*',stem],'c1');
+c1.fname = getfullname([pname,filesep,fname(1:8),'aod1mich*',stem],'c1');
 c1 = ancload(c1.fname)
 
 %%

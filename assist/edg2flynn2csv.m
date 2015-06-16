@@ -1,6 +1,6 @@
 function status = edg2flynn2csv% Read in edgar file
 pname = 'C:\case_studies\assist\May17\';
-in_file = getfullname_([pname, '*.mat']);
+in_file = getfullname([pname, '*.mat']);
 [p,fname,ext] = fileparts(in_file);
 fname =[fname,ext];
 edgar_mat = loadinto([pname,fname]);

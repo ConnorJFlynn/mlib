@@ -1,7 +1,7 @@
 function prede = read_prede_rdm(filename);
 %This should read Prede random-scan files
 if ~exist('filename', 'var')
-   filename= getfullname_('*.rdm','prede_scan');
+   filename= getfullname('*.rdm','prede_scan');
 end
 % Changing structure to remove the concept of unique 'scans'.
 % Essentially, we'll still separate the data according to H or V, but

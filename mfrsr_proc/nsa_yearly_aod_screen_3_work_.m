@@ -2,7 +2,7 @@ function ann = nsa_yearly_aod_screen_3c
 
 
 %%
-infile = getfullname_('*.cdf','aod_cat','Select the annual aod file.');
+infile = getfullname('*.cdf','aod_cat','Select the annual aod file.');
 nc = ancload(infile);
 %%
 

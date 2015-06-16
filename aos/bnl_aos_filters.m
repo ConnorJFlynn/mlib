@@ -91,10 +91,10 @@ for m = 1:length(mets)
 
 %%
 
-% aos_cpc = ancload(getfullname_('*.cdf','aos_cpc'));
-% aos_psap3w = ancload(getfullname_('*.cdf','aos_psap3w'));
-% aos_neph_ref = ancload(getfullname_('*.cdf','aos_neph1'));
-% aos_neph_ramp = ancload(getfullname_('*.cdf','aos_neph2'));
+% aos_cpc = ancload(getfullname('*.cdf','aos_cpc'));
+% aos_psap3w = ancload(getfullname('*.cdf','aos_psap3w'));
+% aos_neph_ref = ancload(getfullname('*.cdf','aos_neph1'));
+% aos_neph_ramp = ancload(getfullname('*.cdf','aos_neph2'));
 
 met_grid = anctimegrid2(aos_met,1./(24*60*60),floor(aos_met.time(1)),floor(aos_met.time(1))+1-1./(24*60*60),NaN);
 cpc_grid = anctimegrid2(aos_cpc,1./(24*60*60),floor(aos_cpc.time(1)),floor(aos_cpc.time(1))+1-1./(24*60*60),NaN);

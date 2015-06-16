@@ -6,7 +6,7 @@ function prede = prede_aod(prede);
 % Compute Rayleigh 
 % s.tau_ray=rayleighez(s.w,s.Pst,s.t,s.Lat);
 if ~exist('prede','var')||(~isstruct(prede)&&~exist(prede,'file'))
-    prede = getfullname_('*.SUN','prede_sun');
+    prede = getfullname('*.SUN','prede_sun');
 end
 if ~isstruct(prede)
     prede = read_prede(prede);

@@ -3,7 +3,7 @@ function nrel = read_nrel_od(filename);
 % to read those from StormPeak for Ian McCubbin
 
 if ~exist('filename', 'var')
-   filename= getfullname_('*.txt','nrel_od');
+   filename= getfullname('*.txt','nrel_od');
    [pname, fname,ext] = fileparts(filename);
    fname = [fname,ext];
 end

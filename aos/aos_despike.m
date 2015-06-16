@@ -6,7 +6,7 @@ function bad = aos_despike(time, y,y_min, y_max,pre_window, mad_thresh, eps_thre
 
 
 
-cpcf = anc_bundle_files(getfullname__('*.cdf *.nc','cpcf','Select cpcf files'));
+cpcf = anc_bundle_files(getfullname('*.cdf *.nc','cpcf','Select cpcf files'));
 
 cpcf = ARM_nc_display(cpcf);
 % (time, tau,tau_min, tau_max,pre_window, mad_thresh, eps_thresh,eps_window,  post_window, aot_base)

@@ -1,6 +1,6 @@
 %%
-ze_vis = rd_raw_SAS(getfullname_('SASZe_*_vis*.csv','sasze'));
-ze_nir = rd_raw_SAS(getfullname_('SASZe_*_nir*.csv','sasze'));
+ze_vis = rd_raw_SAS(getfullname('SASZe_*_vis*.csv','sasze'));
+ze_nir = rd_raw_SAS(getfullname('SASZe_*_nir*.csv','sasze'));
 %%
 plots_default
 vis_nm = ze_vis.lambda>340 & ze_vis.lambda<1020;

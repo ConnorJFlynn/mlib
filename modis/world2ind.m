@@ -2,7 +2,7 @@ function [xi, yi] = world2ind(x,y,hdf_in);
 % returns grid indices corresponding to a set of world coordinates in the
 % provided hdf file % x is for Lon, y is for Lat
 if ~exist('hdf_in','var')||~exist(hdf_in,'file')
-    hdf_in = getfullname__('*.hdf','hdf4','Select a MODIS hdf4 file.');
+    hdf_in = getfullname('*.hdf','hdf4','Select a MODIS hdf4 file.');
 end
 info = hdfinfo(hdf_in);
 parse_me = info.Attributes(2).Value; % this should be the content of the "StructMetadata.0" attribute

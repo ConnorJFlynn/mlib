@@ -1,7 +1,7 @@
 function anetaip = star_anet_aip_process(s)
 %
 if ~exist('s','var')
-    sfile = getfullname_('*starsky.mat','starsky','Select star sky mat file.');
+    sfile = getfullname('*starsky.mat','starsky','Select star sky mat file.');
     s = load(sfile);
 end
 if isfield(s,'filename')

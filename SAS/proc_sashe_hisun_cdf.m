@@ -35,14 +35,14 @@ function [sashe, he_vis_1,he_vis_2] = proc_sashe_hisun(sashe)
 % divide by responsivity
 %%
 if ~exist('sashe','var')
-    sashe = ancload(getfullname_('*sashevishisun*.cdf','sashevishisun_cdf'));
+    sashe = ancload(getfullname('*sashevishisun*.cdf','sashevishisun_cdf'));
 end
 if ~isstruct(sashe)&&ischar(sashe)
     sashe = ancload(sashe);
 end
-% sashe_nir = ancload(getfullname_('*sashenirhisun*.cdf','sashenirhisun_cdf'));
+% sashe_nir = ancload(getfullname('*sashenirhisun*.cdf','sashenirhisun_cdf'));
 % vis_ms =
-% rd_raw_SAS(getfullname_('SASHe_HiSun_vis_ms*.csv','sashe_hisun'));
+% rd_raw_SAS(getfullname('SASHe_HiSun_vis_ms*.csv','sashe_hisun'));
 
 %%
 vis_nm = sashe.vars.wavelength.data>=340 & sashe.vars.wavelength.data<1020;
@@ -131,7 +131,7 @@ he_vis_1.cos_corr = sgpsashe_coscorr_from_PNNL_predeploy(he_vis_1.sza);
 he_vis_1.dirn_raw = he_vis_1.dirh_raw ./ (ones([size(he_vis_1.dirh_raw,1),1])*cos(pi.*he_vis_1.sza./180));
 he_vis_1.dirn = he_vis_1.dirn_raw ./ (ones([size(he_vis_1.dirh_raw,1),1])*he_vis_1.cos_corr);
 %%
-% nim = ancload(getfullname_('sgpnimfr*.cdf','nimfr'));
+% nim = ancload(getfullname('sgpnimfr*.cdf','nimfr'));
 % %%
 % figure; ss(1) = subplot(2,1,1); plot(serial2doy(he_vis_1.time), he_vis_1.dirn(380,:),'-', ...
 %     serial2doy(nim.time), (1020./1060).*8e2.* nim.vars.direct_normal_narrowband_filter2.data,'r-');
@@ -215,7 +215,7 @@ he_vis_2.dirn = he_vis_2.dirn_raw ./ (ones([size(he_vis_2.dirh_raw,1),1])*he_vis
 
 %%
 % figure(99);
-% mfr_file = getfullname_('pghmfrsr*.cdf','pghmfrsr','Select MFRSR file.');
+% mfr_file = getfullname('pghmfrsr*.cdf','pghmfrsr','Select MFRSR file.');
 % mfr = ancload(mfr_file);
 % %%
 % figure;plot(serial2Hh(mfr.time),[mfr.vars.direct_horizontal_narrowband_filter1.data; ...
@@ -254,7 +254,7 @@ ylabel('degrees')
 % xlabel('wavelength [nm]');
 % ylabel('irrad W/m2-um');
 % %%
-% nimfr = ancload(getfullname_('sgpnimfr*.cdf'));
+% nimfr = ancload(getfullname('sgpnimfr*.cdf'));
 % [ainb, bina] = nearest(he_vis_1.time, nimfr.time);
 % %%
 % wl = [sscanf(nimfr.atts.filter1_CWL_measured.data,'%f'), sscanf(nimfr.atts.filter2_CWL_measured.data,'%f'),...

@@ -1,6 +1,6 @@
 function cbar = rip_png_colorbar;
 
-[filename] = getfullname__('*.png');
+[filename] = getfullname('*.png');
 cbar = imread(filename);
 %% 
 figure; image(cbar);

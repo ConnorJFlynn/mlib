@@ -1,7 +1,7 @@
 function in_file = read_avantes_csv(filename,header_rows);
 %This reads the Avantes csv data (tit) in the format provided via email
 if ~exist('filename', 'var')
-   filename= getfullname_('*.*','ascii');
+   filename= getfullname('*.*','ascii');
    [pname, fname,ext] = fileparts(filename);
    fname = [fname,ext];
 end

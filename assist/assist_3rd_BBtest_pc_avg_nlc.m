@@ -2,31 +2,36 @@ function assist = assist_3rd_BBtest_pc_avg_nlc % ASSIST annew
 % Apply processing step by step, confirming most recent LR Tech processing
 %% Let's modify this to produce one set with emis==1 (for all blackbodies, ABB, HBB and 3rd)
 % and one test with all emis = the usual one below.
+% OK, cool.  the BB test results are equivalent for applying unity
+% emissivity or applying all the same (AERI) emissivity.
+BB3 = 37; % Assist BB setting/reading
+% BB3 = 44.53; % AERI BB reading?
+
 
 emis = load('emis.mat');
 emis = repack_edgar(emis);
-nlc = getfullname__('nlc.*.mat','nlc','Select NLC correction file');
+nlc = getfullname('nlc.*.mat','nlc','Select NLC correction file');
 if exist(nlc,'file')
    nlc = load(nlc);
 end
 
 % pick = menu('Process all files or just selected files?','All','Selected');
 pause(.01);
-raw_files = getfullname('*_ann_*.*','assist_dir','Select a file in the directory to bundle.');
-   if ~iscell(raw_files)
-      raw_files = {raw_files};
+rawfiles = getfullname('*_ann_*.*','assist_dir','Select a file in the directory to bundle.');
+   if ~iscell(rawfiles)
+      rawfiles = {rawfiles};
    end
-if length(raw_files)==1
+if length(rawfiles)==1
    
 
-   [pname, fname, ext] = fileparts(raw_files{1});
+   [pname, fname, ext] = fileparts(rawfiles{1});
    pname = [pname, filesep];
    catdir = [pname, 'catdir',filesep];
    if ~exist(catdir,'dir')
       mkdir(catdir);
    end
    raw_files = dir([pname,'*_ann_*.*']);
-   raw_files = [raw_files;dir([pname,'*.nc'])];
+%    raw_files = [raw_files;dir([pname,'*.nc'])];
 else
 %    rawfiles = getfullname('*_ann_*.csv','assist_dir');
 %    if ~iscell(rawfiles)
@@ -142,6 +147,7 @@ while n<=N-2
          seq = load_cal_sequence_mat(pname, dstem);
       end
       seq.emis = emis;
+      seq.BB3 = BB3;
       seq = proc_cal_sequence(seq,nlc);
       a_ = seq.chA.cxs.x>535&seq.chA.cxs.x<1840;
       b_ = seq.chB.cxs.x>1830&seq.chB.cxs.x<3500;
@@ -199,9 +205,9 @@ save([pname, filesep,'assist_degraded.mat'],'-struct','assist');
 % chB = assist.chB.mrad.x>1800&assist.chB.mrad.x<3200;
 % sky = assist.isSky;
 %
-% aeri = ancload(getfullname_('*sgpaerisummaryC1*.cdf','aeri'));
+% aeri = ancload(getfullname('*sgpaerisummaryC1*.cdf','aeri'));
 % xl = aeri.time>assist.time(1)&aeri.time<assist.time(end);
-% aericha = ancload(getfullname_('*sgpaeri*.cdf','aeri'));
+% aericha = ancload(getfullname('*sgpaeri*.cdf','aeri'));
 % aericha = ancsift(aericha, aericha.dims.time, xl);
 % %%
 % figure; plot(aericha.vars.wnum.data, mean(aericha.vars.mean_rad.data,2),'k-',(1329.76./1329.93).*assist.chA.mrad.x(chA), mean(assist.chA.mrad.y(sky,chA)),'r-');
@@ -388,7 +394,7 @@ save([pname, filesep,'assist_degraded.mat'],'-struct','assist');
 % % So, first compare the spectral quantities
 % % %%
 % % % 20110324_051618_chA_HBBNen1.coad.mrad.pro.degraded.truncated.mat
-% % infileA = getfullname_([pname_A,'20110324_051618_chA_Nen.coad.mrad.pro.degraded.truncated.mat'],'edgar_mat','Select ch A truncated mrad')
+% % infileA = getfullname([pname_A,'20110324_051618_chA_Nen.coad.mrad.pro.degraded.truncated.mat'],'edgar_mat','Select ch A truncated mrad')
 % % matA = repack_edgar(infileA);
 % % [mat_pname, mat_fname, ext] = fileparts(infileA);
 % % [fname_a,fname_b]=strtok(mat_fname,'.');
@@ -413,7 +419,7 @@ save([pname, filesep,'assist_degraded.mat'],'-struct','assist');
 % % ylabel('radiance [RU]');
 % %%
 %
-% infileA = getfullname_([pname_A,'*_chA_SKY.coad.mrad.coad.merged.truncated.mat'],'edgar_mat','Select ch A truncated mrad')
+% infileA = getfullname([pname_A,'*_chA_SKY.coad.mrad.coad.merged.truncated.mat'],'edgar_mat','Select ch A truncated mrad')
 % matA = repack_edgar(infileA);
 % [mat_pname, mat_fname, ext] = fileparts(infileA);
 % [fname_a,fname_b]=strtok(mat_fname,'.');
@@ -470,7 +476,7 @@ save([pname, filesep,'assist_degraded.mat'],'-struct','assist');
 %
 % %%
 %
-% infileA = getfullname_([pname_A,'20110324_051618_chA_HBBNen2.coad.mrad.pro.degraded.truncated.mat'],'edgar_mat','Select ch A truncated mrad')
+% infileA = getfullname([pname_A,'20110324_051618_chA_HBBNen2.coad.mrad.pro.degraded.truncated.mat'],'edgar_mat','Select ch A truncated mrad')
 % matA = repack_edgar(infileA);
 % [mat_pname, mat_fname, ext] = fileparts(infileA);
 % [fname_a,fname_b]=strtok(mat_fname,'.');
@@ -497,7 +503,7 @@ save([pname, filesep,'assist_degraded.mat'],'-struct','assist');
 % %%
 % %%
 %
-% infileA = getfullname_([pname_A,'20110324_051618_chA_Nen.coad.mrad.pro.degraded.truncated.mat'],'edgar_mat','Select ch A truncated mrad')
+% infileA = getfullname([pname_A,'20110324_051618_chA_Nen.coad.mrad.pro.degraded.truncated.mat'],'edgar_mat','Select ch A truncated mrad')
 % matA = repack_edgar(infileA);
 % [mat_pname, mat_fname, ext] = fileparts(infileA);
 % [fname_a,fname_b]=strtok(mat_fname,'.');
@@ -541,7 +547,7 @@ save([pname, filesep,'assist_degraded.mat'],'-struct','assist');
 % % Then, define the different sub-bands and compute related quantities
 % % Then, load each mat file and check content.
 % proc_pname = ['C:\case_studies\assist\data\post_Feb_repair\20110222_1157\one_sequence\processed'];
-% infileA = getfullname_('*_chA_BTemp_SKY*.mat','edgar_mat','Select ch A Brightness temperature')
+% infileA = getfullname('*_chA_BTemp_SKY*.mat','edgar_mat','Select ch A Brightness temperature')
 % matA = repack_edgar_nc(infileA);
 % [mat_pname, mat_fname, ext] = fileparts(infileA);
 % [fname_a,fname_b]=strtok(mat_fname,'.');
@@ -574,7 +580,7 @@ save([pname, filesep,'assist_degraded.mat'],'-struct','assist');
 % end
 % saveas(gcf,png_file);
 % %%
-% infileA = getfullname_('*_chA_HBBNen1.coad.mrad.pro.truncated.degraded.mat','edgar_mat','Select ch A NEN1')
+% infileA = getfullname('*_chA_HBBNen1.coad.mrad.pro.truncated.degraded.mat','edgar_mat','Select ch A NEN1')
 % matA = repack_edgar_nc(infileA);
 % [mat_pname, mat_fname, ext] = fileparts(infileA);
 % [fname_a,fname_b]=strtok(mat_fname,'.');
@@ -604,7 +610,7 @@ save([pname, filesep,'assist_degraded.mat'],'-struct','assist');
 % end
 % saveas(gcf,png_file);
 % %%
-% infileA = getfullname_('*_chA_HBBNen2.coad.mrad.pro.truncated.degraded.mat','edgar_mat','Select ch A NEN2')
+% infileA = getfullname('*_chA_HBBNen2.coad.mrad.pro.truncated.degraded.mat','edgar_mat','Select ch A NEN2')
 % matA = repack_edgar(infileA);
 % [mat_pname, mat_fname, ext] = fileparts(infileA);
 % [fname_a,fname_b]=strtok(mat_fname,'.');
@@ -634,7 +640,7 @@ save([pname, filesep,'assist_degraded.mat'],'-struct','assist');
 % end
 % saveas(gcf,png_file);
 % %%
-% infileA = getfullname_('*_chA_SKY.coad.mrad.coad.merged.truncated.degraded.mat','edgar_mat','Select ch A degraded mrad')
+% infileA = getfullname('*_chA_SKY.coad.mrad.coad.merged.truncated.degraded.mat','edgar_mat','Select ch A degraded mrad')
 % matA = repack_edgar(infileA);
 % [mat_pname, mat_fname, ext] = fileparts(infileA);
 % [fname_a,fname_b]=strtok(mat_fname,'.');
@@ -666,26 +672,26 @@ save([pname, filesep,'assist_degraded.mat'],'-struct','assist');
 %
 % %%
 % % Load real and imaginary responsivity for Ch A and Ch B
-% infileA = getfullname_('*_chA_SKY_RESP_REAL_SKY.coad.mrad.pro.truncated.degraded.mat','edgar_mat','Select ch A real responsivity')
+% infileA = getfullname('*_chA_SKY_RESP_REAL_SKY.coad.mrad.pro.truncated.degraded.mat','edgar_mat','Select ch A real responsivity')
 % Re_matA = repack_edgar(infileA);
 % [mat_pname, mat_fname, ext] = fileparts(infileA);
 % [fname_a,fname_b]=strtok(mat_fname,'.');
 % infileB = strrep(infileA,'_chA_','_chB_');
 % Re_matB = repack_edgar(infileB);
-% infileA = getfullname_('*_chA_SKY_RESP_IMA_SKY.coad.mrad.pro.truncated.degraded.mat','edgar_mat','Select ch A imag responsivity')
+% infileA = getfullname('*_chA_SKY_RESP_IMA_SKY.coad.mrad.pro.truncated.degraded.mat','edgar_mat','Select ch A imag responsivity')
 % Im_matA = repack_edgar(infileA);
 % [mat_pname, mat_fname, ext] = fileparts(infileA);
 % [fname_a,fname_b]=strtok(mat_fname,'.');
 % infileB = strrep(infileA,'_chA_','_chB_');
 % Im_matB = repack_edgar(infileB);
 %
-% infileA = getfullname_('*_chA_SKY_OFF_REAL_SKY.coad.mrad.pro.truncated.degraded.mat','edgar_mat','Select ch A real offset')
+% infileA = getfullname('*_chA_SKY_OFF_REAL_SKY.coad.mrad.pro.truncated.degraded.mat','edgar_mat','Select ch A real offset')
 % Re_offA = repack_edgar(infileA);
 % [mat_pname, mat_fname, ext] = fileparts(infileA);
 % [fname_a,fname_b]=strtok(mat_fname,'.');
 % infileB = strrep(infileA,'_chA_','_chB_');
 % Re_offB = repack_edgar(infileB);
-% infileA = getfullname_('*_chA_SKY_OFF_IMA_SKY.coad.mrad.pro.truncated.degraded.mat','edgar_mat','Select ch A imag offset')
+% infileA = getfullname('*_chA_SKY_OFF_IMA_SKY.coad.mrad.pro.truncated.degraded.mat','edgar_mat','Select ch A imag offset')
 % Im_offA = repack_edgar(infileA);
 % [mat_pname, mat_fname, ext] = fileparts(infileA);
 % [fname_a,fname_b]=strtok(mat_fname,'.');
@@ -777,7 +783,7 @@ return
 
 % function mat = repack_edgar(edgar)
 % if ~exist('edgar','var')
-%    edgar =loadinto(getfullname_('*.mat','edgar_mat','Select an Edgar mat file.'));
+%    edgar =loadinto(getfullname('*.mat','edgar_mat','Select an Edgar mat file.'));
 % end
 % if ~isstruct(edgar)&&exist(edgar,'file')
 %    edgar =loadinto(edgar);
@@ -1095,7 +1101,7 @@ if any(assist.chA.cxs.zpd_raw ~= max(assist.chA.y,[],2))
    disp('ZPD_raw ~= max!')
 end
 
-[assist] = NLC_split_det_scandir(assist, nlc.PC_avg, assist.chA.cxs.zpd_ps,assist.logi.F|assist.logi.R);
+
 % Now channel B, InSb
 [~,maxii_HF] = max(abs(assist.chB.y(logi.HBB_F,:)),[],2); maxii_HF = mode(maxii_HF);
 [~,maxii_HR] = max(abs(assist.chB.y(logi.HBB_R,:)),[],2); maxii_HR = mode(maxii_HR);
@@ -1114,7 +1120,9 @@ assist.chB.y = fftshift(assist.chB.y,dim_n);
 
 % assist = rad_cal_def_M(assist, emis, T_ref)
 emis = assist.emis;
+[assist] = NLC_split_det_scandir(assist, nlc.PC_avg, assist.chA.cxs.zpd_ps,assist.logi.F|assist.logi.R);
 assist = rad_cal_def_M(assist, emis);
+
 
 
 %
@@ -1132,6 +1140,9 @@ assist.chB.spc.y__(assist.logi.R,:) = RadiometricCalibration_4(assist.chB.cxs.y(
 
 
 %%
+figure; 
+
+%%
 % figure; plot(assist.chA.cxs.x, [mean(assist.chA.cxs.y(assist.logi.ABB_F,:));mean(assist_noNLC.chA.cxs.y(assist.logi.ABB_F,:))],'-')
 %%
 
@@ -1141,7 +1152,7 @@ assist.chB.spc.y__(assist.logi.R,:) = RadiometricCalibration_4(assist.chB.cxs.y(
 
 assist.chA.mrad.y = ApplyFFOVCorr(assist.chA.cxs.x, assist.chA.spc.y,0.0225);
 assist.chB.mrad.y = ApplyFFOVCorr(assist.chB.cxs.x, assist.chB.spc.y,0.0225);
-
+% 
 assist.chA.mrad.y__ = ApplyFFOVCorr(assist.chA.cxs.x, assist.chA.spc.y__,0.0225);
 assist.chB.mrad.y__ = ApplyFFOVCorr(assist.chB.cxs.x, assist.chB.spc.y__,0.0225);
 
@@ -1226,7 +1237,6 @@ assist.down.chA.mrad.R = downsample(assist.chA.mrad.y(assist.logi.R,:),N);
 assist.down.chA.mrad.R__ = downsample(assist.chA.mrad.y__(assist.logi.R,:),N);
 assist.down.chA.var.R = downvariance(assist.chA.mrad.y(assist.logi.R,:),N);
 
-
 % Ch B
 assist.down.chB.ifg.R = downsample(assist.chB.y(assist.logi.R,:),N);
 assist.down.chB.cxs.R = downsample(assist.chB.cxs.y(assist.logi.R,:),N);
@@ -1244,41 +1254,86 @@ chA_emis = ones(size(assist.down.chA.mrad.y,1),1)*chA_emis;
 assist.down.chA.T_bt = BrightnessTemperature(assist.chA.cxs.x, real(assist.down.chA.mrad.y./chA_emis));
 assist.down.chA.T_bt__ = BrightnessTemperature(assist.chA.cxs.x, real(assist.down.chA.mrad.y__));
 
-
 assist.down.chB.mrad.y = (assist.down.chB.mrad.F + assist.down.chB.mrad.R)./2;
 assist.down.chB.mrad.y__ = (assist.down.chB.mrad.F__ + assist.down.chB.mrad.R__)./2;
 assist.down.chB.var.y = (assist.down.chB.var.F  + assist.down.chB.var.R);
 chB_emis = interp1(assist.emis.x, assist.emis.y, assist.chB.cxs.x, 'linear','extrap');
 chB_emis = ones(size(assist.down.chB.mrad.y,1),1)*chB_emis;
 assist.down.chB.T_bt = BrightnessTemperature(assist.chB.cxs.x, real(assist.down.chB.mrad.y./chB_emis));
-assist.down.chB.T_bt__ = BrightnessTemperature(assist.chB.cxs.x, real(assist.down.chB.mrad.y__));
+% assist.down.chB.T_bt__ = BrightnessTemperature(assist.chB.cxs.x, real(assist.down.chB.mrad.y__));
 
 %%
 T_ABB = downsample(assist.ABB_C+273.15,12)';
 T_HBB = downsample(assist.HBB_C+273.15,12)';
+BB3 = assist.BB3;% 
 
+
+% First, subtract radiance reflected from the mirror to get the radiance 
+% actually coming from the BB as the residual.  
+% Then magnify this residual by 1/emis to approximate radiance from a
+% perfect BB with emissivity==1.  Then compute brightness temperature.
+% this magnified residual.
 R_H_chA = (assist.down.chA.mrad.y -(1-chA_emis).*(ones(size(T_ABB))*Blackbody(assist.down.chA.mrad.x, mean(T_ABB))))./chA_emis;
-R_H_chB = (assist.down.chB.mrad.y -(1-chA_emis).*(ones(size(T_ABB))*Blackbody(assist.down.chB.mrad.x, mean(T_ABB))))./chA_emis;
+R_H_chB = (assist.down.chB.mrad.y -(1-chB_emis).*(ones(size(T_ABB))*Blackbody(assist.down.chB.mrad.x, mean(T_ABB))))./chB_emis;
+
+% R_H_chA__ = (assist.down.chA.mrad.y__ -(1-chA_emis).*(ones(size(T_ABB))*Blackbody(assist.down.chA.mrad.x, mean(T_ABB))));
+% R_H_chB__ = (assist.down.chB.mrad.y__ -(1-chB_emis).*(ones(size(T_ABB))*Blackbody(assist.down.chB.mrad.x, mean(T_ABB))));
+R_H_chA__ = assist.down.chA.mrad.y__;
+R_H_chB__ = assist.down.chB.mrad.y__;
 
 chA_Tb = BrightnessTemperature(assist.chA.cxs.x,R_H_chA);
 chB_Tb = BrightnessTemperature(assist.chB.cxs.x,R_H_chB);
 
- xl_A = assist.down.chA.mrad.x>500&assist.down.chA.mrad.x<1800;
+chA_Tb__ = BrightnessTemperature(assist.chA.cxs.x,R_H_chA__);
+chB_Tb__ = BrightnessTemperature(assist.chB.cxs.x,R_H_chB__);
+
+xl_A = assist.down.chA.mrad.x>535&assist.down.chA.mrad.x<1800;
 xl_B = assist.down.chB.mrad.x>1800&assist.down.chB.mrad.x<3000;
 ID = 6;
- figure; plot(assist.down.chA.mrad.x(xl_A), chA_Tb(ID,xl_A)-T_HBB(ID),'b-',assist.down.chB.mrad.x(xl_B), chB_Tb(ID,xl_B)-T_HBB(ID),'r-');
-% axis([500,3000,-.1,.1]);
-xlim([500,3000]);
-lg = legend('chA','chB'); set(lg,'interp','none');
-xlabel('wavenumber');
-yl = ylabel('T_b - HBB'); set(yl,'interp','none');
-title(' Tb_H(corr) - HBB thermistor')
+% Put in actual 3rd blackbody temp in C.
 
-figure; plot(assist.down.chA.mrad.x(xl_A), (R_H_chA(ID,xl_A)-Blackbody(assist.down.chA.mrad.x(xl_A), 273.15+30))...
-   ./Blackbody(assist.down.chA.mrad.x(xl_A), 273.15+30),'b-',assist.down.chB.mrad.x(xl_B), ...
-   (R_H_chB(ID,xl_B)-Blackbody(assist.down.chB.mrad.x(xl_B), 273.15+30))./Blackbody(assist.down.chB.mrad.x(xl_B), 273.15+30),'r-');
-%
-assist.degraded.chA.NEN1.F = downsample(sqrt(assist.down.chA.var.F),50,2).*(sqrt(15./120));
+if ishandle(88)
+   v = axis;
+end
+ figure(88); plot(assist.down.chA.mrad.x(xl_A), chA_Tb(ID,xl_A)-273.15,'b-',...
+    assist.down.chB.mrad.x(xl_B), chB_Tb(ID,xl_B)-273.15,'r-', ...
+    [535,3000] , [BB3,BB3], 'k--');
+ xlim([500,3000]);
+lg = legend('chA','chB', '3rd BB T'); set(lg,'interp','none');
+xlabel('wavenumber');
+yl = ylabel('T_b [C]'); set(yl,'interp','none');
+title('Brightness Temperatures and measured 3rd BB temp')
+ax(1) = gca;
+ figure(89); plot(assist.down.chA.mrad.x(xl_A), chA_Tb__(ID,xl_A)-273.15,'b-',...
+    assist.down.chB.mrad.x(xl_B), chB_Tb__(ID,xl_B)-273.15,'r-',...
+    [535,3000] , [BB3,BB3], 'k--');
+ xlim([500,3000]);
+lg = legend('chA','chB', '3rd BB T'); set(lg,'interp','none');
+xlabel('wavenumber');
+yl = ylabel('T_b [C]'); set(yl,'interp','none');
+title({['Brightness Temperatures and measured 3rd BB temp'];['emissivity = 1']});
+ax(2) = gca;
+linkaxes(ax,'xy'); 
+if exist('v','var')
+   axis(v);
+end
+% axis([500,3000,-.1,.1]);
+% figure(77);
+% 
+%  plot(assist.down.chA.mrad.x(xl_A), (R_H_chA(ID,xl_A)-Blackbody(assist.down.chA.mrad.x(xl_A), 273.15+BB3))...
+%    ./Blackbody(assist.down.chA.mrad.x(xl_A), mean(T_ABB)),'b-',assist.down.chB.mrad.x(xl_B), ...
+%    (R_H_chB(ID,xl_B)-Blackbody(assist.down.chB.mrad.x(xl_B), 273.15+BB3))./Blackbody(assist.down.chB.mrad.x(xl_B), mean(T_ABB)),'r-');
+% 
+% figure(78);
+%  plot(assist.down.chA.mrad.x(xl_A), mean(R_H_chA__(:,xl_A)),'b-',...
+%     assist.down.chB.mrad.x(xl_B), mean(R_H_chB__(:,xl_B)),'r-');
+
+% 
+% if exist('v','var')
+%    axis(v);
+% end
+
+   assist.degraded.chA.NEN1.F = downsample(sqrt(assist.down.chA.var.F),50,2).*(sqrt(15./120));
 assist.degraded.chB.NEN1.F = downsample(sqrt(assist.down.chB.var.F),50,2).*(sqrt(15./120));
 %%
 

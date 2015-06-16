@@ -1,7 +1,7 @@
 function [old,new] = abe_autoplots(old);
 %%
 if ~exist('new','var')
-   old = ancload(getfullname_('*.cdf','abe_old','Select original (old) file.'));
+   old = ancload(getfullname('*.cdf','abe_old','Select original (old) file.'));
 end
 %%
 

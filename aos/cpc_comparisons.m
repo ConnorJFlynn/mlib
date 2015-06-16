@@ -23,7 +23,7 @@ end
 % save([pname,'..',filesep,fname,'.mat'],'-struct','ins');
 
 %%
-% fname = getfullname__(['D:\dmf\data\datastream\mao\*.mat']);
+% fname = getfullname(['D:\dmf\data\datastream\mao\*.mat']);
 cpc.fname = 'D:\dmf\data\datastream\mao\maoaoscpcM1.a1.20131211.143743.mat';
 cpcf.fname = 'D:\dmf\data\datastream\mao\maoaoscpcfS1.a1.20140122.140927.mat';
 cpcu.fname = 'D:\dmf\data\datastream\mao\maoaoscpcuS1.a1.20140122.135422.mat';

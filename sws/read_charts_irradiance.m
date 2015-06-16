@@ -2,7 +2,7 @@ function charts_irrad = read_charts_irradiance(irad_file);
 %%
 if ~exist('irad_file','var')||~exist(irad_file,'file')
    disp(['Select irradiance (flux) file.']);
-   infile2 = getfullname_('*.dat','charts')
+   infile2 = getfullname('*.dat','charts')
 end
 fid2 = fopen(infile2);
 

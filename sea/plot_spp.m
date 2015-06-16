@@ -1,7 +1,7 @@
 function m300 = plot_spp(m300, tag);
 
 if ~exist('m300','var')
-   m300 = read_m300(getfullname_('*.sea','m300'));
+   m300 = read_m300(getfullname('*.sea','m300'));
 end
 tags = fieldnames(m300.tag_types); tags(1) = [];
 for t = length(tags):-1:1

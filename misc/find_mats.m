@@ -3,7 +3,7 @@ function tags = find_mats(it);
 % Returns all explicit references to a mat file within the supplied or
 % selected file.
 if ~exist('it','var')
-    it = getfullname_('*.m');
+    it = getfullname('*.m');
 end
 fid = fopen(it,'r');
 tags = textscan(fid,'%s','delimiter',[[filesep filesep], pathsep,' ',')','''' ',']);

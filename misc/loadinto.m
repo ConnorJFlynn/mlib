@@ -2,15 +2,15 @@ function [this,filename] = loadinto(filename,var);
 %this = loadinto(filename);
 % Designed to work only with a single variable stored in a mat file
 if ~exist('filename', 'var')
-    [filename] = getfullname_('*.mat','mat_files','Select a mat file.');
+    [filename] = getfullname('*.mat','mat_files','Select a mat file.');
 end
 % filename = which(filename);
 
 good_dir = exist(filename,'dir');
 if good_dir
-    filename= getfullname_([filename,filesep,'*.*']);
+    filename= getfullname([filename,filesep,'*.*']);
 end
-% function [fullname] = getfullname_(fspec,pathfile,dialo
+% function [fullname] = getfullname(fspec,pathfile,dialo
 
 good_file = exist(filename,'file')&~exist(filename,'dir');
 

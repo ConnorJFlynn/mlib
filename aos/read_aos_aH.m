@@ -1,7 +1,7 @@
 function [fid,aos] = read_aos_aH(filename);
 %This should read NOAA a_ files.  Not fully tested...
 if ~exist('filename', 'var')||~exist(filename,'file')
-   filename = getfullname_('*.*','noaa_aos','Select a NOAA AOS a_ file.');
+   filename = getfullname('*.*','noaa_aos','Select a NOAA AOS a_ file.');
 end
 
 fid = fopen(filename);

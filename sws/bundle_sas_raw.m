@@ -3,7 +3,7 @@ function sas =bundle_sas_raw(files);
 % bundles selected raw sas files into one continuous structure 
 % Uses rd_raw_sas and catsas 
 if ~exist('files','var')
-    files = getfullname_('SAS*.csv','sas_raw','Select raw SAS files to bundle.');
+    files = getfullname('SAS*.csv','sas_raw','Select raw SAS files to bundle.');
 end
 
 if ~iscell(files)

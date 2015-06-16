@@ -71,7 +71,7 @@ nm_in = [312.57	400
 
 
 
-% line_lib = getfullname_('*.h5');
+% line_lib = getfullname('*.h5');
 line_lib = 'D:\case_studies\radiation_cals\spectral_lines_library.h5';
 %%
 h5disp(line_lib,'/','min')

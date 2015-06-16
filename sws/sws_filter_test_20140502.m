@@ -23,7 +23,7 @@ function sws_filt = sws_filter_test_20140502
 if exist([pname, 'sws_LP_780.mat'],'file')
     sws_LP_780 = load([pname, 'sws_LP_780.mat']);
 else
-    sws_LP_780 = read_sws_raw_2(getfullname__('*031704*.dat','sws_raw','Select SWS file for LP RG780'));
+    sws_LP_780 = read_sws_raw_2(getfullname('*031704*.dat','sws_raw','Select SWS file for LP RG780'));
     [peak, sws_LP_780.max_ii] = max(mean(sws_LP_780.Si_rate,2));
     
     % rg_780 drawn from Schott glass table.
@@ -55,7 +55,7 @@ semilogy(filt.Si_lambda, filt.RG780_band - filt.RG780_Tr, 'k-',filt.Si_lambda(1:
 if exist([pname, 'sws_LP_715.mat'],'file')
     sws_LP_715 = load([pname, 'sws_LP_715.mat']);
 else
-    sws_LP_715 = read_sws_raw_2(getfullname__('*0314*.dat','sws_raw','Select SWS file for LP RG715'));
+    sws_LP_715 = read_sws_raw_2(getfullname('*0314*.dat','sws_raw','Select SWS file for LP RG715'));
     [peak, sws_LP_715.max_ii] = max(mean(sws_LP_715.Si_rate,2));
     
     % rg_715 drawn from Schott glass table.
@@ -87,7 +87,7 @@ figure; semilogy(filt.Si_lambda, RG715_sub_band./peak - sws_LP_715.Tr,'r-'); zoo
 if exist([pname, 'sws_LP_610.mat'],'file')
     sws_LP_610 = load([pname, 'sws_LP_610.mat']);
 else
-    sws_LP_610 = read_sws_raw_2(getfullname__('*0311*.dat','sws_raw','Select SWS file for LP RG610'));
+    sws_LP_610 = read_sws_raw_2(getfullname('*0311*.dat','sws_raw','Select SWS file for LP RG610'));
     [peak, sws_LP_610.max_ii] = max(mean(sws_LP_610.Si_rate,2));
     
     % rg_610 drawn from Schott glass table.
@@ -110,7 +110,7 @@ end
 if exist([pname, 'sws_LP_570.mat'],'file')
     sws_LP_570 = load([pname, 'sws_LP_570.mat']);
 else
-    sws_LP_570 = read_sws_raw_2(getfullname__('*0308*.dat','sws_raw','Select SWS file for LP RG570'));
+    sws_LP_570 = read_sws_raw_2(getfullname('*0308*.dat','sws_raw','Select SWS file for LP RG570'));
     [peak, sws_LP_570.max_ii] = max(mean(sws_LP_570.Si_rate,2));
     
     % rg_570 drawn from Schott glass table.
@@ -133,7 +133,7 @@ end
 if exist([pname, 'sws_LP_550.mat'],'file')
     sws_LP_550 = load([pname, 'sws_LP_550.mat']);
 else
-    sws_LP_550 = read_sws_raw_2(getfullname__('*0304*.dat','sws_raw','Select SWS file for LP RG550'));
+    sws_LP_550 = read_sws_raw_2(getfullname('*0304*.dat','sws_raw','Select SWS file for LP RG550'));
     [peak, sws_LP_550.max_ii] = max(mean(sws_LP_550.Si_rate,2));
     
     % rg_550 drawn from Schott glass table.
@@ -156,7 +156,7 @@ end
 if exist([pname, 'sws_LP_495.mat'],'file')
     sws_LP_495 = load([pname, 'sws_LP_495.mat']);
 else
-    sws_LP_495 = read_sws_raw_2(getfullname__('*0302*.dat','sws_raw','Select SWS file for LP RG495'));
+    sws_LP_495 = read_sws_raw_2(getfullname('*0302*.dat','sws_raw','Select SWS file for LP RG495'));
     [peak, sws_LP_495.max_ii] = max(mean(sws_LP_495.Si_rate,2));
     
     % rg_495 drawn from Schott glass table.
@@ -178,7 +178,7 @@ end
 if exist([pname, 'sws_LP_455.mat'],'file')
     sws_LP_455 = load([pname, 'sws_LP_455.mat']);
 else
-    sws_LP_455 = read_sws_raw_2(getfullname__('*0259*.dat','sws_raw','Select SWS file for LP RG455'));
+    sws_LP_455 = read_sws_raw_2(getfullname('*0259*.dat','sws_raw','Select SWS file for LP RG455'));
     [peak, sws_LP_455.max_ii] = max(mean(sws_LP_455.Si_rate,2));
     
     % rg_455 drawn from Schott glass table.
@@ -200,7 +200,7 @@ end
 if exist([pname, 'sws_LP_395.mat'],'file')
     sws_LP_395 = load([pname, 'sws_LP_395.mat']);
 else
-    sws_LP_395 = read_sws_raw_2(getfullname__('*0256*.dat','sws_raw','Select SWS file for LP RG395'));
+    sws_LP_395 = read_sws_raw_2(getfullname('*0256*.dat','sws_raw','Select SWS file for LP RG395'));
     [peak, sws_LP_395.max_ii] = max(mean(sws_LP_395.Si_rate,2));
     
     % rg_395 drawn from Schott glass table.
@@ -224,7 +224,7 @@ end
 if exist([pname, 'sws_SP_KG5.mat'],'file')
     sws_SP_KG5 = load([pname, 'sws_SP_KG5.mat']);
 else
-    sws_SP_KG5 = read_sws_raw_2(getfullname__('*0250*.dat','sws_raw','Select SWS file for LP RG395'));
+    sws_SP_KG5 = read_sws_raw_2(getfullname('*0250*.dat','sws_raw','Select SWS file for LP RG395'));
     [peak, sws_SP_KG5.max_ii] = max(mean(sws_SP_KG5.Si_rate,2));
     
     % rg_395 drawn from Schott glass table.
@@ -247,7 +247,7 @@ end
 if exist([pname, 'sws_SP_BG40.mat'],'file')
     sws_SP_BG40 = load([pname, 'sws_SP_BG40.mat']);
 else
-    sws_SP_BG40 = read_sws_raw_2(getfullname__('*0247*.dat','sws_raw','Select SWS file for LP RG395'));
+    sws_SP_BG40 = read_sws_raw_2(getfullname('*0247*.dat','sws_raw','Select SWS file for LP RG395'));
     [peak, sws_SP_BG40.max_ii] = max(mean(sws_SP_BG40.Si_rate,2));
     
     % rg_395 drawn from Schott glass table.
@@ -270,7 +270,7 @@ end
 if exist([pname, 'sws_SP_BG38.mat'],'file')
     sws_SP_BG38 = load([pname, 'sws_SP_BG38.mat']);
 else
-    sws_SP_BG38 = read_sws_raw_2(getfullname__('*0244*.dat','sws_raw','Select SWS file for LP RG395'));
+    sws_SP_BG38 = read_sws_raw_2(getfullname('*0244*.dat','sws_raw','Select SWS file for LP RG395'));
     [peak, sws_SP_BG38.max_ii] = max(mean(sws_SP_BG38.Si_rate,2));
     
     % rg_395 drawn from Schott glass table.

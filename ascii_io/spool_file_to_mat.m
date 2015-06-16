@@ -5,7 +5,7 @@ function indata = spool_file_to_mat(infile)
 % to a mat file.  The mat file can then be dumped to recreate the original
 % file
 if ~exist('infile','var')||~exist(infile,'file')
-    infile = getfullname_('*.*','spool','Select a data file to convert to a mat file.');
+    infile = getfullname('*.*','spool','Select a data file to convert to a mat file.');
 end
 fid = fopen(infile);
 if fid>0

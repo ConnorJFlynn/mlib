@@ -7,7 +7,7 @@ function ap = auto_ap(mpl);
 % well.
 if ~exist('mpl','var')
    %%   
-   mpl = ancload(getfullname_('*.cdf','mpl_nc'));
+   mpl = ancload(getfullname('*.cdf','mpl_nc'));
    %%
    
 end

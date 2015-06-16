@@ -1,7 +1,7 @@
 function flight = rd_g1_met(met_file) 
 
 if ~exist('met_file','var')||~exist(met_file,'file')
-met_file = getfullname_('*met*.txt','tcap_g1','Select met file');
+met_file = getfullname('*met*.txt','tcap_g1','Select met file');
 end
 
 fid = fopen(met_file);

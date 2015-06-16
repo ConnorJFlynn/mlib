@@ -1,5 +1,5 @@
 psap1s = anc_bundle_files(getfullname('*.nc;*.cdf','select psap1s','psap1s'));
-psap1m = anc_bundle_files(getfullname('*.nc;*.cdf','select psap1m','psap1m'));
+% psap1m = anc_bundle_files(getfullname('*.nc;*.cdf','select psap1m','psap1m'));
 
 
 % Populate a qc field for Bab_G psap1s based on qc_transmittance_green
@@ -12,7 +12,9 @@ psap1m = anc_bundle_files(getfullname('*.nc;*.cdf','select psap1m','psap1m'));
 impactor_transition_ = psap1s.vdata.impactor_state==0  & [false, psap1s.vdata.impactor_state(2:end)~=psap1s.vdata.impactor_state(1:end-1)];
 filter_change_start_ = psap1s.vdata.filter_unstable==1  & [false, psap1s.vdata.filter_unstable(1:end-1)==0 & psap1s.vdata.filter_unstable(2:end)==1];
 filter_change_end_ = psap1s.vdata.filter_unstable==1  & [psap1s.vdata.filter_unstable(1:end-1)==1 & psap1s.vdata.filter_unstable(2:end)==0, false];
-filter_change = filter_change_start | filter_change_end;
+filter_change_start = filter_change_start_;
+filter_change_end = filter_change_end_;
+filter_change = filter_change_start_ | filter_change_end_;
 impactor_transition = impactor_transition_;
 bad_sample_flow_ = psap1s.vdata.qc_sample_flow_rate ~=0;
 bad_sample_flow = bad_sample_flow_;

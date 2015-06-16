@@ -2,7 +2,7 @@ function edghdr2csv(edg,out_file);
 % edghdr2csv(edg,out_file);
 % Output main and subfile headers from edgar mat file to CSV file
 if ~exist('edg','var')
-   in_file = getfullname_('*.mat','edgar_mat','Select Edgar mat file');
+   in_file = getfullname('*.mat','edgar_mat','Select Edgar mat file');
    edg = loadinto(in_file);
    [pname, fname,ext] = fileparts(in_file);
    edg.pname = [pname,filesep];
@@ -10,7 +10,7 @@ if ~exist('edg','var')
    out_file = [in_file,'.csv'];
 end
 if ~exist('out_file','var')
-   in_file = getfullname_('*.mat','edgar_mat','Select Edgar mat file');
+   in_file = getfullname('*.mat','edgar_mat','Select Edgar mat file');
    out_file = [in_file,'.csv'];
 end
 fid = fopen([out_file],'w+');

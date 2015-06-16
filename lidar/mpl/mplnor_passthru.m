@@ -2,7 +2,7 @@ function mpl = mplnor_passthru(mpl);
 % Read mplnor file.
 % Read relevant baseline files to populate baseline array
 if ~exist('mpl', 'var')
-   mpl = ancload(getfullname_('*.cdf*','mplnor','Select MPLnor netcdf file.'));
+   mpl = ancload(getfullname('*.cdf*','mplnor','Select MPLnor netcdf file.'));
 end
 %%
 %get baseline

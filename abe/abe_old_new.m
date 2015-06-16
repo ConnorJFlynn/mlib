@@ -1,8 +1,8 @@
 function [old,new] = abe_old_new(old,new);
 %%
 if ~exist('new','var')
-   old = ancload(getfullname_('*.cdf','abe_old','Select original (old) file.'));
-   new = ancload(getfullname_('*.cdf','abe_new', 'Select new file'));
+   old = ancload(getfullname('*.cdf','abe_old','Select original (old) file.'));
+   new = ancload(getfullname('*.cdf','abe_new', 'Select new file'));
 end
 %%
 

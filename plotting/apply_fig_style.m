@@ -5,7 +5,7 @@ function [h, figout] = apply_fig_style(h, h_)
 % Returns both the handle to the modified figure and the resulting output
 % file.
 if ~exist('h','var');
-    fig_name = getfullname_('*.fig','figs','Apply settings to selected figure...');
+    fig_name = getfullname('*.fig','figs','Apply settings to selected figure...');
     h = open(fig_name);
 end
 lg = legend('toggle'); lg = legend('toggle'); vis = get(lg,'visible');
@@ -18,9 +18,9 @@ ht = get(ha,'Title');
 if ~exist('h_','var')
     abc = menu('Use settings from...','Selected figure...','Selected "plots_*" file','Current settings');
     if abc==1
-        fig_temp = getfullname_('*.fig','fig_template','Select a figure to use as style template if desired.');
+        fig_temp = getfullname('*.fig','fig_template','Select a figure to use as style template if desired.');
     elseif abc==2
-        [~,plots_file,~] = fileparts(getfullname_('plots_*.m','plots_file','Select "plots_*" file.'));
+        [~,plots_file,~] = fileparts(getfullname('plots_*.m','plots_file','Select "plots_*" file.'));
         eval(plots_file);
     end
 end

@@ -63,7 +63,7 @@ rad = get_grande;
 % end
 
 %% 3-lamp preclean
-nir_file = getfullname_('*SASZe*nir*.csv','SASZE_cals','Select SASZe NIR cal file.');
+nir_file = getfullname('*SASZe*nir*.csv','SASZE_cals','Select SASZe NIR cal file.');
 nir = rd_raw_SAS(nir_file);
 
 SAS_unit_i = strfind(nir.pname, 'SASZe');

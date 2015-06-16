@@ -15,7 +15,7 @@ function [status, lang_result,lang_plot] = common_mfr_lang(leg,inarg);
 %    inarg.tests.prscreen.on = false;
 status = false;
 if ~exist('leg','var')
-   leg = ancload(getfullname_('*.*','xmfrx_netcdf','Select a MFRSR or NIMFR netcdf file.'))
+   leg = ancload(getfullname('*.*','xmfrx_netcdf','Select a MFRSR or NIMFR netcdf file.'))
 end
 if ~exist('inarg','var')
    inarg = [];

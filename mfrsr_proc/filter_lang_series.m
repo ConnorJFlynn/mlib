@@ -6,7 +6,7 @@ function fiq = filter_lang_series(common_lang, good, W);
 %    good = good&(common_lang.(['Vo_filter',num2str(f)])>0);
 % end
 if ~exist('common_lang','var')
-   common_lang = loadinto(getfullname_('lang_Ios_raw*.mat','mfrIo','Select lang_Ios_raw mat file:'));
+   common_lang = loadinto(getfullname('lang_Ios_raw*.mat','mfrIo','Select lang_Ios_raw mat file:'));
 end
 if ~exist('good','var')
    good = common_lang.status==true;

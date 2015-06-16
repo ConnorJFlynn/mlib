@@ -34,10 +34,10 @@ function sashe = proc_sashe_hisun(sashe)
 % Divide direct_corr by diffuse_corr to get dir/dif
 % divide by responsivity
 %%
-he_vis = rd_raw_SAS(getfullname_('*SASHe_HiSun_vis*.csv','sashe_hisun'));
-he_nir = rd_raw_SAS(getfullname_('*SASHe_HiSun_nir*.csv','sashe_hisun'));
+he_vis = rd_raw_SAS(getfullname('*SASHe_HiSun_vis*.csv','sashe_hisun'));
+he_nir = rd_raw_SAS(getfullname('*SASHe_HiSun_nir*.csv','sashe_hisun'));
 % vis_ms =
-% rd_raw_SAS(getfullname_('SASHe_HiSun_vis_ms*.csv','sashe_hisun'));
+% rd_raw_SAS(getfullname('SASHe_HiSun_vis_ms*.csv','sashe_hisun'));
 
 %%
 vis_nm = he_vis.lambda>340 & he_vis.lambda<1020;

@@ -4,7 +4,7 @@ function aats = rd_aats_trans( aats_file )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 if ~exist('aats_file','var')||~exist(aats_file,'file')
-    aats_file = getfullname_('*_trans_*.txt','aats_trans');
+    aats_file = getfullname('*_trans_*.txt','aats_trans');
 end
 fid = fopen(aats_file);
 if fid>0

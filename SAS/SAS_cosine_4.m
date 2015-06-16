@@ -3,7 +3,7 @@ function spec = SAS_cosine_4(infile)
 % This version reads files containing multiple spectra, darks and lights at
 % varying angles, zeros only periodically.
 % 
-spec = SAS_read_ava(getfullname_('*.csv','ava','Select cosine correction data'));
+spec = SAS_read_ava(getfullname('*.csv','ava','Select cosine correction data'));
 %% The cosine correction measurement alternates between normal and angle
 %% theta as theta goes from 0 to +/- 95 degrees.  A few darks are taken
 %% distributed over the course of the measurements. 

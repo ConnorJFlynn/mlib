@@ -4,7 +4,7 @@ function nc = anc_catfiles
 
 
 disp('Please select files to concatenate along the time dimension.');
-[filelist] = getfullname_('*.cdf;*.nc');
+[filelist] = getfullname('*.cdf;*.nc');
 if ~iscell(filelist)
     filelist = {filelist};
 end

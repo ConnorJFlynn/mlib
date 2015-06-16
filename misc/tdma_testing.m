@@ -1,5 +1,5 @@
 %%
-hyg = ancload(getfullname_('*.cdf','tdma','select hyg file'));
+hyg = ancload(getfullname('*.cdf','tdma','select hyg file'));
 %%
 [tdma_dir,fname] = fileparts(hyg.fname);
 %%

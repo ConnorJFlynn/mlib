@@ -9,7 +9,7 @@ function m300 = parse_tag(m300, tag);
 % Currently parsing type 35 (AD) and type 75 (PCASP SPP)
 % Need to parse 14 (Loran C/GPS), 37 (Serial ASCII), 76 (CAS Serial), 77 (CIP Serial), and 254 (sec acq)
 if ~exist('m300','var')
-   m300 = read_m300(getfullname_('*.sea','m300'));
+   m300 = read_m300(getfullname('*.sea','m300'));
 end
 if ~exist('tag','var')
    tags = fieldnames(m300.tag_types); tags(1) = [];

@@ -1,7 +1,7 @@
 function in_file = read_avantes_trt(filename,quiet);
 %This reads the Avantes csv data (trt) in the format provided via email
 if ~exist('filename', 'var')
-   filename= getfullname_('*.trt','ascii');
+   filename= getfullname('*.trt','ascii');
    [pname, fname,ext] = fileparts(filename);
    fname = [fname,ext];
 end

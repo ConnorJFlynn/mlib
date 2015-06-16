@@ -4,10 +4,10 @@ function [sws_raw] = read_sws_raw_2(filename);
 % Converts A/D values but was there an unresolved problem with one of them (July 2011)?
 %%
 if ~exist('filename', 'var')
-   filename = getfullname_('*.*','sws_raw');
+   filename = getfullname('*.*','sws_raw');
 end
 if ~exist(filename,'file')
-   filename = getfullname_(filename,'sws_raw');
+   filename = getfullname(filename,'sws_raw');
 end
 [pname, fname,ext] = fileparts(filename);
 pname = [pname, filesep];

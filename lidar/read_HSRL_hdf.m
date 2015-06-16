@@ -3,7 +3,7 @@ function [Altitude, gps_lat, gps_lon, gps_time, A532_ext, A532_bsc, A532_bsc_clo
 
 
 if ~exist('HSRL_filename','var')
-    HSRL_filename = getfullname_('*.h*','hdf');
+    HSRL_filename = getfullname('*.h*','hdf');
 end
 
 Altitude = hdfread(HSRL_filename,'/Altitude', 'Index', {[1],[1],[304]});

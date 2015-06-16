@@ -1,6 +1,6 @@
 function sasze_radcals_nonlinear
 
-infile = getfullname_('SASZe*radcals.*.mat','radcals','Select "All Lamp" radcals file.');
+infile = getfullname('SASZe*radcals.*.mat','radcals','Select "All Lamp" radcals file.');
 cals = load(infile);
 
 [pname, fname, ext] = fileparts(infile); pname = [pname, filesep];

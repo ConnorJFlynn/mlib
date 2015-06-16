@@ -1,21 +1,21 @@
 function mono = SAS_koolatron_test(indir)
 % Now reading new data format with 1 file per spectrometer, each file has a
 % header row identifying the measurements in underlying columns.
-tmp = getfullname_('*.csv','ava','Select vis spectrometer 37');
+tmp = getfullname('*.csv','ava','Select vis spectrometer 37');
 [pname, fname, ext] = fileparts(tmp);
 inside_spec = SAS_read_ava(tmp);
 inside_spec.pname = pname;
 inside_spec.fname = [fname, ext];
 [dmp, sn] = strtok(fname,'_');
 inside_spec.sn = sn(2:end);
-tmp = getfullname_('*.csv','ava','Select NIR spectrometer 46');
+tmp = getfullname('*.csv','ava','Select NIR spectrometer 46');
 [pname, fname, ext] = fileparts(tmp);
 outside_spec = SAS_read_ava(tmp);
 outside_spec.pname = pname;
 outside_spec.fname = [fname, ext];
 [dmp, sn] = strtok(fname,'_');
 outside_spec.sn = sn(2:end);
-tmp = getfullname_('*.csv','ava','Select trh file');
+tmp = getfullname('*.csv','ava','Select trh file');
 [pname, fname, ext] = fileparts(tmp);
 trh = SAS_read_trh(tmp);
 trh.pname = pname;

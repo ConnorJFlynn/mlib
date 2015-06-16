@@ -10,7 +10,7 @@ function proc_sasze(infile)
 % Normalize by integration time
 % Divide by responsivity
 if ~exist('infile','var');
-   infile = getfullname_('*.cdf','sasze');
+   infile = getfullname('*.cdf','sasze');
 end
 display(['Loading file: ',infile]);
 try
@@ -79,7 +79,7 @@ legend('solar azimuth','band axis tracking');
 xlabel('day of year');
 ylabel('degrees')
 %%
-% nfov2 = ancload(getfullname_('*.cdf','nfov2'));
+% nfov2 = ancload(getfullname('*.cdf','nfov2'));
 % %%
 % figure(22)
 %       if length(sasze.vars.wavelength.data)>1000

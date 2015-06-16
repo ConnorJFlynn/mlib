@@ -1,6 +1,6 @@
 function status = new_test_frh();
 fitrh_path = 'C:\case_studies\aip\fitrh\new\';
-[fname] = getfullname_([fitrh_path,'*.cdf'],'fitrh');
+[fname] = getfullname([fitrh_path,'*.cdf'],'fitrh');
 fitrh = ancload(fname);
 [pname, fname,ext] = fileparts(fitrh.fname);
 pname = [pname, filesep];

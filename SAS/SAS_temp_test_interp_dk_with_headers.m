@@ -1,21 +1,21 @@
 function mono = SAS_temp_test_interp_dk_with_headers(indir)
 % Now reading new data format with 1 file per spectrometer, each file has a
 % header row identifying the measurements in underlying columns.
-tmp = getfullname_('*.csv','ava','Select inside spectrometer 46');
+tmp = getfullname('*.csv','ava','Select inside spectrometer 46');
 [pname, fname, ext] = fileparts(tmp);
 inside_spec = SAS_read_ava(tmp);
 inside_spec.pname = pname;
 inside_spec.fname = [fname, ext];
 [dmp, sn] = strtok(fname,'_');
 inside_spec.sn = sn(2:end);
-tmp = getfullname_('*.csv','ava','Select outside spectrometer 47');
+tmp = getfullname('*.csv','ava','Select outside spectrometer 47');
 [pname, fname, ext] = fileparts(tmp);
 outside_spec = SAS_read_ava(tmp);
 outside_spec.pname = pname;
 outside_spec.fname = [fname, ext];
 [dmp, sn] = strtok(fname,'_');
 outside_spec.sn = sn(2:end);
-tmp = getfullname_('*.csv','ava','Select trh file');
+tmp = getfullname('*.csv','ava','Select trh file');
 [pname, fname, ext] = fileparts(tmp);
 trh = SAS_read_trh(tmp);
 trh.pname = pname;

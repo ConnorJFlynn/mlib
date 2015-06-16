@@ -4,14 +4,14 @@ function assist = assist_vs_lbl(pname)% ASSIST annew
 
 %%
 
-assist = load(getfullname_('*.mat','assist_compare'));
+assist = load(getfullname('*.mat','assist_compare'));
 chA = assist.chA.mrad.x>550 & assist.chA.mrad.x<1830;
 chB = assist.chB.mrad.x>1800&assist.chB.mrad.x<3200;
 sky = assist.isSky;
 
-% aeri = ancload(getfullname_('*sgpaerisummaryC1*.cdf','aeri'));
+% aeri = ancload(getfullname('*sgpaerisummaryC1*.cdf','aeri'));
 % xl = aeri.time>assist.time(1)&aeri.time<assist.time(end);
-% aericha = ancload(getfullname_('*sgpaeri*.cdf','aeri'));
+% aericha = ancload(getfullname('*sgpaeri*.cdf','aeri'));
 % aericha = ancsift(aericha, aericha.dims.time, xl);
 %%
 % figure; plot(aericha.vars.wnum.data, mean(aericha.vars.mean_rad.data,2),'k-',(1329.76./1329.93).*assist.chA.mrad.x(chA), mean(assist.chA.mrad.y(sky,chA)),'r-'); 
@@ -19,7 +19,7 @@ sky = assist.isSky;
 % legend('AERI','ASSIST')
 %%
 % .  The were run with the 326.2329 scaled sonde using the AERI instrument function
-chA_lbl_fname = getfullname_('*lbl*.csv','eli_lbl');
+chA_lbl_fname = getfullname('*lbl*.csv','eli_lbl');
 fid1 = fopen(chA_lbl_fname);
 chA_lbl = textscan(fid1,'%f %f %*[^\n]','delimiter',',','headerlines',1);
 fclose(fid1);

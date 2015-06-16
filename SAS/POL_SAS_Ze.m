@@ -3,7 +3,7 @@ function ins = POL_SAS_Ze(infile)
 % Reads one of Albert's Labview files for with multiple AvaSpec spectra per data file.
 %
 if ~exist('infile','var')
-   infile= getfullname_('*.csv','SAS_tests');
+   infile= getfullname('*.csv','SAS_tests');
 end
     
 if ~isstruct(infile)&exist(infile,'file')

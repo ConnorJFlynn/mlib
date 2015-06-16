@@ -14,7 +14,7 @@
 %*******************************************************************************************
 % Initialization
 % if ~exist('filename','var')||(~exist(filename,'file'))
-   filename = getfullname_('R*.*','aats','read aats file')
+   filename = getfullname('R*.*','aats','read aats file')
 % end
 prepare
 

@@ -22,7 +22,7 @@ if isempty(fspec)
    fspec = '*.*';
 end
 
-[fullname] = getfullname_(fspec,pathfile);
+[fullname] = getfullname(fspec,pathfile);
 if ~isempty(fullname)&&exist(fullname,'file')
    [pname, fstem,ext] = fileparts(fullname);
    pname = [pname, filesep];
