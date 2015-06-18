@@ -82,15 +82,15 @@ for m = 1:length(in_files)
       fid_out = fopen([out_dir,in_files(ind(m)).name,'.out'],'w');
       fclose(fid_out);
       disp(['Reading ',in_files(ind(m)).name]);
-      anc_mplpol_ = ancloadcoords([in_dir,in_files(ind(m)).name]);
+      anc_mplpol_ = anc_loadcoords([in_dir,in_files(ind(m)).name]);
       status = status + 1;
       for mm = 1:mpl_inarg.Nrecs:length(anc_mplpol_.time)
          disp(['netcdf record: ',num2str(mm),' of ',num2str(length(anc_mplpol_.time))]);
-         anc_mplpol = ancloadpart(anc_mplpol_,mm,mpl_inarg.Nrecs);
+         anc_mplpol = anc_loadpart(anc_mplpol_,mm,mpl_inarg.Nrecs);
 
          try
             if exist('anc_mplpol_tail','var')
-            anc_mplpol = anccat(anc_mplpol_tail,anc_mplpol);
+            anc_mplpol = anc_cat(anc_mplpol_tail,anc_mplpol);
             end
          catch
             fid_bad = fopen([bad_dir,in_files(ind(m)).name,'.bad'],'w');
@@ -98,7 +98,7 @@ for m = 1:length(in_files)
          end
          if ~isempty(anc_mplpol)
             [polavg_new,tail_ind] = proc_mplpolfsb1_4(anc_mplpol,mpl_inarg);
-            anc_mplpol_tail = ancsift(anc_mplpol,anc_mplpol.dims.time,[tail_ind:length(anc_mplpol.time)]);
+            anc_mplpol_tail = anc_sift(anc_mplpol,[tail_ind:length(anc_mplpol.time)]);
             if exist('polavg','var')
                polavg = catpol(polavg,polavg_new);
             else
@@ -162,14 +162,14 @@ function mpl_inarg = define_mpl_inarg
    mpl_inarg.ap = eval(['@ap_',mpl_inarg.tla,'_']); %accept range, return .cop, .crs
    mpl_inarg.ol_corr = eval(['@ol_',mpl_inarg.tla,'_']); % accept range, return ol_corr
    
-   mpl_inarg.cop_snr = 2;
-   mpl_inarg.ldr_snr = 1.5;
-   mpl_inarg.ldr_error_limit = .25;
+   mpl_inarg.cop_snr = 3;% larger numbers eliminate data
+   mpl_inarg.ldr_snr = 2;% larger numbers eliminate data
+   mpl_inarg.ldr_error_limit = .2; %smaller numbers eliminate data
    mpl_inarg.fig = gcf;
    mpl_inarg.vis = 'on';
-   mpl_inarg.cv_log_bs = [1.5,4.5];
-   mpl_inarg.cv_dpr = [-2.25,0];
-   mpl_inarg.plot_ranges = [15,5,2];
+   mpl_inarg.cv_log_bs = [0.75,4];
+   mpl_inarg.cv_dpr = [-1.15,0];
+   mpl_inarg.plot_ranges = [15,10,5,2];
 return
 function mpl_inarg = populate_mpl_inarg(mpl_inarg);
    if ~isfield(mpl_inarg,'in_dir')

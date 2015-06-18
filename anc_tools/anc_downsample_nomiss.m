@@ -28,7 +28,7 @@ for f = length(fields):-1:1
 %       disp(['Downsampling ',fields{f}]);
       miss = nc.vdata.(fields{f})<-9990 & nc.vdata.(fields{f})>-10000;
       nc.vdata.(fields{f})(miss) = NaN;
-      if any(~dim_spot)
+      if any(dim_spot>1)
          nc.vdata.(fields{f}) = downsample(nc.vdata.(fields{f}),n,dim_spot);
       else
          nc.vdata.(fields{f}) = downsample(nc.vdata.(fields{f}),n);

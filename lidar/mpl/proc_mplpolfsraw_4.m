@@ -137,11 +137,12 @@ polavg.d = 2.*polavg.ldr ./(1+polavg.ldr);
 polavg.ldr_snr = 1./ sqrt( 1./polavg.crs_snr.^2 + 1./cop_lin_snr.^2);
 
 % Apply overlap correction and energy monitor normalization
-polavg.ol_corr = inarg.ol_corr(polavg.range,polavg.time(1));
-
-polavg.attn_bscat = polavg.attn_bscat .* ((polavg.ol_corr.*(polavg.range.^2))*(1./polavg.hk.energy_monitor));
-polavg.cop = polavg.cop .* ((polavg.ol_corr.*(polavg.range.^2))*(1./polavg.hk.energy_monitor));
-polavg.crs = polavg.crs .* ((polavg.ol_corr.*(polavg.range.^2))*(1./polavg.hk.energy_monitor));
+if ~isfield(polavg.r,'ol_corr')
+polavg.r.ol_corr = inarg.ol_corr(polavg.range,polavg.time(1));
+end
+polavg.attn_bscat = polavg.attn_bscat .* ((polavg.r.ol_corr.*(polavg.range.^2))*(1./polavg.hk.energy_monitor));
+polavg.cop = polavg.cop .* ((polavg.r.ol_corr.*(polavg.range.^2))*(1./polavg.hk.energy_monitor));
+polavg.crs = polavg.crs .* ((polavg.r.ol_corr.*(polavg.range.^2))*(1./polavg.hk.energy_monitor));
 
 % Also include an attenuated molecular/Rayleigh backscatter profile for a "standard"
 % atmospheric profile.  This will be used in later processes to construct a

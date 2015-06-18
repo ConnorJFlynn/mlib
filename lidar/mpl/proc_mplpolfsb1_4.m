@@ -10,7 +10,7 @@ function [polavg,ind] = proc_mplpolfsb1_4(nc_mplpol,inarg)
 % 2008/05/21 fixed ldr_snr computations
 
 if ~exist('nc_mplpol','var')||isempty(nc_mplpol)
-   nc_mplpol = ancload;
+   nc_mplpol = anc_load;
    disp('Loaded file');
 end
 if ~exist('inarg','var');
@@ -38,11 +38,23 @@ end
 if isfield(nc_mplpol,'fname')&&isfield(nc_mplpol,'atts')&&isfield(nc_mplpol,'recdim')...
       &&isfield(nc_mplpol,'dims')&&isfield(nc_mplpol,'vars')&&isfield(nc_mplpol,'time')
    mplpol = anc2mplpol(nc_mplpol);
-   [polavg,ind] = proc_mplpolfsraw_4(mplpol,inarg);
+   [polavg,ind] = proc_mplpolraw_4(mplpol,inarg);
+elseif isfield(nc_mplpol,'fname')&&isfield(nc_mplpol,'gatts')&&isfield(nc_mplpol,'ncdef')...
+      &&isfield(nc_mplpol,'time')
+   mplpol = anc_2mplpol(nc_mplpol);
+  [polavg,ind] = proc_mplpolfsraw_4(mplpol,inarg);
 else
    polavg = [];
    ind = [];
 end
+% if isfield(nc_mplpol,'fname')&&isfield(nc_mplpol,'atts')&&isfield(nc_mplpol,'recdim')...
+%       &&isfield(nc_mplpol,'dims')&&isfield(nc_mplpol,'vars')&&isfield(nc_mplpol,'time')
+%    mplpol = anc2mplpol(nc_mplpol);
+%    [polavg,ind] = proc_mplpolfsraw_4(mplpol,inarg);
+% else
+%    polavg = [];
+%    ind = [];
+% end
 return
 
 function mplpol = anc2mplpol(anc);
@@ -88,3 +100,50 @@ mplpol.r = r;
 statics.fname = anc.fname;
 mplpol.statics = statics;
 mplpol.hk = hk;
+
+return
+
+function mplpol = anc_2mplpol(anc);
+mplpol.time = anc.time;
+mplpol.range = anc.vdata.range;
+r.lte_5 = mplpol.range>=0 & mplpol.range<=5;
+r.lte_10 = mplpol.range>=0 & mplpol.range<=10;
+r.lte_15 = mplpol.range>=0 & mplpol.range<=15;
+r.lte_20 = mplpol.range>=0 & mplpol.range<=20;
+r.lte_25 = mplpol.range>=0 & mplpol.range<=25;
+r.lte_30 = mplpol.range>=0 & mplpol.range<=30;
+mplpol.r = r;
+
+statics.range_bin_time =double(round(anc.vdata.range_bin_width(1)./1.5e-4)); 
+statics.fname = anc.fname;
+statics.unitSN = anc.gatts.serial_number;
+if isfield(anc.gatts,'datastream')
+statics.datastream = anc.gatts.datastream;
+elseif isfield(anc.gatts,'zeb_platform')
+   statics.datastream = anc.gatts.zeb_platform;
+else
+   statics.datastream = [];
+end
+mplpol.statics = statics;
+
+hk.instrument_temp = anc.vdata.scope_temp ;
+hk.laser_temp = anc.vdata.laser_temp;
+hk.detector_temp = anc.vdata.detector_temp;
+hk.pulse_rep = anc.vdata.pulse_rep.*ones(size(hk.detector_temp));
+hk.shots_summed =anc.vdata.shots_per_avg.*ones(size(hk.detector_temp));
+hk.pol_V1 = anc.vdata.polarization_control_voltage;
+hk.preliminary_cbh = anc.vdata.preliminary_cbh;
+hk.energy_monitor=anc.vdata.energy_monitor;
+mplpol.hk = hk;
+
+mplpol.rawcts_copol = anc.vdata.signal_return_co_pol;
+mplpol.rawcts_crosspol = anc.vdata.signal_return_cross_pol;
+if isfield(anc.vdata, 'overlap_correction')
+   mplpol.ol.ol_range = anc.vdata.overlap_correction_heights;
+   mplpol.ol.ol_corr = anc.vdata.overlap_correction;
+   mplpol.r.ol_corr = interp1(mplpol.ol.ol_range, mplpol.ol.ol_corr, mplpol.range, 'nearest', 'extrap');
+   ol_range = mplpol.range>=min(mplpol.ol.ol_range) & mplpol.range<=max(mplpol.ol.ol_range);
+   mplpol.r.ol_corr(ol_range) = interp1(mplpol.ol.ol_range, mplpol.ol.ol_corr, mplpol.range(ol_range), 'pchip');
+   mplpol.r.ol_corr(mplpol.range<=0) = 1;
+end
+   

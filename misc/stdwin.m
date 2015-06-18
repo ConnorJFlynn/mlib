@@ -1,6 +1,6 @@
 function out = stdwin(in,HW)
-% out = stdwin(in,N)
-% returns the minimum stddev of points within three windows of equal width but with bouds; one centered
+% out = stdwin(in,HW)
+% returns the minimum stddev of points within three windows of equal halfwidth HW but with bounds; one centered
 % and the other two at their left and right bounds.
 % [t]-2*HW,t],[t-HW:t+HW], [t:t+2*HW]
 mid = zeros(size(in));

@@ -17,7 +17,7 @@ varname = fieldnames(nc.ncdef.vars);
 for v = length(varname):-1:1
    if any(strcmp(nc.ncdef.vars.(varname{v}).dims,nc.ncdef.recdim.name))
 %       disp(varname{v})
-      nc.vdata.(varname{v}) = ancgetrecslab(nc,varname{v},rec_start,rec_count);
+      nc.vdata.(varname{v}) = anc_getrecslab(nc,varname{v},rec_start,rec_count);
 %       varname(v) = [];
    end
 end
