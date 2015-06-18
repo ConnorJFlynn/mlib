@@ -30,7 +30,7 @@ psapb1 = anc_bundle_files(getfullname('*.nc','psapb','Select psap b1 file'));
 % ss_ii = find(ss);
 % [ainb,bina] = nearest(psapb1.time, spring.time(ss));
 % psapb1 = anc_sift(psapb1,ainb);
-sample_flow = psapb1.vdata.sample_flow_rate;
+sample_flow = psapb1.vdata.sample_flow_rate./psapb1.vdata.dilution_correction_factor;
 % K0 = psapb1.vatts.sample_flow_rate.K0;
 % K1 = psapb1.vatts.sample_flow_rate.K1;
 % K2 = psapb1.vatts.sample_flow_rate.K2;
@@ -48,29 +48,31 @@ Tr_grn = psapb1.vdata.transmittance_green;
 Tr_blu = psapb1.vdata.transmittance_blue;
 Tr_red = psapb1.vdata.transmittance_red;
 
-SS = [1,5,10,15,30,45,60];
+SS = [1,5,10,15,20,30,45,60];
 
-Bab_1s = smooth_Tr_Bab(psapb1.time, psapb1.vdata.sample_flow_rate, Tr_grn,SS(1));
-Bab_5s = smooth_Tr_Bab(psapb1.time, psapb1.vdata.sample_flow_rate, Tr_grn,SS(2));
-Bab_10s = smooth_Tr_Bab(psapb1.time, psapb1.vdata.sample_flow_rate, Tr_grn,SS(3));
-Bab_15s = smooth_Tr_Bab(psapb1.time, psapb1.vdata.sample_flow_rate, Tr_grn,SS(4));
-Bab_30s = smooth_Tr_Bab(psapb1.time, psapb1.vdata.sample_flow_rate, Tr_grn,SS(5));
-Bab_45s = smooth_Tr_Bab(psapb1.time, psapb1.vdata.sample_flow_rate, Tr_grn,SS(6));
-Bab_60s = smooth_Tr_Bab(psapb1.time, psapb1.vdata.sample_flow_rate./psapb1.vdata.dilution_correction_factor, Tr_blu,SS(7));
+Bab_1s = smooth_Tr_Bab(psapb1.time, sample_flow , Tr_grn,SS(1));
+Bab_5s = smooth_Tr_Bab(psapb1.time, sample_flow , Tr_grn,SS(2));
+Bab_10s = smooth_Tr_Bab(psapb1.time, sample_flow , Tr_grn,SS(3));
+Bab_15s = smooth_Tr_Bab(psapb1.time, sample_flow , Tr_grn,SS(4));
+Bab_20s = smooth_Tr_Bab(psapb1.time, sample_flow , Tr_grn,20);
+Bab_30s = smooth_Tr_Bab(psapb1.time, sample_flow , Tr_grn,SS(6));
+Bab_45s = smooth_Tr_Bab(psapb1.time, sample_flow , Tr_grn,SS(7));
+Bab_60s = smooth_Tr_Bab(psapb1.time, sample_flow , Tr_grn,SS(8));
 
 k1=1.317; ko=0.866; 
-kf = 1./(k1.*Tr_blu + ko)';
+kf = 1./(k1.*Tr_grn + ko)';
 
 Bab_1s = Bab_1s .*kf;
 Bab_5s =Bab_5s .*kf;
 Bab_10s =Bab_10s .*kf;
 Bab_15s =Bab_15s .*kf;
+Bab_20s =Bab_20s .*kf;
 Bab_30s =Bab_30s .*kf;
 Bab_45s =Bab_45s .*kf;
 Bab_60s =Bab_60s .*kf;
 
-figure; plot(psapb1.time, Bab_5s,'.',psapb1.time, Bab_10s,'.',psapb1.time, Bab_15s,'.',...
-   psapb1.time, Bab_30s,'.',psapb1.time, Bab_45s,'.',psapb1.time, Bab_60s,'.'); legend('5s','10s','15s','30s','45s','60s')
+figure; plot(psapb1.time, Bab_10s,'.',psapb1.time, Bab_15s,'.',psapb1.time,Bab_20s,'.', ...
+   psapb1.time, Bab_30s,'.',psapb1.time, Bab_45s,'.',psapb1.time, Bab_60s,'.'); legend('10s','15s','20s','30s','45s','60s')
 
 
 
