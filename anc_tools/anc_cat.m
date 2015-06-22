@@ -87,4 +87,35 @@ for v = 1:length(varnames)
     end
 end
 
+varnames = fieldnames(nc2.vdata);
+for v = 1:length(varnames)
+    % Skip time fields (have already been synchronized).
+    if ~isfield(nc1.vdata,varnames(v))
+    if (~strcmp(varnames{v},'time') && ~strcmp(varnames{v},'base_time') && ~strcmp(varnames{v},'time_offset'))
+        v1 = nc1.vdata.(varnames{v});
+        % Make sure compatible variable exists in second struct.
+        if (isfield(nc2.vdata, varnames{v}))
+            v2 = nc2.vdata.(varnames{v});
+            catdim = find(strcmp(nc1.ncdef.vars.(varnames{v}).dims,nc1.ncdef.recdim.name));
+            if catdim ==1
+                [v1,NSHIFTS] = shiftdim(v1,catdim-1);
+                [v2,NSHIFTS] = shiftdim(v2,catdim-1);
+                v1 = [v1, v2];
+                v1 = v1(:,sortinds);
+                [v1] = shiftdim(v1,NSHIFTS);
+                nc1.vdata.(varnames{v}) = v1;
+            elseif catdim > 1
+                [v1,NSHIFTS] = shiftdim(v1,catdim-1);
+                [v2,NSHIFTS] = shiftdim(v2,catdim-1);
+                v1 = [v1; v2];
+                v1 = v1(sortinds,:);
+                [v1] = shiftdim(v1,NSHIFTS);
+                nc1.vdata.(varnames{v}) = v1;
+
+            end
+        end
+    end
+    end
+end
+
 return
