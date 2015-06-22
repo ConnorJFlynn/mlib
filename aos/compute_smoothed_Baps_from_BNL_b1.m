@@ -22,7 +22,7 @@ psapb1 = anc_bundle_files(getfullname('*.nc','psapb','Select psap b1 file'));
 % figure; plot(serial2hs(erm_17.time), Ba_G_17, 'o',serial2hs(erm_17.time), Ba_G_ifft,'.')
 % 
 % 
-% % [spring] = rd_bnl_tsv3; 
+[spring] = rd_bnl_tsv3; 
 % % save([springston_path, 'maomaosas1.psap.01s.00.20140201.000000.m02.tsv.mat'],'-struct','spring');
 % spring = load([springston_path, 'maomaosas1.psap.01s.00.20140201.000000.m02.tsv.mat']);
 % % ss = spring.time>=psapr_00.time(1691)&spring.time<=psapr_00.time(end);
