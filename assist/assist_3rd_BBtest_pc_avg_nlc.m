@@ -5,7 +5,8 @@ function assist = assist_3rd_BBtest_pc_avg_nlc % ASSIST annew
 % OK, cool.  the BB test results are equivalent for applying unity
 % emissivity or applying all the same (AERI) emissivity.
 BB3 = 37; % Assist BB setting/reading
-% BB3 = 44.53; % AERI BB reading?
+% BB3 = 45; % AERI BB reading?
+BB3 = 44.53; % AERI BB reading?
 
 
 emis = load('emis.mat');
@@ -174,6 +175,7 @@ while n<=N-2
 %       linkaxes(ax,'x');
       
       seq = cut_seq(seq);
+      figure(1); vv = axis;  these = plot(seq.chA.mrad.x, seq.chA.cxs.R, '-'); recolor(these, [1:length(seq.time)]); colorbar; axis(vv);
       a_ = seq.chA.mrad.x>535&seq.chA.mrad.x<1840;
       b_ = seq.chB.mrad.x>1830&seq.chA.mrad.x<3500;
 %       figure(10); semilogy(seq.chA.mrad.x(a_), mean(seq.chA.mrad.y(seq.isSky,a_)),'r-',seq.chB.mrad.x(b_), mean(seq.chB.mrad.y(seq.isSky,b_)),'b-',...
@@ -199,7 +201,7 @@ while n<=N-2
    
 end
 toc
-save([pname, filesep,'assist_degraded.mat'],'-struct','assist');
+% save([pname, filesep,'assist_degraded.mat'],'-struct','assist');
 
 % chA = assist.chA.mrad.x>550 & assist.chA.mrad.x<1830;
 % chB = assist.chB.mrad.x>1800&assist.chB.mrad.x<3200;
@@ -1140,21 +1142,38 @@ assist.chB.spc.y__(assist.logi.R,:) = RadiometricCalibration_4(assist.chB.cxs.y(
 
 
 %%
-figure; 
+% figure; 
 
 %%
 % figure; plot(assist.chA.cxs.x, [mean(assist.chA.cxs.y(assist.logi.ABB_F,:));mean(assist_noNLC.chA.cxs.y(assist.logi.ABB_F,:))],'-')
 %%
+%
+% This is a variant of SSEC ratio test.  Can you improve it, maybe replace
+% with Penny's approach?
+hot_minus_cold = mean(assist.chA.spc.y(logi.H,:))-mean(assist.chA.spc.y(logi.A,:));
+sky_minus_cold = assist.chA.spc.y(logi.Sky,:)-ones([sum(logi.Sky),1])*mean(assist.chA.spc.y(logi.A,:));
+abs_sky_minus_cold = max(abs(sky_minus_cold));
+bad =  abs_sky_minus_cold./abs(hot_minus_cold) > 1.5 & assist.chA.cxs.x>550 & assist.chA.cxs.x<1820;
+bad(2:end-1) = bad(1:end-2)|bad(2:end-1)|bad(3:end);
+% figure; plot(assist.chA.cxs.x, abs_sky_minus_cold./abs(hot_minus_cold),'-');
+% xlim([540,1800]);
+% Next we'd need to compute the brightness temperature of some good sky
+% spectra from 672-682 wavenumbers
+wn_CO2 = assist.chA.cxs.x>=672&assist.chA.cxs.x<=682;
+T_bt = mean(mean(BrightnessTemperature(assist.chA.cxs.x(wn_CO2),real(assist.chA.spc.y(logi.Sky,wn_CO2)))));
+BB_CO2 = Blackbody(assist.chA.cxs.x, T_bt);
+y_old = assist.chA.spc.y;
+assist.chA.spc.y(logi.Sky,bad) = ones([sum(logi.Sky),1])*BB_CO2(bad);
 
 % Half-angle FOV to be used for FFOV correction.
 % 0.0225; mrad
 %
-
+FFOV_y_old = ApplyFFOVCorr(assist.chA.cxs.x, y_old,0.0225);
 assist.chA.mrad.y = ApplyFFOVCorr(assist.chA.cxs.x, assist.chA.spc.y,0.0225);
 assist.chB.mrad.y = ApplyFFOVCorr(assist.chB.cxs.x, assist.chB.spc.y,0.0225);
 % 
-assist.chA.mrad.y__ = ApplyFFOVCorr(assist.chA.cxs.x, assist.chA.spc.y__,0.0225);
-assist.chB.mrad.y__ = ApplyFFOVCorr(assist.chB.cxs.x, assist.chB.spc.y__,0.0225);
+% assist.chA.mrad.y__ = ApplyFFOVCorr(assist.chA.cxs.x, assist.chA.spc.y__,0.0225);
+% assist.chB.mrad.y__ = ApplyFFOVCorr(assist.chB.cxs.x, assist.chB.spc.y__,0.0225);
 
 %%
 % figure(50); sp(1) = subplot(2,1,1);
@@ -1260,7 +1279,11 @@ assist.down.chB.var.y = (assist.down.chB.var.F  + assist.down.chB.var.R);
 chB_emis = interp1(assist.emis.x, assist.emis.y, assist.chB.cxs.x, 'linear','extrap');
 chB_emis = ones(size(assist.down.chB.mrad.y,1),1)*chB_emis;
 assist.down.chB.T_bt = BrightnessTemperature(assist.chB.cxs.x, real(assist.down.chB.mrad.y./chB_emis));
-% assist.down.chB.T_bt__ = BrightnessTemperature(assist.chB.cxs.x, real(assist.down.chB.mrad.y__));
+assist.down.chB.T_bt__ = BrightnessTemperature(assist.chB.cxs.x, real(assist.down.chB.mrad.y__));
+
+aeri_ch2 = anc_load(['D:\case_studies\assist\deployments\ASSIST_at_SGP_20150603\Example_AERI_3rd_BB_test\150508C2_rnc.cdf']);
+aeri_ch2.vdata.Tb = BrightnessTemperature(aeri_ch2.vdata.wnum1,aeri_ch2.vdata.mean_rad);
+
 
 %%
 T_ABB = downsample(assist.ABB_C+273.15,12)';
@@ -1273,6 +1296,7 @@ BB3 = assist.BB3;%
 % Then magnify this residual by 1/emis to approximate radiance from a
 % perfect BB with emissivity==1.  Then compute brightness temperature.
 % this magnified residual.
+
 R_H_chA = (assist.down.chA.mrad.y -(1-chA_emis).*(ones(size(T_ABB))*Blackbody(assist.down.chA.mrad.x, mean(T_ABB))))./chA_emis;
 R_H_chB = (assist.down.chB.mrad.y -(1-chB_emis).*(ones(size(T_ABB))*Blackbody(assist.down.chB.mrad.x, mean(T_ABB))))./chB_emis;
 
@@ -1289,24 +1313,28 @@ chB_Tb__ = BrightnessTemperature(assist.chB.cxs.x,R_H_chB__);
 
 xl_A = assist.down.chA.mrad.x>535&assist.down.chA.mrad.x<1800;
 xl_B = assist.down.chB.mrad.x>1800&assist.down.chB.mrad.x<3000;
-ID = 6;
+ID = assist.down.isSky;
 % Put in actual 3rd blackbody temp in C.
 
 if ishandle(88)
-   v = axis;
+   figure(88)
+   v = axis(gca);
 end
- figure(88); plot(assist.down.chA.mrad.x(xl_A), chA_Tb(ID,xl_A)-273.15,'b-',...
-    assist.down.chB.mrad.x(xl_B), chB_Tb(ID,xl_B)-273.15,'r-', ...
-    [535,3000] , [BB3,BB3], 'k--');
+ figure(88); plot(assist.down.chA.mrad.x(xl_A), (chA_Tb(ID,xl_A))-273.15,'-',...
+    assist.down.chB.mrad.x(xl_B), (chB_Tb(ID,xl_B))-273.15,'-', ...
+    [535,3000] , [BB3,BB3], 'm--');grid('on');
  xlim([500,3000]);
 lg = legend('chA','chB', '3rd BB T'); set(lg,'interp','none');
 xlabel('wavenumber');
 yl = ylabel('T_b [C]'); set(yl,'interp','none');
 title('Brightness Temperatures and measured 3rd BB temp')
 ax(1) = gca;
- figure(89); plot(assist.down.chA.mrad.x(xl_A), chA_Tb__(ID,xl_A)-273.15,'b-',...
-    assist.down.chB.mrad.x(xl_B), chB_Tb__(ID,xl_B)-273.15,'r-',...
-    [535,3000] , [BB3,BB3], 'k--');
+aeri_ch2 = anc_load(['D:\case_studies\assist\deployments\ASSIST_at_SGP_20150603\Example_AERI_3rd_BB_test\150508C2_rnc.cdf']);
+aeri_ch2.vdata.Tb = BrightnessTemperature(aeri_ch2.vdata.wnum1,aeri_ch2.vdata.mean_rad);
+
+figure(89); plot(assist.down.chA.mrad.x(xl_A), mean(chA_Tb__(ID,xl_A))-273.15,'b-',...
+    assist.down.chB.mrad.x(xl_B), mean(chB_Tb__(ID,xl_B))-273.15,'r-',...
+    [535,3000] , [BB3,BB3], 'm--');grid('on');
  xlim([500,3000]);
 lg = legend('chA','chB', '3rd BB T'); set(lg,'interp','none');
 xlabel('wavenumber');
@@ -1332,7 +1360,7 @@ end
 % if exist('v','var')
 %    axis(v);
 % end
-
+pause(1)
    assist.degraded.chA.NEN1.F = downsample(sqrt(assist.down.chA.var.F),50,2).*(sqrt(15./120));
 assist.degraded.chB.NEN1.F = downsample(sqrt(assist.down.chB.var.F),50,2).*(sqrt(15./120));
 %%
@@ -1404,7 +1432,7 @@ seq = seq.down;
 
 seq.degraded = deg;
 seq.chA = rmfield(seq.chA,'ifg');
-seq.chA = rmfield(seq.chA,'cxs');
+% seq.chA = rmfield(seq.chA,'cxs');
 seq.chB = rmfield(seq.chB,'ifg');
-seq.chB = rmfield(seq.chB,'cxs');
+% seq.chB = rmfield(seq.chB,'cxs');
 return
