@@ -10,11 +10,7 @@ for n = (1+HW):(len_in-HW)
 mid(n) = std(in((n-HW):(n+HW)));
 end
 left(1:end-2*HW) = mid((1+HW):(end-HW));
-right((1+2*HW):end) = mid((1+HW):(end-HW));
-
-
+right((2*HW):(end-1)) = mid((1+HW):(end-HW));
 out = min([left; mid; right]);
-
-
 return
    

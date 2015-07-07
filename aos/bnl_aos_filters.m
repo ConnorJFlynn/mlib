@@ -1,4 +1,10 @@
 %%
+% Let's try identifying filter changes in reverse, identify periods where
+% the filter is stable, or more accurately where the front-panel / raw
+% transmission ratio is sufficiently stable. 
+% 
+
+
 % Cursory look at BNL AOS 1-s data
 % After cursory examination, path should be:
 % Import existing NOAA AOS 60-second b1-level file used as input to AIP.  
@@ -10,6 +16,51 @@
 % b1-file.  Optimally also populate the QC fields, but if necessary to make
 % the deadline postpone this activity.
 %%
+% Trying to improve PSAP filter detection and our handling of pathologicals
+
+% Examine std of ratio between raw and front-panel transmittance as
+% indication of filter change.
+% Add in requirement of largish positive delta in Tr
+
+% What should we really be doing when the front-panel transmittances exceed
+% unity?  
+
+
+tr_blue=maob1_.vdata.tr_blue;
+ch = maob1_.vdata.tr_blue > 9;
+tr_blue(tr_blue>9) = NaN;
+transmittance_blue_raw=maob1_.vdata.transmittance_blue_raw;
+transmittance_blue_raw(transmittance_blue_raw<-9000) = NaN;
+
+tr_B_rat = tr_blue./transmittance_blue_raw;
+good = madf_span(tr_B_rat,300); good(good) = madf_span(tr_B_rat(good),300); 
+good(good) = madf_span(tr_B_rat(good),300,3); 
+
+std_10min_tr_B_rat = NaN(size(good));
+
+tic;
+std_10min_tr_B_rat(good) = stdwin(tr_B_rat(good), 300);
+toc;
+figure; 
+xx(1) = subplot(3,1,1); 
+plot(maob1_.time, transmittance_blue_raw, 'k-',(maob1_.time), tr_blue, '-b.',maob1_.time(ch), tr_blue(ch), 'ro');dynamicDateTicks;
+legend('raw','Tr')
+xx(2) = subplot(3,1,2); 
+plot(maob1_.time, tr_B_rat, 'r.',maob1_.time(good), tr_B_rat(good), 'b.');dynamicDateTicks; legend('Tr Rat')
+xx(3) = subplot(3,1,3); 
+plot(maob1_.time, std_10min_tr_B_rat,'-r.');dynamicDateTicks;
+legend('std');
+logy
+linkaxes(xx, 'x');
+
+change = std_10min_tr_B_rat > 1e-3;
+start_ch =(change(1:end-1)==0&change(1:end-1)~=change(2:end));
+figure; plot(maob1_.time, maob1_.vdata.tr_blue,'b.', maob1_.time(find(start_ch)),maob1_.vdata.tr_blue(find(start_ch)),'rx')
+dynamicDateTicks; linkaxes([xx,gca],'x')
+change = std_10min_tr_B_rat>1e-3; 
+change(2:end-1) =change(1:end-2)|change(2:end-1)|change(3:end);
+
+
 % Apply Neph truncation correction and correct to STP.
 % Apply PSAP 3w scattering corrections as identified in Ogren paper
 % (generalization of Bond et all correction). 

@@ -1,10 +1,10 @@
 function out = stdwint(t,in,HW)
 % out = stdwint(t,in,HW)
 % returns the minimum stddev of points within three temporal windows: 
-% [t]-2*HW,t],[t-HW:t+HW], [t:t+2*HW]
+% [t]-2*HW,t],[t-HW:t+HW], [t:t+2*HW], HW in seconds
 
 % convert t to seconds.
-% comptute diff of t and round to nearest second.
+% compute diff of t and round to nearest second.
 % Interpolate to this grid with nearest neighbor
 
 t = (t-min(t)) * 24*60*60;
