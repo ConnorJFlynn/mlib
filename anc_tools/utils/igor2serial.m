@@ -1,5 +1,5 @@
  
-function [serial] = epoch2serial (epoch)
+function [serial] = igor2serial (igor_time)
 
 % Converts epoch time to serial time.
 %
@@ -36,10 +36,10 @@ function [serial] = epoch2serial (epoch)
 %
 %-------------------------------------------------------------------
  
-DAYS_TO_1970 = 719529;
+DAYS_TO_1904 =  695422; % =datenum(1904,0,0) + 1
 SEC_PER_DAY  = 86400;
 
-index = (epoch / SEC_PER_DAY);
-serial = double(index + DAYS_TO_1970);
- 
+index = (igor_time) ./ SEC_PER_DAY;
+serial = double(index + DAYS_TO_1904);
+disp(' igor2serial does not quite work.  Seems to be off by ~15 minutes')
 return
