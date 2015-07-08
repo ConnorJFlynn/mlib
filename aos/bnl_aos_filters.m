@@ -33,8 +33,14 @@ transmittance_blue_raw=maob1_.vdata.transmittance_blue_raw;
 transmittance_blue_raw(transmittance_blue_raw<-9000) = NaN;
 
 tr_B_rat = tr_blue./transmittance_blue_raw;
-good = madf_span(tr_B_rat,300); good(good) = madf_span(tr_B_rat(good),300); 
-good(good) = madf_span(tr_B_rat(good),300,3); 
+good = isfinite(tr_B_rat);
+good(good) = madf_span(tr_B_rat(good),300,2); 
+good(good) = madf_span(tr_B_rat(good),300,2); 
+good(good) = madf_span(tr_B_rat(good),300,3);
+good(good) = madf_span(tr_B_rat(good),300,4);
+good(good) = madf_span(tr_B_rat(good),300,5);
+
+
 
 std_10min_tr_B_rat = NaN(size(good));
 
