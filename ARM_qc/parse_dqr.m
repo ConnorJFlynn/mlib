@@ -2,6 +2,7 @@ function dqr = parse_dqr(ds, var);
 % dqr = parse_dqr(ds, var);
 % ds = 'sgplssondeC1.c1';
 % var = 'rh';
+% Hi GK
 url = ['http://www.archive.arm.gov/dqrws/ARMDQR?datastream=',ds,'&varname=',var,'&dqrfields=dqrid,starttime,endtime,subject,metric'];
 % read contents from url into a string
 response = urlread(url);
