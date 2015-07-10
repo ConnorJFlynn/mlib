@@ -4,17 +4,6 @@
 % transmission ratio is sufficiently stable. 
 % 
 
-
-% Cursory look at BNL AOS 1-s data
-% After cursory examination, path should be:
-% Import existing NOAA AOS 60-second b1-level file used as input to AIP.  
-% Identify the corresponding fields in BNL AOS 1-s datastream.
-% For first stage, simply eliminate any unmatched fields.  This defines a first
-% cut at the 60-s file.  At a later stage, perhaps identify  unmatched fields
-% from the BNL stream that should be propagated in addition.
-% Apply filters and averaging to the 1-s BNL data to populate the 60-s
-% b1-file.  Optimally also populate the QC fields, but if necessary to make
-% the deadline postpone this activity.
 %%
 % Trying to improve PSAP filter detection and our handling of pathologicals
 

@@ -36,10 +36,4 @@ sp2.Dmin = sp2.SP2_Dmin(isfinite(sp2.SP2_Dmin))'; sp2 = rmfield(sp2,'SP2_Dmin');
 sp2.Dmax = sp2.SP2_Dmax(isfinite(sp2.SP2_Dmax))'; sp2 = rmfield(sp2,'SP2_Dmax');
 sp2.Dgeo = sp2.SP2_Dgeo(isfinite(sp2.SP2_Dgeo))'; sp2 = rmfield(sp2,'SP2_Dgeo');
 
-
-
-
-
-% toc
-
 return
