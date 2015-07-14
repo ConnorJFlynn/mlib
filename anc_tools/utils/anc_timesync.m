@@ -115,7 +115,8 @@ if (isfield(nc, 'time'))
         % default time_offset.
         nc.vdata.time_offset                = [];
         nc.vatts.time_offset.long_name = ['Time offset from base_time'];
-        nc.vatts.time_offset.units     = ['seconds since ' nc.ncdef.vars.base_time.atts.string.data];
+        nc.vatts.time_offset.units     = ['seconds since ' nc.vatts.base_time.string];
+%         nc.vatts.time_offset.units     = ['seconds since ' nc.ncdef.vars.base_time.atts.string.data];
 
         % default time.
         nc.vdata.time                       = [];
