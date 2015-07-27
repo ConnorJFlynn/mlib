@@ -1,6 +1,6 @@
-function [status,ax, time_, qc_impact]= anc_plot_mentor_qcd(anc, field);
-%  [status,ax, time_,qc_impact]= anc_plot_mentor_qcd((anc, field);
-% Plots old-style mentor QC with 2-panel plot.
+function [status,ax, time_, qc_impact]= anc_plot_mentor_qcd(anc, field,fig1);
+%  [status,ax, time_,qc_impact]= anc_plot_mentor_qcd((anc, field,fig1);
+% Plots old-style mentor QC with 2 figures.
 
 %This is old-style mentor-edit QC
 % bit1 : missing
@@ -82,7 +82,8 @@ if isfield(anc.vdata,field)&& isfield(anc.vdata,['qc_',field])&& ...
 %          time_ = (anc.time - datenum(datestr(first_time,'yyyy-01-01'),'yyyy-01-01'))./365.25;
 %          time_str = ['years since ', datestr(first_time, 'Jan 1, yyyy')];
 %       end
-   ax(1) = subplot(2,1,1);
+figure(fig1); ax(1) = gca;
+%    ax(1) = subplot(2,1,1);
    plot(time_(~missing&(qc_impact==2)),var(~missing&(qc_impact==2)),'r.', ...
       time_(~missing&(qc_impact==0)),var(~missing&(qc_impact==0)),'g.');
    xl = xlim;
@@ -100,7 +101,10 @@ if isfield(anc.vdata,field)&& isfield(anc.vdata,['qc_',field])&& ...
    ylabel(vatts.units);
    %       ylim(ylim);
    title(ax(1),{fname, field},'interpreter','none');
-   ax(2)=subplot(2,1,2); mid =  imagegap(time_,[1:tests],qc_tests);
+   figure(fig1+1);
+   ax(2) = gca;
+%    ax(2)=subplot(2,1,2); 
+   mid =  imagegap(time_,[1:tests],qc_tests);
    xlim(xl);
    linkaxes(ax,'x');
    ylabel('test number','interpreter','none');
@@ -115,5 +119,5 @@ if isfield(anc.vdata,field)&& isfield(anc.vdata,['qc_',field])&& ...
       tx(x) = text('string', desc(x),'interpreter','none','units','normalized','position',[0.01,(x-.5)/tests],...
          'fontsize',8,'color','black','linestyle','-','edgecolor',[.5,.5,.5]);
    end
-   zoom('on')
+   zoom('xon')
 end

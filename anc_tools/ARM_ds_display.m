@@ -9,6 +9,12 @@ function [anc_, ax] = ARM_ds_display(anc);
 % Strips n-dimensioned fields
 % Adding histgram creation, in progress
 % Returning time vector from plot for aid in refining histogram bounds
+
+% Removing auto-generation of companions fields.
+% Moving away from multi-panel plots. Going to iterative new figures
+% instead.
+
+
 if ~exist('anc','var')
    anc = anc_bundle_files;
 end
@@ -48,11 +54,11 @@ if ~isempty(fields)
    f = 0;
    axi = 0;
    fig = [];
-   ax = [];
+   ax = []; all_ax = [];
    fig_99 = 99; %default starting point for plots of static fields
    new_figure = true;
-   overwrite = true;
-   overwrite_str = 'Set Re-Use OFF';
+   overwrite = false;
+   overwrite_str = 'Set Re-Use ON';
    QCS = ['*QC*'];
    
    while (f>=0)
@@ -75,20 +81,36 @@ if ~isempty(fields)
       
       % 12 'Done'}
       % clean up figures and axes
+      figs_all = findall(0,'type','figure')'; 
       bad_fig = ~ishandle(fig);
       fig(bad_fig) = [];
       ax(bad_fig) = [];
       axi = length(fig);
-      if ishandle(55)
-         kids_55 = get(55,'children');
-         not_axis = ~strcmp(get(kids_55,'type'),'axes');
-         kids_55(not_axis) = [];
-         not_axis = strcmp(get(kids_55,'tag'),'legend');
-         kids_55(not_axis) = [];
-      else
-         kids_55 = [];
+      % clean up figs.
+      % For even fig, set width equal to width of lower integer
+      if ~isempty(fig)
+         odd_pos = get(gcf,'position');
+         for f = fig
+            if mod(f,2) == 1
+               odd_pos = get(f,'position');
+            else
+               even_pos = get(f,'position');
+               even_pos([1 3]) = odd_pos([1 3]);
+               set(f,'position',even_pos);
+            end
+         end
       end
-      all_ax = kids_55';
+      
+%       if ishandle(55)
+%          kids_55 = get(55,'children');
+%          not_axis = ~strcmp(get(kids_55,'type'),'axes');
+%          kids_55(not_axis) = [];
+%          not_axis = strcmp(get(kids_55,'tag'),'legend');
+%          kids_55(not_axis) = [];
+%       else
+%          kids_55 = [];
+%       end
+%       all_ax = kids_55';
       for xx = 1:length(ax)
          all_ax = [all_ax, ax{xx}];
       end
@@ -229,14 +251,19 @@ if ~isempty(fields)
          %          end
          if new_figure||~overwrite
             if isempty(anc.ncdef.vars.(field).dims{1})
-               fig_99 = fig_99+1;
+               fig_99 = fig_99+2;
                fig_99 = figure(fig_99);
                new_figure = false;
             else
                if ok~=8
                   axi = axi +1;
                end
-               fig(axi) = figure;
+               next_fig = max(findall(0,'type','figure'))+1;
+               next_fig = next_fig + double(mod(next_fig,2)==0);
+               if isempty(next_fig)
+                  next_fig = 1;
+               end
+               fig(axi) = figure(next_fig);
                new_figure = false;
                if axi>1
                   newpos = get(fig(axi-1),'Position');
@@ -307,11 +334,15 @@ if ~isempty(fields)
                      
                      [status,ax{axi},time_] = anc_plot_s_qcd(anc, field);
                   else % qc_mode ==2, so plot details as vap or mentor qc, as applicable
+
                      if isfield(anc.vatts.(['qc_',fields{f}]),'bit_1_description')
-                        [status,ax{axi},time_] = anc_plot_vap_qcd(anc, field);
+                        [status,ax{axi},time_] = anc_plot_vap_qcd(anc, field, fig(axi));
                      else
-                        [status,ax{axi},time_,qc_impact] = anc_plot_mentor_qcd(anc, field);
+                        [status,ax{axi},time_,qc_impact] = anc_plot_mentor_qcd(anc, field,fig(axi));
                      end
+                     axi = axi+1; ax{axi} = ax{axi-1};
+                     fig(axi) = max(findall(0,'type','figure'));
+                     
                   end
                end
                
@@ -323,7 +354,7 @@ if ~isempty(fields)
                if isfield(anc.vdata,fields{f})&&isfield(anc.vdata,['qc_',fields{f}])
                   if isfield(anc.vatts.(['qc_',fields{f}]),'bit_1_description')&&(qc_mode==2)
                      %Plot detailed QC
-                     [status,ax{axi},time_,qc_impact] = anc_plot_vap_qcd(anc, field);
+                     [status,ax{axi},time_,qc_impact] = anc_plot_vap_qcd(anc, field,fig(axi));
                   elseif ~isempty(strfind(anc.gatts.datastream,'.s1')>0)||...
                         (isfield(anc.vatts.(['qc_',fields{f}]),'description')...
                         &&(~isempty(findstr('0 = Good',anc.vatts.(['qc_',fields{f}]).description)))...
@@ -335,7 +366,7 @@ if ~isempty(fields)
                      [status,ax{axi},time_] = anc_plot_s_qcd(anc, field);
                      
                   else
-                     [status,ax{axi},time_,qc_impact] = anc_plot_mentor_qcd(anc, field);
+                     [status,ax{axi},time_,qc_impact] = anc_plot_mentor_qcd(anc, field,fig(axi));
                   end
                else
                   %This is not a qc field
@@ -368,16 +399,16 @@ if ~isempty(fields)
             bad_fig = ~ishandle(fig);
             fig(bad_fig) = [];
             ax(bad_fig) = [];axi = length(fig);
-            if ishandle(55)
-               kids_55 = get(55,'children');
-               not_axis = ~strcmp(get(kids_55,'type'),'axes');
-               kids_55(not_axis) = [];
-               not_axis = strcmp(get(kids_55,'tag'),'legend');
-               kids_55(not_axis) = [];
-            else
-               kids_55 = [];
-            end
-            all_ax = kids_55';
+%             if ishandle(55)
+%                kids_55 = get(55,'children');
+%                not_axis = ~strcmp(get(kids_55,'type'),'axes');
+%                kids_55(not_axis) = [];
+%                not_axis = strcmp(get(kids_55,'tag'),'legend');
+%                kids_55(not_axis) = [];
+%             else
+%                kids_55 = [];
+%             end
+%             all_ax = kids_55';
             for xx = 1:length(ax)
                all_ax = [all_ax, ax{xx}];
             end
