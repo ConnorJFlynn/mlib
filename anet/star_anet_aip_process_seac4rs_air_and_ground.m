@@ -17,11 +17,12 @@ if ~isfield(s,'flight_level')
 end
 if isfield(s,'filename')
     [p,skytag,x] = fileparts(s.filename{1});
-    skytag = strrep(skytag,'_VIS_','_');skytag = strrep(skytag,'_NIR_','_');
+    skytag = strrep(skytag,'_VIS_','_');
+    skytag = strrep(skytag,'_NIR_','_');
 end
 [pname_mat,~,~] = fileparts(s.filename{1});
 if ~exist([pname_mat, filesep,skytag,'_starsky.mat'],'file')
-save([pname_mat, filesep,skytag,'_starsky.mat'], '-struct','s');
+   save([pname_mat, filesep,skytag,'_starsky.mat'], '-struct','s');
 end
 % if az_gnd doesn't exist, then apply Euler angle correction
 if ~isfield(s,'Az_gnd')
@@ -31,7 +32,6 @@ s.El_true = s.El_deg;
 s.El_true(s.Str==2) = s.El_deg(s.Str==2) - s.sun_sky_El_offset;
 [s.Az_gnd, s.El_gnd] = ac_to_gnd_SEACRS(s.Az_deg, s.El_true, s.Headng, s.pitch, s.roll);
 s.SA = scat_ang_degs(s.sza, s.sunaz, 90-abs(s.El_gnd), s.Az_gnd);
-
 end
 s.good_sky(s.Str~=2) = false;
 if isfield(s,'good_alm')
