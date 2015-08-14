@@ -420,6 +420,9 @@ if isfield(anc.vdata,field)
    
    var = anc.vdata.(field);
    vatt = anc.vatts.(field);
+   if ~isfield(vatt,'units')
+      vatt.units = 'unitless';
+   end
    missing = isNaN(var)|((var<-9998)&(var>-10000));
    time_ = anc.time;
    time_str = 'time [UTC]';
