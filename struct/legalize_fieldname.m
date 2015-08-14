@@ -20,6 +20,7 @@ newname = strrep(newname,'#','__hash__');
 newname = strrep(newname,'/','__fslash__');
 newname = strrep(newname,'\','__bslash__');
 newname = strrep(newname,'^','__caret__');
+newname = strrep(newname,'%','__pct__');
 
 if newname(1) == '_'
     newname = ['underbar__',newname(2:end)];
