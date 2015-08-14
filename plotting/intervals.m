@@ -10,7 +10,7 @@ function [interval,nums] = intervals(x);
 %    xx = sscanf(sprintf('%0.1g',xx),'%g');
 %    xx = max(xx)*floor(500*xx/max(xx))/500;%this an attempt remove minor discrepancies in the interval
 %    [spacing, first] = unique(xx,'first');
-   [spacing, last] = unique(xx);
+   [spacing, last] = unique(xx,'first');
    if length(last)>1
        nums = diff2(last);% 
    [nums,place] = sort(nums, 'descend');
