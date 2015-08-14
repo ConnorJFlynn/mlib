@@ -41,9 +41,9 @@ if exist('in_str','var')
     A = textscan(fid, [in_str, '%*[^\n]'],'delimiter','\t');
 end
 if ~exist('A','var') || length(A{end})~=len_A
-    in_str = '%s ';
+    in_str = '%s %s ';
     
-    for x = 2:length(AA)
+    for x = 3:length(AA)
         
         in_str_ = [in_str, '%f '];
         A = textscan(fid, [in_str_, '%*[^\n]'],'delimiter','\t');
