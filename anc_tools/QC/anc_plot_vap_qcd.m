@@ -1,4 +1,4 @@
-function [status,ax,time_,qc_impact] = anc_plot_vap_qcd(anc, field)
+function [status,ax,time_,qc_impact,qc_fig] = anc_plot_vap_qcd(anc, field)
 % [status,ax,time_,qc_impact] = anc_plot_vap_qcd(anc, field);
 % Generates plot of time-series qc_field for field following VAP QC conventions.
 % field must be a character string matching a valid field name in anc.
@@ -133,7 +133,8 @@ if isfield(anc.vdata,field)&& isfield(anc.vdata,['qc_',field])&& ~isempty(strfin
 %       end
     %plot figure 2 first so that figure 1 window is current / on top at end
     %       fig(1) = figure(1);
-    ax(1) = subplot(2,1,1); cla(ax(1))
+%     ax(1) = subplot(2,1,1); cla(ax(1))
+cla(gca)
     plot(time_(~missing&(qc_impact==2)),var(~missing&(qc_impact==2)),'r.');
     hold('on');
     plot(time_(~missing&(qc_impact==1)),var(~missing&(qc_impact==1)),'.','color',[1,.85,0]);
@@ -142,6 +143,8 @@ if isfield(anc.vdata,field)&& isfield(anc.vdata,['qc_',field])&& ~isempty(strfin
 %      end
     plot(time_(~missing&(qc_impact==0)),var(~missing&(qc_impact==0)),'g.');
     hold('off');
+    zoom('on');
+    ax(1) = gca;
     if all(missing)
         plot(xlim,ylim,'w.')
         leg_str = ['No valid values.'];
@@ -162,7 +165,16 @@ if isfield(anc.vdata,field)&& isfield(anc.vdata,['qc_',field])&& ~isempty(strfin
     ylabel(vatts.units);
     %       ylim(ylim);
     title(ax(1),{fname, field},'interpreter','none');
-    ax(2)=subplot(2,1,2); mid =  imagegap(time_,[1:tests],qc_tests);
+    set(gcf,'units','normalized');
+    newpos = get(gcf,'Position');
+    newpos(4) = 0.045.*length(desc);
+    newpos(2) = newpos(2)-1.1.*newpos(4);
+        
+    figure(gcf+1); 
+    set(gcf,'units','normalized','position',newpos);
+    mid =  imagegap(time_,[1:tests],qc_tests);
+    zoom('xon')
+    ax(2)=gca; 
     xlim(xl);
     
     ylabel('test number','interpreter','none');
@@ -173,72 +185,72 @@ if isfield(anc.vdata,field)&& isfield(anc.vdata,['qc_',field])&& ~isempty(strfin
     colormap(ryg_w);
     caxis([-1,2]);
     
-    title(ax(2),(qatts.long_name),'interpreter','none');
+    title(ax(2),['QC tests for ',field],'interpreter','none');
     set(ax(2), 'Tickdir','out');
     for x = 1:length(desc)
         tx(x) = text('string', desc(x),'interpreter','none','units','normalized','position',[0.01,(x-.5)/tests],...
             'fontsize',8,'color','black','linestyle','-','edgecolor',[.5,.5,.5]);
         %      set(tx(x),'units','data','clipping','on')
     end
-    var_fig = gcf;
-    panes = length(fields);
-    if panes>0
-       fig_pos = get(var_fig,'position');
-       figure(55);
-       set(gcf,'position',[fig_pos(1)+1.05.*fig_pos(3), fig_pos(2),fig_pos(3), fig_pos(4)]);
-       %  ax(3) = subplot(panes,1,1);
-       subplot(panes,1,1); cla(gca);
-%         cla(ax(3));
-        if isfield(anc.vdata,['qc_',fields{1}])
-            qc_impact = anc_qc_impacts(anc.vdata.(['qc_',fields{1}]),anc.vatts.(['qc_',fields{1}]));
-        else
-            qc_impact = zeros(size(anc.vdata.(fields{1})));
-        end
-        missing = anc.vdata.(fields{1})< -9990;
-        plot(time_(~missing&(qc_impact==2)),anc.vdata.(fields{1})(~missing&(qc_impact==2)),'k.',...
-            time_(~missing&(qc_impact==2)),anc.vdata.(fields{1})(~missing&(qc_impact==2)),'r.');
-        hold('on');
-        plot(time_(~missing&(qc_impact==1)),anc.vdata.(fields{1})(~missing&(qc_impact==1)),'.','color',[1,230./255,50./255]);
-        plot(time_(~missing&(qc_impact==0)),anc.vdata.(fields{1})(~missing&(qc_impact==0)),'g.');
-        hold('off');
-        lg = legend(fields{1}); set(lg,'interp','none') ;
-        title(['QC fields for ' field],'interp','none')
-        
-        for pane = 2:panes
-           %  ax(2+pane) = subplot(panes,1,pane);
-           subplot(panes,1,pane); cla(gca);
-%             cla(ax(pane+2)); 
-            if isfield(anc.vdata,['qc_',fields{pane}])
-                qc_impact = anc_qc_impacts(anc.vdata.(['qc_',fields{pane}]),anc.vatts.(['qc_',fields{pane}]));
-            else
-                qc_impact = zeros(size(anc.vdata.(fields{pane})));
-            end
-            missing = anc.vdata.(fields{pane})< -9990;
-            plot(time_(~missing&(qc_impact==2)),anc.vdata.(fields{pane})(~missing&(qc_impact==2)),'k.',...
-                time_(~missing&(qc_impact==2)),anc.vdata.(fields{pane})(~missing&(qc_impact==2)),'r.');
-            hold('on');
-            plot(time_(~missing&(qc_impact==1)),anc.vdata.(fields{pane})(~missing&(qc_impact==1)),'.','color',[1,230./255,50./255]);
-            plot(time_(~missing&(qc_impact==0)),anc.vdata.(fields{pane})(~missing&(qc_impact==0)),'g.');
-            hold('off');
-            lg = legend(fields{pane}); set(lg,'interp','none')
-        end
-        xlabel(time_str,'interpreter','none');
-
-        %
-        %    fig(2) = figure(2); clf(fig(2));
-        %    %pause(.1); close(gcf);pause(.1); figure(2)
-        %    set(gca,'units','normalized','position',[.05,.05,.9,.9],'visible','on','xtick',[],'ytick',[]);
-        %    tx = text('string','','interpreter','none','units','normalized','position',[0.05,.8],'fontsize',8);
-        %    set(tx,'string',desc);
-        %    title({['Test descriptions for qc_',field]},'interpreter','none');
-        %    % else
-        %    %    disp(['Field ''',field,''' was not found in the netcdf
-        %    file.'])
-        figure(var_fig);
-    end
+    qc_fig = gcf;
+%     panes = length(fields);
+%     if panes>0
+%        fig_pos = get(var_fig,'position');
+%        figure(55);
+%        set(gcf,'position',[fig_pos(1)+1.05.*fig_pos(3), fig_pos(2),fig_pos(3), fig_pos(4)]);
+%        %  ax(3) = subplot(panes,1,1);
+%        subplot(panes,1,1); cla(gca);
+% %         cla(ax(3));
+%         if isfield(anc.vdata,['qc_',fields{1}])
+%             qc_impact = anc_qc_impacts(anc.vdata.(['qc_',fields{1}]),anc.vatts.(['qc_',fields{1}]));
+%         else
+%             qc_impact = zeros(size(anc.vdata.(fields{1})));
+%         end
+%         missing = anc.vdata.(fields{1})< -9990;
+%         plot(time_(~missing&(qc_impact==2)),anc.vdata.(fields{1})(~missing&(qc_impact==2)),'k.',...
+%             time_(~missing&(qc_impact==2)),anc.vdata.(fields{1})(~missing&(qc_impact==2)),'r.');
+%         hold('on');
+%         plot(time_(~missing&(qc_impact==1)),anc.vdata.(fields{1})(~missing&(qc_impact==1)),'.','color',[1,230./255,50./255]);
+%         plot(time_(~missing&(qc_impact==0)),anc.vdata.(fields{1})(~missing&(qc_impact==0)),'g.');
+%         hold('off');
+%         lg = legend(fields{1}); set(lg,'interp','none') ;
+%         title(['QC fields for ' field],'interp','none')
+%         
+%         for pane = 2:panes
+%            %  ax(2+pane) = subplot(panes,1,pane);
+%            subplot(panes,1,pane); cla(gca);
+% %             cla(ax(pane+2)); 
+%             if isfield(anc.vdata,['qc_',fields{pane}])
+%                 qc_impact = anc_qc_impacts(anc.vdata.(['qc_',fields{pane}]),anc.vatts.(['qc_',fields{pane}]));
+%             else
+%                 qc_impact = zeros(size(anc.vdata.(fields{pane})));
+%             end
+%             missing = anc.vdata.(fields{pane})< -9990;
+%             plot(time_(~missing&(qc_impact==2)),anc.vdata.(fields{pane})(~missing&(qc_impact==2)),'k.',...
+%                 time_(~missing&(qc_impact==2)),anc.vdata.(fields{pane})(~missing&(qc_impact==2)),'r.');
+%             hold('on');
+%             plot(time_(~missing&(qc_impact==1)),anc.vdata.(fields{pane})(~missing&(qc_impact==1)),'.','color',[1,230./255,50./255]);
+%             plot(time_(~missing&(qc_impact==0)),anc.vdata.(fields{pane})(~missing&(qc_impact==0)),'g.');
+%             hold('off');
+%             lg = legend(fields{pane}); set(lg,'interp','none')
+%         end
+%         xlabel(time_str,'interpreter','none');
+% 
+%         %
+%         %    fig(2) = figure(2); clf(fig(2));
+%         %    %pause(.1); close(gcf);pause(.1); figure(2)
+%         %    set(gca,'units','normalized','position',[.05,.05,.9,.9],'visible','on','xtick',[],'ytick',[]);
+%         %    tx = text('string','','interpreter','none','units','normalized','position',[0.05,.8],'fontsize',8);
+%         %    set(tx,'string',desc);
+%         %    title({['Test descriptions for qc_',field]},'interpreter','none');
+%         %    % else
+%         %    %    disp(['Field ''',field,''' was not found in the netcdf
+%         %    file.'])
+%         figure(var_fig);
+%     end
 %         linkaxes(ax,'x');
 %         dynamicDateTicks(ax,'link')
-        zoom('on')
+
 end
 
 return
