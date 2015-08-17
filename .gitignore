@@ -52,3 +52,6 @@ Temporary Items
 *.asv
 *.zip
 aos/more_psap_fun_with_pathos.m
+central/PauseMATLAB/createButton.m
+central/PauseMATLAB/license.txt
+central/PauseMATLAB/myFcn.m
