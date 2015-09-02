@@ -170,7 +170,7 @@ cla(gca)
     newpos(4) = 0.045.*length(desc);
     newpos(2) = newpos(2)-1.1.*newpos(4);
         
-    figure(gcf+1); 
+    figure(double(gcf)+1); 
     set(gcf,'units','normalized','position',newpos);
     mid =  imagegap(time_,[1:tests],qc_tests);
     zoom('xon')

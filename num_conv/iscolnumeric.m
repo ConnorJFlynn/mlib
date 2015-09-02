@@ -6,7 +6,7 @@ n = length(this_col);
 while n > 0 && pass
    el = this_col{n};
    if ~isempty(el)
-   A = str2num(el);
+   A = str2double(el);
    B = sscanf(el,'%f');
    if numel(A)~=1 || numel(B)~=1 || A~=B
       pass = false;

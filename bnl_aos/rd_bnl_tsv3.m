@@ -32,14 +32,18 @@ end
 % Date	Time	Concentration	InstrErrs	Satur Temp	Cond Temp	Optcs Temp	Cab Temp	Ambnt Press	Orifice Press	Nozz Press	Lasr Curr	 Liq Lvl	 Liq Lvl V	Valve position	Flow setpoint	Flow read
 % Now iteratively try to compose the format string of
 mark = ftell(fid);
+
+if exist('in_str','var')
+    A = textscan(fid, [in_str, '%*[^\n]'],'delimiter','\t');
+    len_A = length(A{1})
+else
+
 Aa = textscan(fid, '%s %s %*[^\n]','delimiter','\t');
 len_A = length(Aa{1});
 clear Aa
 fseek(fid,mark,-1);
-
-if exist('in_str','var')
-    A = textscan(fid, [in_str, '%*[^\n]'],'delimiter','\t');
 end
+
 if ~exist('A','var') || length(A{end})~=len_A
     in_str = '%s %s ';
     

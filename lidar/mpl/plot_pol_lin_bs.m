@@ -102,7 +102,8 @@ end
 
 % cv_bs = [2,5];
 % cv_bs = [2,5]; % for ISDAC due to weaker signal compared to NIM.
-cv_dpr = [-2.25,0];
+cv_dpr = [-2.25,0]; 
+cv_dpr = 10.^cv_dpr; %for lin scale dpr
 %% Determine if we are plotting 0-12 or 12-24
 hh_HH = [floor(serial2Hh(polavg.time(1))),ceil(floor(serial2Hh(polavg.time(1)))+(polavg.time(end)-polavg.time(1))*24)];
 if floor(polavg.time(1))==floor(polavg.time(end))
@@ -160,6 +161,7 @@ ldr_error = abs(polavg.ldr)./polavg.ldr_snr;
 mask(polavg.ldr_snr<ldr_snr | ldr_error>ldr_error_limit) = NaN;
 % z2 = real(log10(mask(r.lte_15,:).*polavg.d(r.lte_15,:)));
 z2 = real(log10(mask(r.lte_15,:).*polavg.ldr(r.lte_15,:)));
+z2 = real((mask(r.lte_15,:).*polavg.ldr(r.lte_15,:)));
 ax(2) = subplot(2,1,2); 
 imagegap(x, y, z2); 
 axis('xy'); 

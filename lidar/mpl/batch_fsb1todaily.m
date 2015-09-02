@@ -110,7 +110,8 @@ for m = 1:length(in_files)
             if ~isempty(nextavg.time)
                fout_name = [mpl_inarg.fstem,datestr(date_m,'yyyymmdd'),'.doy',num2str(serial2doy(date_m)),'.mat'];
                save([mat_dir, fout_name],'polavg', '-mat');
-               plot_pol_log_bs(polavg,mpl_inarg);
+               plot_pol_lin_bs(polavg,mpl_inarg);
+%                plot_pol_log_bs(polavg,mpl_inarg);
                polavg = nextavg;
                nextavg = [];
             end
@@ -132,7 +133,8 @@ while length(polavg.time>0)
    if ~isempty(polavg.time)
       fout_name = [mpl_inarg.fstem,datestr(date_m,'yyyymmdd'),'.doy',num2str(serial2doy(date_m)),'.mat'];
       save([mat_dir, fout_name],'polavg', '-mat');
-      plot_pol_log_bs(polavg,mpl_inarg);
+plot_pol_lin_bs(polavg,mpl_inarg);
+%       plot_pol_log_bs(polavg,mpl_inarg);
       polavg = nextavg;
       nextavg = [];
    end

@@ -1,4 +1,4 @@
-function dqr = parse_dqr(ds, var);
+function dq = parse_dqr(ds, var);
 % dqr = parse_dqr(ds, var);
 % ds = 'sgplssondeC1.c1';
 % var = 'rh';
@@ -6,6 +6,7 @@ function dqr = parse_dqr(ds, var);
 url = ['http://www.archive.arm.gov/dqrws/ARMDQR?datastream=',ds,'&varname=',var,'&dqrfields=dqrid,starttime,endtime,subject,metric'];
 % read contents from url into a string
 response = urlread(url);
+if ~isempty(response)
 response = textscan(response,'%s','delimiter','\r\n');response = response{:};
 for r = length(response):-1:1
   A = textscan(response{r}, '%s %d %d %s %s','delimiter','|'); 
@@ -26,7 +27,10 @@ for r = length(response):-1:1
   end
   dq.desc(r) = [A{4}];     
 end
-dqr.(strrep(ds,'.','_')).(var) = dq;
+else
+   dq = [];
+end
+% dqr.(strrep(ds,'.','_')).(var) = dq;
 
 
 return

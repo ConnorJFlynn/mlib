@@ -64,9 +64,8 @@ plot(serial2doys(psap_b1.time), psap_b1.vdata.filter_unstable, 'k-',...
 xx(3) = subplot(4,1,3); plot(serial2doys(psap_b1.time), psap_b1.vdata.sample_flow_rate,'o');
 legend('flow rate < 0.8');
 xx(4)= subplot(4,1,4); plot(serial2doys(psap_b1.time), psap_b1.vdata.tr_blue,'bx');
-plot(serial2doys(psap_b1.time), psap_b1.vdata.transmittance_blue_raw.*normd,'ko',...
-   serial2doys(psap_b1.time), psap_b1.vdata.transmittance_blue_raw, 'c.',...
-   serial2doys(psap_b1.time), psap_b1.vdata.tr_blue,'r.');legend('derived','raw','panel')
+plot(serial2doys(psap_b1.time), psap_b1.vdata.transmittance_blue_raw, 'c.',...
+   serial2doys(psap_b1.time), psap_b1.vdata.tr_blue,'r.');legend('raw','panel')
 
 linkaxes(xx,'x');
 
@@ -106,7 +105,8 @@ for x = 1:(size(changes,1)-1)
    end
    
    if changed == changes(x+1,1)
-      disp('Probably the front-panel was not reset.')
+      disp(['Event #',num2str(x), ': ',datestr(psap_b1.time((changed))), '('...
+         ,num2str(serial2doys(psap_b1.time(changed))), '), Probably the front-panel was not reset.'])
       no_reset = true; % do not normalize to the front panel
    end
    
@@ -138,8 +138,7 @@ for x = 1:(size(changes,1)-1)
       end
    end
    
-   span = [changes(x,2)+1:changes(x+1,1)-1];
-  
+  span = [changes(x,2)+1:changes(x+1,1)-1];
   psap_b1.vdata.transmittance_blue(span) = psap_b1.vdata.transmittance_blue_raw(span).*normd(span);
    
    good = psap_b1.vdata.transmittance_blue_raw>0 & psap_b1.vdata.transmittance_blue_raw< 9;
@@ -164,11 +163,9 @@ legend('differnce');
 linkaxes([xx,s],'x');
 min_x = max([1 x-1]);max_x = max([3,x+1]);
 xlim([serial2doys(psap_b1.time(changes(min_x,1))),serial2doys(psap_b1.time(changes(max_x,1)))]);
-disp(['Event #',num2str(x),'.  Filter ',...
+disp(['Event #',num2str(x), ': ',datestr(psap_b1.time((changes(x)))), ' doy(',num2str(serial2doys(psap_b1.time((changes(x))))),'),  Filter ',...
    strrep(strrep(num2str(filter_change),'0','NOT '),'1',''),'changed. ',...
    ' RESET ',strrep(strrep(num2str(~no_reset),'0','NOT '),'1',''),'pressed']);
 end
-
-
 
 return

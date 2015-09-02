@@ -239,7 +239,7 @@ if ~isempty(fields)
                if ok~=8
                   axi = axi +1;
                end
-               kids = allchild(0); 
+               kids = double(allchild(0)); 
                if isempty(kids) 
                   kids = 0;
                end
