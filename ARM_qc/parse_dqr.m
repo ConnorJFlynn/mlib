@@ -13,8 +13,8 @@ for r = length(response):-1:1
   dq_id = A{1}; dq_id = dq_id{:}; % 
   dq.id_str(r) = {dq_id};
   dq.id(r) = sscanf(strrep(dq_id,'D',''),'%f');
-  dq.start_time(r) = epoch2serial(A{2});
-  dq.end_time(r) = epoch2serial(A{3});
+  dq.start_time(r) = epoch2serial(double(A{2}));
+  dq.end_time(r) = epoch2serial(double(A{3}));
   dq.quality_str(r) = [A{5}];
   if strcmp(A{5},'missing')
      dq.qs(r) = 3;

@@ -1,8 +1,13 @@
-function dqr = nofun(ds_name, fields);
+function [dqr]= dqr_for_ds(ds_name, fields);
+% [dqr]= dqr_for_ds(ds_name, fields);
+% populates the dqr structure identifying all DQRs affecting the supplied 
+% fields in the given datastream. This is for all time up to present.
+% Really intended that ds_name and fields be supplied, but if not then
+% I have hacked a front end to let the user select a data file
 
 if ~exist('ds_name','var')
-   clap = anc_bundle_files;
-   [pname, fname, ext] = fileparts(clap.fname);
+   anc = anc_bundle_files;
+   [pname, fname, ext] = fileparts(anc.fname);
    
    [fstem,rest] = strtok(fname, '.');
    dlevel = strtok(rest,'.');
@@ -12,7 +17,10 @@ if ~exist('ds_name','var')
 end
 
 if ~exist('fields','var')
-   fields = fieldnames(clap.vdata);
+   if ~exist('anc','var')
+      anc = anc_bundle_files;
+   end
+   fields = fieldnames(anc.vdata);
 end
 
 for f = 1:length(fields)
@@ -46,7 +54,6 @@ for v = 1:length(vars)
    [ids,ij] = intersect(dqr.all.id, dqr.vars.(var).id);
       dqr.ids_by_var.(var) = ij;
 end
-
 
 
 return
