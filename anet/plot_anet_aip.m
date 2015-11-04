@@ -2,7 +2,7 @@ function plot_anet_aip(anetaip)
 if ~exist('anetaip','var')
     anetaip = parse_anet_aip_output;
 else
-
+[pname, in_file,ext] = fileparts(anetaip.input_fname);
 [pname, fname, ext] = fileparts(anetaip.output_fname);
 pname = [pname, filesep];
 % h1 = figure('units','inches','position',[.1 4.2 4 3],'paperposition',[.1 .1 6.5 5]); 
@@ -115,6 +115,19 @@ set(hAxes(2),'ytickmode','auto');
 % linkaxes(hAxes,'x');
 tl = title(hAxes(1),'Refractive index');
 title(hAxes(2),' ');
+
+xlabel('Wavelength','FontSize', 10);
+ylabel('real','FontSize', 10);
+
+set(hAxes(1),'xlim',Range,'FontSize', 10);
+set(hAxes(2),'xlim',Range,'FontSize', 10);
+set(hAxes(1),'XTick',anetaip.Wavelength);
+set(hAxes(2),'XTick',anetaip.Wavelength);
+yl1 = get(hAxes(1),'ylabel');
+yl2 = get(hAxes(2),'ylabel');
+set(yl1,'string','real','fontsize',10);
+set(yl2,'string','imag','fontsize',10,'rotation',270);
+
 %%
 grid(hAxes(1), 'on')
 grid(hAxes(2),'on');
@@ -145,9 +158,10 @@ xlabel('Wavelength','FontSize', 10);
 ylabel('optical depth','FontSize', 10);
 title('Total Optical Depth')
 
-set(gca,'xlim',[min(anetaip.Wavelength) max(anetaip.Wavelength)],'FontSize', 10)
-set(gca,'XTick',[anetaip.Wavelength])
-set(gca,'FontSize', 10)
+set(gca,'xlim',[min(anetaip.Wavelength) max(anetaip.Wavelength)],'FontSize', 10);
+xlim(gca,[0.8.*min(anetaip.Wavelength),1.1.*max(anetaip.Wavelength)]);
+set(gca,'XTick',[anetaip.Wavelength]);
+set(gca,'FontSize', 10);
 grid on
 
 hAxes(end+1) = subplot(2,2,3);
@@ -161,7 +175,8 @@ ylabel('SSA','FontSize', 10);
 title('Single Scattering Albedo');
 
 % set(gca,'xlim',[0.4 1.1],'FontSize', 10)
-set(gca,'xlim',Range,'FontSize', 10);
+xlim(gca,[0.8.*min(anetaip.Wavelength),1.1.*max(anetaip.Wavelength)]);
+% set(gca,'xlim',Range,'FontSize', 10);
 set(gca,'XTick',anetaip.Wavelength);
 set(gca,'FontSize', 10);
 grid on;
@@ -189,7 +204,8 @@ xlabel('Wavelength','FontSize', 10);
 ylabel('AOD and AAOD','FontSize', 10);
 title('Aerosol extinction optical depth');
 
-set(gca,'xlim',Range,'FontSize', 10);
+xlim(gca,[0.8.*min(anetaip.Wavelength),1.1.*max(anetaip.Wavelength)]);
+% set(gca,'xlim',Range,'FontSize', 10);
 set(gca,'XTick',anetaip.Wavelength);
 set(gca,'ylim',[0 0.2],'FontSize', 10);
 grid on
@@ -202,7 +218,7 @@ grid on
 skytag = char(tmpA(2));
 
 houtput = anetaip.input.houtput; H = anetaip.input.H; W = anetaip.input.W; NLYRS = anetaip.input.NLYRS; hlyr = anetaip.input.hlyr;
-big_title_str = ['4STAR sky scan: ',skytag];
+big_title_str = {['4STAR sky scan: ',skytag];in_file};
 %%
 p=mtit(big_title_str,'fontsize',10,'interp','none');
 param_str = ['Parameters: ',sprintf('Scaling[%1.2g], ',anetaip.input.rad_scale), sprintf('houtput[%1.2g], ',houtput), sprintf('H[%1.3g,%1.3g], ',H),sprintf('W[,%1.3g,%1.3g], ',W), ...
@@ -220,8 +236,9 @@ set(bot_ax,'visi','off');set(bot_tl,'visi','on');
 % % refine title using its handle <p.th>
 %	set(p.th,'edgecolor',.5*[1 1 1]);
 linkaxes(hAxes,'x');
-saveas(gcf, [pname, filesep,fname,'.aod_ssa.png'], 'png');
 saveas(gcf, [pname, filesep,fname,'.aod_ssa.fig'], 'fig');
+saveas(gcf, [pname, filesep,fname,'.aod_ssa.png'], 'png');
+
 %%
 h3 = figure('units','inches','position',[7    0.5    7    5],'paperposition',[.1 .1 10 7]); 
 
@@ -245,11 +262,14 @@ for wv = 1:length(anetaip.Wavelength);
     leg_str(wv) = {sprintf('%1.3f um',anetaip.Wavelength(wv))}; 
 end
 h = legend(leg_str{:}); 
+xlabel('scattering angle','fontsize',10); ylabel('% error','fontsize',10)
 title('Sky Error (meas - fit) %');
+
 
 subplot(2,2,3);
  plot(anetaip.Wavelength,anetaip.sky_error,'-r*');
-hold on
+hold on; xlim(gca,[0.8.*min(anetaip.Wavelength),1.1.*max(anetaip.Wavelength)]);
+set(gca,'XTick',anetaip.Wavelength);
 % for wv = 1:length(anetaip.Wavelength);
 %     leg_str(wv) = {sprintf('total %1.3f um',anetaip.Wavelength(wv))}; 
 % end
@@ -260,7 +280,7 @@ xx_here=get(gca,'xlim');
 yy_here=get(gca,'ylim');
 xlabel('Wavelength','FontSize', 10);
 ylabel('% error','FontSize', 10);
-xlim([min(anetaip.Wavelength), max(anetaip.Wavelength)]);
+% xlim([min(anetaip.Wavelength), max(anetaip.Wavelength)]);
 % set(gca,'ylim',[0.0 100],'FontSize', 10)
 title('Sky Error (meas - fit) %');
 grid on
@@ -298,8 +318,8 @@ set(h,'FontSize', 10);
 
 xx_here=get(gca,'xlim');
 yy_here=get(gca,'ylim');
-xlabel('Angle','FontSize', 10);
-ylabel('Sky radiances','FontSize', 10);
+xlabel('scattering angle','FontSize', 10);
+ylabel('sky radiances','FontSize', 10);
 set(gca,'xlim',[1 180],'FontSize', 10)
 set(gca,'ylim',[0 1],'FontSize', 10)
 title('Sky Radiances')
@@ -313,8 +333,8 @@ set(bot_tl, 'position',[0.5,0,0], 'verticalAlignment','bottom', 'horizontalAlign
 %%
 set(bot_ax,'visi','off');set(bot_tl,'visi','on');
 linkaxes(hAxes3, 'x');
-saveas(gcf, [pname, filesep,fname,'.radius_psd.png'], 'png');
 saveas(gcf, [pname, filesep,fname,'.radius_psd.fig'], 'fig');
+saveas(gcf, [pname, filesep,fname,'.radius_psd.png'], 'png');
 
 
 % h4 = figure('units','inches','position',[4.1 .2 4 3],'paperposition',[.1 .1 10 7]); 

@@ -3,7 +3,12 @@ function anetaip = star_anet_aip_process_seac4rs(s)
 % Check to see if telemetry is changing.  If so, then use Euler angles, if
 % not then determine ground offsets.
 if ~exist('s','var')
-    s = getfullname('*sky*.mat','starsky','Select star sky mat file.');
+    s = getfullname('*vis_sky*.*','starsky','Select star sky mat file.');
+end
+if strfind(s,'.mat')
+   s = load(s);
+else
+   s = starsky(s);
 end
 if ~isstruct(s) && exist(s,'file')
     if ~isempty(strfind(s, 'starsky.mat'))
@@ -15,6 +20,7 @@ end
 if ~isfield(s,'flight_level')
     s = starsky_plus(s);
 end
+
 if isfield(s,'filename')
     [p,skytag,x] = fileparts(s.filename{1});
     skytag = strrep(skytag,'_VIS_','_');
@@ -45,8 +51,6 @@ s.good_almB = s.good_almB & s.good_alm;
 end
 s = handselect_skyscan(s);
 % Next, apply handscreen to s. Save output and process.
-
-
 
 if ~isfield(s,'PWV')
     s.PWV = 1.7;

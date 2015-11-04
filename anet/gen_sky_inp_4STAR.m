@@ -12,15 +12,15 @@ if ~isfield(star,'rad_scale')
     star.rad_scale = 1;
 end
 if isfield(star,'rad')
-    sat_rad = star.rad_scale * star.rad;
+    sat_rad = star.rad_scale .* star.rad;
 elseif isfield(star,'skyrad')
-    sat_rad = star.rad_scale * star.skyrad;
+    sat_rad = star.rad_scale .* star.skyrad;
 end
 inp.rad_scale = star.rad_scale;
 % Here is where we attempt to screen out pixels or times when saturation
 % was encountered.  We may need to consider accepted non-saturated pixels
 % perhaps when relatively few other pixels were saturated. 
-sat_rad(star.sat_time,star.sat_pixel) = NaN;
+sat_rad(star.sat_time,star.sat_ij) = NaN;
 % sat_rad(star.sat_ij) = NaN;
 sat_rad = sat_rad(:,star.wl_ii);
 skymask = star.skymask;
@@ -47,6 +47,9 @@ good_sky = star.good_sky&~isNaN(sat_rad);
 % sat_rad = sat_rad(:,star.wl_ii);
 % sat_rad = sat_rad.*skymask;
 % radiance units: [cts/ms / W/(m^2.sr.um)]
+
+% Actually we should not be using Gueymard here.
+% We should be using the one Michal has used.  Thulier?
 guey_ESR = gueymard_ESR;
 % for iw = 1:length(star.w(star.aeronetcols(star.vis_pix)))
 for iw = length(star.wl_ii):-1:1    

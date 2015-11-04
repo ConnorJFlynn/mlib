@@ -69,7 +69,7 @@ if exist('outname','var')&&exist(outname, 'file')
            
 %%
 [~,matchend,~,~,~, ~,splitstring] = regexp(outfile,[char(13), char(10)]);
-linestart = [1,matchend+1]; linestart(end) = min([linestart(end) length(outfile)])
+linestart = [1,matchend+1]; linestart(end) = min([linestart(end) length(outfile)]);
 for lnum = length(linestart):-1:1
     blocks_(lnum) = isempty(deblank(splitstring{lnum}));
 end
@@ -131,7 +131,7 @@ block_str = outfile(linestart(blocks(block_start)):linestart(blocks(block_start+
 
 tmp = textscan(block_str,'%f %f %f %f %f %f');
 while ~isempty(strfind(block_str,'-th'))||isempty(tmp{1})
-    [tmp,block_str] = getl(block_str);
+    [~,block_str] = getl(block_str);
     tmp = textscan(block_str,'%f %f %f %f %f %f');
 end
 tmp = textscan(block_str, '%*f %f %f %f %f %f %f %f %f %f %f %f %f  %*[^\n]');
@@ -145,7 +145,7 @@ block_start = find(linestart(blocks)>ii,1,'first')-1; % negative needed due to m
 block_str = outfile(linestart(blocks(block_start)):linestart(blocks(block_start+1)));
 tmp = textscan(block_str,'%f %f %f %f %f %f');
 while ~isempty(strfind(block_str,'-th'))||isempty(tmp{1})
-    [tmp,block_str] = getl(block_str);
+    [~,block_str] = getl(block_str);
     tmp = textscan(block_str,'%f %f %f %f %f %f');
 end
 tmp = textscan(block_str, '%f %f %*f %*f %*f %*f %*f');
@@ -167,7 +167,7 @@ block_start = find(linestart(blocks)>ii,1,'first'); %
 block_str = outfile(linestart(blocks(block_start)):linestart(blocks(block_start+1)));
 tmp = textscan(block_str,'%f %f %f %f %f %f');
 while ~isempty(strfind(block_str,'-th'))||isempty(tmp{1})
-    [tmp,block_str] = getl(block_str);
+    [~,block_str] = getl(block_str);
     tmp = textscan(block_str,'%f %f %f %f %f %f');
 end
 tmp = textscan(block_str, '%*f %f %*[^\n]');
@@ -181,7 +181,7 @@ block_str = outfile(linestart(blocks(block_start)):linestart(blocks(block_start+
 %%
 tmp = textscan(block_str,'%f %f %f %*[^\n]');
 while ~isempty(strfind(block_str,'-th'))||isempty(tmp{1})
-    [tmp,block_str] = getl(block_str);
+    [~,block_str] = getl(block_str);
     tmp = textscan(block_str,'%f %f %f %*[^\n]');
 end
 tmp = textscan(block_str,'%*f %f %f %f %*[^\n]');

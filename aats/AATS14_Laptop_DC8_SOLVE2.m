@@ -15,7 +15,7 @@ Skipping='ON'
 Interpolate='OFF'
 
 %opens data file
-[filename,pathname]=uigetfile(pathname,'Choose a File', 0, 0);
+% [filename,pathname]=uigetfile(pathname,'Choose a File', 0, 0);
 fid=fopen(deblank([pathname filename]));
 
 % determines site from path

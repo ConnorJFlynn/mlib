@@ -3,7 +3,7 @@
 %Filter #1, Apply time boundaries UT_start, UT_end
 %Filter #2 discard measurement cycles with high standard deviations
 %Filter #3 discard measurement cycles with bad tracking (for AATS-14 only) 
-%Filter #4 discard measurement cycles with darks or negative voltages
+%Filter #4 discard measurement cycles with darks or negative voltagesfop
 %Changed 11/15/2000 to correct AATS-6 for H2O and O2-O2 (but cross-sections are actually for AATS-14)
 %Changed  11/22/2000
 % - Filter #2 is disabled
@@ -59,13 +59,13 @@ Result_File='OFF'
 archive_GH='ON';%'OFF'; % archive in Gaines & Hipskind format
 frost_filter='no'; %for ARCATSspring, this is reset below for each day
 dirt_filter = 'no'; %for ARCATSspring, this is reset below for April 19 version 0 of data archival
-
-xsect_dir='c:\johnmatlab\AATS14_data_2011\';
-%%data_dir='c:\johnmatlab\AATS14_data_2011\Mauna Loa\'
-data_dir='c:\johnmatlab\AATS14_data_2011\COAST\';  %use for COAST
-data_dir='c:\johnmatlab\AATS14_data_2012\Ames\';   %use for Ames rooftop measurements 2012
-xsect_dir='C:\case_studies\AATS\xsect\'; % CJF
-data_dir = 'C:\case_studies\4STAR\data\2012\2012_09_07_4STAR_AATS_tints\Ames\';
+daystr = '20150908';
+% xsect_dir='c:\johnmatlab\AATS14_data_2011\';
+% %%data_dir='c:\johnmatlab\AATS14_data_2011\Mauna Loa\'
+% data_dir='c:\johnmatlab\AATS14_data_2011\COAST\';  %use for COAST
+% data_dir='c:\johnmatlab\AATS14_data_2012\Ames\';   %use for Ames rooftop measurements 2012
+xsect_dir='D:\case_studies\AATS\xsect\'; % CJF
+data_dir = ['D:\data\4STAR\yohei\4star_data\NASA_Ames_roof\',daystr,'\Ames\'];
 Loschmidt=2.686763e19; %molecules/cm2
 H2O_conv=1244.12; %converts cm-atm in pr cm or g/cm2.  This has units of [cm^3/g].
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -198,10 +198,10 @@ else
  end
 end
 
-if strcmp(flag_use_timeinterp_and_Jan06combo,'yes');
-    V0(6)=V0_MLO_Jan06(6)*(1 + deltaV0(6));  %605 nm
-    V0(8)=V0_MLO_Jan06(8)*(1 + deltaV0(8));  %779 nm
-end
+% if strcmp(flag_use_timeinterp_and_Jan06combo,'yes');
+%     V0(6)=V0_MLO_Jan06(6)*(1 + deltaV0(6));  %605 nm
+%     V0(8)=V0_MLO_Jan06(8)*(1 + deltaV0(8));  %779 nm
+% end
 
  if strcmp(flag_adj_V0,'yes') & strcmp(flag_use_deltaV0_fieldvalues,'yes') & (julian(day, month,year,12) ~= julian(3,3,2006,12))
         V0=V0.*(1+deltaV0);
@@ -586,3 +586,4 @@ if  strcmp(instrument,'AMES14#1_2002')
 end
 
 tau_ray=rayleigh(lambda,press,id_model_atm);
+save(['C:\Users\d3k014\Documents\GitHub\4STAR_codes\data_folder\',daystr,'AATS.mat']);
