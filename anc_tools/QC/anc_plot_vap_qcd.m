@@ -25,6 +25,11 @@ if isfield(anc.vdata,field)&& isfield(anc.vdata,['qc_',field])&& ~isempty(strfin
         if strcmp(tmp,'long_name')||strcmp(tmp,'units')||strcmp(tmp,'description')||...
                 (~isempty(strfind(tmp,'bit_'))&&(~isempty(strfind(tmp,'_assessment'))||~isempty(strfind(tmp,'_description'))))
             qc_params(n) = [];
+        else
+           if isfield(qatts,qc_params(n))&&ischar(qatts.(qc_params{n}))
+              qatts.(qc_params{n}) = sscanf(qatts.(qc_params{n}),'%g');
+                            
+           end
         end
     end
     %%
@@ -166,12 +171,16 @@ cla(gca)
     %       ylim(ylim);
     title(ax(1),{fname, field},'interpreter','none');
     set(gcf,'units','normalized');
-    newpos = get(gcf,'Position');
-    newpos(4) = 0.045.*length(desc);
-    newpos(2) = newpos(2)-1.1.*newpos(4);
-        
+    pos1 = get(gcf,'Position');
+    pos2 = pos1;
+    pos2(4) = 0.045.*length(desc);
+    pos2(2) = pos1(2)-1.1.*pos2(4)+.05 ;
+    if pos2(2)<0
+       pos2(2) = pos1(2) + pos1(4) + .125;
+    end
+       
     figure(double(gcf)+1); 
-    set(gcf,'units','normalized','position',newpos);
+    set(gcf,'units','normalized','position',pos2);
     mid =  imagegap(time_,[1:tests],qc_tests);
     zoom('xon')
     ax(2)=gca; 

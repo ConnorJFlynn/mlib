@@ -79,7 +79,7 @@ sky.T_dif_filter5 = sky.diffuse_hemisp_870nm ./sscanf(mfr.atts.filter5_TOA_direc
 sky.dif_T = (sky.T_dif_filter1 - sky.T_dif_filter5);
 sky.ratio_T = sky.T_dif_filter1 ./ sky.T_dif_filter5;
 % sky.V = datevec(sky.time);
-save(['D:\case_studies\clong\sgp\sgpmfrsraod1michE131.c1.subcat.20000101.mat'],'-struct','sky')
+%save(['D:\case_studies\clong\sgp\sgpmfrsraod1michE131.c1.subcat.20000101.mat'],'-struct','sky')
 % nc.vars.dif_T.data = nc.vars.airmass.data.*(nc.vars.T_dif_filter1.data - nc.vars.T_dif_filter5.data);
 % nc.vars.ratio_T.data = nc.vars.airmass.data.* nc.vars.T_dif_filter1.data ./ nc.vars.T_dif_filter5.data;
 good =sky.N_avg >= 1;

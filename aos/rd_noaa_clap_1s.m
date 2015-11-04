@@ -22,7 +22,7 @@ n = 1;
         fmt_str = [fmt_str, '%s %s %s %s %s %s %s %s ']; %DRGB8, DRGB9
 while ~feof(fid)
     this = fgetl(fid);
-    if length(this)>50
+    if length(this)>100
         % datetime, ?, 3, flags, secs_hex, filt_id_str, spot, flow, sample_length, head_Temp, sample_air_temp, 
 %         fmt_str = '%s %s '; % Date/time, "I"
 %         fmt_str = [fmt_str, '%f %s %s %s ']; %msg_type, flags, secs_hex, filt_id 
@@ -55,7 +55,7 @@ while ~feof(fid)
         raw.DN_Dark_7(n) = A{40}; raw.DN_Red_7(n) = A{41}; raw.DN_Grn_7(n) = A{42};raw.DN_Blu_7(n) = A{43};
         raw.DN_Dark_8(n) = A{44}; raw.DN_Red_8(n) = A{45}; raw.DN_Grn_8(n) = A{46};raw.DN_Blu_8(n) = A{47};
         raw.DN_Dark_9(n) = A{48}; raw.DN_Red_9(n) = A{49}; raw.DN_Grn_9(n) = A{50};raw.DN_Blu_9(n) = A{51};                
-         n = n+1;
+         n = n+1
     end
 end
 fclose(fid)
@@ -75,20 +75,64 @@ clap.filter_id = hex2dec(raw.filter_id_hex);
 clap.flow_slpm = raw.flow_slpm;
 clap.T_case = raw.T_case;
 clap.T_sample = raw.T_sample;
-clap.DN_Dark_0= typecast(uint32(hex2dec(raw.DN_Dark_0)),'single');clap.DN_Red_0= typecast(uint32(hex2dec(raw.DN_Red_0)),'single');clap.DN_Grn_0= typecast(uint32(hex2dec(raw.DN_Grn_0)),'single');clap.DN_Blu_0= typecast(uint32(hex2dec(raw.DN_Blu_0)),'single');
-clap.DN_Dark_1= typecast(uint32(hex2dec(raw.DN_Dark_1)),'single');clap.DN_Red_1= typecast(uint32(hex2dec(raw.DN_Red_1)),'single');clap.DN_Grn_1= typecast(uint32(hex2dec(raw.DN_Grn_1)),'single');clap.DN_Blu_1= typecast(uint32(hex2dec(raw.DN_Blu_1)),'single');
-clap.DN_Dark_2= typecast(uint32(hex2dec(raw.DN_Dark_2)),'single');clap.DN_Red_2= typecast(uint32(hex2dec(raw.DN_Red_2)),'single');clap.DN_Grn_2= typecast(uint32(hex2dec(raw.DN_Grn_2)),'single');clap.DN_Blu_2= typecast(uint32(hex2dec(raw.DN_Blu_2)),'single');
-clap.DN_Dark_3= typecast(uint32(hex2dec(raw.DN_Dark_3)),'single');clap.DN_Red_3= typecast(uint32(hex2dec(raw.DN_Red_3)),'single');clap.DN_Grn_3= typecast(uint32(hex2dec(raw.DN_Grn_3)),'single');clap.DN_Blu_3= typecast(uint32(hex2dec(raw.DN_Blu_3)),'single');
-clap.DN_Dark_4= typecast(uint32(hex2dec(raw.DN_Dark_4)),'single');clap.DN_Red_4= typecast(uint32(hex2dec(raw.DN_Red_4)),'single');clap.DN_Grn_4= typecast(uint32(hex2dec(raw.DN_Grn_4)),'single');clap.DN_Blu_4= typecast(uint32(hex2dec(raw.DN_Blu_4)),'single');
-clap.DN_Dark_5= typecast(uint32(hex2dec(raw.DN_Dark_5)),'single');clap.DN_Red_5= typecast(uint32(hex2dec(raw.DN_Red_5)),'single');clap.DN_Grn_5= typecast(uint32(hex2dec(raw.DN_Grn_5)),'single');clap.DN_Blu_5= typecast(uint32(hex2dec(raw.DN_Blu_5)),'single');
-clap.DN_Dark_6= typecast(uint32(hex2dec(raw.DN_Dark_6)),'single');clap.DN_Red_6= typecast(uint32(hex2dec(raw.DN_Red_6)),'single');clap.DN_Grn_6= typecast(uint32(hex2dec(raw.DN_Grn_6)),'single');clap.DN_Blu_6= typecast(uint32(hex2dec(raw.DN_Blu_6)),'single');
-clap.DN_Dark_7= typecast(uint32(hex2dec(raw.DN_Dark_7)),'single');clap.DN_Red_7= typecast(uint32(hex2dec(raw.DN_Red_7)),'single');clap.DN_Grn_7= typecast(uint32(hex2dec(raw.DN_Grn_7)),'single');clap.DN_Blu_7= typecast(uint32(hex2dec(raw.DN_Blu_7)),'single');
-clap.DN_Dark_8= typecast(uint32(hex2dec(raw.DN_Dark_8)),'single');clap.DN_Red_8= typecast(uint32(hex2dec(raw.DN_Red_8)),'single');clap.DN_Grn_8= typecast(uint32(hex2dec(raw.DN_Grn_8)),'single');clap.DN_Blu_8= typecast(uint32(hex2dec(raw.DN_Blu_8)),'single');
-clap.DN_Dark_9= typecast(uint32(hex2dec(raw.DN_Dark_9)),'single');clap.DN_Red_9= typecast(uint32(hex2dec(raw.DN_Red_9)),'single');clap.DN_Grn_9= typecast(uint32(hex2dec(raw.DN_Grn_9)),'single');clap.DN_Blu_9= typecast(uint32(hex2dec(raw.DN_Blu_9)),'single');
+
+clap.DN_Dark_0= typecast(uint32(hex2dec(raw.DN_Dark_0)),'single');
+clap.DN_Red_0= typecast(uint32(hex2dec(raw.DN_Red_0)),'single');
+clap.DN_Grn_0= typecast(uint32(hex2dec(raw.DN_Grn_0)),'single');
+clap.DN_Blu_0= typecast(uint32(hex2dec(raw.DN_Blu_0)),'single');
+
+clap.DN_Dark_1= typecast(uint32(hex2dec(raw.DN_Dark_1)),'single');
+clap.DN_Red_1= typecast(uint32(hex2dec(raw.DN_Red_1)),'single');
+clap.DN_Grn_1= typecast(uint32(hex2dec(raw.DN_Grn_1)),'single');
+clap.DN_Blu_1= typecast(uint32(hex2dec(raw.DN_Blu_1)),'single');
+
+clap.DN_Dark_2= typecast(uint32(hex2dec(raw.DN_Dark_2)),'single');
+clap.DN_Red_2= typecast(uint32(hex2dec(raw.DN_Red_2)),'single');
+clap.DN_Grn_2= typecast(uint32(hex2dec(raw.DN_Grn_2)),'single');
+clap.DN_Blu_2= typecast(uint32(hex2dec(raw.DN_Blu_2)),'single');
+
+clap.DN_Dark_3= typecast(uint32(hex2dec(raw.DN_Dark_3)),'single');
+clap.DN_Red_3= typecast(uint32(hex2dec(raw.DN_Red_3)),'single');
+clap.DN_Grn_3= typecast(uint32(hex2dec(raw.DN_Grn_3)),'single');
+clap.DN_Blu_3= typecast(uint32(hex2dec(raw.DN_Blu_3)),'single');
+
+clap.DN_Dark_4= typecast(uint32(hex2dec(raw.DN_Dark_4)),'single');
+clap.DN_Red_4= typecast(uint32(hex2dec(raw.DN_Red_4)),'single');
+clap.DN_Grn_4= typecast(uint32(hex2dec(raw.DN_Grn_4)),'single');
+clap.DN_Blu_4= typecast(uint32(hex2dec(raw.DN_Blu_4)),'single');
+
+clap.DN_Dark_5= typecast(uint32(hex2dec(raw.DN_Dark_5)),'single');
+clap.DN_Red_5= typecast(uint32(hex2dec(raw.DN_Red_5)),'single');
+clap.DN_Grn_5= typecast(uint32(hex2dec(raw.DN_Grn_5)),'single');
+clap.DN_Blu_5= typecast(uint32(hex2dec(raw.DN_Blu_5)),'single');
+
+clap.DN_Dark_6= typecast(uint32(hex2dec(raw.DN_Dark_6)),'single');
+clap.DN_Red_6= typecast(uint32(hex2dec(raw.DN_Red_6)),'single');
+clap.DN_Grn_6= typecast(uint32(hex2dec(raw.DN_Grn_6)),'single');
+clap.DN_Blu_6= typecast(uint32(hex2dec(raw.DN_Blu_6)),'single');
+
+clap.DN_Dark_7= typecast(uint32(hex2dec(raw.DN_Dark_7)),'single');
+clap.DN_Red_7= typecast(uint32(hex2dec(raw.DN_Red_7)),'single');
+clap.DN_Grn_7= typecast(uint32(hex2dec(raw.DN_Grn_7)),'single');
+clap.DN_Blu_7= typecast(uint32(hex2dec(raw.DN_Blu_7)),'single');
+
+clap.DN_Dark_8= typecast(uint32(hex2dec(raw.DN_Dark_8)),'single');
+clap.DN_Red_8= typecast(uint32(hex2dec(raw.DN_Red_8)),'single');
+clap.DN_Grn_8= typecast(uint32(hex2dec(raw.DN_Grn_8)),'single');
+clap.DN_Blu_8= typecast(uint32(hex2dec(raw.DN_Blu_8)),'single');
+
+clap.DN_Dark_9= typecast(uint32(hex2dec(raw.DN_Dark_9)),'single');
+clap.DN_Red_9= typecast(uint32(hex2dec(raw.DN_Red_9)),'single');
+clap.DN_Grn_9= typecast(uint32(hex2dec(raw.DN_Grn_9)),'single');
+clap.DN_Blu_9= typecast(uint32(hex2dec(raw.DN_Blu_9)),'single');
+
 
 % N = 20;
 % figure; plot(serial2hs(clap.time(spot_4)), real(log(-diffN((clap.DN_Red_4(spot_4)-clap.DN_Dark_4(spot_4))./((clap.DN_Red_0(spot_4)-clap.DN_Dark_0(spot_4))),N))),'.',...
 %    serial2hs(clap.time(~spot_4)), real(log(-diffN((clap.DN_Red_5(~spot_4)-clap.DN_Dark_5(~spot_4))./((clap.DN_Red_1(~spot_4)-clap.DN_Dark_1(~spot_4))),N))),'.')
 % legend('spot 4: sig/ref','spot 5: sig/ref' );
+% figure; plot(serial2hs(clap.time), clap.DN_Red_2,'x')
+
+% figure; plot(clap.time, [clap.DN_Grn_0,clap.DN_Grn_1],'.'); dynamicDateTicks;
 
 return

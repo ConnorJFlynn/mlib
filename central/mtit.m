@@ -117,9 +117,9 @@ function	par=mtit(varargin)
 % create axis...
 		xh=axes('position',ap);
         set(xh,'units','normalized');
-        set(xh,'outerPosition',[ 0    0.9    1.0000    0.1])
+        set(xh,'outerPosition',[ 0    0.8    1.0000    0.2])
 % ...and title
-		th=title(txt,vout{:});
+		th=title(xh,txt,vout{:});
 		tp=get(th,'position');
 		set(th,'position',tp+off);
 		set(xh,'visible','off','hittest','on');

@@ -1,4 +1,4 @@
-function [list,pname] = list_editor_proj;
+function [listing,pname] = list_editor_proj;
 % lists the editor project files ('*.ed and *.prev)
 
 [listing,pname] = dir_('*.ed; *.prev','editor_projs');

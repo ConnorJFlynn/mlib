@@ -164,6 +164,7 @@ if ~isempty(fields)
          end
          set(gca,'ylim',ylim, 'ylimmode','manual');
       elseif ok==11 % Select more data
+         new_figure = true;
          if ~exist('anc_','var')
             anc_(1) = {anc};
          end

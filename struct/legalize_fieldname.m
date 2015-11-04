@@ -5,6 +5,7 @@ oldname = ['n_',oldname];
 end
 newname = strrep(oldname,' ','');
 newname = strrep(newname,'.','');
+newname = strrep(newname,',','');
 newname = strrep(newname,'<=','lte_');
 newname = strrep(newname,'>=','gte_');
 newname = strrep(newname,'<','lt_');

@@ -38,7 +38,7 @@ good = mfr.vars.diffuse_hemisp_narrowband_filter1.data>0 & mfr.vars.diffuse_hemi
     mfr.vars.direct_normal_narrowband_filter1.data>0 & mfr.vars.direct_normal_narrowband_filter5.data>0 & ...
     mfr.vars.direct_diffuse_ratio_filter1.data > 0 & mfr.vars.direct_diffuse_ratio_filter1.data < 20 & ...
 mfr.vars.direct_diffuse_ratio_filter5.data > 0 & mfr.vars.direct_diffuse_ratio_filter5.data < 100;
-mfrC1 = ancsift(mfr, mfr.dims.time, good & mfr.time>datenum(2002,1,1));
+mfrC1 = ancsift(mfr, mfr.dims.time, good & mfr.time<datenum(2002,1,1));
 mfr = load(['D:\case_studies\clong\from_bds2\sgpmfrsrE13.b1\catdir\sgpmfrsrE13.b1.19980101.000000.mat']);
 good = mfr.vars.diffuse_hemisp_narrowband_filter1.data>0 & mfr.vars.diffuse_hemisp_narrowband_filter5.data>0 & ...
     mfr.vars.direct_normal_narrowband_filter1.data>0 & mfr.vars.direct_normal_narrowband_filter5.data>0 & ...
@@ -134,7 +134,7 @@ for t = t_i : t_ii
 end
 
 save(['D:\case_studies\clong\sky_whitening_b1_C1.mat'],'-struct','sky')
-
+C1 = load(['D:\case_studies\clong\sky_whitening_C1.mat']);
 %%
 % save(['D:\case_studies\clong\sgpmfrsraod1michC1.c1\2007\2007_clr.mat'],'-struct','sky');
 %%
@@ -147,6 +147,7 @@ sky.dif_T = (sky.T_dif_filter1 - sky.T_dif_filter5);
 sky.ratio_T = sky.T_dif_filter1 ./ sky.T_dif_filter5;
 % sky.V = datevec(sky.time);
 save(['D:\case_studies\clong\sky_whitening_E13.mat'],'-struct','sky')
+sky = load(['D:\case_studies\clong\sky_whitening_E13.mat']);
 % nc.vars.dif_T.data = nc.vars.airmass.data.*(nc.vars.T_dif_filter1.data - nc.vars.T_dif_filter5.data);
 % nc.vars.ratio_T.data = nc.vars.airmass.data.* nc.vars.T_dif_filter1.data ./ nc.vars.T_dif_filter5.data;
 good =sky.N_avg >= 1;
@@ -162,8 +163,8 @@ t_ = C1.time>datenum(year,01,01)&C1.time<datenum(year+1,1,1)&...
     C1.diffuse_hemisp_415nm>0 &C1.diffuse_hemisp_415nm_E13>0;  sum(t_)
 
 %%
-year = 1998; t_ = sky.time>datenum(year,01,01)&sky.time<datenum(year+1,1,1)&sky.diffuse_hemisp_415nm>0 &sky.diffuse_hemisp_415nm_E13>0;  sum(t_)
+year = 1998; t_ = sky.time>datenum(year,01,01)&sky.time<datenum(year+1,1,1)&sky.diffuse_hemisp_415nm>0 ;  sum(t_)
 
-figure; scatter(sky.T_dif_filter5(t_), sky.T_dif_filter5_E13(t_),9,sky.V_UT(t_,1)); colorbar
+figure; scatter(sky.T_dif_filter5(t_), C1.T_dif_filter5(t_),9,sky.V_UT(t_,1)); colorbar
 
 return

@@ -135,8 +135,18 @@ if (isfield(nc, 'time'))
    nc.ncdef.vars.time.atts.units.datatype             = chartype;
 else
     % Synchronize serial time data with ARM netcdf fields.
+    %first attempt to handle time_bounds field and bound_offset attribute
     if (isfield(nc.ncdef.vars,'base_time') & isfield(nc.ncdef.vars,'time_offset'))
-        nc.time = epoch2serial(double(nc.vdata.base_time) + double(nc.vdata.time_offset));
+       if isfield(nc.ncdef.vars,'time_bounds')
+          if isfield(nc.ncdef.vars.time_bounds.atts, 'bound_offsets')
+             bin_center = mean(nc.vatts.time_bounds.bound_offsets);
+          else
+             bin_center = nc.vdata.time_offset - mean(nc.vdata.time_bounds);
+          end
+       else
+          bin_center = 0;
+       end
+        nc.time = epoch2serial(double(nc.vdata.base_time) + double(nc.vdata.time_offset) + bin_center);
     elseif (isfield(nc.ncdef.vars, 'time'))
         if isfield(nc.vatts.time,'units') & ~isempty(findstr(nc.vatts.time.units, 'since'))
            this_str = nc.vatts.time.units(findstr(nc.vatts.time.units, 'since')+6:end);
@@ -152,8 +162,17 @@ else
            if length(cols)>=2
               this_str = this_str(1:cols(2)+2);
            end
+          if isfield(nc.ncdef.vars,'time_bounds')
+          if isfield(nc.ncdef.vars.time_bounds.atts, 'bound_offsets')
+             bin_center = mean(nc.vatts.time_bounds.bound_offsets);
+          else
+             bin_center = nc.vdata.time - mean(nc.vdata.time_bounds);
+          end
+       else
+          bin_center = 0;
+       end
            timevec = datenum(this_str);
-           nc.time = timevec + double(nc.vdata.time / (86400./timefac));
+           nc.time = timevec + double(nc.vdata.time / (86400./timefac))+ bin_center;
         end
     end
     % Sync time fields with newly created serial time data.

@@ -24,10 +24,11 @@ if hk_id>2
    sp2_hk.time_2 = basetime + hk{1}./(24*60*60);
    hk(1) = [];
    for fld = 2:length(headers)
-%       plot(sp2_hk.time, hk{1}, '.'); lg = legend(headers{fld}); set(lg,'interp','none');dynamicDateTicks;
+%        plot(sp2_hk.time, hk{1}, '.'); lg = legend(headers{fld}); set(lg,'interp','none');dynamicDateTicks;
       sp2_hk.(legalize_fieldname(headers{fld})) = hk{1};
       hk(1) = [];
    end
    sp2_hk.time = igor2serial(sp2_hk.Timestamp);
 end
+
 return
