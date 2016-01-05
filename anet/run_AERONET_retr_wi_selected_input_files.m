@@ -1,12 +1,18 @@
-function [outfile,outname,s,w] = run_AERONET_retr_wi_selected_input_files
+function [outname,ss,ww] = run_AERONET_retr_wi_selected_input_files(skyinput);
 % run_4STAR_AERONET_retrieval(skytag, line_num,)
 % No customization, just pick files and run retrieval for all selected
-
-skyinput = getfullname(['*.input'],'4STAR_retr','Select one or more input files.');
-if ischar(skyinput)&&~iscell(skyinput)&&exist(skyinput,'file')
-    skyinput ={skyinput};
+if ~exist('skyinput','var')
+   skyinput = getfullname(['*.input'],'4STAR_retr','Select one or more input files.');
+   if ischar(skyinput)&&~iscell(skyinput)&&exist(skyinput,'file')
+      skyinput ={skyinput};
+   end
+else
+   [pname, fname,ext] = fileparts(skyinput);
+   skyinput = getfullname([pname,filesep,fname,'*.input'],'4STAR_retr','Select one or more input files.');
+   if ischar(skyinput)&&~iscell(skyinput)&&exist(skyinput,'file')
+      skyinput ={skyinput};
+   end
 end
-
 for F = length(skyinput):-1:1
     infile = skyinput{F};
     if exist(infile,'file')
@@ -48,6 +54,7 @@ for F = length(skyinput):-1:1
                 %         fclose(fid3);
                 try
                     anetaip = parse_anet_aip_output(outname);
+                    save([done_dir,'..',filesep, fname_tagged, '.mat'],'-struct','anetaip')
                     movefile([done_dir,'..',filesep, fname_tagged, '.*'], done_dir );
                 catch
                     disp(['Trouble displaying output from ',fname_tagged])
@@ -56,7 +63,7 @@ for F = length(skyinput):-1:1
             end
         end
     end
-    close('all');
+%     close('all');
 end
 %%
 

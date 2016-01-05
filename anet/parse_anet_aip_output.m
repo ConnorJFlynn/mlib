@@ -32,7 +32,9 @@ if exist('outname','var')&&exist(outname, 'file')
     else
         anetaip.input.aods = [];
     end
-    
+    if feof(fid)
+       fseek(fid, 0, -1);
+    end
     while isempty(strfind(inline,'NSTR NLYR NLYRS NW IGEOM IDF IDN DPF'))&&~feof(fid)
         inline = fgetl(fid);
     end

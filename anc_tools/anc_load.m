@@ -57,6 +57,11 @@ if ~exist('ncfile','var')||~exist(ncfile,'file')
    ncfile = getfullname('*.cdf;*.nc','nc_file');
 end
 
+[pname, fname, ext] = fileparts(ncfile);
+if strcmp(ext,'.mat')
+   cdf = load(ncfile);
+else
+
 % Open netcdf file.
 ncid = netcdf.open(ncfile,'nowrite');
 c = onCleanup(@()netcdf.close(ncid));
@@ -108,6 +113,9 @@ if ~exist('arm_time','var')
 end
 if arm_time
    cdf = anc_timesync(cdf);
+end
+
+
 end
 % netcdf.close(ncid);
 return

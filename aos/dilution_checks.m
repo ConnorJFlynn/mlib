@@ -1,5 +1,5 @@
 % NOAA dilcor checks
-dilcor = anc_bundle_files(getfullname('*.cdf','mao_dlc','Select dilution correction files.'));
+dilcor = anc_bundle_files(getfullname('*.nc','mao_dlc','Select dilution correction files.'));
 % Dilution_correction_factor = Sum_of_sample_flows / (Sum_of_sample_flows – dilution_flow) where
 % Sum_of_sample_flows = Q_Q12 + Q_N11 + Q_A11 + Q_A12 + Q_cnc_cc_s(convert to lpm) with:
 % Q_Q12 found in X2a file: flow through impactors about 29 lpm
@@ -21,6 +21,8 @@ dilcor = anc_bundle_files(getfullname('*.cdf','mao_dlc','Select dilution correct
 
 sam = dilcor.vdata.psap_flow + dilcor.vdata.clap_flow + dilcor.vdata.ccn100_sample_flow + dilcor.vdata.ccn100_sheath_flow ...
     + dilcor.vdata.cpc_flow*60/1000 + dilcor.vdata.nephelometer_flow;
+ figure; plot(serial2doys(dilcor.time), dilcor.vdata.dilution_flow,'x');legend('dil flow')
+ figure; plot(serial2doys(dilcor.time), sam, 'co', serial2doys(dilcor.time), dilcor.vdata.sample_flows,'kx');
 figure; plot(serial2doys(dilcor.time), sam./(sam-dilcor.vdata.dilution_flow), 'k.',serial2doys(dilcor.time), dilcor.vdata.dilution_correction_factor,'ro')
 
 % Dry neph NOT OK

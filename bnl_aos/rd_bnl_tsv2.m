@@ -37,6 +37,9 @@ bnl.time = datenum(DT,'yy-mm-dd HH:MM:SS');clear DT
 for lab = 2:length(AA)
     bnl.(legalize_fieldname(AA{lab})) = A{1};A(1) = [];
 end
+[pname, fname, ext] = fileparts(infile);
+bnl.pname = [pname, filesep]; 
+bnl.fname = [fname, ext];
 
 
 return

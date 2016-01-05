@@ -67,13 +67,16 @@ geom.WAVE = star.w(star.wl_ii);
     tau_O3 = star.tau_O3(star.wl_ii);
 
 inp.aods = aods;
-if ~isfield(star,'brdf')&&isfield(star,'sfc_alb')
-    flight_alb = interp1(star.w, star.sfc_alb, [0.470,0.555,0.659,0.858,1.24, 1.64, 2.13]', 'nearest','extrap');
-else
-    [flight_alb, out_time] = get_ssfr_flight_albedo(mean(star.t(good_sky(:,1))),[0.470,0.555,0.659,0.858,1.24, 1.64, 2.13]');
+if ~isfield(star,'brdf')
+   if isfield(star,'sfc_alb')
+      flight_alb = interp1(star.w, star.sfc_alb, [0.470,0.555,0.659,0.858,1.24, 1.64, 2.13]', 'nearest','extrap');
+   else
+      [flight_alb, out_time] = get_ssfr_flight_albedo(mean(star.t(good_sky(:,1))),[0.470,0.555,0.659,0.858,1.24, 1.64, 2.13]');
+   end
+   
+   star.brdf =[...
+      [0.470,0.555,0.659,0.858,1.24, 1.64, 2.13]', flight_alb, zeros(size(flight_alb)), zeros(size(flight_alb))];
 end
-    star.brdf =[...
-        [0.470,0.555,0.659,0.858,1.24, 1.64, 2.13]', flight_alb, zeros(size(flight_alb)), zeros(size(flight_alb))];
 %         0.470000   0.067233    0.027191    0.010199
 %         0.555000   0.108960    0.060560    0.017044
 %         0.659000   0.141415    0.072841    0.023388

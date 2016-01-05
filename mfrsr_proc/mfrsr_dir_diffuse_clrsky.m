@@ -1,10 +1,11 @@
-function clearsky =  mfrsr_dir_diffuse_clrsky
-
+function clearsky =  mfrsr_dir_diffuse_clrsky(infile)
 % Reading Jim Barnard's version of Chuck Long's clear sky file augmented
 % with screened MFRSR data.  I'll check the direct/diffuse C1/E13 in these
 % files and will also use these clear sky times as a filter on ARM
 % MFRSR data.
-infile = getfullname('*_clr_mfrsrdata.asc','asc','Select clear sky file.');
+if ~exist('infile,'var')
+   infile = getfullname('*_clr_mfrsrdata.asc','asc','Select clear sky file.');
+end
 [pname, infile, ext] = fileparts(infile);
 pname = [pname, filesep]; 
 % pname = 'D:\case_studies\clong\clr_sky\from_JCB_with_formatting_errors\';

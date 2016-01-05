@@ -35,7 +35,7 @@ mark = ftell(fid);
 
 if exist('in_str','var')
     A = textscan(fid, [in_str, '%*[^\n]'],'delimiter','\t');
-    len_A = length(A{1})
+    len_A = length(A{1});
 else
 
 Aa = textscan(fid, '%s %s %*[^\n]','delimiter','\t');

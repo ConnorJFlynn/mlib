@@ -14,17 +14,18 @@ if ~exist('masks','var')
     masks = '*';
 end
 upath = which ('userpath.m');
+
 if ~isempty(upath)&&exist(upath,'file')&&exist(strtok(userpath,pathsep),'dir')&&...
-        exist([strtok(userpath,pathsep),filesep,'datapath'],'dir')
-    pathdir = [strtok(userpath,pathsep),filesep,'datapath',filesep];
+        exist([strtok(userpath,pathsep),filesep,'filepaths'],'dir')
+    pathdir = [strtok(userpath,pathsep),filesep,'filepaths',filesep];
 else %start from scratch.  Identify userpath, create datapath directory
     userpath('reset');
     upath = userpath;
-    status = mkdir([strtok(upath,pathsep),filesep,'datapath']);
+    status = mkdir([strtok(upath,pathsep),filesep,'filepaths']);
     if ~status
         disp(['Failure to find or create datapath directory beneath userpath:',userpath]);
     else
-        pathdir = [strtok(upath,pathsep),filesep,'datapath',filesep];
+        pathdir = [strtok(upath,pathsep),filesep,'filepaths',filesep];
     end
 end
 
@@ -77,7 +78,11 @@ mask = mask{:};
 list = [];
 for i = 1:length(mask)
     mask_i = mask{i};
+    if isempty(strfind(mask_i,pname))
     list = [list;dir([pname, mask_i])];
+    else
+       list = [list;dir([mask_i])];
+    end
 end
 
 if isempty(pname) || isempty(list)

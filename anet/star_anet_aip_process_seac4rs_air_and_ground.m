@@ -51,56 +51,57 @@ s.good_almB = s.good_almB & s.good_alm;
 end
 s = handselect_skyscan(s);
 % Next, apply handscreen to s. Save output and process.
-
-if ~isfield(s,'PWV')
-    s.PWV = 1.7;
-end
-if ~isfield(s,'O3col')
-    s.O3col=0.330;
-end
-if s.O3col>1
-    s.O3col = s.O3col./1000;
-end
-if ~isfield(s,'wind_speed')
-    s.wind_speed= 7.5;
-end
-% for SEAC4RS
- s.land_fraction = 1;
-% Should replace this with an actual determination based on a land-surface
-% mapping.
-s.rad_scale = 1; % This is an adhoc means of adjusting radiance calibration for whatever reason.
-s.ground_level = s.flight_level/1000; % picking very low "ground level" sufficient for sea level or AMF ground level.
-% Should replace this with an actual determination based on a land-surface mapping.
-% Both gen_sky_inp_4STAR and gen_aip_cimel_need to be modified.
+% 
+% if ~isfield(s,'PWV')
+%     s.PWV = 1.7;
+% end
+% if ~isfield(s,'O3col')
+%     s.O3col=0.330;
+% end
+% if s.O3col>1
+%     s.O3col = s.O3col./1000;
+% end
+% if ~isfield(s,'wind_speed')
+%     s.wind_speed= 7.5;
+% end
+% % for SEAC4RS
+%  s.land_fraction = 1;
+% % Should replace this with an actual determination based on a land-surface
+% % mapping.
+% s.rad_scale = 1; % This is an adhoc means of adjusting radiance calibration for whatever reason.
+% s.ground_level = s.flight_level/1000; % picking very low "ground level" sufficient for sea level or AMF ground level.
+% % Should replace this with an actual determination based on a land-surface mapping.
+% % Both gen_sky_inp_4STAR and gen_aip_cimel_need to be modified.
 pname_tagged = 'C:\z_4STAR\work_2aaa__\4STAR_\';
 tag = [skytag,'.created_',datestr(now, 'yyyymmdd_HHMMSS.')];
 fname_tagged = ['4STAR_.',tag, 'input'];
 s.pname_tagged = pname_tagged;
 s.fname_tagged = fname_tagged;
-[inp, line_num] = gen_sky_inp_4STAR(s); %good_sky SA restrictions in here.
-% Make sure the gen_aip_cimel_strings is capable of accepting inp that
-% distinguishes between hlyr and houtput.
-%   line_num = gen_aip_cimel_strings(inp);
-%
-%   [~,fstem,ext] = fileparts(s.filename{1});
-% % pname = [pname, filesep];
-% fstem = strrep(fstem, '_VIS','');
-
-if exist([pname_tagged, fname_tagged],'file')
-    [SUCCESS,MESSAGE,MESSAGEID] = copyfile([pname_tagged, fname_tagged],'C:\z_4STAR\work_2aaa__\4STAR_.input');
-    if exist('C:\z_4STAR\work_2aaa__\4STAR_.output','file')
-        delete('C:\z_4STAR\work_2aaa__\4STAR_.output')
-    end
-    [ss,ww, toc_] = run_4STAR_AERONET_retrieval;
-    if exist('C:\z_4STAR\work_2aaa__\4STAR_.output','file')
-        outname = [pname_tagged,'4STAR_.',tag,'output'];
-        [SUCCESS,MESSAGE,MESSAGEID] = ...
-            movefile('C:\z_4STAR\work_2aaa__\4STAR_.output',outname);
-%         fid3 = fopen(outname, 'r');
-%         outfile = char(fread(fid3,'uchar'))';
-%         fclose(fid3);
-        anetaip = parse_anet_aip_output(outname);                
-    end
-end
+% [outname,ss,ww] = run_AERONET_retr_wi_selected_input_files([s.pname_tagged, '4STAR_.',skytag,'.input']);
+% [inp, line_num] = gen_sky_inp_4STAR(s); %good_sky SA restrictions in here.
+% % Make sure the gen_aip_cimel_strings is capable of accepting inp that
+% % distinguishes between hlyr and houtput.
+% %   line_num = gen_aip_cimel_strings(inp);
+% %
+% %   [~,fstem,ext] = fileparts(s.filename{1});
+% % % pname = [pname, filesep];
+% % fstem = strrep(fstem, '_VIS','');
+% 
+% if exist([pname_tagged, fname_tagged],'file')
+%     [SUCCESS,MESSAGE,MESSAGEID] = copyfile([pname_tagged, fname_tagged],'C:\z_4STAR\work_2aaa__\4STAR_.input');
+%     if exist('C:\z_4STAR\work_2aaa__\4STAR_.output','file')
+%         delete('C:\z_4STAR\work_2aaa__\4STAR_.output')
+%     end
+%     [ss,ww, toc_] = run_4STAR_AERONET_retrieval;
+%     if exist('C:\z_4STAR\work_2aaa__\4STAR_.output','file')
+%         outname = [pname_tagged,'4STAR_.',tag,'output'];
+%         [SUCCESS,MESSAGE,MESSAGEID] = ...
+%             movefile('C:\z_4STAR\work_2aaa__\4STAR_.output',outname);
+% %         fid3 = fopen(outname, 'r');
+% %         outfile = char(fread(fid3,'uchar'))';
+% %         fclose(fid3);
+%         anetaip = parse_anet_aip_output(outname);                
+%     end
+% end
 %
 return

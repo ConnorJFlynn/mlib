@@ -1,9 +1,11 @@
 function [bnl,in_str_] = rd_bnl_tsv4(infile, in_str)
-% [bnl,in_str_] = rd_bnl_tsv3(bnl)
+% [bnl,in_str_] = rd_bnl_tsv4(bnl)
 % This function reads BNL supplied "cpcf tsv" files for the AOS system and
-% assoicated measurements.
-% it returns a struct containing the read measurements and format string
+% assoicated measurements. % it returns a struct containing the read measurements and format string
 
+error('Currently broken!!')
+% Need to more robustly distinguish between BNL files that have either one
+% or two leading strings.
 if ~exist('infile','var')
    infile = getfullname_('*.tsv','bnl_cpcf_tsv','Select a BNL cpcf tsv file.');
 end
@@ -33,14 +35,18 @@ end
 % Date	Time	Concentration	InstrErrs	Satur Temp	Cond Temp	Optcs Temp	Cab Temp	Ambnt Press	Orifice Press	Nozz Press	Lasr Curr	 Liq Lvl	 Liq Lvl V	Valve position	Flow setpoint	Flow read
 % Now iteratively try to compose the format string of
 mark = ftell(fid);
-Aa = textscan(fid, '%s %s %*[^\n]','delimiter','\t');
-len_A = length(Aa{1});
-clear Aa
-fseek(fid,mark,-1);
 
 if exist('in_str','var')
    A = textscan(fid, [in_str, '%*[^\n]'],'delimiter','\t');
 end
+if length(A{1}) ~= length(A{end})
+   fseek(fid,mark,-1);
+
+Aa = textscan(fid, '%s %s %*[^\n]','delimiter','\t');
+len_A = length(Aa{1});
+clear Aa
+
+
 if ~exist('A','var') || length(A{end})~=len_A
    in_str = '%s ';
    A = textscan(fid,[repmat(in_str, [1,length(AA)]), '%*[^\n]'],'delimiter','\t');
