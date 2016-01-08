@@ -127,6 +127,8 @@ clap.DN_Grn_9= typecast(uint32(hex2dec(raw.DN_Grn_9)),'single');
 clap.DN_Blu_9= typecast(uint32(hex2dec(raw.DN_Blu_9)),'single');
 
 
+% c343ef6c
+% typecast(uint32(hex2dec('c343ef6c')),'single');
 % N = 20;
 % figure; plot(serial2hs(clap.time(spot_4)), real(log(-diffN((clap.DN_Red_4(spot_4)-clap.DN_Dark_4(spot_4))./((clap.DN_Red_0(spot_4)-clap.DN_Dark_0(spot_4))),N))),'.',...
 %    serial2hs(clap.time(~spot_4)), real(log(-diffN((clap.DN_Red_5(~spot_4)-clap.DN_Dark_5(~spot_4))./((clap.DN_Red_1(~spot_4)-clap.DN_Dark_1(~spot_4))),N))),'.')

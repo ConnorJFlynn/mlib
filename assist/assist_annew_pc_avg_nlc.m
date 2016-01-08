@@ -1,6 +1,12 @@
 function assist = assist_annew_pc_avg_nlc % ASSIST annew
 % Apply processing step by step, confirming most recent LR Tech processing
-%
+% CJF: 2016_01_08 (before 4STAR MLO trip) OK, I've totally lost track after having Rodica do some of the
+% processing.  Now trying to catch back up to see what code to use to
+% compare ASSIST to AERI at SGP with and wi/o the fan module.  
+
+% CJF: 2016_01_08, fixed bug in creating the process file list
+% found when trying to run assist_annew_14
+
 % Review derived products
 % Fine details to address:
 % Apply NLC
@@ -49,7 +55,7 @@ function assist = assist_annew_pc_avg_nlc % ASSIST annew
 
 emis = load('emis.mat');
 emis = repack_edgar(emis);
-nlc = getfullname__('nlc.*.mat','nlc','Select NLC correction file');
+nlc = getfullname('nlc.*.mat','nlc','Select NLC correction file');
 if exist(nlc,'file')
    nlc = load(nlc);
 end
@@ -68,7 +74,9 @@ if pick==1
       mkdir(catdir);
    end
    raw_files = dir([pname,'*_ann_*.*']);
-   raw_files = [raw_files;dir([pname,'*.nc'])];
+%    raw_files = [raw_files;dir([pname,'*.nc'])];
+% CJF: 2016-01-08 the line above appears to be a bug so commented out
+% Initialy found this bug when trying to run assist_annew_14 
 else
    rawfiles = getfullname('*_ann_*.csv','assist_dir');
    if ~iscell(rawfiles)
@@ -232,7 +240,7 @@ toc
 % Now we need to populate each of the derived products
 
 
-save([pname, filesep,'assist_degraded.mat'],'-struct','assist');
+save([pname, datestr(assist.time(1),'yyyymmdd_HHMMSS'),'.assist_down.mat'],'-struct','assist');
 
 % chA = assist.chA.mrad.x>550 & assist.chA.mrad.x<1830;
 % chB = assist.chB.mrad.x>1800&assist.chB.mrad.x<3200;
@@ -1360,21 +1368,21 @@ assist.down.IRT_C = assist.down.IRT_K-273.17;
 % Output "downsampled" products
 % chA
 
-xl_A = assist.chA.x >= 520 & assist.chA.x <= 1800;
-xl_B = assist.chB.x >= 1780 & assist.chB.x <= 3000;
-mt = anc_load;
-derp = strrep('BTemp_SKY.coad.mrad.coad.merged.degraded.truncated.0.nc','.0.','.');
-proc_dir = ['D:\case_studies\assist\deployments\20110501_to_xx_nonARM_ASSIST_at_SGP_for_MC3E_DTurner\raw_from_lrtech\20110529\2011_05_29_11_58_39_RAW\'];
-proc_tmp = populate_template(mt, ['chA_',derp], assist.down.time, assist.chA.cxs.x(xl_A), assist.down.chA.T_bt(:,xl_A), proc_dir);
-proc_tmp = populate_template(mt, ['chB_',derp], assist.down.time, assist.chB.cxs.x(xl_B), assist.down.chB.T_bt(:,xl_B), proc_dir);
-
-tags = {''};
-for t = 1:length(tags)
-   derp_t = strrep(derp,'BTemp_Sky',tags{t});
-   proc_tmp = populate_template(mt, derp_t, assist.down.time, assist.chA.cxs.x(xl_), assist.down.chA.mrad.y(:,xl_), proc_dir)
-end
-% Output "degraded" products
-proc_tmp = populate_template(mt, derp, time, x_data, y_data, proc_dir);
+% xl_A = assist.chA.x >= 520 & assist.chA.x <= 1800;
+% xl_B = assist.chB.x >= 1780 & assist.chB.x <= 3000;
+% mt = anc_load;
+% derp = strrep('BTemp_SKY.coad.mrad.coad.merged.degraded.truncated.0.nc','.0.','.');
+% proc_dir = ['D:\case_studies\assist\deployments\20110501_to_xx_nonARM_ASSIST_at_SGP_for_MC3E_DTurner\raw_from_lrtech\20110529\2011_05_29_11_58_39_RAW\'];
+% proc_tmp = populate_template(mt, ['chA_',derp], assist.down.time, assist.chA.cxs.x(xl_A), assist.down.chA.T_bt(:,xl_A), proc_dir);
+% proc_tmp = populate_template(mt, ['chB_',derp], assist.down.time, assist.chB.cxs.x(xl_B), assist.down.chB.T_bt(:,xl_B), proc_dir);
+% 
+% tags = {''};
+% for t = 1:length(tags)
+%    derp_t = strrep(derp,'BTemp_Sky',tags{t});
+%    proc_tmp = populate_template(mt, derp_t, assist.down.time, assist.chA.cxs.x(xl_), assist.down.chA.mrad.y(:,xl_), proc_dir)
+% end
+% % Output "degraded" products
+% proc_tmp = populate_template(mt, derp, time, x_data, y_data, proc_dir);
 
 
 % Output "ExtraCSV" products
