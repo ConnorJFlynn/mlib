@@ -8,7 +8,7 @@ AERI_ch2 = anc_load;%(['D:\case_studies\assist\deployments\20150701_SGP_ASSIST_A
 asst = load(['D:\case_studies\assist\deployments\20150701_SGP_ASSIST_AERI_compare_VM\now_with_fan\20150919_074816.assist_down.mat'])
 
 asst.Sky_ii = find(asst.isSky);
-ii = interp1(AERI_ch1.vdata.wnum, [1:length(AERI_ch1.vdata.wnum)],1145,'nearest')
+ii = interp1(AERI_ch1.vdata.wnum1, [1:length(AERI_ch1.vdata.wnum1)],1145,'nearest')
 wii = interp1(asst.chA.mrad.x, [1:length(asst.chA.mrad.x)],1145,'nearest');
 figure; plot(serial2hs(AERI_ch1.time), AERI_ch1.vdata.mean_rad(ii,:), '.', ...
     serial2hs(asst.time(asst.isSky)), asst.chA.mrad.y(asst.isSky,wii), '.')
@@ -21,9 +21,9 @@ aeri_ch2 = anc_sift(AERI_ch2, bina);
 cha_ = asst.chA.mrad.x>=520 & asst.chA.mrad.x <= 1900;
 chb_ = asst.chB.mrad.x>=1750 & asst.chB.mrad.x <= 3500;
 figure; plot(asst.chA.mrad.x(cha_), mean(asst.chA.mrad.y(asst.Sky_ii(ainb),cha_)),'b-',...
-    aeri_ch1.vdata.wnum, mean(aeri_ch1.vdata.mean_rad,2),'r-',...
+    aeri_ch1.vdata.wnum1, mean(aeri_ch1.vdata.mean_rad,2),'r-',...
     asst.chB.mrad.x(chb_), mean(asst.chB.mrad.y(asst.Sky_ii(ainb),chb_)),'g-',...
-    aeri_ch2.vdata.wnum, mean(aeri_ch2.vdata.mean_rad,2),'k-'); 
+    aeri_ch2.vdata.wnum1, mean(aeri_ch2.vdata.mean_rad,2),'k-'); 
 legend('assist chA','AERI chA','assist chB','AERI chB')
 title('with fan module')
 
