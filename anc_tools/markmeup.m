@@ -1,25 +1,6 @@
 function [cfg, dat] = markmeup(cfg);
 % [cfg, dat] = markmeup(cfg);
-if ~exist('cfg','var')
-   % Get primary datastream and field
-   while ~exist('primary_ds','var')||isempty(primary_ds)
-      primary_ds = getfullname('*.nc', 'primary','Select primary data files');
-   end
-   [pname, fstem, ext] = fileparts(primary_ds{1});
-   primary_ds.pname = [pname, filesep];
-   [ds, rest] = strtok(fstem,'.'); dl = strtok(rest,'.');
-   primary_ds.datastream = [ds,'.',dl];
-   cfg.primary_ds = primary_ds;
-   anc = anc_bundle_files(primary_ds);
-   primary_field = pickafield(anc);
-   % obtain qc for primary field
-   % check for existing of qc_field, express as summarized missing, bad,
-   % and indeterminate tests.  
-   % Option to fold in qc from other qc_fields
-   % Define other bad and suspect flags
-   % Replace all bad and missing with NaN.
-   % Define mentor_bad and mentor_suspect flags
-   
+
    % OK, what are we trying to do?  
    % For the primary field being assessed we'll have two sets of figure windows.
    % One set has two figures with linked x-axes
@@ -57,7 +38,8 @@ if ~exist('cfg','var')
    % mentor assessment.  
    % Possible approach: If zooming into the primary assessed field, then
    % the QC is assigned to that field only, but if zooming into an aux
-   % window then QC is applied for all fields. 
+   % window then QC is applied to "time" in the primary datastream which is 
+   % equivalent to applying it for all fields. 
    % How to do the selecting?  
    %  1. Define flag mode ([toggle], set, clear)
    %  2. Define selection mode ([inside], outside, before, during, after, above, between, below)
@@ -108,7 +90,28 @@ if ~exist('cfg','var')
    % For primary figure, allow 1 primary field color data values initially
    % as grey dots, then overlay with ~bad as yellow, then ~bad | 
    
-   cfg.primary_fig = figure;
+if ~exist('cfg','var')
+   % Get primary datastream and field
+   while ~exist('primary_ds','var')||isempty(primary_ds)
+      primary_ds = getfullname('*.nc', 'primary','Select primary data files');
+   end
+   [pname, fstem, ext] = fileparts(primary_ds{1});
+   primary_ds.pname = [pname, filesep];
+   [ds, rest] = strtok(fstem,'.'); dl = strtok(rest,'.');
+   primary_ds.datastream = [ds,'.',dl];
+   cfg.primary_ds = primary_ds;
+   anc = anc_bundle_files(primary_ds);
+   primary_field = pickafield(anc);
+   % obtain qc for primary field
+   % check for existing of qc_field, express as summarized missing, bad,
+   % and indeterminate tests.  
+   % Option to fold in qc from other qc_fields
+   % Define other bad and suspect flags
+   % Replace all bad and missing with NaN.
+   % Define mentor_bad and mentor_suspect flags   
+   cfg.primary_fig.h = figure;
+   cfg.primary_fig.ds = primary_ds.datastream;
+   cfg.primary_fig.field = primary_field;
 
    
 end

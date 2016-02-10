@@ -1,8 +1,16 @@
-function [psapi,psapo] = rd_psapi_g1(ins);
-
+function [psapo_grid,psapo,psapi] = rd_psapi_g1(ins)
+% [psapo_grid,psapo,psapi] = rd_psapi_g1(ins);
+% Parses a PSAP file from the G1 containing "I" packets
+% Computes full-precision transmittances from the hex packets and raw
+% absorption coefficients according to an assumed spot size of 17.5 mm^2
+% and using the PSAP reported flows
+% returns "psapo_grid", "psapo" containing the computed values at 4-sec intervals and
+% also the contents of the input file as "psapi"
 if ~exist('ins','var') || ~exist(ins,'file')
    ins = getfullname_('*psap_raw.txt','aaf_psap');
 end
+% Much of the code below was written in anticipation of selection of multiple 
+% files but not completely implemented.  Currently just processes one file.
 fid = fopen(ins);
 if fid>0
    [psapi.pname,psapi.fname,ext] = fileparts(ins);
@@ -12,13 +20,14 @@ if fid>0
    % skip records until " is found for the end string eg "03,007dbea296,00773aa880,02e310,00"
    while isempty(strfind(this,'"'))&&~feof(fid)
       %%
-      b4 = ftell(fid);
+      b4 = ftell(fid); % "before"
       this = fgetl(fid);
       %%
    end
-   fseek(fid,b4,-1);
+   fseek(fid,b4,-1);  % rewind to the point "before" the line read above
    done_reading = false;
    while ~done_reading
+       % This should read the entire file
       [A, pos] = textscan(fid,'%s %f %f %f %f %f %f %f %f %d %d %s %*[^\n] %*[\n]');
       if any(size(A{1})~=size(A{end}))
          disp('File read error! Continuing past error...')
@@ -31,7 +40,8 @@ if fid>0
                A(aa) = {B};
             end
          end
-         % Save initial portion read in Z for later concatenation
+         % The input file might not have complete 4-second sequences so 
+         % save original portion in Z for later concatenation
          if ~exist('Z','var')
             Z = A;
          else
@@ -106,6 +116,7 @@ if fid>0
    mod0 = find(mod(psapi.SS,4)==0&psapi.SS~=0);
    current_boxcar_index = NaN(size(psapi.time));
    boxcar_flow = current_boxcar_index;
+   % The following statements are just pre-declaring variables...
    boxcar_secs = boxcar_flow;
    dark_sig = boxcar_flow;
    dark_ref = boxcar_flow;
@@ -129,7 +140,8 @@ if fid>0
    blue_sig_ref_ratio = boxcar_flow;
    green_sig_ref_ratio = boxcar_flow;
    red_sig_ref_ratio = boxcar_flow;
-   disp('Eliminating darks, blue, green, and red refs and sigs <= 0')
+
+% Previous filter reset times...
    for m = 1:length(mod0)
       %       disp(m)
       ender = psapi.ender{mod0(m)};
@@ -147,6 +159,7 @@ if fid>0
       end
    end
    
+   % Blue signals...
    mod1 =  find(mod(psapi.SS,4)==1);   
    for m = 1:length(mod1)
       ender = psapi.ender{mod1(m)};
@@ -159,12 +172,15 @@ if fid>0
          blue_sig_ref_ratio(mod1(m)) = sscanf(sr{1},'%f');
       end      
    end   
+   % Compute signal at full precision from hex strings
    blue_sig(mod1(2:end)) = blue_sig_boxcar(mod1(2:end))-blue_sig_boxcar(mod1(1:end-1)) - 256.*(N_boxcars(mod1(2:end))-N_boxcars(mod1(1:end-1)));
    blue_ref(mod1(2:end)) = blue_ref_boxcar(mod1(2:end))-blue_ref_boxcar(mod1(1:end-1)) - 256.*(N_boxcars(mod1(2:end))-N_boxcars(mod1(1:end-1)));
    roll = false(size(N_boxcars));
    roll(mod1(2:end)) = (N_boxcars(mod1(2:end))-N_boxcars(mod1(1:end-1)))<0;
    blue_sig(roll) = blue_sig(roll) - 2.^32;
    blue_ref(roll) = blue_ref(roll) - 2.^32;   
+
+   % Green signals...
    mod2 =  find(mod(psapi.SS,4)==2);
    for m = 1:length(mod2)
       ender = psapi.ender{mod2(m)};
@@ -179,11 +195,13 @@ if fid>0
    end
    roll = false(size(N_boxcars));
    roll(mod2(2:end)) = (N_boxcars(mod2(2:end))-N_boxcars(mod2(1:end-1)))<0;
+   % Compute signal at full precision from hex strings
    green_sig(mod2(2:end)) = green_sig_boxcar(mod2(2:end))-green_sig_boxcar(mod2(1:end-1)) - 256.*(N_boxcars(mod2(2:end))-N_boxcars(mod2(1:end-1)));
    green_ref(mod2(2:end)) = green_ref_boxcar(mod2(2:end))-green_ref_boxcar(mod2(1:end-1)) - 256.*(N_boxcars(mod2(2:end))-N_boxcars(mod2(1:end-1)));
    green_sig(roll) = green_sig(roll) - 2.^32;
    green_ref(roll) = green_ref(roll) - 2.^32;   
    
+   % Red signals...
    mod3 =  find(mod(psapi.SS,4)==3);
    for m = 1:length(mod3)
       ender = psapi.ender{mod3(m)};
@@ -197,16 +215,20 @@ if fid>0
       end
       
    end
+   % Compute signal at full precision from hex strings
    red_sig(mod3(2:end)) = red_sig_boxcar(mod3(2:end))-red_sig_boxcar(mod3(1:end-1)) - 256.*(N_boxcars(mod3(2:end))-N_boxcars(mod3(1:end-1)));
    red_ref(mod3(2:end)) = red_ref_boxcar(mod3(2:end))-red_ref_boxcar(mod3(1:end-1)) - 256.*(N_boxcars(mod3(2:end))-N_boxcars(mod3(1:end-1)));
+   
    % Catch boxcar rollover
    roll = false(size(N_boxcars));
    roll(mod3(2:end)) = (N_boxcars(mod3(2:end))-N_boxcars(mod3(1:end-1)))<0;   
-   red_sig(roll) = red_sig(roll) - 2.^32; %I wonder if I'm subtracting one too many or few or just right
+   red_sig(roll) = red_sig(roll) - 2.^32; 
    red_ref(roll) = red_ref(roll) - 2.^32;   
 
 end
 
+% Okay, done reading the file.  
+%    disp('Eliminating darks, blue, green, and red refs and sigs <= 0')
 bad = dark_sig<0 | dark_ref<0 | N_boxcars<=0 | blue_sig<=0 | green_sig<=0 | red_sig<=0 ...
    | blue_ref<=0 | green_ref<=0 | red_ref<=0;
          TS(bad) = [];
@@ -277,23 +299,21 @@ psapo.endstr = psapi.endstr(dark_ii);
 % figure; plot(psapo.time, (psapo.green_sig./psapo.green_ref)./psapo.green_sig_ref_ratio, 'g.', psapo.time, psapo.Tr_G,'k.',...
 %    psapo.time(2:end), (green_sig./green_ref)./psapo.green_sig_ref_ratio(2:end), 'r.');
 
+% Compute transmittances at full precision, and normalize by last PSAP reported signal ratio 
 psapo.trans_B = (psapo.blue_sig./psapo.blue_ref)./psapo.blue_sig_ref_ratio;
 psapo.trans_G = (psapo.green_sig./psapo.green_ref)./psapo.green_sig_ref_ratio;
 psapo.trans_R = (psapo.red_sig./psapo.red_ref)./psapo.red_sig_ref_ratio;
-green_sig = psapo.green_sig_boxcar(2:end)-psapo.green_sig_boxcar(1:end-1) - 256.*(psapo.N_boxcars(2:end)-psapo.N_boxcars(1:end-1));
-green_ref = psapo.green_ref_boxcar(2:end)-psapo.green_ref_boxcar(1:end-1) - 256.*(psapo.N_boxcars(2:end)-psapo.N_boxcars(1:end-1));
+% green_sig = psapo.green_sig_boxcar(2:end)-psapo.green_sig_boxcar(1:end-1) - 256.*(psapo.N_boxcars(2:end)-psapo.N_boxcars(1:end-1));
+% green_ref = psapo.green_ref_boxcar(2:end)-psapo.green_ref_boxcar(1:end-1) - 256.*(psapo.N_boxcars(2:end)-psapo.N_boxcars(1:end-1));
 % figure; plot(psapo.time, (psapo.green_sig./psapo.green_ref)./psapo.green_sig_ref_ratio, 'g.', psapo.time, psapo.Tr_G,'k.',...
 %    psapo.time(2:end), (green_sig./green_ref)./psapo.green_sig_ref_ratio(2:end), 'r.');
 % figure; plot(psapo.time, [psapo.trans_B,psapo.trans_G,psapo.trans_R],'.')
 
 % Now test Tr smoothing and compare to 2-s and 60-s averaged result.
-%Should modify smooth_Tr_Bab to accept spot size?
-% This isn't quite right.  I should probably interpolate onto a regular
-% grid first. Also, maybe need to incorporate better logic to avoid crazy 
-% smoothed transmittances at edges. 
-
+% Gridding was implemented to avoid crazy smoothed transmittances at edges. 
+% Not necessary if time series is contiguous
 dark_times = psapo.time;
-psapo_grid.time = [psapo.time(1):[4./(24*60*60)]:psapo.time(end)];
+psapo_grid.time = [psapo.time(1):[4./(24*60*60)]:psapo.time(end)]';
 [ainb, bina] = nearest(psapo.time,psapo_grid.time);
 fields = fieldnames(psapo);
 for f = 1:length(fields)
@@ -306,26 +326,49 @@ end
 psapo_grid.endstr = cell(size(psapo_grid.time));
 psapo_grid.endstr(bina) = psapo.endstr(ainb);
 
-[psapo.Ba_B_sm, psapo.trans_B_sm] = smooth_Tr_Bab(psapo.time, psapo.mass_flow_last, psapo.trans_B,16 );
-[psapo_grid.Ba_B_sm, psapo_grid.trans_B_sm] = smooth_Tr_Bab(psapo_grid.time, psapo_grid.mass_flow_last, psapo_grid.trans_B,16 );
+[psapo.Ba_B_sm, psapo.trans_B_sm] = smooth_Tr_Bab(psapo.time, psapo.mass_flow_last, psapo.trans_B,8 );
+[psapo_grid.Ba_B_sm, psapo_grid.trans_B_sm] = smooth_Tr_Bab(psapo_grid.time, psapo_grid.mass_flow_last, psapo_grid.trans_B,8 );
 
-[psapo.Ba_G_sm, psapo.trans_G_sm] = smooth_Tr_Bab(psapo.time, psapo.mass_flow_last, psapo.trans_G,16 );
-[psapo.Ba_R_sm, psapo.trans_R_sm] = smooth_Tr_Bab(psapo.time, psapo.mass_flow_last, psapo.trans_R,16 );
+[psapo.Ba_G_sm, psapo.trans_G_sm] = smooth_Tr_Bab(psapo.time, psapo.mass_flow_last, psapo.trans_G,8 );
+[psapo_grid.Ba_G_sm, psapo_grid.trans_G_sm] = smooth_Tr_Bab(psapo_grid.time, psapo_grid.mass_flow_last, psapo_grid.trans_G,8 );
+
+[psapo.Ba_R_sm, psapo.trans_R_sm] = smooth_Tr_Bab(psapo.time, psapo.mass_flow_last, psapo.trans_R,8 );
+[psapo_grid.Ba_R_sm, psapo_grid.trans_R_sm] = smooth_Tr_Bab(psapo_grid.time, psapo_grid.mass_flow_last, psapo_grid.trans_R,8 );
+
+% Transpose to force orientation matching time vector.
 psapo.Ba_B_sm = psapo.Ba_B_sm'; psapo.Ba_G_sm = psapo.Ba_G_sm'; psapo.Ba_R_sm = psapo.Ba_R_sm';
 psapo.trans_B_sm = psapo.trans_B_sm'; psapo.trans_G_sm = psapo.trans_G_sm'; psapo.trans_R_sm= psapo.trans_R_sm';
 figure; plot(psapo.time, [psapo.trans_B,psapo.trans_G,psapo.trans_R],'.',...
    psapo.time, [psapo.trans_B_sm,psapo.trans_G_sm,psapo.trans_R_sm],'-');dynamicDateTicks
 legend('Tr_B raw','Tr B raw','Tr R raw','Tr B smooth', 'Tr G smooth', 'Tr R smooth')
+
+psapo_grid.Ba_B_sm = psapo_grid.Ba_B_sm'; psapo_grid.Ba_G_sm = psapo_grid.Ba_G_sm'; 
+psapo_grid.Ba_R_sm = psapo_grid.Ba_R_sm'; psapo_grid.trans_B_sm = psapo_grid.trans_B_sm'; 
+psapo_grid.trans_G_sm = psapo_grid.trans_G_sm'; psapo_grid.trans_R_sm= psapo_grid.trans_R_sm';
+% figure; 
+% plot(psapo_grid.time, [psapo_grid.trans_B,psapo_grid.trans_G,psapo_grid.trans_R],'.',...
+%    psapo_grid.time, [psapo_grid.trans_B_sm,psapo_grid.trans_G_sm,psapo_grid.trans_R_sm],'-');dynamicDateTicks
+legend('Tr_B raw','Tr B raw','Tr R raw','Tr B smooth', 'Tr G smooth', 'Tr R smooth')
+
 ax(3) = gca;
-figure; plot(psapo.time, [psapo.Ba_B_sm,psapo.Ba_G_sm, psapo.Ba_R_sm],'-'); ax(1) = gca;
+% These are absorption coefs when smoothed to 4x8=32s in transmittance space via smooth_Tr_Bab
+figure; plot(psapo.time, [psapo.Ba_B_sm,psapo.Ba_G_sm, psapo.Ba_R_sm],'-'); 
+% plot(psapo_grid.time, [psapo_grid.Ba_B_sm,psapo_grid.Ba_G_sm, psapo_grid.Ba_R_sm],'-'); 
+ax(1) = gca;
 hold('on');
+% These are the original 2-second absorption coefficients reported by the
+% PSAP but smoothed to 2x15=30s in absorbance
 plot(psapo.time, [smooth(psapo.Ba_B,15),smooth(psapo.Ba_G,15), smooth(psapo.Ba_R,15)],'.');hold('off')
+% plot(psapo_grid.time, [smooth(psapo_grid.Ba_B,15),smooth(psapo_grid.Ba_G,15), smooth(psapo_grid.Ba_R,15)],'.');hold('off')
 legend('Ba B 32s in T','Ba G 32s in T', 'Ba R 32s in T', 'Ba B 60s in Ba','Ba G 60s in Ba', 'Ba R 60s in Ba');
 title(['Absorption coeffs ',strtok(psapi.fname,'.')])
 dynamicDateTicks;
 
 figure; plot(psapo.time, psapo.mass_flow_last, '-x');ax(2) = gca;  dynamicDateTicks; 
+% plot(psapo_grid.time, psapo_grid.mass_flow_last, '-x');ax(2) = gca;  dynamicDateTicks; 
 legend('mass flow'); title(['Mass flow ',strtok(psapi.fname,'.')])
+
+
 
 % figure; plot((psapo.time), [psapo.blue_ref, psapo.green_ref,psapo.red_ref] ,'.-'); dynamicDateTicks; ax(4) = gca;
 % legend('blue ref','green ref','red ref')
