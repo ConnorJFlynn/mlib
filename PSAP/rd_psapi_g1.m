@@ -14,7 +14,9 @@ end
 fid = fopen(ins);
 if fid>0
    [psapi.pname,psapi.fname,ext] = fileparts(ins);
-   psapi.fname = [psapi.fname, ext];
+   psapi.pname = [psapi.pname, filesep]; psapi.fname = [psapi.fname, ext];
+   psapo_grid = psapi; psapo = psapi;
+   
    % 22:12:12.53,150604130603   -2.9   -2.3   -6.4 1.000 1.000 1.000  .000  .100   2 0092 "03,007dbea296,00773aa880,02e310,00"
    this = fgetl(fid);
    % skip records until " is found for the end string eg "03,007dbea296,00773aa880,02e310,00"
@@ -233,7 +235,7 @@ bad = dark_sig<0 | dark_ref<0 | N_boxcars<=0 | blue_sig<=0 | green_sig<=0 | red_
    | blue_ref<=0 | green_ref<=0 | red_ref<=0;
          TS(bad) = [];
          for d = dmp
-            psapi.(char(d))(bad) = [];
+            psapi.(char(d))(bad) = []; % this may be a bug.  Not sure dmp is defined correctly
          end
 
 
@@ -248,8 +250,10 @@ red_ii = dark_ii+3; red_ii(red_ii>length(psapi.time)) = [];
 
 % Build an output file with one record per complete input set
 psapo.time = psapi.time(dark_ii);
-psapo.Ba_B = psapi.Ba_B(dark_ii); psapo.Ba_G = psapi.Ba_G(dark_ii); psapo.Ba_R = psapi.Ba_R(dark_ii);
-psapo.Tr_B = psapi.Tr_B(dark_ii); psapo.Tr_G = psapi.Tr_G(dark_ii); psapo.Tr_R = psapi.Tr_R(dark_ii);
+psapo.Ba_B = psapi.Ba_B(blue_ii); psapo.Ba_G = psapi.Ba_G(green_ii); psapo.Ba_R = psapi.Ba_R(red_ii);
+
+
+psapo.Tr_B = psapi.Tr_B(blue_ii); psapo.Tr_G = psapi.Tr_G(green_ii); psapo.Tr_R = psapi.Tr_R(red_ii);
 psapo.mass_flow_last = psapi.mass_flow_last(dark_ii);
 psapo.current_boxcar_index = current_boxcar_index(dark_ii);
 psapo.boxcar_flow = current_boxcar_index(dark_ii);
@@ -257,8 +261,6 @@ psapo.boxcar_secs = boxcar_secs(dark_ii);
 psapo.dark_sig = dark_sig(dark_ii);
 psapo.dark_ref = dark_ref(dark_ii);
 psapo.adc_gain = adc_gain(dark_ii);
-psapo.blue_sig_boxcar = boxcar_flow;
-psapo.blue_ref_boxcar = boxcar_flow;
 
 psapo.blue_sig = blue_sig(blue_ii);
 psapo.blue_ref = blue_ref(blue_ii);
@@ -318,13 +320,15 @@ psapo_grid.time = [psapo.time(1):[4./(24*60*60)]:psapo.time(end)]';
 fields = fieldnames(psapo);
 for f = 1:length(fields)
    field = fields{f};
-   if ~(strcmp(field,'time')||strcmp(field,'endstr'))
+   if ~(strcmp(field,'time')||strcmp(field,'endstr')||strcmp(field,'pname')||strcmp(field,'fname'))
       psapo_grid.(field) = NaN(size(psapo_grid.time));
       psapo_grid.(field)(bina) = psapo.(field)(ainb);
    end      
 end
 psapo_grid.endstr = cell(size(psapo_grid.time));
 psapo_grid.endstr(bina) = psapo.endstr(ainb);
+
+k1=1.317; ko=0.866; 
 
 [psapo.Ba_B_sm, psapo.trans_B_sm] = smooth_Tr_Bab(psapo.time, psapo.mass_flow_last, psapo.trans_B,8 );
 [psapo_grid.Ba_B_sm, psapo_grid.trans_B_sm] = smooth_Tr_Bab(psapo_grid.time, psapo_grid.mass_flow_last, psapo_grid.trans_B,8 );
@@ -338,43 +342,55 @@ psapo_grid.endstr(bina) = psapo.endstr(ainb);
 % Transpose to force orientation matching time vector.
 psapo.Ba_B_sm = psapo.Ba_B_sm'; psapo.Ba_G_sm = psapo.Ba_G_sm'; psapo.Ba_R_sm = psapo.Ba_R_sm';
 psapo.trans_B_sm = psapo.trans_B_sm'; psapo.trans_G_sm = psapo.trans_G_sm'; psapo.trans_R_sm= psapo.trans_R_sm';
-figure; plot(psapo.time, [psapo.trans_B,psapo.trans_G,psapo.trans_R],'.',...
-   psapo.time, [psapo.trans_B_sm,psapo.trans_G_sm,psapo.trans_R_sm],'-');dynamicDateTicks
-legend('Tr_B raw','Tr B raw','Tr R raw','Tr B smooth', 'Tr G smooth', 'Tr R smooth')
 
 psapo_grid.Ba_B_sm = psapo_grid.Ba_B_sm'; psapo_grid.Ba_G_sm = psapo_grid.Ba_G_sm'; 
 psapo_grid.Ba_R_sm = psapo_grid.Ba_R_sm'; psapo_grid.trans_B_sm = psapo_grid.trans_B_sm'; 
 psapo_grid.trans_G_sm = psapo_grid.trans_G_sm'; psapo_grid.trans_R_sm= psapo_grid.trans_R_sm';
+
+psapo_grid.Ba_B_sm_Weiss = psapo_grid.Ba_B_sm./(k1.*psapo_grid.trans_B_sm + ko);
+psapo_grid.Ba_G_sm_Weiss = psapo_grid.Ba_G_sm./(k1.*psapo_grid.trans_G_sm + ko);
+psapo_grid.Ba_R_sm_Weiss = psapo_grid.Ba_R_sm./(k1.*psapo_grid.trans_R_sm + ko);
+
+% figure; plot(psapo.time, [psapo.trans_B,psapo.trans_G,psapo.trans_R],'.',...
+%    psapo.time, [psapo.trans_B_sm,psapo.trans_G_sm,psapo.trans_R_sm],'-');dynamicDateTicks
+% legend('Tr_B raw','Tr B raw','Tr R raw','Tr B smooth', 'Tr G smooth', 'Tr R smooth');
+
 % figure; 
 % plot(psapo_grid.time, [psapo_grid.trans_B,psapo_grid.trans_G,psapo_grid.trans_R],'.',...
 %    psapo_grid.time, [psapo_grid.trans_B_sm,psapo_grid.trans_G_sm,psapo_grid.trans_R_sm],'-');dynamicDateTicks
-legend('Tr_B raw','Tr B raw','Tr R raw','Tr B smooth', 'Tr G smooth', 'Tr R smooth')
+% legend('Tr_B raw','Tr B raw','Tr R raw','Tr B smooth', 'Tr G smooth', 'Tr R smooth');
 
-ax(3) = gca;
-% These are absorption coefs when smoothed to 4x8=32s in transmittance space via smooth_Tr_Bab
-figure; plot(psapo.time, [psapo.Ba_B_sm,psapo.Ba_G_sm, psapo.Ba_R_sm],'-'); 
-% plot(psapo_grid.time, [psapo_grid.Ba_B_sm,psapo_grid.Ba_G_sm, psapo_grid.Ba_R_sm],'-'); 
-ax(1) = gca;
-hold('on');
-% These are the original 2-second absorption coefficients reported by the
-% PSAP but smoothed to 2x15=30s in absorbance
-plot(psapo.time, [smooth(psapo.Ba_B,15),smooth(psapo.Ba_G,15), smooth(psapo.Ba_R,15)],'.');hold('off')
-% plot(psapo_grid.time, [smooth(psapo_grid.Ba_B,15),smooth(psapo_grid.Ba_G,15), smooth(psapo_grid.Ba_R,15)],'.');hold('off')
-legend('Ba B 32s in T','Ba G 32s in T', 'Ba R 32s in T', 'Ba B 60s in Ba','Ba G 60s in Ba', 'Ba R 60s in Ba');
-title(['Absorption coeffs ',strtok(psapi.fname,'.')])
-dynamicDateTicks;
-
-figure; plot(psapo.time, psapo.mass_flow_last, '-x');ax(2) = gca;  dynamicDateTicks; 
-% plot(psapo_grid.time, psapo_grid.mass_flow_last, '-x');ax(2) = gca;  dynamicDateTicks; 
-legend('mass flow'); title(['Mass flow ',strtok(psapi.fname,'.')])
-
-
+% ax(3) = gca;
+% % These are absorption coefs when smoothed to 4x8=32s in transmittance space via smooth_Tr_Bab
+% figure; plot(psapo_grid.time, [psapo_grid.Ba_B_sm_Weiss,psapo_grid.Ba_G_sm_Weiss, psapo_grid.Ba_R_sm_Weiss],'-'); 
+% % plot(psapo_grid.time, [psapo_grid.Ba_B_sm,psapo_grid.Ba_G_sm, psapo_grid.Ba_R_sm],'-'); 
+% ax(1) = gca;
+% hold('on');
+% % These are the original 2-second absorption coefficients reported by the
+% % PSAP but smoothed to 2x15=30s in absorbance
+% plot(psapi.time + (15./(24*60*60)), [smooth(psapi.Ba_B,60),smooth(psapi.Ba_G,60), smooth(psapi.Ba_R,60)],'o'); hold('off');
+% % plot(psapo_grid.time, [smooth(psapo_grid.Ba_B,15),smooth(psapo_grid.Ba_G,15), smooth(psapo_grid.Ba_R,15)],'.');hold('off')
+% legend('Ba B 32s in T','Ba G 32s in T', 'Ba R 32s in T', 'Ba B 60s in Ba','Ba G 60s in Ba', 'Ba R 60s in Ba');
+% title(['Absorption coeffs ',strtok(psapi.fname,'.')]);
+% dynamicDateTicks;
+% 
+% figure; plot(psapo.time, psapo.mass_flow_last, '-x');ax(2) = gca;  dynamicDateTicks; 
+% % plot(psapo_grid.time, psapo_grid.mass_flow_last, '-x');ax(2) = gca;  dynamicDateTicks; 
+% legend('mass flow'); title(['Mass flow ',strtok(psapi.fname,'.')]);
 
 % figure; plot((psapo.time), [psapo.blue_ref, psapo.green_ref,psapo.red_ref] ,'.-'); dynamicDateTicks; ax(4) = gca;
 % legend('blue ref','green ref','red ref')
 % 
 % figure; plot((psapo.time), [psapo.blue_sig, psapo.green_sig,psapo.red_sig] ,'-'); dynamicDateTicks; ax(5) = gca;
 % legend('blue sig','green sig','red sig')
-linkaxes(ax,'x');
+% linkaxes(ax,'x');
+matdir = [psapi.pname, filesep,'..',filesep,'mats'];
+if ~exist(matdir,'dir')
+    mkdir(matdir);
+    matdir = [matdir, filesep];
+end
+save([matdir, psapi.fname(1:10), 'psapi.mat'],'-struct','psapi');
+save([matdir, filesep, psapi.fname(1:10), 'psapo.mat'],'-struct','psapo');
+save([matdir, filesep, psapi.fname(1:10), 'psapo_grid.mat'],'-struct','psapo_grid');
 
 return

@@ -108,6 +108,20 @@ Langleys.mean_Vo = mean_Vo;
 Langleys.std_Vo = std_Vo;
 Langleys.rel_var_Vo = rel_var_Vo;
 save([prede.pname, '..',filesep, 'all','.refined_Vos.mat'],'Langleys');
+figure(101); plot(Langleys.wl, 100.*std(Langleys.Vo')./mean(Langleys.Vo'),'o-'); title('percent stddev(Vo)')
+figure(102); plot(Langleys.wl, 100.*std(Langleys.Vo_')./mean(Langleys.Vo_'),'rx-');title('percent stddev(Vo_U_W)')
+figure(103); plot(Langleys.wl, 100.*(mean(Langleys.Vo')-mean(Langleys.Vo_'))./mean([Langleys.Vo,Langleys.Vo_]'),'-k+')
+title('percent([Vo - Vo_U_W])/mean([Vo, Vo_U_W])')
+figure(104); plot(Langleys.wl, 100.*(std([Langleys.Vo, Langleys.Vo_]'))./mean([Langleys.Vo,Langleys.Vo_]'),'-g+')
+title('percent stddev([Vo Vo_U_W])')
+figure(105); plot(Langleys.wl, [Langleys.Vo,Langleys.Vo_]' - ones([12,1])*mean([Langleys.Vo,Langleys.Vo_]'),'-s')
+% Observed variability in Prede Vo values for MLO 2016 Jan is < 0.2% except
+% for 1020 nm 0.22% and 940  nm < 3%
+%% 
 
-%%
+% So, next would be to use these Io values and the reported voltages just
+% before the panel measurements (or as part of the panel measurements) to
+% compute the transmittances, and thus the direct normal irradiance, and
+% thus the radiance from the panel, and thus the responsivity, and then see
+% how stable this responsivity is.
 return

@@ -25,6 +25,11 @@ end
 % Line 2: Filters, WL1, WL2, WL3, WL..N (in nm)
 % Line 3: yy/mm/dd,HH:MM:SS (UTC), yy/mm/dd,HH:MM:SS(LST), mode H = horiz scan, location?, setup_filename
 
+% POM-01,0000000,0000000,-155.566, 019.550,16-01-14,17:09:12,16-01-14,07:09:12
+% 7,0315,0400,0500,0675,0870,0940,1020
+% 16-01-14,17:09:12,16-01-14,07:09:13,S,Akiruno,mlo_sun.obs
+% 17:09:15,07:09:15,-066.79,001.34,0.0000E+00,4.2725E-12,1.2665E-11,1.3809E-11,4.5776E-12,1.2360E-11,2.0599E-12
+
 fid = fopen(filename);
 if fid>0
    if ~isfield(prede,'header')
@@ -107,11 +112,12 @@ if fid>0
             C = textscan(tmp,format_str, 'delimiter',',');
             UTC = C{1}{:};
             %          {sky_mode, num2str(rec)}
-            if length(prede.header(hed))>10
-                prede.time(rec) = datenum([prede.header(hed).UTC_str ' ' UTC],'yyyy-mm-dd HH:MM:SS');
-            else
-                prede.time(rec) = datenum([prede.header(hed).UTC_str ' ' UTC],'yyyy-mm-dd');
-            end
+%             if length(prede.header(hed))>10
+%                 prede.time(rec) = datenum([prede.header(hed).UTC_str ' ' UTC],'yyyy-mm-dd HH:MM:SS');
+%             else
+%                 prede.time(rec) = datenum([prede.header(hed).UTC_str ' ' UTC],'yyyy-mm-dd');
+%             end
+            prede.time(rec) = datenum([prede.header(hed).UTC_str ' ' UTC],'yyyy-mm-dd HH:MM:SS');
             prede.azi(rec) = C{2}+180;%Prede reports relative to south.  We want relative to north.
             prede.ele(rec) = C{3};
             prede.zen(rec) = 90-C{3};

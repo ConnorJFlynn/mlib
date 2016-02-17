@@ -5,8 +5,8 @@ function ins = rd_raw_SAS(infile)
 if ~exist('infile','var')
     infile= getfullname('*.csv','ascii');
 end
-% [pname, fname,ext] = fileparts(infile);
-% fname = [fname,ext];
+[pname, fname,ext] = fileparts(infile);
+fname = [fname,ext];
 fid = fopen(infile);
 if fid>0
     [pname, fname,ext] = fileparts(infile);
@@ -60,7 +60,8 @@ if fid>0
     for r = 7:pix_start-1
         ins.(labels{r}) = txt{r};
     end
-    
+    figure(1000); plot(ins.lambda, mean(ins.spec(ins.Shutter_open_TF==1,:))-mean(ins.spec(ins.Shutter_open_TF==0,:)),'-'); 
+    title(fname, 'interp','none')
 end
 %%
 

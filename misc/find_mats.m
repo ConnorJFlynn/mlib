@@ -11,7 +11,9 @@ fclose(fid);
 tags = tags{:};
 %%
 for a = length(tags):-1:1
-    if isempty(strfind(tags{a},'.mat'))||strcmp(tags{a},'*.mat')
+    [pp,ff,xx] = fileparts(tags{a});
+    if ~strcmp(xx,'.mat')||isempty(ff)
+%     if isempty(strfind(tags{a},'.mat'))||strcmp(tags{a},'*.mat')
         tags(a) = [];
     end
 end

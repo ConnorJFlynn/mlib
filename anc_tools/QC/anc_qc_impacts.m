@@ -1,5 +1,5 @@
 function qc_impact = anc_qc_impacts(qc, qatts)
-% qc_impact = qc_impacts(qc);
+% qc_impact =  anc_qc_impacts(qc, qatts)
 % generates a value of 0,1,2 if qc is good, indeterminate, or bad 
 % based on VAP convention qc flags.
    qc_bits = fieldnames(qatts);

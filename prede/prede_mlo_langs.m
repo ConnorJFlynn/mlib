@@ -1,10 +1,9 @@
 % read in prede sun...
-in_dir = 'C:\case_studies\4STAR\ftp.science.arc.nasa.gov\Data\MLO_Aug_2008\Langley_Anal\Prede_sun_files\';
  prede = read_prede;
- prede.LatN = 19.5365;
- prede.LonE = -155.5761;
- [prede.zen_sun,prede.azi_sun, prede.soldst, HA_Sun, Decl_Sun, prede.ele_sun, prede.airmass] = ...
-    sunae(prede.LatN, prede.LonE, prede.time);
+%  prede.LatN = 19.5365;
+%  prede.LonE = -155.5761;
+%  [prede.zen_sun,prede.azi_sun, prede.soldst, HA_Sun, Decl_Sun, prede.ele_sun, prede.airmass] = ...
+%     sunae(prede.LatN, prede.LonE, prede.time);
  amm = sort(prede.airmass); amm([1 end])
  good = prede.airmass>1.15 & prede.airmass<15;
 %%
@@ -45,7 +44,8 @@ amm = sort(prede.airmass(good));
 good_times = prede.time(good);
 Langley.time_UTC = good_times([1 end]);
 Langley.airmass = amm([1 end])
-figure(1); plot(prede.header.wl, 100*[abs(Langley.Vo - Langley.Vo_)./Langley.Vo], '-')
-figure(2); plot(prede.header.wl, [Langley.Vo,Langley.Vo_], '-');
+figure(1); plot(prede.header.wl, 200*[abs(Langley.Vo - Langley.Vo_)./(Langley.Vo + Langley.Vo_)], '-'); 
+xlabel('wavelength [nm]'); ylabel('Vo - V_u_w in %')
+% figure(2); plot(prede.header.wl, [Langley.Vo,Langley.Vo_], '-');
 [pth,fname,ext] = fileparts(prede.header.fname);
-save([in_dir,'/Vo_1/', fname,'.Vo.mat'],'Langley')
+save([prede.pname,'/../', fname,'.Vo.mat'],'Langley')
