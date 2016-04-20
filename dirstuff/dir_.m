@@ -13,21 +13,34 @@ function [list,pname] = dir_(masks,pathfile)
 if ~exist('masks','var')
     masks = '*';
 end
-upath = which ('userpath.m');
-
-if ~isempty(upath)&&exist(upath,'file')&&exist(strtok(userpath,pathsep),'dir')&&...
-        exist([strtok(userpath,pathsep),filesep,'filepaths'],'dir')
-    pathdir = [strtok(userpath,pathsep),filesep,'filepaths',filesep];
-else %start from scratch.  Identify userpath, create datapath directory
-    userpath('reset');
-    upath = userpath;
-    status = mkdir([strtok(upath,pathsep),filesep,'filepaths']);
-    if ~status
-        disp(['Failure to find or create datapath directory beneath userpath:',userpath]);
-    else
-        pathdir = [strtok(upath,pathsep),filesep,'filepaths',filesep];
-    end
+% upath = which ('userpath.m');
+% 
+% if ~isempty(upath)&&exist(upath,'file')&&exist(strtok(userpath,pathsep),'dir')&&...
+%         exist([strtok(userpath,pathsep),filesep,'filepaths'],'dir')
+%     pathdir = [strtok(userpath,pathsep),filesep,'filepaths',filesep];
+%%%
+pname = strrep(userpath,';',filesep);
+pathdir = [pname, 'filepaths',filesep];
+if ~exist(pathdir,'dir')
+    mkdir(pname, 'filepaths');
 end
+
+%%%
+% % % if exist([prefdir,filesep,'filepaths'],'dir')
+% % %     pathdir = [strtok(userpath,pathsep),filesep,'filepaths',filesep];
+% % % 
+% % % else %start from scratch.  Identify userpath, create datapath directory
+% % % %     userpath('reset');
+% % % %     upath = userpath;
+% % % %     status = mkdir([strtok(upath,pathsep),filesep,'filepaths']);
+% % % status = mkdir([prefdir,filesep,'filepaths']);
+% % %     if ~status
+% % %         disp(['Failure to find or create datapath directory beneath userpath:',userpath]);
+% % %     else
+% % % %         pathdir = [strtok(upath,pathsep),filesep,'filepaths',filesep];
+% % %         pathdir = [prefdir,filesep,'filepaths',filesep];
+% % %     end
+% % % end
 
 %
 % if ~exist([matlabroot,filesep,'path_mats'],'dir')

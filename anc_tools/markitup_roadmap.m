@@ -1,35 +1,40 @@
-function [cfg, dat] = markmeup(cfg);
-% [cfg, dat] = markmeup(cfg);
-if ~exist('cfg','var')
-   % Get primary datastream and field
-   while ~exist('primary_ds','var')||isempty(primary_ds)
-      primary_ds = getfullname('*.nc', 'primary','Select primary data files');
-   end
-   [pname, fstem, ext] = fileparts(primary_ds{1});
-   primary_ds.pname = [pname, filesep];
-   [ds, rest] = strtok(fstem,'.'); dl = strtok(rest,'.');
-   primary_ds.datastream = [ds,'.',dl];
-   cfg.primary_ds = primary_ds;
-   anc = anc_bundle_files(primary_ds);
-   primary_field = pickafield(anc);
-   % obtain qc for primary field
-   % check for existing of qc_field, express as summarized missing, bad,
-   % and indeterminate tests.  
-   % Option to fold in qc from other qc_fields
-   % Define other bad and suspect flags
-   % Replace all bad and missing with NaN.
-   % Define mentor_bad and mentor_suspect flags
-   
-   % OK, what are we trying to do?  
+% Markitup roadmap   
+
+% So far, so good.  But need to keep in mind option of viewing QC plots
+% before deciding whether to roll data in, retain the prospect of removing
+% flags/events, and re-initialize QC back to some earlier state.
+
+% Maybe include labels for the QC flags as tick labels so they'll zoom
+% appropriately.
+
+button = nflags;
+if nflags==1
+    color(1,:)= [0,1,0];
+    color(2,:) =[1,0,0];
+else
+    figure
+    color = get_colors([1:nflags]);
+    close(gcf)
+    color(end+1,:) = [0,0,0];
+end
+syms = ['o','x','+','*','s','d','v','^','<','>','p','h'];
+
+
+
+
+
+% OK, what are we trying to do?  
    % For the primary field being assessed we'll have two sets of figure windows.
    % One set has two figures with linked x-axes
    %     The first shows all originally supplied data with color coding.
-   %     The second is a QA color image
+   %     The second is a QA color image (generated from "condition")
+   
    % Second set has N-figures with linked x-axes
-   %     The first shows only non-bad values with yellow, blue, cyan,
+   %     The first shows only non-bad values of primary with yellow, blue, cyan,
    %     green, and maybe bright green for indet, noted, noted&indet, not
    %     (noted or indet), re-good
    %     Arbitrary number of other aux plots from this or other DS
+   
    % One showing only non-bad values.
    % Another showing all originally supplied data values with 
    % color coding as follows
@@ -81,9 +86,20 @@ if ~exist('cfg','var')
    
    %main operational menus:
    % SETUP:
-   %   1. Select primary field
-   %   2. Add aux figure
+   %   0. Select datastream(s)
+    % This is identified by a unique path different than existing 
+    % When selecting, if multiple files are selected load them.  If a
+    % single file is selected prompt whether to load all files in dir.
+   %   1. Identify primary field
+    % If the returned field is different than the current field then 
+    % prompt to save existing QA, generate/define new initial QA, and 
+    % regenerate primary and secondary figures
+   %   2. New aux figure
+    % Opens a new figure window and brings up field selector menu to select
+    % field to be plotted. Clean up figure list.
    %   3. Add plot to selected aux figure.
+    % Not sure about this option. Might instead just have button for
+    % selecting field.  
    %   4. Define flag: label and assessment
    %   5. Define mark
    %   6. Import DQR (used for iniital time range and assessment, but applied to
@@ -92,6 +108,7 @@ if ~exist('cfg','var')
    %   8. Export as DQR (by QA states "Bad", "Suspect","Noted/transparent")   
    %   9. Save configuration (datastreams, primary fields, aux plots,
    %   flags, marks)
+   %   10. Review {field name}
    % Assess:
    %  1. Setup figs and menus
    %  2. Select timeframe: years, mmm, doys, hs, ii, or dynamic
@@ -100,90 +117,9 @@ if ~exist('cfg','var')
    %  5. Mentor BAD
    %  6. Mentor Suspect
    %  7. Mentor Noted
-   %  8. Mentor NOT Suspect
-   
+   %  8. Mentor deemed GOOD (overrides BAD and Suspect flags)
       
    % any element that has a "bad" flag will be colored red or black.
    % any element that has no
    % For primary figure, allow 1 primary field color data values initially
    % as grey dots, then overlay with ~bad as yellow, then ~bad | 
-   
-   cfg.primary_fig = figure;
-
-   
-end
-
-
-
-
-return
-
-function field = pickafield(anc);
- % Strip out the qc fields with matching fields.
-   fields = fieldnames(anc.vdata);
-   for i = length(fields):-1:1
-      blah = findstr(fields{i},'qc_');
-      if (~isempty(blah)&&isfield(anc.vdata, fields{i}((blah+3):end)))||strcmp(fields{i},'time_bounds')
-         fields(i) = [];
-      end
-   end
-f = menu_list(fields);   
-field = fields{f};
-return
-
-function f = menu_list(fields,f);
-if ~exist('f','var')
-   f= 1;
-end
-fields_order = fields;
-[fields_az,id_to_az] = sort(upper(fields));
-[dump, az_to_id] = sort(id_to_az);
-first = f;
-listed = 1;
-while listed >= 0
-   
-   page = 10;
-   last = min([first+page,length(fields)]);
-   first = max([1,(last -page)]); %makes sure that we have a full page menu listing
-   menu_str = fields(first:last)';
-   listed = menu(' ',['Page up','Page down','A-Z','by ID', ' ',menu_str]);
-   if listed==1
-      %page up list
-      if (first ==1)
-         first = length(fields) - page;
-      elseif first<=page
-         first=1;
-      else
-         first = first - page;
-      end
-   elseif listed==2
-      first = first + page;
-      %page down list
-      if first == (length(fields))
-         first = 1;
-      elseif first > (length(fields)-page)
-         first = (length(fields)-page);
-      end
-   elseif listed==3
-      %sort list alphabetically
-      if strcmp(fields{f},fields_order{f})
-         fields = fields_az;
-         first = az_to_id(f);
-      end
-   elseif listed==4
-      if strcmp(fields{f},fields_az{f})
-         fields = fields_order;
-         first = id_to_az(f);
-      end
-      %sort list by var id
-   elseif listed==5
-      listed=0;
-   else
-      %identify selected field
-      % Need to fix this to keep track of pages.
-      f = first  + listed - 6;
-      listed = -1;
-      field_str = fields{f};
-   end
-end
-return

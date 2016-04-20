@@ -2,7 +2,7 @@
 
 % compute angstrom exp with positive convention: small particles > 0
 
-
+% These values are from Anderson & Ogren, Table 4b
 %%
 ang = [0:.1:3];
 Bs_B_Dry_1um_Neph3W_1  = (1.165 - (0.046 * ang));

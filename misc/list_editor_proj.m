@@ -4,6 +4,9 @@ function [listing,pname] = list_editor_proj;
 [listing,pname] = dir_('*.ed; *.prev','editor_projs');
 %     projname = [prefdir,filesep,'MATLABDesktop.xml.prev'];
 AZ = [1:length(listing)];
+
+if ~isempty(AZ)
+
 for n = length(AZ):-1:1
     dates(n) = listing(n).datenum;
 end
@@ -23,7 +26,11 @@ while ~done
         for n = AZ
             disp([datestr(listing(ord(n)).datenum,'yyyy-mm-dd HH:MM   '),listing(ord(n)).name]);
         end
+        disp([' '])
     end
+end
+else
+    listing = []; pname = [];
 end
 
 return

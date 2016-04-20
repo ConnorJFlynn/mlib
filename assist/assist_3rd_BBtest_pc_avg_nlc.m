@@ -7,7 +7,7 @@ function assist = assist_3rd_BBtest_pc_avg_nlc % ASSIST annew
 BB3 = 37; % Assist BB setting/reading
 % BB3 = 45; % AERI BB reading?
 BB3 = 44.53; % AERI BB reading?
-
+BB3 = 60.00; % AERI BB reading?
 
 emis = load('emis.mat');
 emis = repack_edgar(emis);
@@ -175,9 +175,9 @@ while n<=N-2
 %       linkaxes(ax,'x');
       
       seq = cut_seq(seq);
-      figure(1); vv = axis;  these = plot(seq.chA.mrad.x, seq.chA.cxs.R, '-'); recolor(these, [1:length(seq.time)]); colorbar; axis(vv);
-      a_ = seq.chA.mrad.x>535&seq.chA.mrad.x<1840;
-      b_ = seq.chB.mrad.x>1830&seq.chA.mrad.x<3500;
+%       figure(1); vv = axis;  these = plot(seq.chA.mrad.x, seq.chA.cxs.R, '-'); recolor(these, [1:length(seq.time)]); colorbar; axis(vv);
+      a_ = seq.chA.mrad.x>535&seq.chA.mrad.x<1824;
+      b_ = seq.chB.mrad.x>1814&seq.chA.mrad.x<3500;
 %       figure(10); semilogy(seq.chA.mrad.x(a_), mean(seq.chA.mrad.y(seq.isSky,a_)),'r-',seq.chB.mrad.x(b_), mean(seq.chB.mrad.y(seq.isSky,b_)),'b-',...
 %          seq.chA.mrad.x(a_), mean(seq.chA.mrad.y(~seq.isSky,a_)),'k-',seq.chB.mrad.x(b_), mean(seq.chB.mrad.y(~seq.isSky,b_)),'c-');
 %       ax(3) = gca;
@@ -1172,8 +1172,8 @@ FFOV_y_old = ApplyFFOVCorr(assist.chA.cxs.x, y_old,0.0225);
 assist.chA.mrad.y = ApplyFFOVCorr(assist.chA.cxs.x, assist.chA.spc.y,0.0225);
 assist.chB.mrad.y = ApplyFFOVCorr(assist.chB.cxs.x, assist.chB.spc.y,0.0225);
 % 
-% assist.chA.mrad.y__ = ApplyFFOVCorr(assist.chA.cxs.x, assist.chA.spc.y__,0.0225);
-% assist.chB.mrad.y__ = ApplyFFOVCorr(assist.chB.cxs.x, assist.chB.spc.y__,0.0225);
+assist.chA.mrad.y__ = ApplyFFOVCorr(assist.chA.cxs.x, assist.chA.spc.y__,0.0225);
+assist.chB.mrad.y__ = ApplyFFOVCorr(assist.chB.cxs.x, assist.chB.spc.y__,0.0225);
 
 %%
 % figure(50); sp(1) = subplot(2,1,1);
@@ -1281,8 +1281,8 @@ chB_emis = ones(size(assist.down.chB.mrad.y,1),1)*chB_emis;
 assist.down.chB.T_bt = BrightnessTemperature(assist.chB.cxs.x, real(assist.down.chB.mrad.y./chB_emis));
 assist.down.chB.T_bt__ = BrightnessTemperature(assist.chB.cxs.x, real(assist.down.chB.mrad.y__));
 
-aeri_ch2 = anc_load(['D:\case_studies\assist\deployments\ASSIST_at_SGP_20150603\Example_AERI_3rd_BB_test\150508C2_rnc.cdf']);
-aeri_ch2.vdata.Tb = BrightnessTemperature(aeri_ch2.vdata.wnum1,aeri_ch2.vdata.mean_rad);
+% aeri_ch2 = anc_load(['D:\case_studies\assist\deployments\ASSIST_at_SGP_20150603\Example_AERI_3rd_BB_test\150508C2_rnc.cdf']);
+% aeri_ch2.vdata.Tb = BrightnessTemperature(aeri_ch2.vdata.wnum1,aeri_ch2.vdata.mean_rad);
 
 
 %%
@@ -1311,8 +1311,8 @@ chB_Tb = BrightnessTemperature(assist.chB.cxs.x,R_H_chB);
 chA_Tb__ = BrightnessTemperature(assist.chA.cxs.x,R_H_chA__);
 chB_Tb__ = BrightnessTemperature(assist.chB.cxs.x,R_H_chB__);
 
-xl_A = assist.down.chA.mrad.x>535&assist.down.chA.mrad.x<1800;
-xl_B = assist.down.chB.mrad.x>1800&assist.down.chB.mrad.x<3000;
+xl_A = assist.down.chA.mrad.x>535&assist.down.chA.mrad.x<1850;
+xl_B = assist.down.chB.mrad.x>1785&assist.down.chB.mrad.x<3000;
 ID = assist.down.isSky;
 % Put in actual 3rd blackbody temp in C.
 
@@ -1320,31 +1320,47 @@ if ishandle(88)
    figure(88)
    v = axis(gca);
 end
- figure(88); plot(assist.down.chA.mrad.x(xl_A), (chA_Tb(ID,xl_A))-273.15,'-',...
-    assist.down.chB.mrad.x(xl_B), (chB_Tb(ID,xl_B))-273.15,'-', ...
+ figure(88); plot(assist.down.chA.mrad.x(xl_A), mean(chA_Tb(ID,xl_A))-273.15,'-',...
+    assist.down.chB.mrad.x(xl_B), mean(chB_Tb(ID,xl_B))-273.15,'-', ...
     [535,3000] , [BB3,BB3], 'm--');grid('on');
  xlim([500,3000]);
 lg = legend('chA','chB', '3rd BB T'); set(lg,'interp','none');
 xlabel('wavenumber');
 yl = ylabel('T_b [C]'); set(yl,'interp','none');
 title('Brightness Temperatures and measured 3rd BB temp')
-ax(1) = gca;
-aeri_ch2 = anc_load(['D:\case_studies\assist\deployments\ASSIST_at_SGP_20150603\Example_AERI_3rd_BB_test\150508C2_rnc.cdf']);
-aeri_ch2.vdata.Tb = BrightnessTemperature(aeri_ch2.vdata.wnum1,aeri_ch2.vdata.mean_rad);
-
-figure(89); plot(assist.down.chA.mrad.x(xl_A), mean(chA_Tb__(ID,xl_A))-273.15,'b-',...
-    assist.down.chB.mrad.x(xl_B), mean(chB_Tb__(ID,xl_B))-273.15,'r-',...
-    [535,3000] , [BB3,BB3], 'm--');grid('on');
- xlim([500,3000]);
-lg = legend('chA','chB', '3rd BB T'); set(lg,'interp','none');
-xlabel('wavenumber');
-yl = ylabel('T_b [C]'); set(yl,'interp','none');
-title({['Brightness Temperatures and measured 3rd BB temp'];['emissivity = 1']});
-ax(2) = gca;
-linkaxes(ax,'xy'); 
 if exist('v','var')
-   axis(v);
+    axis(v);
 end
+
+xx_A = [assist.down.chA.mrad.x(xl_A)];
+xx_B = [assist.down.chB.mrad.x(xl_B)];
+R_BB3_A = Blackbody(xx_A ,BB3+273.15);
+R_BB3_B = Blackbody(xx_B ,BB3+273.15);
+%  figure(98); plot(assist.down.chA.mrad.x(xl_A), mean(R_H_chA(ID,xl_A)),'-',...
+%     assist.down.chB.mrad.x(xl_B), mean(R_H_chB(ID,xl_B)),'-', ...
+%     [assist.down.chA.mrad.x(xl_A),assist.down.chB.mrad.x(xl_B)] , [R_BB3_A ,R_BB3_B],'m--');grid('on');
+%  xlim([500,3000]);
+% lg = legend('chA','chB', '3rd BB T'); set(lg,'interp','none');
+%  figure(99); plot(assist.down.chA.mrad.x(xl_A), 100.*(mean(R_H_chA(ID,xl_A))-R_BB3_A)./R_BB3_A,'-',...
+%     assist.down.chB.mrad.x(xl_B), 100.*((mean(R_H_chB(ID,xl_B))-R_BB3_B)./R_BB3_B),'-');grid('on');
+%  xlim([500,3000]);
+% ax(1) = gca;
+% aeri_ch2 = anc_load(['D:\case_studies\assist\deployments\ASSIST_at_SGP_20150603\Example_AERI_3rd_BB_test\150508C2_rnc.cdf']);
+% aeri_ch2.vdata.Tb = BrightnessTemperature(aeri_ch2.vdata.wnum1,aeri_ch2.vdata.mean_rad);
+
+% figure(89); plot(assist.down.chA.mrad.x(xl_A), mean(chA_Tb__(ID,xl_A))-273.15,'b-',...
+%     assist.down.chB.mrad.x(xl_B), mean(chB_Tb__(ID,xl_B))-273.15,'r-',...
+%     [535,3000] , [BB3,BB3], 'm--');grid('on');
+%  xlim([500,3000]);
+% lg = legend('chA','chB', '3rd BB T'); set(lg,'interp','none');
+% xlabel('wavenumber');
+% yl = ylabel('T_b [C]'); set(yl,'interp','none');
+% title({['Brightness Temperatures and measured 3rd BB temp'];['emissivity = 1']});
+% ax(2) = gca;
+% linkaxes(ax,'xy'); 
+% if exist('v','var')
+%    axis(v);
+% end
 % axis([500,3000,-.1,.1]);
 % figure(77);
 % 

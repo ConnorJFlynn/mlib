@@ -1,4 +1,4 @@
-function [filename, ICTdir] =  ICARTTwriter_PSAP_ACMEV(startDay,Start_UTC,data,info,form,rev,ICTdir)
+function ICARTTwriter_PSAP_ACMEV(startDay,Start_UTC,data,info,form,rev,ICTdir)
 % function ICARTTwriter_example(startDay,Start_UTC,data,info,form,rev,ICTdir)
 % Generates an ICARTT file for field data.
 % This example is for flight data from the NASA ISAF formaldehyde instrument.
@@ -63,8 +63,8 @@ HeaderInfo = {...
     'PSAP';...     % Data Source
     'ACMEV';...                                  % Mission name
     '1, 1';...                                   % volume number, number of file volumes
-    '0';...                                      % time interval (see documentation)
-    'Start_UTC, seconds, Starting time';...                     % Independent variable name and description
+    '4';...                                      % time interval (see documentation)
+    'Start_UTC, seconds';...                     % Independent variable name and description
     };
 
 %%%%% SPECIAL COMMENTS %%%%%
@@ -170,11 +170,8 @@ data(isnan(data)) = -9999; %replace missing data
 numhead  = length(HeaderInfo);                  %number of beginning header lines
 numrev   = length(revComments);                 %number of revisions
 numspec  = length(specComments);                %number of special comments
-numnorm  = length(NormalComments)+numspec + 3;     %number of normal comments
-% numlines = numhead + numvar + numspec + numnorm;%number of lines in header
-% numlines = 5+numhead + numnorm +2 + numspec +1 + numvar+1;%number of lines in header
-numlines = (4+ numhead + numvar + numspec + numnorm + 3);
-
+numnorm  = length(NormalComments) + numrev;     %number of normal comments
+numlines = numhead + numvar + numspec + numnorm;%number of lines in header
 
 missStr = repmat('-9999, ',1,numvar);         %missing data flag
 missStr = [missStr(1:end-2) '\r\n'];

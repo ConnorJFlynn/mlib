@@ -1,4 +1,4 @@
-function ins = rd_raw_SAS(infile)
+function ins = rd_SAS_raw(infile)
 % Read SAS instrument-raw data
 % outs = rd_raw_SAS(infile)
 
@@ -52,7 +52,7 @@ if fid>0
     end
     ins.lambda = polyval(flipud(ins.lambda_fit), (ins.pix_range(1):ins.pix_range(2)));
     
-    pix_start = find(strcmp(labels,'Px_0'));
+    pix_start = find(strcmp(labels,sprintf('Px_%d',ins.pix_range(1))));
     pixels = length(labels)-pix_start+1;
     for p = 1:pixels
         ins.spec(:,p) = txt{pix_start +p-1};
@@ -62,6 +62,7 @@ if fid>0
     end
     figure(1000); plot(ins.lambda, mean(ins.spec(ins.Shutter_open_TF==1,:))-mean(ins.spec(ins.Shutter_open_TF==0,:)),'-'); 
     title(fname, 'interp','none'); [rows,cols] = size(ins.spec(ins.Shutter_open_TF==1,:));
+    
         figure(1001); these = plot(ins.lambda, ins.spec(ins.Shutter_open_TF==1,:)-ones([rows,1])*mean(ins.spec(ins.Shutter_open_TF==0,:)),'-'); 
         recolor(these,[1:rows])
 % figure; plot([1:rows], ins.spec(ins.Shutter_open_TF==1,600),'o-')

@@ -1,5 +1,5 @@
-function [status, this] = bundlefnt(fnt)
-% [status, this] = bundlefnt(fnt)
+function [status, this] = bundlefnt(fnt, skip_mats)
+% [status, this] = bundlefnt(fnt,skip_mats)
 % Bundles a function for distribution
 % 'fnt' is an optional string naming the function to be bundled for distribution
 % Uses depfun to identify dependent functions
@@ -11,6 +11,9 @@ function [status, this] = bundlefnt(fnt)
 
 if ~exist('fnt','var')
     fnt = input('Name of function to bundle? \n','s');
+end
+if ~exist('skip_mats','var')||~islogical(skip_mats)
+    skip_mats = false;
 end
 disp('Save the bundle as...')
 [outname,outpath] = uiputfile([fnt,'.zip'],'Save the bundle as...');
@@ -33,12 +36,15 @@ for ln = length(this):-1:1
     end
 end
 % status = length(this);
+
 all_tags = {};
+if ~skip_mats
 for it = this'
     tags = find_mats(char(it));
     if ~isempty(tags)
         all_tags =  [all_tags;tags];
     end
+end
 end
 all_tags = unique(all_tags);
 wild_tags = all_tags;

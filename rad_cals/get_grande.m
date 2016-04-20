@@ -2,7 +2,7 @@ function rad = get_grande(in);
 % rad = get_grande(in);
 
 if ~exist('in','var')
-    in = ['D:\case_studies\radiation_cals\spheres\GSFC_Grande\20130523_Grande.txt'];
+    in = ['C:\case_studies\radiation_cals\spheres\GSFC_Grande\20130523_Grande.txt'];
 else
     while exist(in,'dir')
         in = getfullname([in,filesep,'*.txt'],'radcals','Select a calibrated radiance file');
@@ -23,6 +23,7 @@ tmp = textscan(fid,repmat('%f ',[1,length(tmp{:})]));
 fclose(fid);
 %%
 lamps = strrep(in_line,'lamps','');lamps = strrep(lamps,'lamp','');
+lamps = lamps(1:47);
 lamps = textscan(lamps,'%s');lamps = lamps{:};
 rad.nm = tmp{1};
 for lmp = 1:length(lamps)

@@ -1,4 +1,4 @@
-function sp2_01 = rd_sp2_m02(in_file);
+function [sp2, sp2_01] = rd_sp2_m02(in_file);
 
 if ~exist('in_file','var') || ~exist(in_file,'file')
    in_file = getfullname('*.sp2.*.m02*','sp2','select mentor-edited SP2 file');

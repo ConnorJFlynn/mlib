@@ -42,6 +42,25 @@ f_str = [f_str, '%f %f %f %s %f %f %f %f %f %s %f ']; % +11 = 24
 f_str = [f_str, '%f %f %f %f %f %f %f %f %s %f %f %f ']; % +14 = 38;
 f_str = [f_str, '%f %f %f %f %f %f %f %f %s %s %s %s %s %f %s %*[^\n]']; %13
 
+% Scan Number,Direction,Scene,Scene Angle (°),Size,ZPD,Year,Day,Time of Day,Detector A,Filter A,Gain A,P-P A,Min A Loc,Max A Loc,DC Level A,Detector B,Filter B,Gain B,P-P B,Min B Loc,Max B Loc,Cooler Software revision,Cooler Set Point,Cooler Diode Voltage,Cooler Ready Window,Cooler Voltage AC,Cooler Voltage DC,Cooler AC Output Freq.,Cooler Ambient Temp,Cooler Current DC,Cooler Pwr Up Cycles,Cooler Remote Status,Cooler Output Voltage,Hatch Open,Hatch Closed,Hatch Mode,Hatch Rain Out,Hatch Rain Aux,Hatch Sun,Hot BB Set Point,Hot BB Mean,Hot BB Thermistor 1,Hot BB Thermistor 2,Hot BB Thermistor 3,Cold BB Set Point,Cold BB Mean,Cold BB Thermistor 1,Cold BB Thermistor 2,Cold BB Thermistor 3,GPS UTC of Position,GPS Latitude,GPS Longitude,GPS Altitude,GPS Fix Quality,GPS NB Satellites,GPS Precision
+
+% Scan Number,Direction,Scene,Scene Angle (°),Size,ZPD,Year,Day,Time of Day,Detector A,Filter A,Gain A,P-P A,
+% 19950,Forward,Cold Blackbody,308.0,32768,16382,2016,74,05:53:47.767585,MCT MB,0,8,1644,
+f_str = '%f %s %s %f %f %f %f %f %s %s %f %f %f ' ; %13
+
+% Min A Loc,Max A Loc,DC Level A,Detector B,Filter B,Gain B,P-P B,Min B Loc,Max B Loc,Cooler Software revision,Cooler Set Point,Cooler Diode Voltage,Cooler Ready Window,Cooler Voltage AC,Cooler Voltage DC,Cooler AC Output Freq.,
+% 16387, 16380,4088.911,InSb,0,16,1245,16376,16380,9501 836 03503,1052.0,1052.01,4,7.36,24.85,50.0,
+% Tricky one here with SN as a string, not a sequence of space-separated numbers
+f_str = [f_str, '%f %f %f %s %f %f %f %f %f %s %f %f %f %f %f %f ']; % +16 = 29
+
+% Cooler Ambient Temp,Cooler Current DC,Cooler Pwr Up Cycles,Cooler Remote Status,Cooler Output Voltage,Hatch Open,Hatch Closed,Hatch Mode,Hatch Rain Out,Hatch Rain Aux,Hatch Sun,Hot BB Set Point,Hot BB Mean,Hot BB Thermistor 1,Hot BB Thermistor 2,Hot BB Thermistor 3,
+% 27.11,0.94,358,true,9.5,False,False,Automatic,Clear,Light,0.00,60.0,59.998,60.032,59.978,59.996
+f_str = [f_str, '%f %f %f %s %f %s %s %s %s %s %f %f %f %f %f %f ']; % +16 = 45
+
+% Cold BB Set Point,Cold BB Mean,Cold BB Thermistor 1,Cold BB Thermistor 2,Cold BB Thermistor 3,GPS UTC of Position,GPS Latitude,GPS Longitude,GPS Altitude,GPS Fix Quality,GPS NB Satellites,GPS Precision
+% 25.0,20.11,20.11,20.108,20.11,05:53:48,N36.60528,W97.48562,308.9M,GPS Fix,05,4.5m,0.0,0.0
+f_str = [f_str, '%f %f %f %f %f %s %s %s %s %s %f %s %f %f ']; % +14 = 59
+
 in_str = char(fread(fid,'char')); 
 fclose(fid);
 C = textscan(in_str, f_str, 'delimiter',',');

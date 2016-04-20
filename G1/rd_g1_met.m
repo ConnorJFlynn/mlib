@@ -1,5 +1,5 @@
 function flight = rd_g1_met(met_file) 
-
+% Old.  Doesn't  match ACME-V met file content
 if ~exist('met_file','var')||~exist(met_file,'file')
 met_file = getfullname('*met*.txt','tcap_g1','Select met file');
 end

@@ -6,7 +6,7 @@ if length(dlist)==1
    flist(1) = {[pname, char(dlist.name)]};
 else
 for d = 1:length(dlist)
-   flist(d) = {[pname, char(dlist{d}.name)]};
+   flist(d) = {[pname, char(dlist(d).name)]};
 end
 end
 return
