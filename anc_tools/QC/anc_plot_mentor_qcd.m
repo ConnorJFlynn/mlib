@@ -82,11 +82,12 @@ if isfield(anc.vdata,field)&& isfield(anc.vdata,['qc_',field])&& ...
 %          time_ = (anc.time - datenum(datestr(first_time,'yyyy-01-01'),'yyyy-01-01'))./365.25;
 %          time_str = ['years since ', datestr(first_time, 'Jan 1, yyyy')];
 %       end
-   ax(1) = subplot(2,1,1);
+%    ax(1) = subplot(2,1,1);
+   cla(gca)
    plot(time_(~missing&(qc_impact==2)),var(~missing&(qc_impact==2)),'r.', ...
       time_(~missing&(qc_impact==0)),var(~missing&(qc_impact==0)),'g.');
    xl = xlim;
-
+   ax(1) = gca;
    leg_str = {};
    if any(~missing&(qc_impact==2))
       leg_str = {leg_str{:},'bad'};
@@ -100,13 +101,25 @@ if isfield(anc.vdata,field)&& isfield(anc.vdata,['qc_',field])&& ...
    ylabel(vatts.units);
    %       ylim(ylim);
    title(ax(1),{fname, field},'interpreter','none');
-   ax(2)=subplot(2,1,2); mid =  imagegap(time_,[1:tests],qc_tests);
+   set(gcf,'units','normalized');
+    pos1 = get(gcf,'Position');
+    pos2 = pos1;
+    pos2(4) = 0.045.*length(desc);
+    pos2(2) = pos1(2)-1.1.*pos2(4)+.05 ;
+    if pos2(2)<0
+       pos2(2) = pos1(2) + pos1(4) + .125;
+    end
+    
+    figure(double(gcf)+1);
+%     ax(2)=subplot(2,1,2); 
+    mid =  imagegap(time_,[1:tests],qc_tests);
+    zoom('on'); ax(2) = gca;
    xlim(xl);
    linkaxes(ax,'x');
    ylabel('test number','interpreter','none');
    xlabel(time_str,'interpreter','none');
    set(gca,'ytick',[1:tests]);
-%    colormap(ryg_w);
+   colormap(ryg_w);
    caxis([-1,2]);
 
    title(ax(2),(qatts.long_name),'interpreter','none');
