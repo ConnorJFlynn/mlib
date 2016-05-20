@@ -11,7 +11,10 @@ else
 end
 fid = fopen(in);
 in_line = fgetl(fid);
-while (isempty(strfind(in_line,'lamps'))||isempty(strfind(in_line,'lamp')))&&~feof(fid)
+while isempty(strfind(in_line,'Data:'))&&~feof(fid)
+    in_line = fgetl(fid);
+end
+while (isempty(strfind(in_line,'lamps'))&&isempty(strfind(in_line,'lamp'))&&(isempty(strfind(in_line,'Lamps'))&&isempty(strfind(in_line,'Lamp'))))&&~feof(fid)
     in_line = fgetl(fid);
 end
 mark = ftell(fid);
@@ -23,7 +26,11 @@ tmp = textscan(fid,repmat('%f ',[1,length(tmp{:})]));
 fclose(fid);
 %%
 lamps = strrep(in_line,'lamps','');lamps = strrep(lamps,'lamp','');
-lamps = lamps(1:47);
+lamps = strrep(in_line,'Lamps','');lamps = strrep(lamps,'Lamp','');
+mult = findstr(lamps,'1');
+if length(mult)>1
+lamps = lamps(1:(mult(2)-1));
+end
 lamps = textscan(lamps,'%s');lamps = lamps{:};
 rad.nm = tmp{1};
 for lmp = 1:length(lamps)
@@ -43,22 +50,26 @@ end
 %     rad.lamps_1_att_50 = tmp{11};
 %     rad.lamps_1_att_30 = tmp{12};
 % end
-rad.units = 'W/(m^2.sr.um)';
-while isNaN(rad.nm(end))
-    rad.nm(end) = [];
-    rad.lamps_8(end) = [];
-    rad.lamps_7(end) = [];
-    rad.lamps_6(end) = [];
-    rad.lamps_5(end) = [];
-    rad.lamps_4(end) = [];
-    rad.lamps_3(end) = [];
-    rad.lamps_2(end) = [];
-    rad.lamps_1(end) = [];
-    if length(tmp)>9
-        rad.lamps_1_att_100(end) = [];
-        rad.lamps_1_att_50(end) = [];
-        rad.lamps_1_att_30(end) = [];
-    end
-end
 
+while isNaN(rad.nm(end))
+    fld = fieldnames(rad); 
+    for ff = 1:length(fld)
+        rad.(fld{ff})(end) = [];
+    end
+%     rad.nm(end) = [];
+%     rad.lamps_8(end) = [];
+%     rad.lamps_7(end) = [];
+%     rad.lamps_6(end) = [];
+%     rad.lamps_5(end) = [];
+%     rad.lamps_4(end) = [];
+%     rad.lamps_3(end) = [];
+%     rad.lamps_2(end) = [];
+%     rad.lamps_1(end) = [];
+%     if length(tmp)>9
+%         rad.lamps_1_att_100(end) = [];
+%         rad.lamps_1_att_50(end) = [];
+%         rad.lamps_1_att_30(end) = [];
+%     end
+end
+rad.units = 'W/(m^2.sr.um)';
 return

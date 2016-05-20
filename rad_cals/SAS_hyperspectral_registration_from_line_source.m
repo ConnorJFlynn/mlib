@@ -32,24 +32,21 @@ Xe = h5read(line_lib,'/Xe');
 % infile = getfullname('20130321*.mat','gsfc_lamp_cals');
 
 infile = 'D:\data\4STAR\2013\2013_03_21_4STAR_GSFC\20130321starHgAr_25.mat';
-[~,fname] = fileparts(infile);
-HgAr_5 = load(infile);
-star.nm = Lambda_MCS_sn081100_tec5([1:1044]);
-satval = max(max(HgAr_5.nir_park.raw));
-issat = max(HgAr_5.nir_park.raw,[],2)==satval;
-% figure;plot(find(~issat), sum(HgAr_5.vis_park.raw(~issat,:),2),'o-')
-%%
-%%
-HgAr_5.nir_park.nm = fliplr(lambda_swir([1:size(HgAr_5.nir_park.raw,2)]));
-HgAr_5.nir_park.spectra = fliplr(HgAr_5.nir_park.raw);
+infile = getfullname('*.mat;*.csv','HgAr','Select measurement of HgAr lamp');
+[~,fname,ext] = fileparts(infile);
+if ~isempty(strfind(ext,'csv'))
+    HgAr_5 = rd_SAS_raw(infile);
+else
+    HgAr_5 = load(infile);
+end
 
-%%
- maxs = max(HgAr_5.nir_park.raw,[],2);
- issat = max(HgAr_5.nir_park.raw,[],2)==satval;
-light = maxs>1000 & ~issat; dark = maxs<1000 & ~issat;
-trace = mean(HgAr_5.nir_park.spectra(light,:))-mean(HgAr_5.nir_park.spectra(dark,:));
+satval = max(max(HgAr_5.spec));
+issat = max(HgAr_5.spec,[],2)==satval;
+% figure;plot(find(~issat), sum(HgAr_5.vis_park.raw(~issat,:),2),'o-')
+
+trace = mean(HgAr_5.spec(HgAr_5.Shutter_open_TF==1,:))-mean(HgAr_5.spec(HgAr_5.Shutter_open_TF==0,:))
 ntrace = abs(trace) ./ max(trace);
-figure; semilogy(HgAr_5.nir_park.nm, ntrace,'o-');
+figure; semilogy(HgAr_5.lambda, ntrace,'o-');
 title(fname,'interp','none');
 zoom('on');
 ok = menu('Zoom in to the desired x-range and click OK when ready','OK')
@@ -101,7 +98,7 @@ YY(3,:) = NaN;
 xb = XX(:);
 yb = YY(:);
 %%
-semilogy(HgAr_5.nir_park.nm,ntrace ,'o-',...
+semilogy(HgAr_5.lambda,ntrace ,'o-',...
     [Xa],[Ya], 'r-',...
     [Xb],[Yb], 'g-',...
     [xb],[yb], 'g--');

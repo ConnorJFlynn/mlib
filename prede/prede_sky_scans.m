@@ -28,7 +28,7 @@ tracking = (abs(Zen_Sun - prede.zen)<.1)&(abs(Az_Sun - prede.azi)<.1); % if with
 
 %%
 azi_offset = -.04;% approximate determined from commented plots below
-zen_offset = 0;
+zen_offset = 0;azi_offset = Az_offset; zen_offset = ZA_offset;
 prede.SA = (180./pi).*scat_ang_rads(Zen_Sun*pi/180, Az_Sun*pi/180, (prede.zen+zen_offset)*pi/180, (prede.azi+azi_offset)*pi/180);
 ppl = (prede.SA>.25)&(abs(Az_Sun - prede.azi)<abs(Zen_Sun - prede.zen)); % if within half a degree of az and outside half degree of zenith
 alm = (prede.SA>.25)&(abs(Az_Sun - prede.azi)>abs(Zen_Sun - prede.zen)); % if within half a degree of zenith and outside half degree of az

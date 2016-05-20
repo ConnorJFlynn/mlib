@@ -18,7 +18,7 @@ end
 
 % Ff0_A11,Ff0_A12,Fn0_A12,IrB0_A11,IrB0_A12,IrG0_A11,IrG0_A12,IrR0_A11,IrR0_A12,L0_A11,L0_A12,Ff1_A11,Ff1_A12,Fn1_A12,IrB1_A11,IrB1_A12,IrG1_A11,IrG1_A12,IrR1_A11,IrR1_A12,L1_A11,L1_A12,Ff0g_A11,Ff0g_A12,Fn0g_A12,IrB0g_A11,IrB0g_A12,IrG0g_A11,IrG0g_A12,IrR0g_A11,IrR0g_A12,L0g_A11,L0g_A12,Ff1g_A11,Ff1g_A12,Fn1g_A12,IrB1g_A11,IrB1g_A12,IrG1g_A11,IrG1g_A12,IrR1g_A11,IrR1g_A12,L1g_A11,L1g_A12
 % 9999-99-99T99:99:99Z;FFFF;FFFF;0;9999.99;9999.99;9999.99;9.9999999;9.9999999;9.9999999;99999.999;9999.99
-fmt_str = '%s %s %s %s %s %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %*[^\n]'; % Date/time, "I"
+fmt_str = ['%s %s %s %s %s %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f ' repmat('%f ',[1,60])]; % Date/time, "I"
 
 header = fgetl(fid);
 this = [];
@@ -29,12 +29,16 @@ end
 
 if ~feof(fid)
    fseek(fid,mark,-1);
-   A = textscan(fid,fmt_str, 'delimiter',',');
+   A = textscan(fid,fmt_str, 'delimiter',',','EmptyValue',NaN);
 end
 fclose(fid);
 
 ds = A{1}; ds = strrep(ds, '"','');
+try
 in.time = datenum(ds,'yyyy-mm-dd HH:MM:SS')
+catch
+    in.time = datenum(ds{1},'mm-dd-yy HH:MM')
+end
 in.Ba_B_10um_psap = A{6};in.Ba_B_10um_clap = A{7};
 in.Ba_G_10um_psap = A{8};in.Ba_G_10um_clap = A{9};
 in.Ba_R_10um_psap = A{10};in.Ba_R_10um_clap = A{11};
@@ -46,5 +50,7 @@ in.Ba_O_1um_psap = A{20};in.Ba_O_1um_clap = A{21};
 
 figure; plot(serial2doys(in.time), [in.Ba_G_1um_psap,in.Ba_G_1um_clap],'.'); legend('PSAP 1um G','CLAP 1 um G')
 figure; plot((in.time), [in.Ba_G_1um_psap,in.Ba_G_1um_clap],'.'); dynamicDateTicks; legend('PSAP 1um G','CLAP 1 um G')
+
+% figure; plot(serial2doys(in.time), in.Ba_G_1um_psap,'.',serial2doys(in.time),in.Ba_G_10um_psap,'o'); legend('PSAP 1um G','PSAP 10 um G')
 
 return

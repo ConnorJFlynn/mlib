@@ -1,11 +1,6 @@
 function prede_langs_mlo2016
 % read in prede sun...
-% in_dir = 'C:\case_studies\4STAR\data\2012_MLO_May_June\prede\';
-% if ~exist([in_dir,'Vo'],'dir')
-%     mkdir([in_dir,'Vo']);
-% end
-% met = MLO_met_data(['C:\case_studies\4STAR\data\2012_MLO_May_June\MET',filesep]);
-%
+% in_dir = 'D:\case_studies\Prede_MLO_2016_01_08\Skyradiometer\Data\';
 % files = dir([in_dir,'*.SUN']);
 files = getfullname('*.SUN','prede')
 for f = 1:length(files)
@@ -78,7 +73,7 @@ for f = 1:length(files)
     figure(1); plot(prede.header.wl(filts), 100*[abs(Langley.Vo(filts) - Langley.Vo_(filts))./Langley.Vo(filts)], '-')
     figure(2); plot(prede.header.wl(filts), [Langley.Vo(filts),Langley.Vo_(filts)], '-');
     [pth,fname,ext] = fileparts(prede.header.fname);
-    save([prede.pname, '..',filesep, fname,'.refined_Vo.mat'],'Langley');
+    save([prede.pname, '..',filesep, fname,'.refined_Vo.mat'],'-struct','Langley');
     if ~exist('Langleys','var')
         Langleys = Langley;
     else
@@ -117,11 +112,5 @@ title('percent stddev([Vo Vo_U_W])')
 figure(105); plot(Langleys.wl, [Langleys.Vo,Langleys.Vo_]' - ones([12,1])*mean([Langleys.Vo,Langleys.Vo_]'),'-s')
 % Observed variability in Prede Vo values for MLO 2016 Jan is < 0.2% except
 % for 1020 nm 0.22% and 940  nm < 3%
-%% 
 
-% So, next would be to use these Io values and the reported voltages just
-% before the panel measurements (or as part of the panel measurements) to
-% compute the transmittances, and thus the direct normal irradiance, and
-% thus the radiance from the panel, and thus the responsivity, and then see
-% how stable this responsivity is.
 return

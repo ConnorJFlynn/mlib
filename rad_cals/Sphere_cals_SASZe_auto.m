@@ -42,9 +42,9 @@ end
 % %
 % fclose(fid);
 %%
-src_dir = 'D:\case_studies\radiation_cals\spheres\HISS\';
-src_fname = '201112131052Hiss-corrected.txt';
-rad = get_hiss_June2013;
+src_dir = 'D:\case_studies\radiation_cals\cal_sources_references_xsec\GSFC_Grande\';
+src_fname = '20160404144800Grande.txt';
+rad = get_grande([src_dir src_fname]);
 field = fieldnames(rad);
 %Trim NaN radiances
 while isNaN(rad.nm(end))
@@ -186,7 +186,7 @@ for ll = lamps
             
             for vt = 1:length(cal.(lamp_str).(spc).t_int_ms)
                 clear header
-                header(1) = {['% SASZeM1 ',upper(spc),' radiance calibration at NASA ARC by Connor Flynn']};
+                header(1) = {['% SASZeM2 ',upper(spc),' radiance calibration at NASA GSFC by Albert Mendoza']};
                 %%
                 %             vt = vt +1;
                 cal.(lamp_str).(spc).time = min(lamp_cal.(spc).time(lamp_cal.(spc).t_int_ms==cal.(lamp_str).(spc).t_int_ms(vt)));
@@ -352,7 +352,7 @@ all_tints = [];
          cals.(spc).(lamp_str).t_int_ms = cal.(lamp_str).(spc).t_int_ms;
          cals.(spc).(lamp_str).radiance = cal.(lamp_str).(spc).radiance;
          tints = cals.(spc).(lamp_str).t_int_ms;
-         all_tints = unique([all_tints,tints]);
+         all_tints = unique([all_tints;tints]);
          for ti = length(tints):-1:1
              tint_str = strrep(sprintf('%g_ms',tints(ti)),'.','p');
              cals.(spc).(lamp_str).N_avg(ti) = cal.(lamp_str).(spc).(['N_avg_',tint_str]);
@@ -364,7 +364,9 @@ all_tints = [];
              cals.(spc).(lamp_str).resp(ti,:) = cal.(lamp_str).(spc).(['resp_',tint_str]);
          end         
      end %lamp
-     
+     if ~isfield(cal,'time')
+         cal.time = lamp_cal.vis.time(1)
+     end
  end % spec_str
  
  save([sas_pname,'SASZe_radcals.', datestr(cal.time(1),'yyyymmdd_HHMMSS'),'.mat'],'-struct','cals');

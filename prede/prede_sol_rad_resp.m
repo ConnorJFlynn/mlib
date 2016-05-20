@@ -1,4 +1,4 @@
-function Langleys = prede_langs_and_radiance_responsivity_mlo2016
+function Langleys = prede_sol_rad_resp_mlo2016
 % read in prede sun...
 % in_dir = 'C:\case_studies\4STAR\data\2012_MLO_May_June\prede\';
 % if ~exist([in_dir,'Vo'],'dir')
@@ -11,128 +11,104 @@ function Langleys = prede_langs_and_radiance_responsivity_mlo2016
 %                  *.MAN for manual shading files with spectralon panel
 % Seems like the ".RDM" files aren't useful in this context.
 
-% files = dir([in_dir,'*.SUN']);
-files = getfullname('*.SUN','prede')
-for f = 1:length(files)
-    prede = read_prede(files{f});
-    prede.LatN = prede.header.lat;% MLO is 19.5365;
-    prede.LonE = prede.header.lon; % MLO is -155.5761;
-    [prede.zen_sun,prede.azi_sun, prede.soldst, HA_Sun, Decl_Sun, prede.ele_sun, prede.airmass] = ...
-        sunae(prede.LatN, prede.LonE, prede.time);
-    amm = sort(prede.airmass); amm([1 end])
-    good = prede.airmass>2 & prede.airmass<10;
-    %%
-    
-%     prede.pres_mb = interp1(met.time, met.atm_pres1,prede.time,'linear','extrap');
-    %%
-    %tau_ray=rayleighez(prede.wl./1000,prede.pres_mb,mean(prede.time),prede.LatN);
-    tau_ray = tau_std_ray_atm(prede.wl./1000)*680./1013;
-    Tr_ray = exp(-tau_ray*prede.airmass);
-    prede.tau_ray = tau_ray;
-    
-    
-    %%
-    % tic
-    %These test points determined by looking at lowest error in Vo vs Lambda
-    % test_ii = [338, 392,278,741,812,833,1020 ];
-    % 315, 400, 500, 675, 870, 940, 1020
-    [Vo,tau,Vo_, tau_, good(good)] = dbl_lang(prede.airmass(good),(prede.soldst(good).^2).*prede.filter_5(good)./Tr_ray(5,good),2.3,1,1);
-    pause(1);
-    [Vo,tau,Vo_, tau_, good(good)] = dbl_lang(prede.airmass(good),(prede.soldst(good).^2).*prede.filter_3(good)./Tr_ray(3,good),3.0,1,1);
-    pause(1);
-    [Vo,tau,Vo_, tau_, good(good)] = dbl_lang(prede.airmass(good),(prede.soldst(good).^2).*prede.filter_2(good)./Tr_ray(2,good),3.0,1,1);
-    pause(1);
-    [Vo,tau,Vo_, tau_, good(good)] = dbl_lang(prede.airmass(good),(prede.soldst(good).^2).*prede.filter_7(good)./Tr_ray(7,good),3.0,1,1);
-    % (airmass,V,stdev_mult,steps,show)
-    %%
-    pause(1);
-    clear Vo tau Vo_ tau_
-    for f = [7:-1:2]
-        %    disp(['wavelength = ',num2str(Lambda(L))])
-        [Vo(f), tau(f), P,S,Mu,dVo(f)] = lang(prede.airmass(good),(prede.(['filter_',num2str(f)])(good).*prede.soldst(good).^2)./(Tr_ray(f,good)));
-        [Vo_(f),tau_(f), P_] = lang_uw(prede.airmass(good),(prede.(['filter_',num2str(f)])(good).*prede.soldst(good).^2)./(Tr_ray(f,good)));
-        disp(['Done with ',num2str(prede.header.wl(f))])
-        figure(1003);
-        subplot(2,1,1);
-        semilogy(prede.airmass(good), (prede.(['filter_',num2str(f)])(good).*prede.soldst(good).^2)./(Tr_ray(f,good)),'g.',...
-            prede.airmass(good),exp(polyval(P,prede.airmass(good),S,Mu)),'r');
-        title(['Langley at ',num2str(prede.header.wl(f)), ' Vo=',sprintf('%0.3g',Vo(f)), ' dVo=',sprintf('%0.3g',dVo(f)),' tau=',sprintf('%0.2g',tau(f)), ' sum(good)=',sprintf('%g',sum(good))]);
-        % semilogy(airmass(good), V(good), 'g.',airmass(~good), V(~good), 'rx', airmass, exp(polyval(P, airmass)),'b');
-        subplot(2,1,2);
-        semilogy(1./prede.airmass(good), exp(real(log((prede.(['filter_',num2str(f)])(good)./Tr_ray(f,good)).*prede.soldst(good).^2))...
-            ./(prede.airmass(good))),'g.');
-        title(['Langley at ',num2str(prede.header.wl(f)),' Vo=',num2str(Vo_(f)),' tau=',num2str(tau_(f)), ' sum(good)=',num2str(sum(good))]);
-        %    title(['goods=',num2str(goods),' mad=',num2str(mad),' Vo=',num2str(Vo),' tau=',num2str(tau)]);
-        hold('on');
-        plot( 1./prede.airmass(good), exp(polyval(P_, 1./prede.airmass(good))),'r');
-        hold('off');
-        menu('Press OK to continue','OK')
-    end
-    % disp('Done!')
-    Langley.wl = prede.header.wl;
-    Langley.Vo = Vo';
-    Langley.tau = tau';
-    Langley.Vo_ = Vo_';
-    Langley.tau_ = tau_';
-    amm = sort(prede.airmass(good));
-    good_times = prede.time(good);
-    Langley.time = mean(good_times([1 end]));
-    Langley.end_times = good_times([1 end])';
-    Langley.airmass = amm([1 end])';
-    filts = [2:5 7];
-    figure(1); plot(prede.header.wl(filts), 100*[abs(Langley.Vo(filts) - Langley.Vo_(filts))./Langley.Vo(filts)], '-')
-    figure(2); plot(prede.header.wl(filts), [Langley.Vo(filts),Langley.Vo_(filts)], '-');
-    [pth,fname,ext] = fileparts(prede.header.fname);
-    save([prede.pname, '..',filesep, fname,'.refined_Vo.mat'],'Langley');
-    if ~exist('Langleys','var')
-        Langleys = Langley;
-    else
-        [Langleys.time, inds] = unique([Langley.time, Langleys.time]);
-        tmp = [Langley.Vo, Langleys.Vo]; Langleys.Vo = tmp(:,inds);
-        tmp = [Langley.Vo_, Langleys.Vo_]; Langleys.Vo_ = tmp(:,inds);
-        tmp = [Langley.tau, Langleys.tau]; Langleys.tau = tmp(:,inds);
-        tmp = [Langley.tau_, Langleys.tau_]; Langleys.tau_ = tmp(:,inds);
-        tmp = [Langley.end_times, Langleys.end_times]; Langleys.end_times = tmp(:,inds);
-        tmp = [Langley.airmass, Langleys.airmass]; Langleys.airmass = tmp(:,inds);
-    end
+Langleys = load(getfullname('*all.refined_Vos.mat','Prede_Lang'));
+guey_ESR = gueymard_ESR;
+spec_reflectivity = 0.99;
+% for iw = 1:length(star.w(star.aeronetcols(star.vis_pix)))
+for iw = length(Langleys.wl):-1:2    
+%     Compute a gaussian of FWHM 10 nm centered on each filter at guey_ESR(:,1) wavelengths.
+%     Compute the integral of this Gaussian with guey_ESR(:,2)
+    g_ESR(iw) = trapz(guey_ESR(:,1), guey_ESR(:,2).*gaussian_fwhm(guey_ESR(:,1),Langleys.wl(iw),10)./trapz(gaussian_fwhm(guey_ESR(:,1),500,10)));
 end
-%%
-good_days =IQ(Langleys.Vo(3,:));
-%%
-figure; plot(serial2doy(Langleys.time(good_days)), Langleys.Vo(:,good_days),'o-');
-legend('315 nm','400 nm','500 nm','675 nm','870 nm', '940 nm','1020 nm');
-%%
-mean_Vo = mean(Langleys.Vo(:,good_days),2); std_Vo =std(Langleys.Vo(:,good_days),[],2);
-rel_var_Vo = std_Vo./mean_Vo;
-mean_Vo_ = mean(Langleys.Vo_(:,good_days),2); std_Vo_ =std(Langleys.Vo_(:,good_days),[],2);
-rel_var_Vo_ = std_Vo_./mean_Vo_;
-figure; plot(Langleys.wl, 100.*[rel_var_Vo,rel_var_Vo_], '-o')
-
-Langleys.good_days = good_days;
-Langleys.mean_Vo = mean_Vo;
-Langleys.std_Vo = std_Vo;
-Langleys.rel_var_Vo = rel_var_Vo;
-save([prede.pname, '..',filesep, 'all','.refined_Vos.mat'],'-struct','Langleys');
-figure(101); plot(Langleys.wl, 100.*std(Langleys.Vo')./mean(Langleys.Vo'),'o-'); title('percent stddev(Vo)')
-figure(102); plot(Langleys.wl, 100.*std(Langleys.Vo_')./mean(Langleys.Vo_'),'rx-');title('percent stddev(Vo_U_W)')
-figure(103); plot(Langleys.wl, 100.*(mean(Langleys.Vo')-mean(Langleys.Vo_'))./mean([Langleys.Vo,Langleys.Vo_]'),'-k+')
-title('percent([Vo - Vo_U_W])/mean([Vo, Vo_U_W])')
-figure(104); plot(Langleys.wl, 100.*(std([Langleys.Vo, Langleys.Vo_]'))./mean([Langleys.Vo,Langleys.Vo_]'),'-g+')
-title('percent stddev([Vo Vo_U_W])')
-figure(105); plot(Langleys.wl, [Langleys.Vo,Langleys.Vo_]' - ones([12,1])*mean([Langleys.Vo,Langleys.Vo_]'),'-s')
-% Observed variability in Prede Vo values for MLO 2016 Jan is < 0.2% except
-% for 1020 nm 0.22% and 940  nm < 3%
-%% 
-% Checking data from Jan 15 by hand: corrected to 1 AU
-soldst = mean(prede.soldst);
 % Current solar_distance, Jan 15 = 0.9836
 % So, compared to a distance of 1 AU, our intensity will be higher
 % So, we need to multiply our sun measurements by R^2 to put them on the
 % same scale as the Io
 
-Io = 1e-6.*[0 132.3223  319.9116  397.2279  236.9746  218.2916  201.9398];
+% Io = 1e-6.*[0 132.3223  319.9116  397.2279  236.9746  218.2916  201.9398];
+Io = Langleys.mean_Vo;
+%% 
+% there are two pieces of code below trying to do the same thing developed at
+% different times. Both are attempting. to look at the shaded-unshaded measurements
+% One is an attempt to be more automated, reading a sun file and a man file 
+% and then trying to match up appropriate columns.
+% The other is hand-holding.
+%% 
+% Spectralon sequence on Jan 17, 2016
+% from *.SUN 
 
-sun_panel_1 = 1e-7 *[0.0001    0.0767    0.2322    0.3171    0.1948    0.1706    0.1698]
+prede_spec = read_prede(getfullname('*.MAN','prede'));
+% Now maybe plot values from the Man file and let the user put the first
+% record we want to use on the left-hand edge of the plot to use as the
+% start time.
+SA = scat_ang_degs(prede_spec.zen_sun, prede_spec.azi_sun, prede_spec.zen, prede_spec.azi);
+figure; 
+sb(1) = subplot(2,1,1); plot([1:length(prede_spec.time)], SA,'o-'); legend('Scattering angle')
+sb(2) = subplot(2,1,2); plot([1:length(prede_spec.time)], prede_spec.filter_4,'x-'); legend('Filter_4')
+linkaxes(sb,'x');zoom('on');
+ok = menu('Shift plot until first shaded value of a shade/unshade sequence is at the left limit','Done');
+xl = xlim; ii = ceil(xl(1));
+
+prede_sun = read_prede(getfullname('*.SUN','prede'));
+datestr(prede_spec.time([1 end]))
+
+before = 1; after = before +1; 
+while prede_sun.time(after)<prede_spec.time(ii) && after <= length(prede_sun.time)
+%     [datestr(prede_sun.time(after)), ' is before ',datestr(prede_spec.time(ii))]
+    before = before + 1; after = before + 1;    
+end
+[datestr(prede_sun.time(before)), ' is before ',datestr(prede_spec.time(ii))]
+[datestr(prede_sun.time(after)), ' is after ',datestr(prede_spec.time(ii))]
+
+prede_dirn_1 = [prede_sun.filter_1(before);prede_sun.filter_2(before);...
+    prede_sun.filter_3(before);prede_sun.filter_4(before);prede_sun.filter_5(before);...
+    prede_sun.filter_5(before); prede_sun.filter_6(before)];
+prede_dirn_2 = [prede_sun.filter_1(after);prede_sun.filter_2(after);...
+    prede_sun.filter_3(after);prede_sun.filter_4(after);prede_sun.filter_5(after);...
+    prede_sun.filter_5(after); prede_sun.filter_6(after)];
+prede_dirn = mean([prede_dirn_1,prede_dirn_2],2);
+
+
+% So, Why am I dividing by the solar measurement?
+
+sun_panel_1 = [prede_spec.filter_1(ii+1);prede_spec.filter_2(ii+1);...
+    prede_spec.filter_3(ii+1);prede_spec.filter_4(ii+1);prede_spec.filter_5(ii+1);...
+    prede_spec.filter_5(ii+1); prede_spec.filter_6(ii+1)];
+
+shade_panel = [prede_spec.filter_1(ii+3);prede_spec.filter_2(ii+3);...
+    prede_spec.filter_3(ii+3);prede_spec.filter_4(ii+3);prede_spec.filter_5(ii+3);...
+    prede_spec.filter_5(ii+3); prede_spec.filter_6(ii+3)];
+
+sun_panel_2 = [prede_spec.filter_1(ii+5);prede_spec.filter_2(ii+5);...
+    prede_spec.filter_3(ii+5);prede_spec.filter_4(ii+5);prede_spec.filter_5(ii+5);...
+    prede_spec.filter_5(ii+5); prede_spec.filter_6(ii+5)];
+
+rad_cts = (max(sun_panel_1,sun_panel_2) - shade_panel).*mean(prede_spec.soldst.^2);
+
+rad_Co = rad_cts.*(pi ./ spec_reflectivity).*(Io./prede_dirn); 
+% Do_1 = soldst.^2 .* sun_panel_1 * (pi / .99) ./ Tr1;
+% 21:35:01,11:35:01,-019.98,047.57,7.1617E-08,9.6870E-05,2.8473E-04,3.8773E-04,2.4010E-04,1.9387E-04,2.0515E-04
+% 21:39:35,11:39:35,-018.68,048.18,6.1035E-13,1.1891E-09,4.3587E-09,6.0898E-09,3.5690E-09,2.6703E-09,2.8862E-09
+% transmittance at filter 7, 1020 nm:
+
+% from *.MAN
+% 21:37:46,11:37:46,159.00,-47.50,6.8665E-13,8.7875E-10,1.5833E-09,1.3824E-09,7.3151E-10,5.4688E-10,5.8914E-10
+% 21:37:53,11:37:53,159.00,-32.50,6.3324E-12,8.4892E-09,2.4796E-08,3.3226E-08,2.0309E-08,1.6400E-08,1.7686E-08
+% 21:37:59,11:37:59,159.00,-47.50,7.6294E-13,7.6973E-10,1.4933E-09,1.3504E-09,7.3189E-10,5.5588E-10,6.1882E-10
+% 21:38:06,11:38:06,159.00,-32.50,6.8665E-13,8.6761E-10,1.7275E-09,1.7181E-09,9.7740E-10,7.3318E-10,8.1024E-10
+% 21:38:12,11:38:12,159.00,-47.50,9.1553E-13,8.6815E-10,1.5575E-09,1.3541E-09,7.4013E-10,5.5145E-10,6.0471E-10
+% 21:38:19,11:38:19,159.00,-32.50,6.4087E-12,8.5129E-09,2.4765E-08,3.3119E-08,2.0356E-08,1.6412E-08,1.7736E-08
+% 21:38:25,11:38:25,159.00,-47.50,9.1553E-13,8.6769E-10,1.5540E-09,1.3561E-09,7.4112E-10,5.5145E-10,6.0349E-10
+% from *.SUN 
+
+
+
+% So, next would be to use these Io values and the reported voltages just
+% before the panel measurements (or as part of the panel measurements) to
+% compute the transmittances, and thus the direct normal irradiance, and
+% thus the radiance from the panel, and thus the responsivity, and then see
+% how stable this responsivity is.
+
 
 % direct_sun:
 % 21:38:45,11:38:45,-018.47,047.70,7.2899E-08,9.7031E-05,2.8458E-04,3.8818E-04,2.4040E-04,2.0627E-04,2.0589E-04
@@ -152,7 +128,15 @@ near_2 = [6.1035E-12,8.3611E-09,2.4513E-08,3.3035E-08,2.0216E-08,1.7614E-08,1.75
 sun_panel_1 = near_1 - shaded;
 sun_panel_2 = near_2 - shaded;
 Do_1 = soldst.^2 .* sun_panel_1 * (2*pi / .99) ./ Tr1;
+
+% In computing the radiance of the spectralon we only use a factor of pi
+% instead of 2*pi because the integral includes a cosine.
+% sws.Si_resp = sws.Si_sig./(1e4.*rad_577.Irad(1:256).*spec_panel.SWS_refl(1:256)./pi);
+
+% sat_rad = pi.*sat_rad ./(repmat(g_ESR,size(sat_rad,1),1)); inp.ESR = g_ESR;
+
  %Wrong!!  DifTr1 = soldst.^2 .* sun_panel_1 ./ Do_1;
+ % Why!?!?
  sky_alm_15 = [2.8992E-12,1.7078E-09,2.1843E-09,1.1008E-09,3.1563E-10,2.1820E-10,1.8204E-10]; 
 DifTr1 = soldst.^2 .* sky_alm_15 ./ Do_1;
 % 16-01-15,21:41:05,16-01-15,11:41:05,M,MLO
