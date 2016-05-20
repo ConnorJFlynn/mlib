@@ -1205,8 +1205,8 @@ y_old = assist.chA.spc.y;
 assist.chA.spc.y(logi.Sky,bad) = ones([sum(logi.Sky),1])*BB_CO2(bad);
 % figure; plot(assist.chA.cxs.x, mean(assist.chA.spc.y(logi.Sky,:)),'-',assist.chA.cxs.x(bad),mean(y_old(logi.Sky,bad)),'ro');xlim([540,1800]);
 
-assist.chA.mrad.y = ApplyFFOVCorr(assist.chA.cxs.x, assist.chA.spc.y,0.0225);
-assist.chB.mrad.y = ApplyFFOVCorr(assist.chB.cxs.x, assist.chB.spc.y,0.0225);
+assist.chA.mrad.y = ApplyFFOVCorr(assist.chA.cxs.x, assist.chA.spc.y,0.045);
+assist.chB.mrad.y = ApplyFFOVCorr(assist.chB.cxs.x, assist.chB.spc.y,0.045);
 
 %%
 % figure(50); sp(1) = subplot(2,1,1);
