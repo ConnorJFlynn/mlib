@@ -11,11 +11,13 @@ else
    s = starsky(s);
 end
 if ~isstruct(s) && exist(s,'file')
-    if ~isempty(strfind(s, 'starsky.mat'))
-        s = load(s);
-    else
-        s = starsky_plus(load(s));
+    [pname_ext,fname_ext, ~] = fileparts(s);
+    s = load(s);
+    s.pname = pname_ex;
+    if isempty(strfind(fname_ext, 'starsky.mat'))
+        s = starsky_plus(s);
     end
+    
 end
 if ~isfield(s,'flight_level')
     s = starsky_plus(s);
