@@ -71,25 +71,25 @@ if fid>0
 %         recolor(these,[1:rows])
 % figure; plot([1:rows], ins.spec(ins.Shutter_open_TF==1,600),'o-')
 % figure; plot(ins.lambda, (ins.spec(ins.Shutter_open_TF==1,:)),'-',ins.lambda, (ins.spec(ins.Shutter_open_TF~=1,:)),'r-' ); 
-[maxes, max_pix] = max(ins.spec(:,1:1142),[],2);
-good = false(size(max_pix));
-good(2:end) = (max_pix(1:end-1) == max_pix(2:end)) & (abs(maxes(2:end)-maxes(1:end-1))./maxes(2:end))<.05;
-good_ii = find(good);
-good = good(good);
-figure; plot(ins.lambda, ins.spec(good,:),'-')
-
-darks = sort(ins.spec); darks = mean(darks(1:200,:));
-peak_locations = unique(max_pix(good_ii));
-monoscan.nm = ins.lambda;
-monoscan.peak_locations = peak_locations;
-for p = length(peak_locations):-1:1
-    monoscan.spec(p,:) = mean(ins.spec(max_pix==peak_locations(p),:))-darks;
-    monoscan.peak(p) = max(monoscan.spec(p,:));
-    monoscan.norm(p,:) = monoscan.spec(p,:)./monoscan.peak(p);
-    nm_ = monoscan.norm(p,:)>0.075 & monoscan.norm(p,:)<0.99 & abs(monoscan.nm-monoscan.nm(peak_locations(p)))<20;
-    [monoscan.sigma(p),monoscan.mu(p),monoscan.A(p),monoscan.FWHM(p),monoscan.peak(p)]=mygaussfit(monoscan.nm(nm_),monoscan.spec(p,nm_),0);
-end
-figure; plot(monoscan.nm(monoscan.peak_locations), monoscan.FWHM,'o-')
+% [maxes, max_pix] = max(ins.spec(:,1:1142),[],2);
+% good = false(size(max_pix));
+% good(2:end) = (max_pix(1:end-1) == max_pix(2:end)) & (abs(maxes(2:end)-maxes(1:end-1))./maxes(2:end))<.05;
+% good_ii = find(good);
+% good = good(good);
+% figure; plot(ins.lambda, ins.spec(good,:),'-')
+% 
+% darks = sort(ins.spec); darks = mean(darks(1:200,:));
+% peak_locations = unique(max_pix(good_ii));
+% monoscan.nm = ins.lambda;
+% monoscan.peak_locations = peak_locations;
+% for p = length(peak_locations):-1:1
+%     monoscan.spec(p,:) = mean(ins.spec(max_pix==peak_locations(p),:))-darks;
+%     monoscan.peak(p) = max(monoscan.spec(p,:));
+%     monoscan.norm(p,:) = monoscan.spec(p,:)./monoscan.peak(p);
+%     nm_ = monoscan.norm(p,:)>0.075 & monoscan.norm(p,:)<0.99 & abs(monoscan.nm-monoscan.nm(peak_locations(p)))<20;
+%     [monoscan.sigma(p),monoscan.mu(p),monoscan.A(p),monoscan.FWHM(p),monoscan.peak(p)]=mygaussfit(monoscan.nm(nm_),monoscan.spec(p,nm_),0);
+% end
+% figure; plot(monoscan.nm(monoscan.peak_locations), monoscan.FWHM,'o-')
 end
 %%
 
