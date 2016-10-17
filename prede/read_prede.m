@@ -31,7 +31,9 @@ end
 % 17:09:15,07:09:15,-066.79,001.34,0.0000E+00,4.2725E-12,1.2665E-11,1.3809E-11,4.5776E-12,1.2360E-11,2.0599E-12
 
 fid = fopen(filename);
+
 if fid>0
+    disp(fname)
    if ~isfield(prede,'header')
       hed = 1;
    else
@@ -155,6 +157,10 @@ end
  prede.LatN = prede.header.lat;% MLO is 19.5365;
  prede.LonE = prede.header.lon; % MLO is -155.5761;
  prede.wl = prede.header.wl;
+ % These values from spectral registration of Prede vs 4STAR at MLO finding
+ % 4STAR pixel yielding most constant ratio of 4STAR/Prede.
+ prede.wl(1) = NaN; prede.wl(2) = 395.3; prede.wl(3) = 504.3; prede.wl(4) = 682.3;
+prede.wl(5) = 875.8 ; prede.wl(6) = 938; prede.wl(7) = 1010;
  [prede.zen_sun,prede.azi_sun, prede.soldst, HA_Sun, Decl_Sun, prede.ele_sun, prede.airmass] = ...
     sunae(prede.LatN, prede.LonE, prede.time);
 return

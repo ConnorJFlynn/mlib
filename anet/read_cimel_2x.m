@@ -1,6 +1,6 @@
 function cimel = read_cimel_lev2x(filename);
 %Seems like a different format than other cimel 2.0 files having more filters.
-
+% this did NOT work reading ARM Highlands AOD v2 level 2
 if ~exist('filename', 'var')
    [fname, pname] = uigetfile('*.lev20*');
    filename = [pname, fname];

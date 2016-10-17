@@ -7,10 +7,12 @@ end
 if isfield(s,'filename')
     [p,skytag,x] = fileparts(s.filename{1});
     skytag = strrep(skytag,'_VIS_','_');skytag = strrep(skytag,'_NIR_','_');
+    done = false;    
 end
-[pname_mat,~,~] = fileparts(sfile);
+
+
 if ~exist([pname_mat, filesep,skytag,'_starsky.mat'],'file')
-save([pname_mat, filesep,skytag,'_starsky.mat'], '-struct','s');
+save([skytag,'_starsky.mat'], '-struct','s');
 end
 
 

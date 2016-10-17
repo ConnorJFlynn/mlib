@@ -3,9 +3,10 @@ function cimel = read_cimel_aod(filename);
 %inversions.  To read the inversions, try read_cimel_aip
 if ~exist('filename', 'var')
    filename= getfullname('*.lev20*','anet_aod');
+end
    [pname, fname,ext] = fileparts(filename);
    fname = [fname,ext];
-end
+% end
 % Level 2.0. Quality Assured Data.<p>The following data are pre and post field calibrated, automatically cloud cleared and manually inspected.
 % Version 2 Direct Sun Algorithm
 % Location=Cart_Site,long=-97.486,lat=36.607,elev=318,Nmeas=3,PI=Rick_Wagener,Email=wagener@bnl.gov

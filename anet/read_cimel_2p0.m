@@ -1,6 +1,6 @@
 function cimel = read_cimel_2p0(filename);
 %%
-
+% this works reading ARM Highlands AOD v2 level 2
 if ~exist('filename', 'var')
    filename = getfullname('*.txt;*.dat','aeronet_aip','Select Aeronet AIP file');
    [pname, fname, ext] = fileparts(filename);

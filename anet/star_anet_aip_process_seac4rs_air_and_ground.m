@@ -6,9 +6,9 @@ if ~exist('s','var')
     s = getfullname('*vis_sky*.*','starsky','Select star sky mat file.');
 end
 if strfind(s,'.mat')
-   s = load(s);
+    s = load(s);
 else
-   s = starsky(s);
+    s = starsky(s);
 end
 if ~isstruct(s) && exist(s,'file')
     [pname_ext,fname_ext, ~] = fileparts(s);
@@ -30,30 +30,37 @@ if isfield(s,'filename')
 end
 [pname_mat,~,~] = fileparts(s.filename{1});
 if ~exist([pname_mat, filesep,skytag,'_starsky.mat'],'file')
-   save([pname_mat, filesep,skytag,'_starsky.mat'], '-struct','s');
+    save([pname_mat, filesep,skytag,'_starsky.mat'], '-struct','s');
 end
 % if az_gnd doesn't exist, then apply Euler angle correction
 if ~isfield(s,'Az_gnd')
-s.Az_deg = -1.*s.AZstep./50;
-s.sun_sky_El_offset = 3; %This represents the known mechanical offset between the sun and sky FOV in elevation.
-s.El_true = s.El_deg;
-s.El_true(s.Str==2) = s.El_deg(s.Str==2) - s.sun_sky_El_offset;
-[s.Az_gnd, s.El_gnd] = ac_to_gnd_SEACRS(s.Az_deg, s.El_true, s.Headng, s.pitch, s.roll);
-s.SA = scat_ang_degs(s.sza, s.sunaz, 90-abs(s.El_gnd), s.Az_gnd);
+    error('This line should never be run! Euler angle rotations is in starsky_scan line 458.')
+    s.Az_deg = -1.*s.AZstep./50;
+    s.sun_sky_El_offset = 3; %This represents the known mechanical offset between the sun and sky FOV in elevation.
+    if sum(s.Alt<0)>5 % Then we're probably on the ground so determine offset mechanical offsets while tracking
+        LR = abs(s.QdVlr./s.QdVtot)<0.01; TB = abs(s.QdVtb./s.QdVtot)<0.01;
+        Az_offset_sun = mean(s.Az_deg(LR&TB))- mean(s.sunaz(LR&TB));
+        El_offset_sun = mean(s.El_deg(LR&TB))- mean(s.sunel(LR&TB));
+    end
+    s.El_true = s.El_deg;
+    s.El_true(s.Str==2) = s.El_deg(s.Str==2) - s.sun_sky_El_offset;
+    [s.Az_gnd, s.El_gnd] = ac_to_gnd_SEACRS(s.Az_deg, s.El_true, s.Headng, s.pitch, s.roll);
+    
+    s.SA = scat_ang_degs(s.sza, s.sunaz, 90-abs(s.El_gnd), s.Az_gnd);
 end
 s.good_sky(s.Str~=2) = false;
 if isfield(s,'good_alm')
-s.good_alm = s.good_sky & s.good_alm;
+    s.good_alm = s.good_sky & s.good_alm;
 end
 if isfield(s,'good_almA')&isfield(s,'good_alm')
-s.good_almA = s.good_almA & s.good_alm;
+    s.good_almA = s.good_almA & s.good_alm;
 end
 if isfield(s,'good_almB')&isfield(s,'good_alm')
-s.good_almB = s.good_almB & s.good_alm;
+    s.good_almB = s.good_almB & s.good_alm;
 end
 s = handselect_skyscan(s);
 % Next, apply handscreen to s. Save output and process.
-% 
+%
 % if ~isfield(s,'PWV')
 %     s.PWV = 1.7;
 % end
@@ -79,7 +86,7 @@ tag = [skytag,'.created_',datestr(now, 'yyyymmdd_HHMMSS.')];
 fname_tagged = ['4STAR_.',tag, 'input'];
 s.pname_tagged = pname_tagged;
 s.fname_tagged = fname_tagged;
-% [outname,ss,ww] = run_AERONET_retr_wi_selected_input_files([s.pname_tagged, '4STAR_.',skytag,'.input']);
+[outname,ss,ww] = run_AERONET_retr_wi_selected_input_files([s.pname_tagged, '4STAR_.',skytag,'.input']);
 % [inp, line_num] = gen_sky_inp_4STAR(s); %good_sky SA restrictions in here.
 % % Make sure the gen_aip_cimel_strings is capable of accepting inp that
 % % distinguishes between hlyr and houtput.
@@ -88,7 +95,7 @@ s.fname_tagged = fname_tagged;
 % %   [~,fstem,ext] = fileparts(s.filename{1});
 % % % pname = [pname, filesep];
 % % fstem = strrep(fstem, '_VIS','');
-% 
+%
 % if exist([pname_tagged, fname_tagged],'file')
 %     [SUCCESS,MESSAGE,MESSAGEID] = copyfile([pname_tagged, fname_tagged],'C:\z_4STAR\work_2aaa__\4STAR_.input');
 %     if exist('C:\z_4STAR\work_2aaa__\4STAR_.output','file')
@@ -102,7 +109,7 @@ s.fname_tagged = fname_tagged;
 % %         fid3 = fopen(outname, 'r');
 % %         outfile = char(fread(fid3,'uchar'))';
 % %         fclose(fid3);
-%         anetaip = parse_anet_aip_output(outname);                
+%         anetaip = parse_anet_aip_output(outname);
 %     end
 % end
 %

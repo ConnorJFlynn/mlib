@@ -61,10 +61,17 @@ end
 %%
 
 sat_rad = pi.*sat_rad ./(repmat(g_ESR,size(sat_rad,1),1)); inp.ESR = g_ESR;
+
 geom.WAVE = star.w(star.wl_ii);
+if length(star.wl_ii)~=length(star.tau)
     tods = star.tau(star.wl_ii);
     aods = star.tau_aero(star.wl_ii);
     tau_O3 = star.tau_O3(star.wl_ii);
+else
+    tods = star.tau;
+    aods = star.tau_aero;
+    tau_O3 = star.tau_O3;
+end    
 
 inp.aods = aods;
 if ~isfield(star,'brdf')

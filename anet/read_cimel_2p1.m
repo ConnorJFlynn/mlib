@@ -1,6 +1,7 @@
 function cimel = read_cimel_2p1(filename);
 %Seems like a different format than other cimel 2.0 files having more filters.
-
+% this did not work reading ARM Highlands AOD v2 level 2, datestring
+% problem
 if ~exist('filename', 'var')
    filename = getfullname('*.txt;*.dat','aeronet_aip','Select Aeronet AIP file');
    [pname, fname, ext] = fileparts(filename);
