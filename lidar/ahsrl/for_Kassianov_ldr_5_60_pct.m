@@ -32,8 +32,8 @@ aero =double(sbs.vdata.beta_a_backscat<1e-8|sbs.vdata.beta_a_backscat>1e-4); aer
 
 figure; imagesc(serial2doys(sbs.time)-serial2doy(datenum(2011,3,0)), (sbs.vdata.altitude-2759)./1000, real(log10((100.*sbs.vdata.linear_depol+bad+thick+aero)))); axis('xy'); 
 ylim([0,12]);ylabel('km AGL'); 
-cb1 = colorbar;caxis([0,2]); ax(1) = gca;
-set(cb1, 'YTick',[0,log10(3),1, log10(30),2],'YTickLabel',{'1%','3%','10%','30%','100%'})
+cb1 = colorbar;caxis([log10(5),log10(60)]); ax(1) = gca;
+set(cb1, 'YTick',[log10(5),log10(10),log10(15),log10(25),log10(40),log10(60)],'YTickLabel',{'5%','10%','15%','25%','40%','60%'})
 xlabel('Date in March, 2011 [UT]')
 
 
