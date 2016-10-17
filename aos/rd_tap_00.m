@@ -18,7 +18,9 @@ while ~isempty(strfind(this,'DateTime'))&&~feof(fid)
     this = fgetl(fid);
 end
 
-labels = textscan(this,'%s','delimiter',',');
+% labels = textscan(this,'%s','delimiter',',');
+labels = textscan(this,'%s');
+
 
 fmt_str = '%s '; % Date/time,
 fmt_str = [fmt_str, '%f %s %s %s ']; %msg_type, flags, secs_hex, filt_id
@@ -30,7 +32,8 @@ fmt_str = [fmt_str, '%s %s %s %s %s %s %s %s ']; %DRGB6, DRGB7
 fmt_str = [fmt_str, '%s %s %s %s %s %s %s %s ']; %DRGB8, DRGB9
 
 A = textscan(fid,fmt_str, 'delimiter',','); fclose(fid);
-        
+        [raw.pname,raw.fname, ext] = fileparts(infile);
+        raw.pname = [raw.pname, filesep]; raw.fname = [raw.fname, ext];
         raw.time_str = A{1};
         raw.time = datenum(strrep(strrep(raw.time_str,'T',' '),'Z',' '),'yyyy-mm-dd HH:MM:SS');
         raw.flags_hex = A{3};
@@ -123,12 +126,12 @@ tap.DN_Blu_9= typecast(uint32(hex2dec(raw.DN_Blu_9)),'single');
 
 % c343ef6c
 % typecast(uint32(hex2dec('c343ef6c')),'single');
-% N = 20;
-% figure; plot(serial2hs(clap.time(spot_4)), real(log(-diffN((clap.DN_Red_4(spot_4)-clap.DN_Dark_4(spot_4))./((clap.DN_Red_0(spot_4)-clap.DN_Dark_0(spot_4))),N))),'.',...
-%    serial2hs(clap.time(~spot_4)), real(log(-diffN((clap.DN_Red_5(~spot_4)-clap.DN_Dark_5(~spot_4))./((clap.DN_Red_1(~spot_4)-clap.DN_Dark_1(~spot_4))),N))),'.')
+N = 20;
+% figure; plot(serial2hs(tap.time(spot_4)), real(log(-diffN((tap.DN_Red_4(spot_4)-tap.DN_Dark_4(spot_4))./((tap.DN_Red_0(spot_4)-tap.DN_Dark_0(spot_4))),N))),'.',...
+%    serial2hs(tap.time(~spot_4)), real(log(-diffN((tap.DN_Red_5(~spot_4)-tap.DN_Dark_5(~spot_4))./((tap.DN_Red_1(~spot_4)-tap.DN_Dark_1(~spot_4))),N))),'.')
 % legend('spot 4: sig/ref','spot 5: sig/ref' );
-% figure; plot(serial2hs(clap.time), clap.DN_Red_2,'x')
+figure; plot(serial2hs(tap.time), tap.DN_Red_2,'x')
 
-% figure; plot(clap.time, [clap.DN_Grn_0,clap.DN_Grn_1],'.'); dynamicDateTicks;
+figure; plot(tap.time, [tap.DN_Grn_0,tap.DN_Grn_1],'.'); dynamicDateTicks;
 
 return

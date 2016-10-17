@@ -4,10 +4,23 @@ good_arm = arm_psap.vdata.qc_Ba_B_Weiss==0 & arm_psap.vdata.impactor_state==1;
 a11 = read_noaa_a11;
 a11_2 = a11; a11_2.time = a11.time +30./(24*60*60);
 [ainb, bina] = nearest(arm_psap.time, a11_2.time);
-a11_2.flow_rate_new = a11_2.flow_rate .*1.1029 -0.0457;
-a11_2.Ba_G_adj = a11_2.Ba_G .*(a11_2.flow_rate./a11_2.flow_rate_new) .*(18.74./17.81);
+% Confirm spot-size in A11 by demonstrating ocnsistency between sample flow
+% and integrated length
+[a11.L(3)-a11.L(2),a11.flow_rate(5)*1000*1000/18.74/1000]
+% So reported flows in a11 are already corrected
+% And if so presumably so are the reported absorption coefficients?
+
+% The below compares A11 Weiss to Anne Bond.
+% figure; plot(anne.time, anne.Ba_G_1um_psap,'k.',a11.time, a11.Ba_G,'go');
+
+
+good_arm = arm_psap.vdata.qc_Ba_G_Bond==0&arm_psap.vdata.impactor_state==1;
+figure; plot(arm_psap.time(good_arm), arm_psap.vdata.Ba_G_Bond(good_arm),'gx',  anne.time, anne.Ba_G_1um_psap, 'k*')
+% This looks OK, compares ARM Bond to Anne Bond.
+
+a11_2.Ba_G_adj = a11_2.Ba_G .*(18.74./17.81);
 figure; plot(serial2hs(arm_psap.time(ainb)), arm_psap.vdata.Ba_G_Weiss(ainb),'bx', serial2hs(a11_2.time(bina)), a11_2.Ba_G(bina),'ko',serial2hs(a11_2.time(bina)), a11_2.Ba_G_adj(bina),'ms')
-(18.74./17.81)
+
 (a11_2.flow_rate./a11_2.flow_rate_new)
 adj = (a11_2.flow_rate./a11_2.flow_rate_new).* (18.74./17.81);
 figure; plot(serial2hs(arm_psap.time(ainb)), arm_psap.vdata.Bs_B_raw(ainb).*double(arm_psap.vdata.impactor_state(ainb)==1),'b*'); legend('Bs raw')

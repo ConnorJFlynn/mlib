@@ -1,4 +1,4 @@
-function blah
+function blah2
 % psap
 psap = anc_bundle_files(getfullname('sgpaosaoppsap*.nc','psap'));
 pname = fileparts(psap.fname); out_pname = [pname, filesep,'..',filesep];
