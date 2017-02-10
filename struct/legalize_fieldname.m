@@ -6,25 +6,24 @@ end
 newname = strrep(oldname,' ','');
 newname = strrep(newname,'.','');
 newname = strrep(newname,',','');
-newname = strrep(newname,'<=','lte_');
-newname = strrep(newname,'>=','gte_');
+newname = strrep(newname,'<=','le_');
+newname = strrep(newname,'>=','ge_');
 newname = strrep(newname,'<','lt_');
 newname = strrep(newname,'>','gt_');
 newname = strrep(newname,'==','eeq_');
 newname = strrep(newname,'=','eq_');
-newname = strrep(newname,'-','__dash__');
-newname = strrep(newname,'+','__plus__');
-newname = strrep(newname,'(','__leftpar__');
-newname = strrep(newname,')','__rightpar__');
-newname = strrep(newname,')','__rightpar__');
-newname = strrep(newname,'#','__hash__');
-newname = strrep(newname,'/','__fslash__');
-newname = strrep(newname,'\','__bslash__');
-newname = strrep(newname,'^','__caret__');
-newname = strrep(newname,'%','__pct__');
+newname = strrep(newname,'-','_dash_');
+newname = strrep(newname,'+','_plus_');
+newname = strrep(newname,'(','_lpar_');
+newname = strrep(newname,')','_rpar_');
+newname = strrep(newname,'#','_hash_');
+newname = strrep(newname,'/','_fslash_');
+newname = strrep(newname,'\','_bslash_');
+newname = strrep(newname,'^','_caret_');
+newname = strrep(newname,'%','_pct_');
 
 if newname(1) == '_'
-    newname = ['underbar__',newname(2:end)];
+    newname = ['ubar_',newname(2:end)];
 end
 
 return
