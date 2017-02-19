@@ -26,7 +26,7 @@ sat_rad = sat_rad(:,star.wl_ii);
 skymask = star.skymask;
 
 sat_rad = sat_rad.*skymask;
-good_sky = star.good_sky&~isNaN(sat_rad);
+good_sky = star.good_sky&~isnan(sat_rad);
 
 % if isfield(star,'good_ppl')
 %     good_sky = star.good_ppl;
@@ -160,18 +160,18 @@ for w= length(geom.WAVE):-1:1
 %             OZAs = [90-star.El_true(good_sza)']';
             %%
             res = 0.1; des = 1./res;
-            OEL = unique(round(des.*(star.El_true(good_sza)-mean(star.El_true(good_sza))))./des)...
-                + round(des.*mean(star.El_true(good_sza)))./des; % 0.2 degree resolution
+%             OEL = unique(round(des.*(star.El_true(good_sza)-mean(star.El_true(good_sza))))./des)...
+%                 + round(des.*mean(star.El_true(good_sza)))./des; % 0.2 degree resolution
             OEL = unique(round(des.*(star.El_gnd(good_sza)-mean(star.El_gnd(good_sza))))./des)...
                 + round(des.*mean(star.El_gnd(good_sza)))./des; % 0.2 degree resolution
             OZA = 90-OEL;
-            OELs = (round(des.*(star.El_true(good_sza)-mean(star.El_true(good_sza))))./des)...
-            + round(des.*mean(star.El_true(good_sza)))./des; % 0.2 degree resolution
+%             OELs = (round(des.*(star.El_true(good_sza)-mean(star.El_true(good_sza))))./des)...
+%             + round(des.*mean(star.El_true(good_sza)))./des; % 0.2 degree resolution
             OELs = (round(des.*(star.El_gnd(good_sza)-mean(star.El_gnd(good_sza))))./des)...
             + round(des.*mean(star.El_gnd(good_sza)))./des; % 0.2 degree resolution            
             OZAs = 90-OELs;
             res = 0.1; des = 1./res;
-            daz = abs(star.sunaz(good_sza) - star.Az_true(good_sza));
+%             daz = abs(star.sunaz(good_sza) - star.Az_true(good_sza));
             daz = abs(star.sunaz(good_sza) - star.Az_gnd(good_sza));
 
             phis = (round(des.*daz)./des);

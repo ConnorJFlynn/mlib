@@ -79,7 +79,8 @@ if exist('me_old','var')
     end
 end
 % first_good_spot = active(changes(1));
-
+% Check to see if I have any problem with the bounds index since clean_green 
+% is not matching Annette's attempt in C or Fortran.
 for t = 1:length(bounds)-1
     active = tap_a0.vdata.active_spot_number(bounds(t));
     me.clean_blue(spot>=active,(bounds(t)):bounds(end)) = me.signal_blue(spot>=active, bounds(t))*ones([1,length([(bounds(t)):bounds(end)])]);
@@ -110,6 +111,8 @@ for t = 1:length(bounds)-1
     me.spot_tr_red(nonref,bounds(t):bounds(end)) = me.norm_red(nonref,bounds(t):bounds(end));
     
     % normalize reference spot relative to non-reference spot with no flow
+    % this should normalize out changes in the LED intensity but will leave
+    % effects due to flow including filter flexure, RH effects on the filter.
     me.spot_tr_blue(ref,bounds(t):bounds(end)) = ...
         me.norm_blue(ref,bounds(t):bounds(end)) ./ me.norm_blue(nonref,bounds(t):bounds(end));
     me.spot_tr_green(ref,bounds(t):bounds(end)) = ...
@@ -118,7 +121,10 @@ for t = 1:length(bounds)-1
         me.norm_red(ref,bounds(t):bounds(end)) ./ me.norm_red(nonref,bounds(t):bounds(end));
     
     if active>0 % Only compute transmittances if active spot > 0
-        % normalize active spot by reference
+        % normalize active spot by reference 
+        % This should normalize out LED changes, filter flexure, and RH effects 
+        % on the filter, but not RH effects on deposited material, sample
+        % evaporation, or filter leaks
         me.spot_tr_blue(active,bounds(t):bounds(end)) = ...
             me.norm_blue(active,bounds(t):bounds(end)) ./ me.norm_blue(ref,bounds(t):bounds(end));
         me.spot_tr_green(active,bounds(t):bounds(end)) = ...
@@ -132,6 +138,8 @@ for t = 1:length(bounds)-1
         me.transmittance_red(bounds(t):bounds(end)) = me.spot_tr_red(active,bounds(t):bounds(end));
         
         % normalize "clean" spots by non-reference spot with no flow
+        % This should normalize out LED changes, filter flexure, and RH effects
+        % on the filter, but not filter leaks
         me.spot_tr_blue(clean,bounds(t):bounds(end)) = ...
             me.norm_blue(clean,bounds(t):bounds(end)) ./ (ones([sum(clean),1])*me.norm_blue(nonref,bounds(t):bounds(end)));
         me.spot_tr_green(clean,bounds(t):bounds(end)) = ...
@@ -140,6 +148,10 @@ for t = 1:length(bounds)-1
             me.norm_red(clean,bounds(t):bounds(end)) ./ (ones([sum(clean),1])*me.norm_red(nonref,bounds(t):bounds(end)));
         
         % normalize "dirty" spots by non-reference spot with no flow
+        % This should normalize out LED changes, filter flexure, and RH effects
+        % on the filter, but not RH effects on deposited material, volatilization
+        % of depostied material, slow wicking effects, or filter leaks
+
         me.spot_tr_blue(dirty,bounds(t):bounds(end)) = ...
             me.norm_blue(dirty,bounds(t):bounds(end)) ./ (ones([sum(dirty),1])*me.norm_blue(nonref,bounds(t):bounds(end)));
         me.spot_tr_green(dirty,bounds(t):bounds(end)) = ...
