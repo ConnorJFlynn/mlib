@@ -68,7 +68,7 @@ if (isfield(nc, 'time'))
         since_midnight = epoch-midnight;
 
 %         bt = epoch(1) - mod(min(epoch), 86400);
-        bt = epoch(1);
+        bt = floor(epoch(1));
         epoch = (epoch - bt);
         
         dims = size(epoch);
