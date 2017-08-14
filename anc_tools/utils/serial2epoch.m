@@ -54,6 +54,6 @@ if (serial < DAYS_TO_1970 | serial > DAYS_FROM_1970)
 end
 
 % Convert to epoch.
-epoch = round((serial - DAYS_TO_1970) * 86400.0);
+epoch = (serial - DAYS_TO_1970) * 86400.0;
 
 return
