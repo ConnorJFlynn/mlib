@@ -1,9 +1,12 @@
 function mono = SAS_temp_test_interp_dk_with_headers(indir)
+% Now reading new data format with 1 file per spectrometer, each file has a
+% header row identifying the measurements in underlying columns.
+
 % The case of the NIR has been removed to speed approach of thermal
 % equilibrium
 
-inside_spec = SAS_read_ava(getfullname('*.csv','ava','Select inside spectrometer'));
-outside_spec = SAS_read_ava(getfullname('*.csv','ava','Select outside spectrometer'));
+inside_spec = SAS_read_Albert_csv(getfullname('*.csv','ava','Select inside spectrometer'));
+outside_spec = SAS_read_Albert_csv(getfullname('*.csv','ava','Select outside spectrometer'));
 trh = SAS_read_trh(getfullname('*.csv','ava','Select trh file'));
 
 ins_dark = (inside_spec.Shuttered_0==0);

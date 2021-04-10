@@ -6,8 +6,8 @@ if exist('SAS_dualkool.mat')
 else
 
 %%
-SN29 = SAS_read_ava('C:\case_studies\ARRA\SAS\data_tests\temp_tests\20100423DualKooltrons\2010_4days_0911129U1.csv');
-SN46 = SAS_read_ava('C:\case_studies\ARRA\SAS\data_tests\temp_tests\20100423DualKooltrons\2010_4days_0911146U1.csv');
+SN29 = SAS_read_Albert_csv('D:\case_studies\SAS\testing_and_characterization\temp_tests\20100423DualKooltrons\2010_4days_0911129U1.csv');
+SN46 = SAS_read_Albert_csv('D:\case_studies\SAS\testing_and_characterization\temp_tests\20100423DualKooltrons\2010_4days_0911146U1.csv');
 save('SAS_dualkool.mat');
 %%
 end

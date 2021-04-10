@@ -1,4 +1,4 @@
-function [psapr] = rd_psapr_aml(ins, spot_area, flow_cal)
+function [psapr] = rd_psapr_aml(ins, spot_area)
 % [psapro,psapri] = rd_psapr_aml(ins);
 % Parses a PSAP file from the AML test  containing "R" packets
 % The "R" packets don't clearly indicate filter changes or include
@@ -12,9 +12,8 @@ if ~exist('spot_area','var')
     spot_area = 17.81; % default PSAP spot area in mm^2
 end
 
-bo = 0; b1 = 1;
-[psapi.pname,psapi.fname,ext] = fileparts(ins);
-psapi.pname = [psapi.pname, filesep]; psapi.fname = [psapi.fname, ext];
+[psapr.pname,psapr.fname,ext] = fileparts(ins);
+psapr.pname = [psapr.pname, filesep]; psapr.fname = [psapr.fname, ext];
 
 disp('Loading and processing raw files.')
 % 2016 10 13 21 19 03.00 287.888229 R 161013211902
@@ -68,9 +67,9 @@ psapr.trans_R = (psapr.red_sig-psapr.dark_sig)./(psapr.red_ref-psapr.dark_ref);
 psapr.trans_G = (psapr.grn_sig-psapr.dark_sig)./(psapr.grn_ref-psapr.dark_ref);
 psapr.trans_B = (psapr.blu_sig-psapr.dark_sig)./(psapr.blu_ref-psapr.dark_ref);
 
-figure; plot(serial2doys(psapr.time), psapr.red_rel./max(psapr.red_rel),'r.',...
-    serial2doys(psapr.time), psapr.grn_rel./max(psapr.grn_rel),'g.',...
-    serial2doys(psapr.time), psapr.blu_rel./max(psapr.blu_rel),'b.')
+% figure; plot(serial2doys(psapr.time), psapr.red_rel./max(psapr.red_rel),'r.',...
+%     serial2doys(psapr.time), psapr.grn_rel./max(psapr.grn_rel),'g.',...
+%     serial2doys(psapr.time), psapr.blu_rel./max(psapr.blu_rel),'b.')
 bad_status = bitand(uint16(psapr.status),uint16(hex2dec('FF00')))>0;
 psapr.mass_flow_last = psapr.flow_lpm;
 % These raw absorption coefficients don't incorporate a filter-loading

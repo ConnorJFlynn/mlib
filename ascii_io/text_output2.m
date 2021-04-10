@@ -1,15 +1,21 @@
-    V = datevec(nc.time);
+a1 = anc_bundle_files;    
+V = datevec(a1.time);
+    yyyymmdd = datestr(a1.time, 'yyyymmdd '); 
+    yyyymmdd_ = textscan(yyyymmdd', '%f'); yyyymmdd_ = yyyymmdd_{:};
+    HHMMSS = datestr(a1.time, 'HHMMSS '); 
+    HHMMSS_ = textscan(HHMMSS', '%f'); HHMMSS_ = HHMMSS_{:};
     yyyy = V(:,1);
     mm = V(:,2);
     dd = V(:,3);
     HH = V(:,4);
     MM = V(:,5);
     SS = V(:,6);
-    doy1 = serial2doy1(nc.time)';
-    HHhh = (doy1 - floor(doy1)) *24;
-    txt_out = [yyyy, doy1, HHhh, mm, dd, HH, MM, SS, alive.aod_1(aod_times)', alive.aod_bscat(aod_times)',alive.aod_1(aod_times)'- alive.aod_bscat(aod_times)' ]; 
-        fid = fopen([pname, 'named_output_file.txt'],'wt');
-        fprintf(fid, '%s \n','yyyy, doy1, HHhh, mm, dd, HH, MM, SS, aod_1, aod_bscat, aod_diff');
-        fprintf(fid,'%d, %d, %d, %d, %d, %d, %d, %d, %3.6f, %3.6f, %3.6f \n',txt_out');
+    txt_out = [yyyymmdd_, HHMMSS_, yyyy, mm, dd, HH, MM, SS, ...
+       a1.vdata.concentration']; 
+   gmd = sqrt(a1.vdata.lower_size_limit.*a1.vdata.upper_size_limit);
+   gmd_str = sprintf(', %2.2f',gmd);
+        fid = fopen(strrep(a1.fname,'.nc','.csv'),'wt');
+        fprintf(fid, '%s \n','YYYYMMDD, HHMMSS, year, month, date, hour, minute, second',gmd_str);
+        fprintf(fid,'%0.8d, %0.6d, %d, %d, %d, %d, %d, %3.6g, %3.3f, %3.3f, %3.3f, %3.3f, %3.3f \n',txt_out');
         fclose(fid);
     close('all'); 

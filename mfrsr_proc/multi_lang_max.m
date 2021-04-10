@@ -29,7 +29,7 @@ if ~isfield(in_data,'Vo')||isempty(in_data.Vo)||(in_data.Vo<=0)||isinf(in_data.V
 else
    Vo = in_data.Vo;
 end
-if ~exist('tests','var')
+if ~exist('tests','var')||isempty(tests)
    tests.stdev_mult=2.5;
    tests.steps = 1;
    tests.Ntimes = 50;
@@ -84,10 +84,21 @@ end
 Vos = NaN(size(in_data.time));
 TOD = NaN(size(in_data.time));
 aero = false(size(in_data.time));
-good = isfinite(in_data.V)&(in_data.V>0)&(~isNaN(in_data.V));
-% good_ii = find(good);
 
 tau_ray = tau_std_ray_atm(in_data.lambda_nm/1000);
+if isfield(in_data,'press_hPa')&&in_data.press_hPa>10
+    tau_ray = tau_ray .*(in_data.press_hPa./1013);
+    tr_ray = exp(-tau_ray.*in_data.airmass);
+    in_data.V = in_data.V./tr_ray;
+end
+
+
+good = isfinite(in_data.V)&(in_data.V>0)&(~isNaN(in_data.V))&in_data.airmass>=1;
+if isfield(in_data,'good')&&all(size(good)==size(in_data.good))
+    good = good&in_data.good;
+end
+
+
 Vos(good) = exp(tau_ray.*in_data.airmass(good)).*in_data.V(good);
 % figure; plot(airmass(good), Vos(good), '.')
 Vo_ray = max([Vo,Vos(good)]);
@@ -186,6 +197,10 @@ if sum(good)>=tests.Ntimes
       tau_test_uw = (tau_>tau_ray)&&(tau_<tau_max);
       Vo_test = (Vo > Vo_ray);%&&(Vo < Vo_max);
       Vo_test_uw = (Vo_ > Vo_ray);%&&(Vo_ < Vo_max);
+      tau_test = ((tau+0.005)>tau_ray)&&(tau<tau_max);
+      tau_test_uw = ((tau_+.005)>tau_ray)&&(tau_<tau_max);
+      Vo_test = (Vo > 0.98.*Vo_ray);%&&(Vo < Vo_max);
+      Vo_test_uw = (Vo_ > 0.98.*Vo_ray);%&&(Vo_ < Vo_max);
        if show==2
          figure(fig2); ax(1) = subplot(2,1,1);
          scatter(in_data.airmass(good), in_data.V(good), 5,(dev(good))/sdev);colorbar;

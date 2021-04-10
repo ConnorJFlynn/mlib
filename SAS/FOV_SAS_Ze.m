@@ -1,5 +1,5 @@
-function ins = SAS_read_ava(infile)
-%ins = SAS_read_ava(infile)
+function ins = SAS_read_Albert_csv(infile)
+%ins = SAS_read_Albert_csv(infile)
 % Reads one of Albert's Labview files for with multiple AvaSpec spectra per data file.
 %
 if ~exist('infile','var')

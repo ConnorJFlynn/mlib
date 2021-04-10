@@ -18,9 +18,10 @@ mom.f = f;
 mom.sorted_amp = fft_M(ind);
 mom.freq_sorted_amp = f(ind);
 mom.fft_M = fft_M;
+mom.P = 1./f;
 
 %%
- figure; plot(f, abs(fft_M), '-b.');
+%  figure; plot(1./f, abs(fft_M), '-b.');xlabel('Period [s]');
  %%
 
 return

@@ -85,9 +85,9 @@ sasnir = anc_sift(sasnir, nins);
 sasvis = anc_sift(sasvis, vins);
 
 win = interp1(sasnir.vdata.wavelength, [1:length(sasnir.vdata.wavelength)],cimel.wavelength,'nearest');
-win(isNaN(win)) = 1; sasnir.vdata.zenith_radiance(1,:) = NaN;
+win(isnan(win)) = 1; sasnir.vdata.zenith_radiance(1,:) = NaN;
 wiv = interp1(sasvis.vdata.wavelength, [1:length(sasvis.vdata.wavelength)],cimel.wavelength,'nearest');
-wiv(isNaN(wiv)) = 1;sasvis.vdata.zenith_radiance(1,:) = NaN;
+wiv(isnan(wiv)) = 1;sasvis.vdata.zenith_radiance(1,:) = NaN;
 
 
 ssfr.vdata.sza = interp1(sasnir.time, sasnir.vdata.solar_zenith,ssfr.time,'nearest');

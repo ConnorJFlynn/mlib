@@ -112,7 +112,7 @@ linkaxes(axx,'x');
 %%
 
 [ccd_osf1.scan_nm, ccd_osf1.norm_peaks, ccd_osf1.peaks] = mono_peaks(ccd_osf1.nm, ccd_osf1.less_dark_b);
-good_pix = ~isNaN(ccd_osf1.nm);
+good_pix = ~isnan(ccd_osf1.nm);
 figure; imagesc(ccd_osf1.nm(good_pix), ccd_osf1.scan_nm, real(log10(ccd_osf1.norm_peaks(:,good_pix)))); axis('xy') ; colorbar
 caxis([-5,.1]);
 xlabel('pixel wavelength [nm]')
@@ -123,7 +123,7 @@ title('CCD normalized pixel response')
 
 [ccdx_osf1.scan_nm, ccdx_osf1.norm_peaks, ccdx_osf1.peaks] = mono_peaks(ccdx_osf1.nm, ccdx_osf1.less_dark_b);
 %%
-good_pix = ~isNaN(ccd_osf1.nm);
+good_pix = ~isnan(ccd_osf1.nm);
 figure; imagesc(ccdx_osf1.nm(good_pix), ccdx_osf1.scan_nm, real(log10(ccdx_osf1.norm_peaks(:,good_pix)))); axis('xy') ; colorbar
 caxis([-5,.1]);
 xlabel('pixel wavelength [nm]')
@@ -234,7 +234,7 @@ linkaxes(axx,'x');
 %%
 
 [ccd_osf2.scan_nm, ccd_osf2.norm_peaks, ccd_osf2.peaks] = mono_peaks(ccd_osf2.nm, ccd_osf2.less_dark_b);
-good_pix = ~isNaN(ccd_osf2.nm);
+good_pix = ~isnan(ccd_osf2.nm);
 figure; imagesc(ccd_osf2.nm(good_pix), ccd_osf2.scan_nm, real(log10(ccd_osf2.norm_peaks(:,good_pix)))); axis('xy') ; colorbar
 caxis([-5,.1]);
 xlabel('pixel wavelength [nm]')
@@ -244,7 +244,7 @@ title('CCD normalized pixel response')
 %%
 
 [ccdx_osf2.scan_nm, ccdx_osf2.norm_peaks, ccdx_osf2.peaks] = mono_peaks(ccdx_osf2.nm, [ccdx_osf2.less_dark_b]);
-good_pix = ~isNaN(ccdx_osf2.nm);
+good_pix = ~isnan(ccdx_osf2.nm);
 figure; imagesc(ccdx_osf2.nm(good_pix), ccdx_osf2.scan_nm, real(log10(ccdx_osf2.norm_peaks(:,good_pix)))); axis('xy') ; colorbar
 caxis([-5,.1]);
 xlabel('pixel wavelength [nm]')
@@ -360,7 +360,7 @@ linkaxes(axx,'x');
 %%
 
 [ccd_osf3.scan_nm, ccd_osf3.norm_peaks, ccd_osf3.peaks] = mono_peaks(ccd_osf3.nm, ccd_osf3.less_dark_b);
-good_pix = ~isNaN(ccd_osf3.nm);
+good_pix = ~isnan(ccd_osf3.nm);
 figure; imagesc(ccd_osf3.nm(good_pix), ccd_osf3.scan_nm, real(log10(ccd_osf3.norm_peaks(:,good_pix)))); axis('xy') ; colorbar
 caxis([-5,.1]);
 xlabel('pixel wavelength [nm]')
@@ -370,7 +370,7 @@ title('CCD normalized pixel response')
 %%
 
 [ccdx_osf3.scan_nm, ccdx_osf3.norm_peaks, ccdx_osf3.peaks] = mono_peaks(ccdx_osf3.nm, [ccdx_osf3.less_dark_b]);
-good_pix = ~isNaN(ccdx_osf3.nm);
+good_pix = ~isnan(ccdx_osf3.nm);
 figure; imagesc(ccdx_osf3.nm(good_pix), ccdx_osf3.scan_nm, real(log10(ccdx_osf3.norm_peaks(:,good_pix)))); axis('xy') ; colorbar
 caxis([-5,.1]);
 xlabel('pixel wavelength [nm]')

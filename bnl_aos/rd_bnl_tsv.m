@@ -30,7 +30,7 @@ while a < 39
     a = a +1;
 end
 
-A = textscan(fid, ['%s %s ' repmat('%f ',[1,length(AA)-2]) ' %*[^\n]'],'delimiter','\t');
+A = textscan(fid, ['%s ' repmat('%f ',[1,length(AA)-1]) ' %*[^\n]'],'delimiter','\t');
 fclose(fid);
 DT = A{1};A(1) = [];
 bnl.time = datenum(DT,'yy-mm-dd HH:MM:SS');clear DT 

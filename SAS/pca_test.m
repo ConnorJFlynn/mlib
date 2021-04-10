@@ -2,13 +2,13 @@
 pname = ['C:\case_studies\SAS\testing_and_characterization\nov3_blue_sky\n_1s\'];
 dats = dir([pname, 'sas*.csv']);
 %
-nir_1s = SAS_read_ava([pname,dats(1).name]);
+nir_1s = SAS_read_Albert_csv([pname,dats(1).name]);
 %%
 for d = 2:length(dats);
    if mod(d,10)==0
       disp(['Reading ',num2str(d)]);
    end
-   nir_1s = catsas(nir_1s,SAS_read_ava([pname,dats(d).name]));
+   nir_1s = catsas(nir_1s,SAS_read_Albert_csv([pname,dats(d).name]));
 end
 save([pname,char(nir_1s.fname),'.mat'],'sas');
 %%
@@ -63,10 +63,10 @@ legend(['Component ',num2str(n)]);
 pname = ['C:\case_studies\SAS\testing_and_characterization\nov3_blue_sky\vis_1s\'];
 dats = dir([pname, 'sas*.csv']);
 %
-sas = SAS_read_ava([pname,dats(1).name]);
+sas = SAS_read_Albert_csv([pname,dats(1).name]);
 %%
 for d = 2:length(dats);
-   sas = catsas(sas,SAS_read_ava([pname,dats(d).name]));
+   sas = catsas(sas,SAS_read_Albert_csv([pname,dats(d).name]));
    if mod(d,10)==0
       disp(['saving ',num2str(d)]);
    end

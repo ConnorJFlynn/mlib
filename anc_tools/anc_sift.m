@@ -60,7 +60,7 @@ function [nc1, nc2] = anc_sift (nc, dim_indices,  dim)
 %-------------------------------------------------------------------
 
 % Determine complement of input dimension indices.
-if ~exist('dim','var')
+if isempty(who('dim'))
     if isfield(nc.ncdef,'recdim')&&~isempty(nc.ncdef.recdim.name)
         dim = nc.ncdef.dims.(nc.ncdef.recdim.name);
     else
@@ -104,7 +104,7 @@ if isfield(ncout.ncdef,'recdim')&&(strcmp(dimname, ncout.ncdef.recdim.name))
 end
 
 % Handle time special case.
-if (strcmp(dimname, 'time') && isfield(ncout, 'time'))
+if isfield(ncout, 'time') && length(ncout.time)==ncin.ncdef.recdim.length
     ncout.time = ncout.time(indices);
 end
 

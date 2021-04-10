@@ -1,7 +1,7 @@
 function ava = SAS_reconnect_postpeak(ins)
 
 
-ins = SAS_read_ava;
+ins = SAS_read_Albert_csv;
 figure; plot([1:230],ins.Sum,'o')
 title('Variability on connect/reconnect after peaking collimator throughput')
 xlabel('record number')

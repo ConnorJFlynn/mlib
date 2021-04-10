@@ -50,20 +50,7 @@ elseif nargin == 1
       end;
    end;
 else
-   dirtemp = dir('*.*');
-   if isempty(dirlist);
-      clear dirlist;
-      dirlist = dirtemp;
-   else
-      list_len = length(dirlist);
-      for i = 1:length(dirtemp);
-         duplicate = 0;
-         for j = 1:list_len
-            if (strcmp(dirlist(j).name, dirtemp(i).name))==1 ; duplicate = 1;  end;
-         end;
-         if (duplicate ~=1); dirlist(length(dirlist)+1) = dirtemp(i); end;
-      end;
-   end;
+   dirlist = dir('*.*');
 end
 
 

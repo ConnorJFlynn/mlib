@@ -74,8 +74,8 @@ in_spec.P1 = P1;
 % smooth_FWHM = smooth(FWHM(~flagged),12);
 % [scan_nm, ij] = unique(round(scan_nm));
 % smooth_FWHM = smooth_FWHM(ij);
-% in_spec.FWHM(isNaN(in_spec.FWHM)) = interp1(in_spec.scan_nm(~flagged),in_spec.FWHM(~flagged),in_spec.scan_nm(isNaN(in_spec.FWHM)),'pchip');
-% in_spec.FWHM(isNaN(in_spec.FWHM)) = interp1(in_spec.scan_nm(~flagged),FWHM(~flagged),in_spec.scan_nm(isNaN(in_spec.FWHM)),'nearest','extrap');
+% in_spec.FWHM(isnan(in_spec.FWHM)) = interp1(in_spec.scan_nm(~flagged),in_spec.FWHM(~flagged),in_spec.scan_nm(isnan(in_spec.FWHM)),'pchip');
+% in_spec.FWHM(isnan(in_spec.FWHM)) = interp1(in_spec.scan_nm(~flagged),FWHM(~flagged),in_spec.scan_nm(isnan(in_spec.FWHM)),'nearest','extrap');
 % %%
 % figure; lines = plot(in_spec.nm, in_spec.spec_less_dark,'-');
 % lines = recolor(lines, in_spec.scan_nm');
@@ -95,8 +95,8 @@ axis('xy');  colorbar
 title({last_dir;in_spec.sn}, 'interp','none');
 ylabel('scan nm')
 xlabel('pixel')
- saveas(gcf,[in_spec.pname,in_spec.sn,'_monoscan_raw_image.emf']);
-  saveas(gcf,[in_spec.pname,in_spec.sn,'_monoscan_raw_image.png']);
+%  saveas(gcf,[in_spec.pname,in_spec.sn,'_monoscan_raw_image.emf']);
+%   saveas(gcf,[in_spec.pname,in_spec.sn,'_monoscan_raw_image.png']);
 
 %%
 % B = fill_img_nogap(in_spec.norm, in_spec.scan_nm');

@@ -11,7 +11,7 @@ for as = 1:length(aip_files)
    year = txt{3};
    [infilename] = dir(['E:\case_studies\ABE_vert_profs\newABE\sgpaerosolbe1turnC1.c1.',year,'.*.cdf']);
    % [infilename] =
-   % getfullname(['E:\case_studies\ABE_vert_profs\newABE\sgpaip1ogrenC1.*.cdf']);
+   % getfullname_(['E:\case_studies\ABE_vert_profs\newABE\sgpaip1ogrenC1.*.cdf']);
    
    if (length(infilename)==1)&&(exist([pname,aip_files(as).name],'file'))&&(exist([pname, infilename(1).name],'file'))
       close('all')

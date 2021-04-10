@@ -1,13 +1,15 @@
 function line_num = gen_aip_cimel_strings(inp)
 % I think this properly distinguishes ground-level (hlyr) from
 % flight-level (houtput) and H(NLYR) and W(NLYR).  
+% Adding input data level as ASCII tag to first line 'anet_level"
 
 % first_line: 94   31   1  -1  0  0  1   0  1  : KM KN KL IT ISZ IMSC IMSC1
 ln = 1; % Initialize line number to 1
 [KM, KN, KL, IT, ISZ, IMSC, IMSC1, ISTOP, IEL] = ...
     deal(inp.KM, inp.KN, inp.KL,inp.IT, inp.ISZ, inp.IMSC, inp.IMSC1, inp.ISTOP, inp.IEL);
-line_num(ln) = {sprintf('%-4d %-4d %-4d %-4d %-4d %-4d %-4d %-4d %-4d  : KM KN KL IT ISZ IMSC IMSC1 ISTOP IEL', ...
-    KM, KN, KL, IT, ISZ, IMSC, IMSC1, ISTOP, IEL)};
+lev = inp.anet_level;
+line_num(ln) = {sprintf('%-4d %-4d %-4d %-4d %-4d %-4d %-4d %-4d %-4d  : KM KN KL IT ISZ IMSC IMSC1 ISTOP IEL; ANET inp level: %1.1f', ...
+    KM, KN, KL, IT, ISZ, IMSC, IMSC1, ISTOP, IEL, lev)};
 ln = ln +1;
 % Second line: % 1 4 1 0 0 1 1 : NSD  NW  NLYR  NBRDF  NBRDF1
 % READ (*,*) NSD,NW,NLYR,NBRDF,NBRDF1,NSHAPE,IEND !! Read line 2
@@ -123,8 +125,9 @@ ln = ln + 1;
     deal(inp.EPSP, inp.EPST, inp.EPSQ, inp.DL, inp.AREF, inp.EPSD);
 line_num(ln) = {[sprintf('%-1.1e ',EPSP,EPST,EPSQ,DL,AREF,EPSD), ' EPSP,EPST,EPSQ,DL,AREF']};
 ln = ln + 1;
-
-line_num(ln) = {[sprintf('MEASUREMENTS: '),sprintf('(rad scaled by %1.3f)',inp.rad_scale), sprintf(' aods:'),sprintf(' %1.2f',inp.aods)]};
+% Here is where the indication of passing L1.5 or L2.0 input criteria goes
+line_num(ln) = {[sprintf('MEASUREMENTS: '),sprintf('(rad scaled by %1.3f)',...
+   inp.rad_scale), sprintf(' aods:'),sprintf(' %1.2f',inp.aod), ' dOD:',sprintf('%1.2f',inp.dOD)]};
 ln = ln + 1;
 for iw = 1:NW
     meas = inp.geom.WAVE_(iw).meas;
@@ -328,17 +331,4 @@ ln = ln +1;
 end
 line_num(ln) = {sprintf('%s',inp.date_time_site_unit)};
 
-% for lin = 1:length(line_num)
-% %     disp(sprintf(line_num{lin}));
-% end
-
-% if exist('C:\z_4STAR\work_2aaa__\4STAR_.input','file')
-%      [SUCCESS,MESSAGE,MESSAGEID] = ...
-%          movefile('C:\z_4STAR\work_2aaa__\4STAR_.input',['C:\z_4STAR\work_2aaa__\4STAR_.',datestr(now,'yyyymmdd_HHMMSS'),'.input']);
-% end
-% fid = fopen('C:\z_4STAR\work_2aaa__\4STAR_.input','w');
-% c = onCleanup(@()fclose(fid));
-% for lin = 1:length(line_num)
-%     fprintf(fid,'%s \n',line_num{lin});
-% end
 return

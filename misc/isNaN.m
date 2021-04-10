@@ -1,3 +1,3 @@
 function TorF = isNaN(x);
-TorF = isnan(x);
+TorF = builtin('isnan',x);
 return

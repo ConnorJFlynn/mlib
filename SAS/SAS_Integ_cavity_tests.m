@@ -4,7 +4,7 @@ function ins = SAS_Integ_cavity_tests(infile)
 % 4STAR type collector.  Need to check with Albert exactly what the
 % configuration was, dims etc.  Looks like the addition of the integrating
 % cavity increased the signal by about 10%.
-%ins = SAS_read_ava(infile)
+%ins = SAS_read_Albert_csv(infile)
 % Reads one of Albert's Labview files for with multiple AvaSpec spectra per data file.
 %
 if ~exist('infile','var')

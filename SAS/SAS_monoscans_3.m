@@ -5,7 +5,7 @@ function in_spec = SAS_monoscans_3(indir)
 %%
 % mono = SAS_monoscans_3(indir)
 % reads new spectrometer format with header row and N lines of data
-in_spec = SAS_read_ava;
+in_spec = SAS_read_Albert_csv;
 last_dir = in_spec.pname;
 last_dir = fliplr(strtok(fliplr(last_dir),filesep));
 in_spec.scan_nm = in_spec.Wavelength;

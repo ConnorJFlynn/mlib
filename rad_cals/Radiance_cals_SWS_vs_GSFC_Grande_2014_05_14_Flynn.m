@@ -2,7 +2,7 @@ function [Si_resp, In_resp] = Radiance_cals_SWS_vs_GSFC_Grande_2014_05_14
 % 
 %%
 
-rad = get_grande('D:\case_studies\radiation_cals\spheres\GSFC_Grande\');
+rad = get_grande('F:\case_studies\radiation_cals\cal_sources_references_xsec\GSFC_Grande\');
 %%
 done = false;
 while ~done
@@ -11,8 +11,8 @@ while ~done
         done= true;
     else
         pause(.05);
-        infile = getfullname('*.raw.dat','sws_cal','Select a SWS file in desired Lamp directory');
-        
+nir_file = getfullname('*SASZe*nir*.csv','SASZE_cals','Select SASZe NIR cal file.');
+nir = rd_raw_SAS(nir_file);        
         [pname, fname] = fileparts(infile);pname = [pname, filesep];
         lamp_i = strfind(pname, 'lamp')
         if ~isempty(lamp_i)
@@ -23,6 +23,9 @@ while ~done
             lamp = [lamp, '_att_100'];
         end
         files = dir([pname,'*.raw.dat']);
+        nir = rd_raw_SAS(nir_file);
+        filename = [nir.pname, strrep(nir.fname{:}, 'nir','vis')];
+        vis = rd_raw_SAS(filename);
         sws =bundle_sws_raw_2(files,pname);
 %         tmp = load([pname, filesep,files(1).name]); sws = tmp.sws_raw; clear tmp;
 %         for f = 2:length(files)

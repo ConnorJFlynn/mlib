@@ -7,8 +7,8 @@ if nargin==0
 end
 mpl_pname = ['F:\datastream\sgp\sgpmplC1\cdf\'];
 mfrsrod_pname = ['F:\datastream\sgp\sgpnimfrod1barnmichE13.c1\cdf\'];
-cmdlaos_pname = ['F:\datastream\sgp\sgpcmdlaosC1\cdf\'];
-twrmr_pname = ['F:\datastream\sgp\sgp1twrmrC1\cdf\'];
+% cmdlaos_pname = ['F:\datastream\sgp\sgpcmdlaosC1\cdf\'];
+% twrmr_pname = ['F:\datastream\sgp\sgp1twrmrC1\cdf\'];
 sonde_pname = ['F:\datastream\sgp\sgplssondeC1\cdf\'];
 
 [mpl,status] = mpl_con_nor(filename);
@@ -23,13 +23,13 @@ mpl.sonde.tau_15_25 = mean(mpl.sonde.tau(mpl.r.ge15_le25));
 Jd0 = serial2doy0(mpl.time);
 disp('Getting MFRSR Optical Depths');
 [mpl.mfrsrod] = time4mfrsrod(Jd0, [mfrsrod_pname fname]);
-disp('Getting cmdlaos data.')
-[mpl.cmdlaos] = time4cmdlaos(Jd0, [cmdlaos_pname fname]);
-figure; plot(serial2doy0(mpl.time), mpl.cmdlaos.Bbsp_G_1um_RefRH); title(['Bbsp Grn 1um vs Time'])
+% disp('Getting cmdlaos data.')
+% [mpl.cmdlaos] = time4cmdlaos(Jd0, [cmdlaos_pname fname]);
+% figure; plot(serial2doy0(mpl.time), mpl.cmdlaos.Bbsp_G_1um_RefRH); title(['Bbsp Grn 1um vs Time'])
 %disp('Getting twrmr data.')
 %[mpl.twrmr] = time4twrmr(Jd0, [twrmr_pname fname]);
 
-disp('Renormalizing with AOS Bbsp');
+% disp('Renormalizing with AOS Bbsp');
 % mpl.hk.Bbsp_sfc = mpl.cmdlaos.Bbsp_G_1um_RefRH/1000 + mpl.sonde.beta_R(1);
 % for t = length(mpl.time):-1:1
 %    mpl.prof(:,t) = mpl.prof(:,t) * (mpl.hk.Bbsp_sfc(t)/mpl.prof(3,t));

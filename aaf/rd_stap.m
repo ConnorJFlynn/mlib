@@ -6,7 +6,10 @@ if ~exist('ins','var') || ~exist(ins,'file')
     ins = getfullname('*.TXT','stap');
 end
 if ~exist('spot_area','var')
-    spot_area = 17.81; % default PSAP spot area in mm^2
+    spot_area = 17.91; %  spot area = 0.188" in diam = 0.094" rad = 2.3876 mm ==> 17.91 mm^2
+    % psap default = 17.81
+    % in mm^2
+% TAP Pall E70 default: 3.0721E-5
 end
 
 bo = 0; b1 = 1;
@@ -85,25 +88,30 @@ figure; plot(stap.time, stap.red_rel./max(stap.red_rel),'r.',...
 % transmittance.
 tic; 
 disp('Computing flow sm');
-    ss = 32;
-    dt = ss./(24*60*60); % 16-second half-width, 32-second full-width
+    ss = 30;
+    dt = ss./(24*60*60); % 8-second half-width, 16-second full-width
     stap.flow_sm = sliding_polyfit(stap.time, stap.sample_flow, dt);
-
+figure; plot(stap.time, stap.sample_flow, '.',stap.time, stap.flow_sm,'r.')
 disp(toc);tic; disp('Computing Ba B sm')
-
-[stap.Ba_B_sm, stap.trans_B_sm] = smooth_Tr_Bab(stap.time, stap.flow_sm, stap.trans_B,ss,spot_area );
+stap.trans_B_sm = sliding_polyfit(stap.time,stap.trans_B,dt./2);
+stap.trans_G_sm = sliding_polyfit(stap.time,stap.trans_G,dt./2);
+stap.trans_R_sm = sliding_polyfit(stap.time,stap.trans_R,dt./2);
+[stap.Ba_B_sm] = smooth_Bab(stap.time, stap.flow_sm, stap.trans_B_sm, ss, spot_area );
 disp(toc);tic;disp('Computing Ba G sm')
-[stap.Ba_G_sm, stap.trans_G_sm] = smooth_Tr_Bab(stap.time, stap.flow_sm, stap.trans_G,ss,spot_area );
+[stap.Ba_G_sm] = smooth_Bab(stap.time, stap.flow_sm, stap.trans_G_sm,ss,spot_area );
 disp(toc);tic;disp('Computing Ba R sm')
-[stap.Ba_R_sm, stap.trans_R_sm] = smooth_Tr_Bab(stap.time, stap.flow_sm, stap.trans_R,ss,spot_area );
+[stap.Ba_R_sm] = smooth_Bab(stap.time, stap.flow_sm, stap.trans_R_sm,ss,spot_area );
 disp(toc);disp('Done computing absorption coefs (no filter-loading correction)')
-figure; plot(stap.time, [stap.trans_B./max(stap.blu_rel),stap.trans_G./max(stap.grn_rel),stap.trans_R./max(stap.red_rel)],'.',...
-    stap.time, [stap.trans_B_sm./max(stap.blu_rel),stap.trans_G_sm./max(stap.grn_rel),stap.trans_R_sm./max(stap.red_rel)],'-');dynamicDateTicks
-legend('Tr_B raw','Tr B raw','Tr R raw','Tr B smooth', 'Tr G smooth', 'Tr R smooth');
 
+stap.Ba_B_Bond =  stap.Ba_B_sm.* WeissBondOgren(stap.trans_B);
+stap.Ba_G_Bond =  stap.Ba_G_sm.* WeissBondOgren(stap.trans_G);
+stap.Ba_R_Bond =  stap.Ba_R_sm.* WeissBondOgren(stap.trans_R);
 
-figure; plot(stap.time, [stap.Ba_B_sm, stap.Ba_G_sm, stap.Ba_R_sm],'-');dynamicDateTicks
-legend('Ba B stap','Ba G stap','Ba R stap');
-
-
+figure; plot(stap.time, [stap.Ba_B_Bond, stap.Ba_G_Bond, stap.Ba_R_Bond],'.',...
+   stap.time-1./(24*60), [stap.Ba_B, stap.Ba_G, stap.Ba_R],'.' );dynamicDateTicks
+legend('Ba B stap sm','Ba G stap sm','Ba R stap sm','Ba B bmi','Ba G bmi','Ba R bmi');
+[~,title_str] = fileparts(ins);
+title(title_str,'interp','none')
+saveas(gcf,strrep(ins,'.TXT','.fig'))
+save(strrep(ins,'.TXT','.mat'),'-struct','tap');
 return

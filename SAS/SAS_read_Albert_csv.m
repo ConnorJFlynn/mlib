@@ -1,9 +1,13 @@
 function ins = SAS_read_Albert_csv(infile)
-%ins = SAS_read_ava(infile)
+%ins = SAS_read_Albert_csv(infile)
 % Reads one of Albert's Labview files for with multiple AvaSpec spectra per data file.
 %
-if ~exist('infile','var')
-   infile= getfullname('*.csv','ascii');
+if ~isavar('infile')||~isafile(infile)
+   if ~isavar('infile')
+      infile= getfullname('*.csv','ascii');
+   else
+      infile= getfullname(infile,'ascii');
+   end
 end
 [pname, fname,ext] = fileparts(infile);
 fname = [fname,ext];
@@ -93,17 +97,17 @@ if isfield(ins, 'Shutter_open_TF')
    ins.Shuttered_0 = ins.Shutter_open_TF;
 end
 darks = mean(ins.spec(ins.Shuttered_0==0,:)); lights = mean(ins.spec(ins.Shuttered_0==1,:));
+ins.lights = lights; ins.darks = darks; ins.sig = lights - darks;
+
 if sum(ins.Shuttered_0==0)>0&&sum(ins.Shuttered_0==1)>0
-figure; 
-ax(1) = subplot(2,1,1);
- these = semilogy(ins.nm, lights-darks, 'b-');
- ax(2) = subplot(2,1,2);
- these = plot(ins.nm, lights-darks, 'b-');
- linkaxes(ax,'x');
+    figure;
+    ax(2) = subplot(2,1,2);
+    these = plot(ins.nm, lights,'b-',ins.nm,darks, 'k-', ins.nm, lights-darks,'-r');
+    logy;
+    ax(1) = subplot(2,1,1);
+    those = plot(ins.nm, lights,'b-',ins.nm,darks, 'k-', ins.nm, lights-darks,'-r');
+    legend('lights','darks','sig');
+    linkaxes(ax,'x');
 end
-
- 
-
-%%
 
 return

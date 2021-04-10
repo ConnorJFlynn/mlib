@@ -1,4 +1,4 @@
-function [atten_bscat,tau, altitude, temperature, pressure] = sonde_ray_atten(sonde_fid, range);
+function [atten_bscat,tau, altitude, temperature, pressure] = sonde_ray_atten(sonde, range);
 % [atten_bscat,tau,altitude,temperature,pressure] = sonde_ray_atten(sonde_fid);
 % [atten_bscat,tau,max_altitude,temperature,pressure] = sonde_ray_atten(sonde_fid, range);
 %  
@@ -12,24 +12,21 @@ function [atten_bscat,tau, altitude, temperature, pressure] = sonde_ray_atten(so
 % optical depth, temperature, and pressure are interpolated to the match
 % the supplied range up to the max_altitude of the sonde.
 
-altitude = nc_getvar(sonde_fid, 'alt');
+if isstruct(sonde)
+   altitude = sonde.vdata.alt';
+   temperature = sonde.vdata.tdry';% Temp is in C
+   pressure = sonde.vdata.pres'; % pressure is already in hPa ~= mBarr
+end
 if (max(altitude) >= 1000) 
    altitude = altitude/1000; % convert from meter to km
 end;
-temperature = nc_getvar(sonde_fid, 'tdry');
 if (min(temperature) <= 0)
    temperature = temperature + 273.15; % convert from Celcius to Kelvin
 end;
-pressure = nc_getvar(sonde_fid, 'pres'); % pressure is already in hPa ~= mBarr
 
-[altitude, i] = sort(altitude);
+[altitude, i] = unique(altitude);
 temperature = temperature(i);
 pressure = pressure(i);
-dups = find(diff(altitude)==0)+1;
-
-altitude(dups) = [];
-temperature(dups) = [];
-pressure(dups) = [];
 max_height = max(altitude);
 
 %Then, with the TP profs, call ray_a_b(T,P) for Rayleigh alpha and beta.

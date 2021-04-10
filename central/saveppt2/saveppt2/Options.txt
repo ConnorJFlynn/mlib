@@ -1,0 +1,30 @@
+Annotation:
+'n' 'notes'          - Add information to notes section.
+'text' 'textbox'     - Add text box.
+'comment' 'comments' - Add comment. (Only works if PowerPoint is visible)
+    - \t and \n are converted to tab and new line, respectively.
+'t' 'title' - Add a title or add a blank title so that one may be added later. Title is placed at the top of the presentation unless a padding is specified.
+If 'title' or 'textbox' is specified alone a blank placeholder will be added.
+
+Figure Options
+'f' 'fig' 'figure'     - Use the specified figure handle. Also accepts an array of figures. More than 4 figures is not recommended as it makes it difficult to see in the plot. Default: gcf
+                         If figure is 0, a blank page is added. If a title is specified then a title page is added.
+'d' 'driver' 'drivers' - [meta, bitmap]. Send figure to clipboard Metafile or Bitmap format. See also print help.
+'r' 'render'           - [painters,zbuffer,opengl]. Choose print render mode. See also print help.
+'res' 'resolution'     - Dots-per-inch resolution. Default: 90 for Simulink, 150 for figures. See also print help.
+
+Slide Layout
+'st' 'stretch'      - Used only with scale, stretch the figure to fill all remaining space (taking into account padding and title). Default: on
+'s' 'sc' 'scale'    - Scale the figure to remaining space on the page while maintaining aspect ratio, takes into account padding and title spacing. Default: on
+'h' 'halign'        - ['left','center','right']. Horizontally align figure. Default: center
+'v' 'valign'        - ['top','center','bottom']. Vertically align the graph. Default: center
+'p' 'pad' 'padding' - Place a padding around the figure that is used for alignment and scaling. Can be one number to be applied equally or an array in the format of [left right top bottom]. Useful when plotting to template files. Default: 0
+'c' 'col' 'columns' - Number of columns to place multiple plots in. Default: 2
+
+PowerPoint Control
+'i' 'init' - Initialize PowerPoint presentation for use in batch mode. Returns a PowerPoint Presentation Object.
+'close'    - Close PowerPoint presentation. Default: true
+'save'     - Save PowerPoint Presentation. Useful for saves in batch mode.
+'ppt'      - Call saveppt2 with specified PowerPoint Presentation object.
+'visible'  - Make PowerPoint visible.
+'template' - Use template file specified. Is only used if the save file does not already exist.

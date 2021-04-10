@@ -11,13 +11,12 @@ function [atten_bscat, tau, altitude, temperature, pressure] = get_sonde_ray_att
 % Finally, if a range profile was supplied, the attenuated scattering, 
 % optical depth, temperature, and pressure are interpolated to the match
 % the supplied range up to the max_altitude of the sonde.
-[fname, pname] = file_path('*.nc;*.cdf','sonde');
+sonde_file = getfullname('*.nc;*.cdf','sonde','Select a sonde file');
+sonde = anc_load(sonde_file);
 
-[cdfid] = ncmex('OPEN', [pname fname], 'NO_WRITE');
 if (nargin==0)
-    [atten_bscat, tau, altitude, temperature, pressure] = sonde_ray_atten(cdfid);
+    [atten_bscat, tau, altitude, temperature, pressure] = sonde_ray_atten(sonde);
 else 
-    [atten_bscat, tau, max_altitude, temperature, pressure] = sonde_std_atm_ray_atten(cdfid, range);
+    [atten_bscat, tau, max_altitude, temperature, pressure] = sonde_std_atm_ray_atten(sonde, range);
     altitude = max_altitude;  %pass max_altitude back instead of sonde altitude profile
 end;
-ncmex('close', cdfid);

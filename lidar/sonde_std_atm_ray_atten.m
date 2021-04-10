@@ -13,16 +13,13 @@ function [attn_prof,tau, altitude, temperature, pressure] = sonde_std_atm_ray_at
 % optical depth, temperature, and pressure are interpolated to the match
 % the supplied range up to the max_altitude of the sonde.
 if nargin == 0
-   sonde = ancload;
+sonde_file = getfullname('*.nc;*.cdf','sonde','Select a sonde file');
+sonde = anc_load(sonde_file);
 end
 if isstruct(sonde)
-   altitude = sonde.vars.alt.data';
-   temperature = sonde.vars.tdry.data';
-   pressure = sonde.vars.pres.data';
-else
-  altitude = nc_getvar(sonde_fid, 'alt')';
-  temperature = nc_getvar(sonde_fid, 'tdry')';
-  pressure = nc_getvar(sonde_fid, 'pres')'; % pressure is already in hPa ~= mBarr
+   altitude = sonde.vdata.alt';
+   temperature = sonde.vdata.tdry';% Temp is in C
+   pressure = sonde.vdata.pres'; % pressure is already in hPa ~= mBarr
 end
 if (max(altitude) >= 1000) 
    altitude = altitude/1000; % convert from meter to km
@@ -32,15 +29,11 @@ if (min(temperature) <= 0)
 end;
 
 
-[altitude, i] = sort(altitude);
+[altitude, i] = unique(altitude);
 altitude = altitude';
 temperature = temperature(i)';
 pressure = pressure(i)';
-dups = find(diff(altitude)==0)+1;
 
-altitude(dups) = [];
-temperature(dups) = [];
-pressure(dups) = [];
 
 std_alt=[0 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30];
 %std_temp=[301.15 288.16 277.19 266.22 252.29 238.35 224.42 210.49 203.15 207.38 211.75 216.11 220.47 224.83 229.19 233.55];

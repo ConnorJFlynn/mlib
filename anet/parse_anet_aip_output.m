@@ -1,16 +1,18 @@
 function anetaip = parse_anet_aip_output(outname)
 % Search for "Wavelength Dependence" and read the block of
-if ~exist('outname','var')
+if ~isavar('outname')
     outname = getfullname('4STAR_*.output','anet_results');
 end
-
-if exist('outname','var')&&exist(outname, 'file')
+[pname, fname, ext] = fileparts(outname); ii = findstr(fname, '_SKY');
+fstem = fname(1:ii+4);
+if isavar('outname')&&isafile(outname)
+    cnvt_txt_file_to_pc(outname);
     fid = fopen(outname); 
     outfile = char(fread(fid,'uchar'))';
     fclose(fid);
-    anetaip.output_fname = outname;
+    anetaip.output_fname = outname; anetaip.fstem = fstem;
     inputname = strrep(outname, '.output','.input');
-    if exist(inputname, 'file') % Read a bunch of supporting data from the input file
+    if isafile(inputname) % Read a bunch of supporting data from the input file
         anetaip.input_fname = inputname;
     fid = fopen(anetaip.input_fname);
     done = false;
@@ -32,6 +34,22 @@ if exist('outname','var')&&exist(outname, 'file')
     else
         anetaip.input.aods = [];
     end
+    if feof(fid)
+       fseek(fid, 0, -1);
+    end  
+   n= 0;
+   while ~feof(fid)
+      in_str = fgetl(fid);
+      if ~isempty(findstr(in_str,'albedo(IW)'))
+         n= n +1;
+         sfc_alb(n) = sscanf(in_str,'%f %*[^\n]');
+      end
+   end  
+   if isavar('sfc_alb')
+      anetaip.sfc_alb = sfc_alb;
+   else
+      anetaip.sfc_alb = [];
+   end
     if feof(fid)
        fseek(fid, 0, -1);
     end
@@ -114,6 +132,13 @@ for jj =1:length(anetaip.Wavelength)
     anetaip.PF_coarse(:,jj) = tmp{4};
 end
 
+for W = length(anetaip.Wavelength):-1:1
+anetaip.g_tot(W) = 0.5.*trapz((pi./180).*anetaip.PF_angle(:,W), sind(anetaip.PF_angle(:,W)).*cosd(anetaip.PF_angle(:,W)).* anetaip.PF_total(:,W));
+anetaip.g_fine(W) = 0.5.*trapz((pi./180).*anetaip.PF_angle(:,W), sind(anetaip.PF_angle(:,W)).*cosd(anetaip.PF_angle(:,W)).* anetaip.PF_fine(:,W));
+anetaip.g_coarse(W) = 0.5.*trapz((pi./180).*anetaip.PF_angle(:,W), sind(anetaip.PF_angle(:,W)).*cosd(anetaip.PF_angle(:,W)).* anetaip.PF_coarse(:,W));
+end
+
+
 %%
 instr = 'Fluxes:';
 ii = strfind(outfile,instr );
@@ -132,7 +157,7 @@ block_start = find(linestart(blocks)>ii,1,'first')-1; % negative needed due to m
 block_str = outfile(linestart(blocks(block_start)):linestart(blocks(block_start+1)));
 
 tmp = textscan(block_str,'%f %f %f %f %f %f');
-while ~isempty(strfind(block_str,'-th'))||isempty(tmp{1})
+while (~isempty(strfind(block_str,'-th'))||isempty(tmp{1})) && ~isempty(block_str)
     [~,block_str] = getl(block_str);
     tmp = textscan(block_str,'%f %f %f %f %f %f');
 end
@@ -146,7 +171,7 @@ ii = strfind(outfile,instr );
 block_start = find(linestart(blocks)>ii,1,'first')-1; % negative needed due to missing blank line in output file
 block_str = outfile(linestart(blocks(block_start)):linestart(blocks(block_start+1)));
 tmp = textscan(block_str,'%f %f %f %f %f %f');
-while ~isempty(strfind(block_str,'-th'))||isempty(tmp{1})
+while (~isempty(strfind(block_str,'-th'))||isempty(tmp{1})) && ~isempty(block_str)
     [~,block_str] = getl(block_str);
     tmp = textscan(block_str,'%f %f %f %f %f %f');
 end
@@ -168,7 +193,7 @@ ii = strfind(outfile,instr );
 block_start = find(linestart(blocks)>ii,1,'first'); %
 block_str = outfile(linestart(blocks(block_start)):linestart(blocks(block_start+1)));
 tmp = textscan(block_str,'%f %f %f %f %f %f');
-while ~isempty(strfind(block_str,'-th'))||isempty(tmp{1})
+while (~isempty(strfind(block_str,'-th'))||isempty(tmp{1})) && ~isempty(block_str)
     [~,block_str] = getl(block_str);
     tmp = textscan(block_str,'%f %f %f %f %f %f');
 end
@@ -182,7 +207,7 @@ block_start = find(linestart(blocks)>ii,1,'first') +1; %
 block_str = outfile(linestart(blocks(block_start)):linestart(blocks(block_start+1)));
 %%
 tmp = textscan(block_str,'%f %f %f %*[^\n]');
-while ~isempty(strfind(block_str,'-th'))||isempty(tmp{1})
+while (~isempty(strfind(block_str,'-th'))||isempty(tmp{1})) && ~isempty(block_str)
     [~,block_str] = getl(block_str);
     tmp = textscan(block_str,'%f %f %f %*[^\n]');
 end
@@ -199,7 +224,7 @@ for jj =1:length(anetaip.Wavelength)
     block_str = outfile(linestart(blocks(block_start)):linestart(blocks(block_start+1)));
     tmp = textscan(block_str, '%f %*[^\n]');
     sky_radiances_angle = unique([sky_radiances_angle ; tmp{1}]);
-    
+%     sky_radiances_angle(:,jj) = tmp{1};
 end
 anetaip.sky_radiances_angle = sky_radiances_angle;
 anetaip.sky_radiances_fit = NaN([length(anetaip.sky_radiances_angle),length(anetaip.Wavelength)]);
@@ -211,10 +236,13 @@ for jj =1:length(anetaip.Wavelength)
     tmp = textscan(block_str, '%f %f %f %f %*[^\n]');
     ang = tmp{1};
     ij = interp1(sky_radiances_angle, [1:length(sky_radiances_angle)],ang,'nearest');
-    %     anetaip.sky_radiances_angle(ij) = tmp{1};
+        anetaip.sky_radiances_angle(ij) = tmp{1};
     anetaip.sky_radiances_fit(ij,jj) = tmp{2};
     anetaip.sky_radiances_measured(ij,jj) = tmp{3};
     anetaip.sky_radiances_pct_diff(ij,jj) = tmp{4};
+%     anetaip.sky_radiances_fit(:,jj) = tmp{2};
+%     anetaip.sky_radiances_measured(:,jj) = tmp{3};
+%     anetaip.sky_radiances_pct_diff(:,jj) = tmp{4};
 end
 %%
 %--read Sphericity parameter
@@ -226,10 +254,10 @@ tmp = textscan(block_str,'%f %f');
 anetaip.Sphericity = tmp{1};
 anetaip.Sphericity_err = tmp{2};
 
-plot_anet_aip(anetaip);
 else
     disp('We need an output file...')
 end
+
 return
 %%
 

@@ -8,11 +8,11 @@ end
 %%
 discs = dir([indir,'*connect.']);
 %%
-spec.con(1).vis = SAS_read_ava(getfullname([indir,discs(1).name,filesep,'*.csv']));
+spec.con(1).vis = SAS_read_Albert_csv(getfullname([indir,discs(1).name,filesep,'*.csv']));
 [~,tmp] = strtok(spec.con(1).vis.fname,'_');
 tmp = tmp{:};
 vis_sn = strtok(tmp(2:end),'.');
-spec.con(1).nir = SAS_read_ava(getfullname([indir,discs(1).name,filesep,'*.csv']));
+spec.con(1).nir = SAS_read_Albert_csv(getfullname([indir,discs(1).name,filesep,'*.csv']));
 [~,tmp] = strtok(spec.con(1).nir.fname,'_');
 tmp = tmp{:};
 nir_sn = strtok(tmp(2:end),'.');
@@ -20,10 +20,10 @@ spec.trh(1).trh = SAS_read_trh(getfullname([indir,discs(1).name,filesep,'*T_RH.c
 %%  
 for d = length(discs):-1:2
    vis_file = dir([indir,discs(d).name,filesep,'*',vis_sn,'.csv']);
-   spec.con(d).vis = SAS_read_ava([indir,discs(d).name,filesep,vis_file(1).name]);
+   spec.con(d).vis = SAS_read_Albert_csv([indir,discs(d).name,filesep,vis_file(1).name]);
 %    spec.con(d).vis
    nir_file = dir([indir,discs(d).name,filesep,'*',nir_sn,'.csv']);
-   spec.con(d).nir = SAS_read_ava([indir,discs(d).name,filesep,nir_file(1).name]);
+   spec.con(d).nir = SAS_read_Albert_csv([indir,discs(d).name,filesep,nir_file(1).name]);
    trh_file = dir([indir,discs(d).name,filesep,'*T_RH.csv']);
    spec.con(d).trh = SAS_read_trh([indir,discs(d).name,filesep,trh_file(1).name]);
 end  

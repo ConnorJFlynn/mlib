@@ -55,21 +55,29 @@ for h = 1:length(hk)
 end
 
 % Define the backgroudn range.
-if any(polavg.range<0)
-    r.bg = polavg.range<-.1;
-else
-    r.bg = (polavg.range>=40)&(polavg.range<58);
-end
+pos_range = mod(polavg.range,polavg.statics.max_alt);
+r.bg = (pos_range>=40)&(pos_range<58);
+% 
+% if any(polavg.range<0)
+%     r.bg = polavg.range<-.1;
+% else
+%     r.bg = (polavg.range>=40)&(polavg.range<58);
+% end
 bin_time_ns = mplpol.statics.range_bin_time;
 % cnv_factor converts the raw data reported in MHz to actual counts
 % This factor is necessary for computing statistics.
 cnv_factor = 1e-3*bin_time_ns .* mplpol.hk.shots_summed(1) .* Nsamples;
 % R_MHz = apply_generic_dtc(D_MHz)
-% dtc_fac = max(mplpol.rawcts_copol(:))/14.5;
-% mplpol.rawcts_copol = dtc_fac.*inarg.dtc(mplpol.rawcts_copol./dtc_fac, mplpol.time(1));
-% dtc_fac = max(mplpol.rawcts_crosspol(:))/14.5;
-% mplpol.rawcts_crosspol = dtc_fac.*inarg.dtc(mplpol.rawcts_crosspol./dtc_fac, mplpol.time(1));
-disp('remove me')
+
+cts_sans_ap = (mplpol.rawcts_copol- (mplpol.r.ap_copol*ones(size(mplpol.time))));
+dtc = interp1(mplpol.dtc.MHz, mplpol.dtc.correction,cts_sans_ap , 'linear','extrap');
+dtc(cts_sans_ap<=0) = 1;
+mplpol.rawcts_copol = mplpol.rawcts_copol .* dtc;
+
+cts_sans_ap = (mplpol.rawcts_crosspol- (mplpol.r.ap_crosspol*ones(size(mplpol.time))));
+dtc = interp1(mplpol.dtc.MHz, mplpol.dtc.correction,cts_sans_ap , 'linear','extrap');
+dtc(cts_sans_ap<=0) = 1;
+mplpol.rawcts_crosspol = mplpol.rawcts_crosspol .* dtc;
 % The idea here is to compute statistics on each profile before averaging
 % together.  Then keep track of the statistics along with copol and
 % crspool. Salient detail that will affect SNR is that copol and crosspol backgrounds and
@@ -128,7 +136,7 @@ gtz = find(((polavg.cop(:)+polavg.crs(:))>0)&(polavg.crs(:)>0));
 %    = crs/cop / (crs/cop +1)
 %     = crs / (crs + cop)
 
-polavg.ldr(gtz) = polavg.crs(gtz)./(polavg.cop(gtz) + polavg.crs(gtz));
+polavg.ldr(gtz) = abs(polavg.crs(gtz))./(abs(polavg.cop(gtz)) + abs(polavg.crs(gtz)));
 % ldr = d/(2-d)
 % d = ldr(2-d)
 % d(1+ldr) =2ldr

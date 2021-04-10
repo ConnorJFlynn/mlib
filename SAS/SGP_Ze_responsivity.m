@@ -3,7 +3,7 @@ function SGP_Ze_responsivity
 % First, load the SAS data files:
 pname = 'C:\case_studies\SAS\Cals pre deployment\Ze1_1010109U1_1001069U1\40ms\';
 visname = '20101215_1010109U1.csv';
-Ze_vis_1010109U1 = SAS_read_ava([pname, visname]);
+Ze_vis_1010109U1 = SAS_read_Albert_csv([pname, visname]);
 Ze_vis_1010109U1.spec_sans_dark = Ze_vis_1010109U1.spec-ones([length(Ze_vis_1010109U1.Shuttered_0),1])...
    *mean(Ze_vis_1010109U1.spec(Ze_vis_1010109U1.Shuttered_0==0,:));
 %%
@@ -38,7 +38,7 @@ title('Avaspec CCD 2048 variance vs signal')
 xlabel('dark-subtracted signal')
 ylabel('variance')
 hold('on')
-good = ~isNaN(ccd.mean_sig)&~isNaN(ccd.var_sig)&(ccd.mean_sig>0)&(ccd.var_sig>0)&good;
+good = ~isnan(ccd.mean_sig)&~isnan(ccd.var_sig)&(ccd.mean_sig>0)&(ccd.var_sig>0)&good;
 [P_cmos,S_cmos,MU_cmos] = polyfit(ccd.mean_sig(good),(ccd.var_sig(good)),1);
 read_noise_variance = polyval(P_cmos,-MU_cmos(1)./MU_cmos(2));
 spec_g = P_cmos(1)./MU_cmos(2);
@@ -61,7 +61,7 @@ tx1 = text(.03,.9,...
 %%
 pname = 'C:\case_studies\SAS\Cals pre deployment\Ze1_1010109U1_1001069U1\40ms\';
 nirname = '20101215_1001069U1.csv';
-Ze_nir_1001069U1 = SAS_read_ava([pname, nirname]);
+Ze_nir_1001069U1 = SAS_read_Albert_csv([pname, nirname]);
 Ze_nir_1001069U1.spec_sans_dark = Ze_nir_1001069U1.spec-ones([length(Ze_nir_1001069U1.Shuttered_0),1])...
    *mean(Ze_nir_1001069U1.spec(Ze_nir_1001069U1.Shuttered_0==0,:));
 figure; semilogy(Ze_nir_1001069U1.nm, Ze_nir_1001069U1.spec_sans_dark(Ze_nir_1001069U1.Shuttered_0==1,:),'r',...
@@ -112,16 +112,16 @@ ylabel('variance')
 
 %%
 blah = sgpsasze_Si_resp_20110307;
-blah(2,isNaN(blah(2,:))) = 0;
-% Ze_vis_1010109U1.resp(isNaN(Ze_vis_1010109U1.resp))= 0;
+blah(2,isnan(blah(2,:))) = 0;
+% Ze_vis_1010109U1.resp(isnan(Ze_vis_1010109U1.resp))= 0;
 fid = fopen([pname, 'Ze_vis_1010109U1.dat'],'w'); 
 % fprintf(fid,'Source:  ARM Labsphere via SWS to ARCS 455 \n');
 % fprintf(fid,'Units:   Responsivity in (cts-dark)/ms/[mW/(m^2.sr.nm)] \n');
 fprintf(fid,'%4.2f, %4.5g \n',blah);
 fclose(fid);
-Ze_nir_1001069U1.resp(isNaN(Ze_nir_1001069U1.resp))= 0;
+Ze_nir_1001069U1.resp(isnan(Ze_nir_1001069U1.resp))= 0;
 blah = sgpsasze_InGaAs_resp_20110307;
-blah(2,isNaN(blah(2,:))) = 0;
+blah(2,isnan(blah(2,:))) = 0;
 fid = fopen([pname,'Ze_nir_1001069U1.dat'],'w'); 
 % fprintf(fid,'Source:  ARM Labsphere via SWS to ARCS 455 \n');
 % fprintf(fid,'Units:   Responsivity in (cts-dark)/ms/[mW/(m^2.sr.nm)] \n');

@@ -38,6 +38,8 @@ function retval = SizeDist_Optics(mp, sizepar1, sizepar2, lambda, varargin)
 %
 %               - Tami Bond, based on Christian Maetzler's Mie-Matlab
 
+% Modified to pull iscoated and nobacksat out of size loop, and reverse
+% size loop for speed
 
 global df dlogd x_range y_range
 
@@ -172,34 +174,55 @@ asym = [];
 
 % Loop through the diameters. This would be more efficient if 'if'
 % statements were outside, but I don't think it matters much.
-for i=1:max(size(x_range))
-    xval = pi * mr*x_range(i)/lambda;
-    yval = pi * mr*y_range(i)/lambda;
-    
+if nobackscat
     if iscoated
-       one_result = Miecoated(mp/mr, mc/mr, xval, yval, 1);
-    else
-       one_result = Mie(mp/mr, xval);
-    end
-    one_eff = one_result(1:3);
-    
-    % No backscattering
-    if nobackscat
-        
-    % All scattering, including truncated neph
-    else
-        if iscoated
-           scatcalc = angwt_scat(mp/mr, xval, theta, dtheta, scatwts, ...
-            'm_coating', mc/mr, 'ycoat', yval);
-        else
-           scatcalc = angwt_scat(mp/mr, xval, theta, dtheta, scatwts);
+        for i=max(size(x_range)):-1:1
+            xval = pi * mr*x_range(i)/lambda;
+            yval = pi * mr*y_range(i)/lambda;
+            one_result = Miecoated(mp/mr, mc/mr, xval, yval, 1);
+            one_eff = one_result(1:3);
+            % add results to the stack
+            Mie_result = [Mie_result; one_eff];
+            asym = [asym; one_result(5)];
         end
-        one_eff = [one_eff scatcalc(scatidx)];    
+    else
+        for i=max(size(x_range)):-1:1
+            xval = pi * mr*x_range(i)/lambda;
+            yval = pi * mr*y_range(i)/lambda;
+            one_result = Mie(mp/mr, xval);
+            one_eff = one_result(1:3);
+            % add results to the stack
+            Mie_result = [Mie_result; one_eff];
+            asym = [asym; one_result(5)];
+        end
     end
-    
-    % add results to the stack
-    Mie_result = [Mie_result; one_eff];
-    asym = [asym; one_result(5)];
+else
+    if iscoated
+        for i=max(size(x_range)):-1:1
+            xval = pi * mr*x_range(i)/lambda;
+            yval = pi * mr*y_range(i)/lambda;
+            one_result = Miecoated(mp/mr, mc/mr, xval, yval, 1);
+            one_eff = one_result(1:3);
+            scatcalc = angwt_scat(mp/mr, xval, theta, dtheta, scatwts, ...
+                'm_coating', mc/mr, 'ycoat', yval);
+            one_eff = [one_eff scatcalc(scatidx)];
+            % add results to the stack
+            Mie_result = [Mie_result; one_eff];
+            asym = [asym; one_result(5)];
+        end
+    else
+        for i=max(size(x_range)):-1:1
+            xval = pi * mr*x_range(i)/lambda;
+            yval = pi * mr*y_range(i)/lambda;
+            one_result = Mie(mp/mr, xval);
+            one_eff = one_result(1:3);
+            scatcalc = angwt_scat(mp/mr, xval, theta, dtheta, scatwts);
+            one_eff = [one_eff scatcalc(scatidx)];
+            % add results to the stack
+            Mie_result = [Mie_result; one_eff];
+            asym = [asym; one_result(5)];
+        end
+    end
 end
 
 % Calculate average cross-section from efficiencies

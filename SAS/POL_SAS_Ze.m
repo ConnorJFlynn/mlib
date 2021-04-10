@@ -7,7 +7,7 @@ if ~exist('infile','var')
 end
     
 if ~isstruct(infile)&exist(infile,'file')
-    ins = SAS_read_ava(infile);
+    ins = SAS_read_Albert_csv(infile);
 end
 
 fname =    ins.fname{1};

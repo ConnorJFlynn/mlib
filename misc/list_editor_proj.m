@@ -11,7 +11,7 @@ for n = length(AZ):-1:1
     dates(n) = listing(n).datenum;
 end
 [age,ij] = sort(dates);
-done = false
+done = false;
 while ~done
     OK = menu('Sort by: ','A-Z','By date','DONE');
     if OK==1

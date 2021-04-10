@@ -78,7 +78,7 @@ if (isfield(nc, 'time'))
         end
 
         btstring    = [datestr(epoch2serial(bt), 'dd-mmm-yyyy HH:MM:SS'), ' GMT'];
-        timestring  = ['seconds since ', datestr(epoch2serial(bt), 'yyyy-mm-dd HH:MM:SS'), ' 0:00'];
+        timestring  = ['seconds since ', datestr(epoch2serial(bt), 'yyyy-mm-dd HH:MM:SS'), ' 0:00'];        
         midnightstring = ['seconds since ', datestr(epoch2serial(midnight), 'yyyy-mm-dd HH:MM:SS'), ' 0:00'];
 
         % base_time.
@@ -91,14 +91,14 @@ if (isfield(nc, 'time'))
 
         % time_offset.
         nc.vdata.time_offset                = epoch;
-        nc.ncdef.vars.time_offset.dims                = {'time'};
+        nc.ncdef.vars.time_offset.dims                = {nc.ncdef.recdim.name};
         nc.ncdef.vars.time_offset.datatype            = netcdf.getConstant('NC_DOUBLE');
         nc.vatts.time_offset.long_name = 'Time offset from base_time';
         nc.vatts.time_offset.units     = timestring;
 
         % time.
         nc.vdata.time                       = since_midnight;
-        nc.ncdef.vars.time.dims                       = {'time'};
+        nc.ncdef.vars.time.dims                       = {nc.ncdef.recdim.name};
         nc.ncdef.vars.time.datatype                   = netcdf.getConstant( 'NC_DOUBLE');
         nc.vatts.time.long_name        = 'Time offset from midnight';
         nc.vatts.time.units            = midnightstring;
@@ -141,7 +141,7 @@ else
           if isfield(nc.ncdef.vars.time_bounds.atts, 'bound_offsets')
              bin_center = mean(nc.vatts.time_bounds.bound_offsets);
           else
-             bin_center = nc.vdata.time_offset - mean(nc.vdata.time_bounds);
+             bin_center = double(nc.vdata.base_time)+ nc.vdata.time_offset - mean(nc.vdata.time_bounds);
           end
        else
           bin_center = 0;
@@ -183,13 +183,17 @@ else
 end
 
 % Set time dimension length to length of serial time array.
-if isfield(nc, 'time')
-nc.ncdef.dims.time.length = length(nc.time);
+if isfield(nc, 'time') && foundstr(nc.ncdef.vars.time.dims,nc.ncdef.recdim.name)
+    nc.ncdef.dims.(nc.ncdef.recdim.name).length = length(nc.time);
+    nc.ncdef.recdim.length = length(nc.time);
 end
-if isfield(nc.ncdef, 'recdim')
-if (strcmp(nc.ncdef.recdim.name, 'time'))
-    nc.ncdef.recdim.length = nc.ncdef.dims.time.length;
-   end
+if isfield(nc.vdata, nc.ncdef.recdim.name)
+    nc.ncdef.dims.(nc.ncdef.recdim.name).length = length(nc.vdata.(nc.ncdef.recdim.name));
+end
+if ~isfield(nc, 'time') && isfield(nc.ncdef, 'recdim')
+% if (strcmp(nc.ncdef.recdim.name, 'time'))
+    nc.ncdef.recdim.length = nc.ncdef.dims.(nc.ncdef.recdim.name).length;
+%    end
 end
 
 return

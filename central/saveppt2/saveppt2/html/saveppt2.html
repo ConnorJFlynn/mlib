@@ -1,0 +1,1449 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+<html xmlns:mwsh="http://www.mathworks.com/namespace/mcode/v1/syntaxhighlight.dtd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      -->
+      <title>saveppt2</title>
+      <meta name="generator" content="MATLAB 7.5">
+      <meta name="date" content="2010-06-02">
+      <meta name="m-file" content="saveppt2"><style>
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head>
+   <body>
+      <div class="content">
+         <h2>Contents</h2>
+         <div>
+            <ul>
+               <li><a href="#2">Establish valid save file name:</a></li>
+               <li><a href="#3">Process additional parameters</a></li>
+               <li><a href="#4">Parameter Sanity Checks</a></li>
+               <li><a href="#5">Initialize PowerPoint</a></li>
+               <li><a href="#6">Additional Parameter Sanity Checks</a></li>
+               <li><a href="#7">Set up defaults</a></li>
+               <li><a href="#8">Configure Print Options</a></li>
+               <li><a href="#9">Slide functions</a></li>
+               <li><a href="#10">Figure Functions</a></li>
+               <li><a href="#11">Exit Functions</a></li>
+               <li><a href="#12">Supporting Functions. Here Be Dragons.</a></li>
+            </ul>
+         </div><pre class="codeinput"><span class="comment">% SAVEPPT2 saves plots to PowerPoint.</span>
+<span class="comment">% SAVEPPT2(save_file,&lt;additional parameters&gt;)</span>
+<span class="comment">%  Saves the current Matlab figure window or Simulink model window to a PowerPoint</span>
+<span class="comment">%  file designated by save_file.  If save_file is omitted, the user is prompted to enter</span>
+<span class="comment">%  one via UIPUTFILE.  If the path is omitted from filespec, the</span>
+<span class="comment">%  PowerPoint file is created in the current Matlab working directory.</span>
+<span class="comment">%</span>
+<span class="comment">% powerpoint_object=SAVEPPT2(save_file,'close',false);</span>
+<span class="comment">%   Return the PowerPoint presentation object if it isn't to be closed.</span>
+<span class="comment">%</span>
+<span class="comment">% Batch Processing:</span>
+<span class="comment">% powerpoint_object=SAVEPPT2(save_file,'init')</span>
+<span class="comment">%   Initializes a powerpoint object for use with batch processing.</span>
+<span class="comment">% SAVEPPT2('ppt',powerpoint_object);</span>
+<span class="comment">%   Saves the current Matlab figure to the opened PowerPoint Object</span>
+<span class="comment">% SAVEPPT2(save_file,'ppt',powerpoint_object,'close');</span>
+<span class="comment">%   Saves and closes the PowerPoint object.</span>
+<span class="comment">%</span>
+<span class="comment">% SAVEPPT2 also accepts numerous additional optional parameters, they can</span>
+<span class="comment">% be called from the matlab command line or in function form. All options</span>
+<span class="comment">% can be preceded with a '-', but this is not required. Short and Long</span>
+<span class="comment">% named options are listed on the same line.</span>
+<span class="comment">%</span>
+<span class="comment">% % Annotation:</span>
+<span class="comment">% 'n' 'notes'          - Add information to notes section.</span>
+<span class="comment">% 'text' 'textbox'     - Add text box.</span>
+<span class="comment">% 'comment' 'comments' - Add comment. (Only works if PowerPoint is visible)</span>
+<span class="comment">%     - \t and \n are converted to tab and new line, respectively.</span>
+<span class="comment">% 't' 'title' - Add a title or add a blank title so that one may be added later. Title is placed at the top of the presentation unless a padding is specified.</span>
+<span class="comment">% If 'title' or 'textbox' is specified alone a blank placeholder will be added.</span>
+<span class="comment">%</span>
+<span class="comment">% % Figure Options</span>
+<span class="comment">% 'f' 'fig' 'figure'     - Use the specified figure handle. Also accepts an array of figures. More than 4 figures is not recommended as it makes it difficult to see in the plot. Default: gcf</span>
+<span class="comment">%                          If figure is 0, a blank page is added. If a title is specified then a title page is added.</span>
+<span class="comment">% 'd' 'driver' 'drivers' - [meta, bitmap]. Send figure to clipboard Metafile or Bitmap format. See also print help.</span>
+<span class="comment">% 'r' 'render'           - [painters,zbuffer,opengl]. Choose print render mode. See also print help.</span>
+<span class="comment">% 'res' 'resolution'     - Dots-per-inch resolution. Default: 90 for Simulink, 150 for figures. See also print help.</span>
+<span class="comment">%</span>
+<span class="comment">% % Slide Layout</span>
+<span class="comment">% 'st' 'stretch'      - Used only with scale, stretch the figure to fill all remaining space (taking into account padding and title). Default: on</span>
+<span class="comment">% 's' 'sc' 'scale'    - Scale the figure to remaining space on the page while maintaining aspect ratio, takes into account padding and title spacing. Default: on</span>
+<span class="comment">% 'h' 'halign'        - ['left','center','right']. Horizontally align figure. Default: center</span>
+<span class="comment">% 'v' 'valign'        - ['top','center','bottom']. Vertically align the graph. Default: center</span>
+<span class="comment">% 'p' 'pad' 'padding' - Place a padding around the figure that is used for alignment and scaling. Can be one number to be applied equally or an array in the format of [left right top bottom]. Useful when plotting to template files. Default: 0</span>
+<span class="comment">% 'c' 'col' 'columns' - Number of columns to place multiple plots in. Default: 2</span>
+<span class="comment">%</span>
+<span class="comment">% % PowerPoint Control</span>
+<span class="comment">% 'i' 'init' - Initialize PowerPoint presentation for use in batch mode. Returns a PowerPoint Presentation Object.</span>
+<span class="comment">% 'close'    - Close PowerPoint presentation. Default: true</span>
+<span class="comment">% 'save'     - Save PowerPoint Presentation. Useful for saves in batch mode.</span>
+<span class="comment">% 'ppt'      - Call saveppt2 with specified PowerPoint Presentation object.</span>
+<span class="comment">% 'visible'  - Make PowerPoint visible.</span>
+<span class="comment">% 'template' - Use template file specified. Is only used if the save file does not already exist.</span>
+<span class="comment">%</span>
+<span class="comment">% For binary options use: 'yes','on' ,'true' ,true  to enable</span>
+<span class="comment">%                         'no', 'off','false',false to disable</span>
+<span class="comment">% Examples:</span>
+<span class="comment">% % Simplest Call</span>
+<span class="comment">% plot(rand(1,100),rand(1,100),'*');</span>
+<span class="comment">% saveppt2</span>
+<span class="comment">%</span>
+<span class="comment">% % Add a title "Hello World"</span>
+<span class="comment">% plot(rand(1,100),rand(1,100),'*');</span>
+<span class="comment">% saveppt2('test.ppt','title','Hello World');</span>
+<span class="comment">% saveppt2('test.ppt','t','Hello World');</span>
+<span class="comment">% saveppt2 test.ppt -title 'Hello World'</span>
+<span class="comment">% saveppt2 test.ppt -t 'Hello World'</span>
+<span class="comment">%</span>
+<span class="comment">% % Add a note</span>
+<span class="comment">% plot(rand(1,100),rand(1,100),'*');</span>
+<span class="comment">% saveppt2('test.ppt','notes','Lorem ipsum dolor sit amet, consectetur adipiscing elit.');</span>
+<span class="comment">%</span>
+<span class="comment">% % Add multiline note</span>
+<span class="comment">% plot(rand(1,100),rand(1,100),'*');</span>
+<span class="comment">% saveppt2('test.ppt','notes','Lifetime, relational competence.\n\tTactical, integrated solution');</span>
+<span class="comment">% note=sprintf('Latest Quarter Sales: %%fM',rand(1,1)*100);</span>
+<span class="comment">% saveppt2('test.ppt','notes',note);</span>
+<span class="comment">%</span>
+<span class="comment">% Add a TextBox</span>
+<span class="comment">% plot(rand(1,100),rand(1,100),'*');</span>
+<span class="comment">% saveppt2('test.ppt','texbox','Totally, groupwide mindset');</span>
+<span class="comment">%</span>
+<span class="comment">% % Add a comment (PowerPoint must be visible)</span>
+<span class="comment">% plot(rand(1,100),rand(1,100),'*');</span>
+<span class="comment">% saveppt2('test.ppt','visible','comment','Virtual, logic-based culture');</span>
+<span class="comment">%</span>
+<span class="comment">% % Scaling &amp; Stretching the plot to fill the page.</span>
+<span class="comment">% plot(rand(1,100),rand(1,100),'*');</span>
+<span class="comment">% saveppt2('test.ppt','note','Scaling &amp; Stretching On (Default)');</span>
+<span class="comment">% saveppt2('test.ppt','stretch','false','Stretching Off');</span>
+<span class="comment">% saveppt2('test.ppt','scale',off,'note','Scaling Off');</span>
+<span class="comment">%</span>
+<span class="comment">% % Stretching the plot to fill the page.</span>
+<span class="comment">% plot(rand(1,100),rand(1,100),'*');</span>
+<span class="comment">% saveppt2('test.ppt','Stretching On');</span>
+<span class="comment">%</span>
+<span class="comment">% saveppt2('test.ppt','stretch',false);</span>
+<span class="comment">% saveppt2 test.ppt -stretch off</span>
+<span class="comment">%</span>
+<span class="comment">% % copy the plot as both a meta and bitmap.</span>
+<span class="comment">% plot(rand(1,100),rand(1,100),'*');</span>
+<span class="comment">% saveppt2('test.ppt','driver','meta','scale','stretch');</span>
+<span class="comment">% saveppt2('test.ppt','driver','bitmap','scale','stretch');</span>
+<span class="comment">%</span>
+<span class="comment">% % scale the plot to fill the page, ignoring aspect ratio, with 150 pixels</span>
+<span class="comment">% % of padding on all sides</span>
+<span class="comment">% plot(rand(1,100),rand(1,100),'*');</span>
+<span class="comment">% saveppt2('test.ppt','scale','stretch','Padding',150);</span>
+<span class="comment">% saveppt2('test.ppt','scale',true,'stretch',true,'Padding',150);</span>
+<span class="comment">%</span>
+<span class="comment">% % scale the plot to fill the page, ignoring aspect ratio, with 150 pixels</span>
+<span class="comment">% % of padding on left and right sides</span>
+<span class="comment">% plot(rand(1,100),rand(1,100),'*');</span>
+<span class="comment">% saveppt2('test.ppt','scale','stretch','Padding',[150 150 0 0]);</span>
+<span class="comment">% saveppt2('test.ppt','scale',true,'stretch',true,'Padding',[150 150 0 0]);</span>
+<span class="comment">%</span>
+<span class="comment">% % scale the plot to fill the page, ignoring aspect ratio add blank title</span>
+<span class="comment">% plot(rand(1,100),rand(1,100),'*');</span>
+<span class="comment">% saveppt2('test.ppt','scale','stretch','title');</span>
+<span class="comment">% saveppt2('test.ppt','scale',true,'stretch',true,'title',true);</span>
+<span class="comment">%</span>
+<span class="comment">% % Align the figure in the upper left corner</span>
+<span class="comment">% plot(rand(1,100),rand(1,100),'*');</span>
+<span class="comment">% saveppt2('test.ppt','halign','left','valign','top');</span>
+<span class="comment">%</span>
+<span class="comment">% % Align the figure in the upper left corner</span>
+<span class="comment">% plot(rand(1,100),rand(1,100),'*');</span>
+<span class="comment">% saveppt2('test.ppt','halign','right','valign','bottom');</span>
+<span class="comment">%</span>
+<span class="comment">% % Use the template 'Group Report.ppt'</span>
+<span class="comment">% plot(rand(1,100),rand(1,100),'*');</span>
+<span class="comment">% saveppt2('test.ppt','template','Group Report.ppt');</span>
+<span class="comment">%</span>
+<span class="comment">% % Plot 4 figures horizontally aligned left with 2 columns</span>
+<span class="comment">% a=figure('Visible','off');plot(1:10);</span>
+<span class="comment">% b=figure('Visible','off');plot([1:10].^2);</span>
+<span class="comment">% c=figure('Visible','off');plot([1:10].^3);</span>
+<span class="comment">% d=figure('Visible','off');plot([1:10].^4);</span>
+<span class="comment">% saveppt2('test.ppt','figure',[a b c d],'columns',2,'title','Hello World!','halign','left')</span>
+<span class="comment">%</span>
+<span class="comment">% % Create blank title page.</span>
+<span class="comment">% figure('test.ppt','figure',0,'title','New Section');</span>
+<span class="comment">%</span>
+<span class="comment">% % Create blank page.</span>
+<span class="comment">% figure('test.ppt','figure',0);</span>
+<span class="comment">%</span>
+<span class="comment">% % Plot figures in batch mode. Faster than opening a new powerpoint object each time</span>
+<span class="comment">% ppt=saveppt2('batch.ppt','init');</span>
+<span class="comment">% for i=1:10</span>
+<span class="comment">%     plot(rand(1,100),rand(1,100),'*');</span>
+<span class="comment">%     saveppt2('ppt',ppt)</span>
+<span class="comment">%     if mod(i,5)==0 % Save half way through incase of crash</span>
+<span class="comment">%       saveppt2('ppt',ppt,'save')</span>
+<span class="comment">%     end</span>
+<span class="comment">% end</span>
+<span class="comment">% saveppt2('batch.ppt','ppt',ppt,'close');</span>
+<span class="comment">%</span>
+<span class="comment">% More flexibility is built in, but it is impossible to show all possible</span>
+<span class="comment">% calling combinations, you may check out the source or Test_SavePPT2.m</span>
+<span class="comment">%</span>
+<span class="comment">% See also print, saveppt, validateInput</span>
+
+<span class="comment">% Ver 2.2, Copyright 2005, Mark W. Brown, mwbrown@ieee.org</span>
+<span class="comment">%  changed slide type to include title.</span>
+<span class="comment">%  added input parameter for title text.</span>
+<span class="comment">%  added support for int32 and single data types for Matlab 6.0</span>
+<span class="comment">%  added comments about changing bitmap resolution (for large images only)</span>
+<span class="comment">%  swapped order of opening PPT and copying to clipboard (thanks to David Abraham)</span>
+<span class="comment">%  made PPT invisible during save operations (thanks to Noah Siegel)</span>
+<span class="comment">%</span>
+<span class="comment">% Ver 3, Copyright 2010, Jed Frey, frey_jed@cat.com</span>
+<span class="comment">%  Added template &amp; notes features</span>
+<span class="comment">%  Added multiple calling functions</span>
+<span class="comment">%  Restructured calling sequence</span>
+
+<span class="keyword">function</span> varargout=saveppt2(varargin)
+</pre><h2>Establish valid save file name:<a name="2"></a></h2><pre class="codeinput"><span class="keyword">if</span> nargin&lt;1
+    [fname, fpath] = uiputfile(<span class="string">'*.ppt'</span>);
+    <span class="keyword">if</span> fpath == 0; <span class="keyword">return</span>; <span class="keyword">end</span>
+    filespec = fullfile(fpath,fname);
+<span class="keyword">elseif</span> strcmp(varargin{1},<span class="string">'ppt'</span>)
+    <span class="comment">% If the first input is the Powerpoint COM object</span>
+<span class="keyword">else</span>
+    <span class="comment">% Otherwise the first input is the desired filename.</span>
+    filespec=varargin{1};
+    varargin(1)=<span class="string">''</span>;
+    <span class="comment">% If the path is empty, use current working directory. If the extension</span>
+    <span class="comment">% is blank, add .ppt then create full windows path.</span>
+    [fpath,fname,fext] = fileparts(filespec);
+    <span class="keyword">if</span> isempty(fpath); fpath = pwd; <span class="keyword">end</span>
+    <span class="keyword">if</span> isempty(fext); fext = <span class="string">'.ppt'</span>; <span class="keyword">end</span>
+    filespec = fullfile(fpath,[fname,fext]);
+<span class="keyword">end</span>
+</pre><h2>Process additional parameters<a name="3"></a></h2><pre class="codeinput"><span class="keyword">if</span> numel(varargin)&gt;0
+    <span class="comment">% Set up valid parameters list</span>
+    validParameters={ <span class="keyword">...</span>
+        {<span class="string">'figure'</span>,<span class="string">'fig'</span>,<span class="string">'f'</span>}, <span class="keyword">...</span><span class="comment"> % Figure &amp; driver settings</span>
+        {<span class="string">'init'</span>,<span class="string">'i'</span>},<span class="string">'close'</span>,<span class="string">'save'</span>,<span class="string">'ppt'</span>,<span class="string">'visible'</span>,<span class="string">'template'</span>, <span class="keyword">...</span><span class="comment"> % Power Point Control.</span>
+        {<span class="string">'notes'</span>,<span class="string">'n'</span>},{<span class="string">'text'</span>,<span class="string">'textbox'</span>}, {<span class="string">'comments'</span>,<span class="string">'comment'</span>}, <span class="keyword">...</span><span class="comment"> % Notes, textbox &amp; comments settings</span>
+        {<span class="string">'stretch'</span>,<span class="string">'st'</span>},{<span class="string">'scale'</span>,<span class="string">'s'</span>,<span class="string">'sc'</span>},{<span class="string">'title'</span>,<span class="string">'t'</span>}, <span class="keyword">...</span><span class="comment"> % Stretch, Scale &amp; Title settings</span>
+        {<span class="string">'driver'</span>,<span class="string">'drivers'</span>,<span class="string">'d'</span>},{<span class="string">'resolution'</span>,<span class="string">'res'</span>},{<span class="string">'render'</span>,<span class="string">'r'</span>},<span class="keyword">...</span><span class="comment"> % Title, Resolution and Render Calls</span>
+        {<span class="string">'halign'</span>,<span class="string">'h'</span>},{<span class="string">'valign'</span>,<span class="string">'v'</span>},{<span class="string">'padding'</span>,<span class="string">'pad'</span>,<span class="string">'p'</span>},{<span class="string">'columns'</span>,<span class="string">'col'</span>,<span class="string">'c'</span>}}; <span class="comment">% Align, padding and column calls.</span>
+    <span class="comment">% Validate additional input</span>
+    addlParms=validateInput(varargin,validParameters);
+<span class="keyword">else</span>
+    <span class="comment">% Just make addlParms an empty struct so that 'isfield' doesn't error</span>
+    <span class="comment">% out.</span>
+    addlParms=struct;
+<span class="keyword">end</span>
+</pre><h2>Parameter Sanity Checks<a name="4"></a></h2><pre class="codeinput"><span class="comment">% PowerPoint File &amp; Init cannot both be specified at the same time.</span>
+<span class="keyword">if</span> isfield(addlParms,<span class="string">'init'</span>)&amp;&amp;isfield(addlParms,<span class="string">'ppt'</span>)
+    error(<span class="string">'Both init and ppt can not be specified at the same time. Call init first, then use ppt'</span>);
+<span class="keyword">end</span>
+<span class="comment">% PowerPoint Close &amp; Init cannot both be specified at the same time</span>
+<span class="keyword">if</span> isfield(addlParms,<span class="string">'init'</span>)&amp;&amp;isfield(addlParms,<span class="string">'close'</span>)
+    warning(<span class="string">'saveppt2:InitQuit'</span>,<span class="string">'Both init and quit should not be specified at the same time, ignoring close.'</span>);
+    addlParms=rmfield(addlParms,<span class="string">'close'</span>);
+<span class="keyword">end</span>
+<span class="comment">% If close is specified, force to save the powerpoint.</span>
+<span class="keyword">if</span> isfield(addlParms,<span class="string">'close'</span>)
+    addlParms.save=true;
+<span class="keyword">end</span>
+</pre><h2>Initialize PowerPoint<a name="5"></a></h2>
+         <p>If the user has passed a previous PowerPoint session:</p><pre class="codeinput"><span class="keyword">if</span> isfield(addlParms,<span class="string">'ppt'</span>)
+    <span class="comment">% Validate that the PPT object passed is actually a PPT object</span>
+    <span class="keyword">try</span>
+        <span class="comment">% Try to get a parameter of the object.</span>
+        <span class="keyword">if</span> strcmpi(addlParms.ppt.ReadOnly,<span class="string">'msoTrue'</span>);
+            <span class="comment">% Error if the powerpoint presentation is read only.</span>
+            error(<span class="string">'PowerPoint object is read only.'</span>);
+        <span class="keyword">end</span>
+    <span class="keyword">catch</span>
+        <span class="comment">% If the passed parameter isn't the correct PowerPoint object it</span>
+        <span class="comment">% will give an error.</span>
+        error(<span class="string">'Failed invoking object. Verify that it is a PPT object as returned from a saveppt2(file,''init'') function.'</span>);
+    <span class="keyword">end</span>
+    <span class="comment">% Otherwise assign it to the 'open presentation' variable and get the</span>
+    <span class="comment">% powerpoint application object.</span>
+    op=addlParms.ppt;
+    ppt=op.Application;
+    <span class="comment">% If save or close is set</span>
+    <span class="keyword">if</span> checkParm(addlParms,<span class="string">'save'</span>)
+        <span class="comment">% Save the file</span>
+        <span class="keyword">if</span> ~exist(filespec,<span class="string">'file'</span>)
+            <span class="comment">% Save file as new if the file doesn't exist:</span>
+            invoke(op,<span class="string">'SaveAs'</span>,filespec,1);
+        <span class="keyword">else</span>
+            <span class="comment">% Save existing file:</span>
+            invoke(op,<span class="string">'Save'</span>);
+        <span class="keyword">end</span>
+        <span class="comment">% If close is specified, close the powerpoint.</span>
+        <span class="keyword">if</span> checkParm(addlParms,<span class="string">'close'</span>)
+            invoke(op,<span class="string">'Close'</span>);
+            <span class="comment">% If there are no more open powerpoint presentations, quit the</span>
+            <span class="comment">% application</span>
+            <span class="keyword">if</span> ppt.Presentations.Count==0
+                invoke(ppt,<span class="string">'Quit'</span>);
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+        <span class="keyword">return</span>;
+    <span class="keyword">end</span>
+<span class="keyword">else</span>
+    <span class="comment">% If a powerpoint object isn't passed, open one.</span>
+    ppt = actxserver(<span class="string">'PowerPoint.Application'</span>);
+    <span class="comment">% Check if the savefile exists.</span>
+    <span class="keyword">if</span> exist(filespec,<span class="string">'file'</span>)
+        <span class="comment">% If the save file already exists, the template cannot be applied.</span>
+        <span class="keyword">if</span> isfield(addlParms,<span class="string">'template'</span>)
+            addlParms=rmfield(addlParms,<span class="string">'template'</span>);
+            warning(<span class="string">'saveppt2:fileexist'</span>,<span class="string">'Save file exists, skipping opening template'</span>);
+        <span class="keyword">end</span>
+        op = invoke(ppt.Presentations,<span class="string">'Open'</span>,filespec,[],[],0);
+    <span class="keyword">else</span>
+        <span class="comment">% If a template is specified</span>
+        <span class="keyword">if</span> isfield(addlParms,<span class="string">'template'</span>)
+            <span class="comment">% Check that the file exists</span>
+            <span class="keyword">if</span> ~exist(addlParms.template,<span class="string">'file'</span>);
+                warning(<span class="string">'saveppt2:notemplate'</span>,<span class="string">'Template file does not exist, skipping.'</span>);
+                op = invoke(ppt.Presentations,<span class="string">'Add'</span>);
+            <span class="keyword">else</span>
+                <span class="comment">% Open the template file</span>
+                op = invoke(ppt.Presentations,<span class="string">'Open'</span>,addlParms.template,[],[],0);
+            <span class="keyword">end</span>
+        <span class="keyword">else</span>
+            op = invoke(ppt.Presentations,<span class="string">'Add'</span>);
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+    <span class="comment">% If saveppt2 was just called to init the plots, return the PowerPoint</span>
+    <span class="comment">% presentation object.</span>
+    <span class="keyword">if</span> isfield(addlParms,<span class="string">'init'</span>)&amp;&amp;addlParms.init
+        varargout{1}=op;
+        <span class="keyword">return</span>;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">% Set Visibility.</span>
+<span class="keyword">if</span> checkParm(addlParms,<span class="string">'visible'</span>)
+    ppt.visible=1;
+<span class="keyword">end</span>
+</pre><h2>Additional Parameter Sanity Checks<a name="6"></a></h2>
+         <p>Validate that halign is a valid setting</p><pre class="codeinput"><span class="keyword">if</span> isfield(addlParms,<span class="string">'halign'</span>)&amp;&amp;~any(strcmpi(addlParms.halign,{<span class="string">'left'</span>,<span class="string">'center'</span>,<span class="string">'right'</span>}))
+    warning(<span class="string">'saveppt2:InvalidHalign'</span>,<span class="string">'Invalid horizontal align "%s" specified, ignoring'</span>,addlParms.halign);
+    addlParms=rmfield(addlParms,<span class="string">'halign'</span>);
+<span class="keyword">end</span>
+<span class="comment">% Validate that valign is a valid setting</span>
+<span class="keyword">if</span> isfield(addlParms,<span class="string">'valign'</span>)&amp;&amp;~any(strcmpi(addlParms.valign,{<span class="string">'top'</span>,<span class="string">'center'</span>,<span class="string">'bottom'</span>}))
+    warning(<span class="string">'saveppt2:InvalidValign'</span>,<span class="string">'Invalid vertical align "%s" specified, ignoring'</span>,addlParms.valign);
+    addlParms=rmfield(addlParms,<span class="string">'valign'</span>);
+<span class="keyword">end</span>
+<span class="comment">% If there is more than 1 figure, scale must be enabled so that all of the</span>
+<span class="comment">% figures will fit on a slide.</span>
+<span class="keyword">if</span> isfield(addlParms,<span class="string">'figure'</span>)&amp;&amp;length(addlParms.figure)&gt;1
+    <span class="keyword">if</span> isfield(addlParms,<span class="string">'scale'</span>)&amp;&amp;addlParms.scale==false
+        warning(<span class="string">'saveppt2:ScaleForced'</span>,<span class="string">'More than one figure given, scaling forced to enable so that the plots will fit'</span>);
+    <span class="keyword">end</span>
+    addlParms.scale=true;
+<span class="keyword">end</span>
+<span class="comment">% Stretch only makes sense when used with scale. Ignore otherwise</span>
+<span class="keyword">if</span> ~checkParm(addlParms,<span class="string">'scale'</span>)&amp;&amp;checkParm(addlParms,<span class="string">'stretch'</span>)
+    warning(<span class="string">'saveppt2:ScaleForcedStretch'</span>,<span class="string">'Stretch is enabled, scaling forced to enabled.'</span>);
+    addlParms.scale=true;
+<span class="keyword">end</span>
+<span class="comment">% Comments only works when the PowerPoint is visible.</span>
+<span class="keyword">if</span> ~checkParm(addlParms,<span class="string">'visible'</span>)&amp;&amp;checkParm(addlParms,<span class="string">'comments'</span>)
+    error(<span class="string">'Visibility must be enabled to use comments.'</span>);
+<span class="keyword">end</span>
+<span class="comment">% Validate padding input</span>
+<span class="keyword">if</span> isfield(addlParms,<span class="string">'padding'</span>)
+    <span class="comment">% Make sure that padding is a number</span>
+    <span class="keyword">if</span> ~isnumeric(addlParms.padding)
+        addlParms=rmfield(addlParms,<span class="string">'padding'</span>);
+        warning(<span class="string">'saveppt2:IncorrectPadding'</span>,<span class="string">'Padding non-numeric. Must be [l, r, t, b] or a single number, ignoring.'</span>)
+        <span class="comment">% Validate padding size</span>
+    <span class="keyword">elseif</span> ~any(size(addlParms.padding,2)==[1 4])
+        addlParms=rmfield(addlParms,<span class="string">'padding'</span>);
+        warning(<span class="string">'saveppt2:IncorrectPaddingSize'</span>,<span class="string">'Incorrect Padding Size. Must be [l, r, t, b] or a single number, ignoring.'</span>)
+        <span class="comment">% If padding is just one number, fill in so that all of the numbers are</span>
+        <span class="comment">% the same</span>
+    <span class="keyword">elseif</span> size(addlParms.padding,2)==1
+        addlParms.padding=repmat(addlParms.padding,1,4);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><h2>Set up defaults<a name="7"></a></h2>
+         <p>If no text for title is specified, set it to blank</p><pre class="codeinput"><span class="keyword">if</span> checkParm(addlParms,<span class="string">'title'</span>);
+    addlParms.title=<span class="string">''</span>;
+<span class="keyword">end</span>
+<span class="comment">% If no text for textbox is specified, set it to blank</span>
+<span class="keyword">if</span> checkParm(addlParms,<span class="string">'text'</span>);
+    addlParms.text=<span class="string">''</span>;
+<span class="keyword">end</span>
+<span class="comment">% If no text for comment is specified, set it to blank</span>
+<span class="keyword">if</span> checkParm(addlParms,<span class="string">'comments'</span>);
+    addlParms.comments=<span class="string">''</span>;
+<span class="keyword">end</span>
+<span class="comment">% If no note is specified, clear it and give a warning</span>
+<span class="keyword">if</span> checkParm(addlParms,<span class="string">'notes'</span>);
+    warning(<span class="string">'saveppt2:NoNoteGiven'</span>,<span class="string">'No note was specified'</span>);
+    addlParms=rmfield(addlParms,<span class="string">'notes'</span>);
+<span class="keyword">end</span>
+<span class="comment">% Stretch was not specified</span>
+<span class="keyword">if</span> ~isfield(addlParms,<span class="string">'stretch'</span>);
+    addlParms.stretch=true;
+<span class="keyword">end</span>
+<span class="comment">% Scale was not specified</span>
+<span class="keyword">if</span> ~isfield(addlParms,<span class="string">'scale'</span>);
+    addlParms.scale=true;
+<span class="keyword">end</span>
+<span class="comment">% Comments only work when the PowerPoint slide is visible.</span>
+<span class="keyword">if</span> ~checkParm(addlParms,<span class="string">'visible'</span>)&amp;&amp;isfield(addlParms,<span class="string">'comments'</span>)
+    warning(<span class="string">'saveppt2:VisibleComments'</span>,<span class="string">'Comments are only available if PowerPoint is visible. Removing'</span>);
+   addlParms=rmfield(addlParms,<span class="string">'comments'</span>);
+<span class="keyword">end</span>
+<span class="comment">% Default the number of columns to 2</span>
+<span class="keyword">if</span> ~isfield(addlParms,<span class="string">'columns'</span>)||checkParm(addlParms,<span class="string">'columns'</span>)
+    addlParms.columns=2;
+<span class="keyword">end</span>
+<span class="comment">% If no close is specified, default to close the fields.</span>
+<span class="keyword">if</span> ~isfield(addlParms,<span class="string">'close'</span>)&amp;&amp;~isfield(addlParms,<span class="string">'ppt'</span>)
+    addlParms.close=true;
+<span class="keyword">end</span>
+</pre><h2>Configure Print Options<a name="8"></a></h2>
+         <p>Validate all of the figures</p><pre class="codeinput"><span class="keyword">if</span> isfield(addlParms,<span class="string">'figure'</span>)
+    <span class="comment">% Meaning they just put 'Figure', but didn't specify one, default</span>
+    <span class="comment">% behavior for print, just remove the field</span>
+    <span class="keyword">if</span> checkParm(addlParms,<span class="string">'figure'</span>)
+        addlParms=rmfield(addlParms,<span class="string">'figure'</span>);
+    <span class="keyword">else</span>
+        <span class="comment">% More than 4 figures makes it hard to read</span>
+        <span class="keyword">if</span> length(addlParms.figure)&gt;4
+            warning(<span class="string">'saveppt2:TooManyFigures'</span>,<span class="string">'More than 4 figures is not reccomended'</span>)
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+    <span class="comment">% Check that the figures actually exist</span>
+    <span class="keyword">for</span> i=1:length(addlParms.figure)
+        <span class="keyword">try</span>
+            a=get(addlParms.figure(i));
+        <span class="keyword">catch</span>
+            error(<span class="string">'saveppt2:FigureDoesNotExist'</span>,[<span class="string">'Figure '</span> addlParms.figure(i) <span class="string">' does not exist'</span>]);
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">else</span>
+    <span class="comment">% If no figure is specified, use the current figure.</span>
+    addlParms.figure=gcf;
+<span class="keyword">end</span>
+<span class="comment">% Resolution options</span>
+<span class="keyword">if</span> isfield(addlParms,<span class="string">'resolution'</span>)
+    resOpt=[<span class="string">'-r '</span> num2str(addlParms.resolution)];
+<span class="keyword">else</span>
+    resOpt=<span class="string">''</span>;
+<span class="keyword">end</span>
+<span class="comment">% Driver options</span>
+<span class="keyword">if</span> isfield(addlParms,<span class="string">'driver'</span>)
+    <span class="keyword">if</span> strmatch(addlParms.driver(1),<span class="string">'d'</span>)
+        addlParms.driver(1)=<span class="string">''</span>;
+    <span class="keyword">end</span>
+    <span class="keyword">switch</span> lower(addlParms.driver)
+        <span class="keyword">case</span> <span class="string">'meta'</span>
+            addlParms.driver=<span class="string">'-dmeta'</span>;
+        <span class="keyword">case</span> <span class="string">'bitmap'</span>
+            addlParms.driver=<span class="string">'-dbitmap'</span>;
+        <span class="keyword">otherwise</span>
+            error(<span class="string">'saveppt2:UnknownRenderer'</span>,<span class="string">'Unknown Print Driver: %s'</span>,addlParms.driver);
+    <span class="keyword">end</span>
+<span class="keyword">else</span>
+    addlParms.driver=<span class="string">'-dmeta'</span>;
+<span class="keyword">end</span>
+<span class="comment">% Render schema options</span>
+<span class="keyword">if</span> isfield(addlParms,<span class="string">'render'</span>)
+    <span class="keyword">switch</span> lower(addlParms.render)
+        <span class="keyword">case</span> <span class="string">'painters'</span>
+            rendOpt=<span class="string">'-painters'</span>;
+        <span class="keyword">case</span> <span class="string">'zbuffer'</span>
+            rendOpt=<span class="string">'-zbuffer'</span>;
+        <span class="keyword">case</span> <span class="string">'opengl'</span>
+            rendOpt=<span class="string">'-opengl'</span>;
+        <span class="keyword">case</span> <span class="string">'render'</span>
+            rendOpt=<span class="string">''</span>;
+        <span class="keyword">otherwise</span>
+            error(<span class="string">'saveppt2:UnknownDriver'</span>,<span class="string">'Unknown Renderer: %s'</span>,addlParms.render);
+    <span class="keyword">end</span>
+<span class="keyword">else</span>
+    rendOpt=<span class="string">''</span>;
+<span class="keyword">end</span>
+</pre><h2>Slide functions<a name="9"></a></h2>
+         <p>Get height and width of slide:</p><pre class="codeinput">slide_H = op.PageSetup.SlideHeight;
+slide_W = op.PageSetup.SlideWidth;
+<span class="comment">% Get current number of slides:</span>
+slide_count = get(op.Slides,<span class="string">'Count'</span>);
+<span class="comment">% Add a new slide (with title object):</span>
+slide_count = int32(double(slide_count)+1);
+<span class="comment">% Create the appropriate slide (w or w/o title)</span>
+<span class="keyword">if</span> isfield(addlParms,<span class="string">'title'</span>)
+    <span class="comment">% Slide with Title</span>
+    <span class="keyword">if</span> addlParms.figure(1)==0 <span class="comment">% Title slide only.</span>
+        new_slide = invoke(op.Slides,<span class="string">'Add'</span>,slide_count,1);
+    <span class="keyword">else</span> <span class="comment">% Title slide with plots.</span>
+        new_slide = invoke(op.Slides,<span class="string">'Add'</span>,slide_count,11);
+        <span class="comment">% Set the text frame to autosize</span>
+        new_slide.Shapes.Title.TextFrame.AutoSize=1;
+        <span class="comment">% If padding is specified, use that.</span>
+        <span class="keyword">if</span> isfield(addlParms,<span class="string">'padding'</span>)
+            set(new_slide.Shapes.Title,<span class="string">'Top'</span>,addlParms.padding(3));
+        <span class="keyword">else</span>
+            <span class="comment">% Otherwise move the title up towards the top of the scope</span>
+            set(new_slide.Shapes.Title,<span class="string">'Top'</span>,get(new_slide.Shapes.Title.TextFrame.TextRange.Font,<span class="string">'Size'</span>)/4);
+        <span class="keyword">end</span>
+        <span class="comment">% Resize the title so that it is the width of the slide</span>
+        set(new_slide.Shapes.Title,<span class="string">'Left'</span>,0);
+        set(new_slide.Shapes.Title,<span class="string">'Width'</span>,slide_W);
+        <span class="comment">% Set the 'top' of where the bottom of the title is.</span>
+        top=get(new_slide.Shapes.Title,<span class="string">'Top'</span>)+get(new_slide.Shapes.Title,<span class="string">'Height'</span>);
+    <span class="keyword">end</span>
+    <span class="comment">% Set the text in the title to the specified title</span>
+    set(new_slide.Shapes.Title.TextFrame.TextRange,<span class="string">'Text'</span>,addlParms.title);
+<span class="keyword">else</span>
+    <span class="comment">% Slide with No Title</span>
+    new_slide = invoke(op.Slides,<span class="string">'Add'</span>,slide_count,12);
+    <span class="keyword">if</span> isfield(addlParms,<span class="string">'padding'</span>)
+        top=addlParms.padding(3);
+    <span class="keyword">else</span>
+        top=0;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="comment">% If padding is given, use that (top is specified above)</span>
+<span class="keyword">if</span> isfield(addlParms,<span class="string">'padding'</span>)
+    left=addlParms.padding(1);
+    right=addlParms.padding(2);
+    bottom=addlParms.padding(4);
+<span class="keyword">else</span>
+    bottom=0;
+    left=0;
+    right=0;
+<span class="keyword">end</span>
+</pre><h2>Figure Functions<a name="10"></a></h2>
+         <p>Calculate the number of rows and columns</p><pre class="codeinput">fig.count=length(addlParms.figure);
+fig.rows=(floor((fig.count-1)/addlParms.columns))+1;
+fig.columns=min(fig.count,addlParms.columns);
+<span class="comment">% For each figure</span>
+<span class="keyword">for</span> i=1:fig.count
+    <span class="comment">% For title page only, skip.</span>
+    <span class="keyword">if</span> addlParms.figure(i)==0
+        <span class="keyword">continue</span>;
+    <span class="keyword">end</span>
+    <span class="comment">% Determine what row and column the current figure is on</span>
+    row=floor((i-1)/addlParms.columns);
+    column=mod(i-1,addlParms.columns);
+    <span class="comment">% Copy the figure to the clipboard</span>
+    print(addlParms.driver,[<span class="string">'-f'</span> num2str(addlParms.figure(i))],rendOpt,resOpt);
+    <span class="comment">% Paste the contents of the Clipboard:</span>
+    pic1 = invoke(new_slide.Shapes,<span class="string">'Paste'</span>);
+    <span class="comment">% Get height and width of picture:</span>
+    pic_H = get(pic1,<span class="string">'Height'</span>);
+    pic_W = get(pic1,<span class="string">'Width'</span>);
+    <span class="comment">% If scale is specified:</span>
+    <span class="keyword">if</span> checkParm(addlParms,<span class="string">'scale'</span>)
+        <span class="comment">% If stretch is specified, scretch the figure to it's 'box' (full</span>
+        <span class="comment">% page if there is only 1)</span>
+        <span class="keyword">if</span> checkParm(addlParms,<span class="string">'stretch'</span>)
+            set(pic1,<span class="string">'LockAspectRatio'</span>,<span class="string">'msoFalse'</span>)
+            set(pic1,<span class="string">'Width'</span>,(slide_W-(left+right))/fig.columns);
+            set(pic1,<span class="string">'Height'</span>,(slide_H-(top+bottom))/fig.rows);
+        <span class="keyword">else</span>
+            <span class="comment">% Determine if the height or the width will be the constraint,</span>
+            <span class="comment">% then set the picture height or width accordingly</span>
+            <span class="keyword">if</span> ((slide_H)/fig.rows)/((slide_W)/fig.columns)&gt;(pic_H+(top+bottom))/(pic_W+(left+right))
+                set(pic1,<span class="string">'Width'</span>,(slide_W-(left+right))/fig.columns);
+            <span class="keyword">else</span>
+                set(pic1,<span class="string">'Height'</span>,(slide_H-(top+bottom))/fig.rows);
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+    <span class="comment">% Get the figure height and widths</span>
+    fig.width=get(pic1,<span class="string">'Width'</span>);
+    fig.height=get(pic1,<span class="string">'Height'</span>);
+    <span class="comment">% Do a vertical alignment based on input</span>
+    <span class="keyword">if</span> isfield(addlParms,<span class="string">'valign'</span>)
+        <span class="keyword">if</span> strcmpi(addlParms.valign,<span class="string">'center'</span>)
+            set(pic1,<span class="string">'Top'</span>,top+0.5*(slide_H-(fig.height*fig.rows+top+bottom))+fig.height*row);
+        <span class="keyword">elseif</span> strcmpi(addlParms.valign,<span class="string">'top'</span>)
+            set(pic1,<span class="string">'Top'</span>,top+fig.height*row);
+        <span class="keyword">elseif</span> strcmpi(addlParms.valign,<span class="string">'bottom'</span>)
+            set(pic1,<span class="string">'Top'</span>,slide_H-(fig.height*fig.rows+bottom)+fig.height*row);
+        <span class="keyword">end</span>
+    <span class="keyword">else</span>
+        <span class="comment">% Or default to center</span>
+        set(pic1,<span class="string">'Top'</span>,top+0.5*(slide_H-(fig.height*fig.rows+top+bottom))+fig.height*row);
+    <span class="keyword">end</span>
+    <span class="comment">% Do a horizontal alignment based on input</span>
+    <span class="keyword">if</span> isfield(addlParms,<span class="string">'halign'</span>)
+        <span class="keyword">if</span> strcmpi(addlParms.halign,<span class="string">'center'</span>)
+            set(pic1,<span class="string">'Left'</span>,left+0.5*(slide_W-(fig.width*min(fig.count-fig.columns*row,fig.columns)+left+right))+fig.width*column);
+        <span class="keyword">elseif</span> strcmpi(addlParms.halign,<span class="string">'left'</span>)
+            set(pic1,<span class="string">'Left'</span>,left+fig.width*column);
+        <span class="keyword">elseif</span> strcmpi(addlParms.halign,<span class="string">'right'</span>)
+            set(pic1,<span class="string">'Left'</span>,slide_W-(fig.width*min(fig.count-fig.columns*row,fig.columns)+left+right)+fig.width*column);
+        <span class="keyword">end</span>
+    <span class="keyword">else</span>
+        <span class="comment">% Or default</span>
+        set(pic1,<span class="string">'Left'</span>,left+0.5*(slide_W-(fig.width*min(fig.count-fig.columns*row,fig.columns)+left+right))+fig.width*column);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="comment">% Clean up notes &amp; text box strings.</span>
+text={<span class="string">'notes'</span>,<span class="string">'text'</span>,<span class="string">'comments'</span>};
+<span class="keyword">for</span> i=1:numel(text)
+    <span class="comment">% If the notes are a number, convert it to text</span>
+    <span class="keyword">if</span> isfield(addlParms,text{i})
+        <span class="keyword">if</span> isnumeric(addlParms.(text{i}))
+            addlParms.(text{i})=num2str(addlParms.(text{i}));
+        <span class="keyword">else</span>
+            <span class="comment">% Convert \n &amp; \t into characters for powerpoint</span>
+            warning(<span class="string">'off'</span>,<span class="string">'MATLAB:strrep:InvalidInputType'</span>);
+            addlParms.(text{i})=strrep(addlParms.(text{i}),<span class="string">'\t'</span>,9);
+            addlParms.(text{i})=strrep(addlParms.(text{i}),<span class="string">'\n'</span>,13);
+            <span class="comment">% Convert \n into characters for powerpoint, if added via</span>
+            <span class="comment">% sprintf, eg note=sprintf('%s\n%s','Hello','World');</span>
+             addlParms.(text{i})(addlParms.(text{i})==10)=13;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="comment">% Add notes if they are specified</span>
+<span class="keyword">if</span> isfield(addlParms,<span class="string">'notes'</span>)
+    <span class="comment">% Taken from this page: http://www.mahipalreddy.com/vba.htm</span>
+    <span class="keyword">if</span> get(new_slide.notesPage.Shapes,<span class="string">'Count'</span>)==0
+        <span class="comment">% Still haven't figured this Matlab -&gt; VBA out. AddRect returns an</span>
+        <span class="comment">% error</span>
+        warning(<span class="string">'saveppt2:nonoteadded'</span>,<span class="string">'No note box found, none added'</span>);
+    <span class="keyword">else</span>
+        <span class="comment">% For each of the shapes, loop through until you find one with a</span>
+        <span class="comment">% text frame.</span>
+        <span class="keyword">for</span> i=1:get(new_slide.notesPage.Shapes,<span class="string">'Count'</span>)
+            <span class="comment">% If it has a text frame, set the text and break out of the</span>
+            <span class="comment">% loop.</span>
+            <span class="keyword">if</span> strcmp(get(new_slide.notesPage.Shape.Item(i),<span class="string">'HasTextFrame'</span>),<span class="string">'msoTrue'</span>)
+                set(new_slide.notesPage.Shape.Item(i).TextFrame.TextRange,<span class="string">'Text'</span>,addlParms.notes);
+                <span class="keyword">break</span>;
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="comment">% If comment field is specified</span>
+<span class="keyword">if</span> isfield(addlParms,<span class="string">'comments'</span>)
+    new_comment=invoke(new_slide.Shapes,<span class="string">'AddComment'</span>);
+    set(new_comment.TextFrame.TextRange,<span class="string">'Text'</span>,addlParms.comments);
+<span class="keyword">end</span>
+<span class="comment">% Add textbox if it is specified</span>
+<span class="keyword">if</span> isfield(addlParms,<span class="string">'text'</span>)
+    new_text=invoke(new_slide.Shapes,<span class="string">'AddTextbox'</span>,<span class="string">'msoTextOrientationHorizontal'</span>,0,0,720,540/4);
+    set(new_text.TextFrame.TextRange,<span class="string">'Text'</span>,addlParms.text);
+<span class="keyword">end</span>
+</pre><h2>Exit Functions<a name="11"></a></h2>
+         <p>If saveppt2 was called after an init as part of a batch process, just return</p><pre class="codeinput"><span class="keyword">if</span> isfield(addlParms,<span class="string">'ppt'</span>);
+    <span class="keyword">return</span>;
+<span class="keyword">end</span>
+<span class="comment">% Save the file</span>
+<span class="keyword">if</span> ~exist(filespec,<span class="string">'file'</span>)
+    <span class="comment">% Save file as new:</span>
+    invoke(op,<span class="string">'SaveAs'</span>,filespec,1);
+<span class="keyword">else</span>
+    <span class="comment">% Save existing file:</span>
+    invoke(op,<span class="string">'Save'</span>);
+<span class="keyword">end</span>
+<span class="comment">% If asked to close the file.</span>
+<span class="keyword">if</span> checkParm(addlParms,<span class="string">'close'</span>)
+    <span class="comment">% Check if other presentations are open. If so, only close this</span>
+    <span class="comment">% powerpoint, otherwise quit the application.</span>
+    <span class="keyword">if</span> checkParm(addlParms,<span class="string">'close'</span>)
+        invoke(op,<span class="string">'Close'</span>);
+        <span class="keyword">if</span> ppt.Presentations.Count==0
+            invoke(ppt,<span class="string">'Quit'</span>);
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">else</span>
+    <span class="comment">% If the user isn't closing the presentation and is assigning the</span>
+    <span class="comment">% PowerPoint presentation object to a variable, return it.</span>
+    <span class="keyword">if</span> nargout==1
+        varargout{1}=op;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="comment">% Sanity checking for when called from within a script. If saveppt2 are</span>
+<span class="comment">% called too close together then the file will not be done being written to</span>
+<span class="comment">% or powerpoint will not have completely closed, causing an error. This</span>
+<span class="comment">% simply calls a</span>
+
+<span class="comment">% If it doesn't exit by 1000, return anyway</span>
+<span class="keyword">for</span> i=1:1000;
+    <span class="keyword">try</span>
+        <span class="comment">% Try to get visibility</span>
+        ppt.Visible
+    <span class="keyword">catch</span>
+        <span class="comment">% When an error is thrown (the ActiveX object is destroyed), return</span>
+        <span class="keyword">return</span>;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><h2>Supporting Functions. Here Be Dragons.<a name="12"></a></h2>
+         <p>Check to see if the parameters is 'set'</p><pre class="codeinput"><span class="keyword">function</span> result=checkParm(addlParms,parm)
+result=0;
+<span class="keyword">try</span>
+    <span class="keyword">if</span> isfield(addlParms,parm)
+        <span class="keyword">if</span> islogical(addlParms.(parm))&amp;&amp;addlParms.(parm)==true
+            result=1;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">catch</span>
+<span class="keyword">end</span>
+<span class="keyword">return</span>
+<span class="keyword">end</span>
+</pre><p class="footer"><br>
+            Published with MATLAB&reg; 7.5<br></p>
+      </div>
+      <!--
+##### SOURCE BEGIN #####
+% SAVEPPT2 saves plots to PowerPoint.
+% SAVEPPT2(save_file,<additional parameters>)
+%  Saves the current Matlab figure window or Simulink model window to a PowerPoint 
+%  file designated by save_file.  If save_file is omitted, the user is prompted to enter
+%  one via UIPUTFILE.  If the path is omitted from filespec, the
+%  PowerPoint file is created in the current Matlab working directory.
+%
+% powerpoint_object=SAVEPPT2(save_file,'close',false);
+%   Return the PowerPoint presentation object if it isn't to be closed.
+%
+% Batch Processing:
+% powerpoint_object=SAVEPPT2(save_file,'init')
+%   Initializes a powerpoint object for use with batch processing.
+% SAVEPPT2('ppt',powerpoint_object);
+%   Saves the current Matlab figure to the opened PowerPoint Object
+% SAVEPPT2(save_file,'ppt',powerpoint_object,'close');
+%   Saves and closes the PowerPoint object.
+%
+% SAVEPPT2 also accepts numerous additional optional parameters, they can
+% be called from the matlab command line or in function form. All options
+% can be preceded with a '-', but this is not required. Short and Long
+% named options are listed on the same line.
+%
+% % Annotation:
+% 'n' 'notes'          - Add information to notes section.
+% 'text' 'textbox'     - Add text box.
+% 'comment' 'comments' - Add comment. (Only works if PowerPoint is visible)
+%     - \t and \n are converted to tab and new line, respectively.
+% 't' 'title' - Add a title or add a blank title so that one may be added later. Title is placed at the top of the presentation unless a padding is specified.
+% If 'title' or 'textbox' is specified alone a blank placeholder will be added.
+% 
+% % Figure Options
+% 'f' 'fig' 'figure'     - Use the specified figure handle. Also accepts an array of figures. More than 4 figures is not recommended as it makes it difficult to see in the plot. Default: gcf
+%                          If figure is 0, a blank page is added. If a title is specified then a title page is added.
+% 'd' 'driver' 'drivers' - [meta, bitmap]. Send figure to clipboard Metafile or Bitmap format. See also print help.
+% 'r' 'render'           - [painters,zbuffer,opengl]. Choose print render mode. See also print help.
+% 'res' 'resolution'     - Dots-per-inch resolution. Default: 90 for Simulink, 150 for figures. See also print help.
+% 
+% % Slide Layout
+% 'st' 'stretch'      - Used only with scale, stretch the figure to fill all remaining space (taking into account padding and title). Default: on
+% 's' 'sc' 'scale'    - Scale the figure to remaining space on the page while maintaining aspect ratio, takes into account padding and title spacing. Default: on
+% 'h' 'halign'        - ['left','center','right']. Horizontally align figure. Default: center
+% 'v' 'valign'        - ['top','center','bottom']. Vertically align the graph. Default: center
+% 'p' 'pad' 'padding' - Place a padding around the figure that is used for alignment and scaling. Can be one number to be applied equally or an array in the format of [left right top bottom]. Useful when plotting to template files. Default: 0
+% 'c' 'col' 'columns' - Number of columns to place multiple plots in. Default: 2
+% 
+% % PowerPoint Control
+% 'i' 'init' - Initialize PowerPoint presentation for use in batch mode. Returns a PowerPoint Presentation Object.
+% 'close'    - Close PowerPoint presentation. Default: true
+% 'save'     - Save PowerPoint Presentation. Useful for saves in batch mode.
+% 'ppt'      - Call saveppt2 with specified PowerPoint Presentation object.
+% 'visible'  - Make PowerPoint visible.
+% 'template' - Use template file specified. Is only used if the save file does not already exist.
+%
+% For binary options use: 'yes','on' ,'true' ,true  to enable
+%                         'no', 'off','false',false to disable
+% Examples:
+% % Simplest Call
+% plot(rand(1,100),rand(1,100),'*');
+% saveppt2
+%
+% % Add a title "Hello World"
+% plot(rand(1,100),rand(1,100),'*');
+% saveppt2('test.ppt','title','Hello World');
+% saveppt2('test.ppt','t','Hello World');
+% saveppt2 test.ppt -title 'Hello World'
+% saveppt2 test.ppt -t 'Hello World'
+%
+% % Add a note
+% plot(rand(1,100),rand(1,100),'*');
+% saveppt2('test.ppt','notes','Lorem ipsum dolor sit amet, consectetur adipiscing elit.');
+%
+% % Add multiline note
+% plot(rand(1,100),rand(1,100),'*');
+% saveppt2('test.ppt','notes','Lifetime, relational competence.\n\tTactical, integrated solution');
+% note=sprintf('Latest Quarter Sales: %%fM',rand(1,1)*100);
+% saveppt2('test.ppt','notes',note);
+%
+% Add a TextBox
+% plot(rand(1,100),rand(1,100),'*');
+% saveppt2('test.ppt','texbox','Totally, groupwide mindset');
+%
+% % Add a comment (PowerPoint must be visible)
+% plot(rand(1,100),rand(1,100),'*');
+% saveppt2('test.ppt','visible','comment','Virtual, logic-based culture');
+%
+% % Scaling & Stretching the plot to fill the page.
+% plot(rand(1,100),rand(1,100),'*');
+% saveppt2('test.ppt','note','Scaling & Stretching On (Default)');
+% saveppt2('test.ppt','stretch','false','Stretching Off');
+% saveppt2('test.ppt','scale',off,'note','Scaling Off');
+%
+% % Stretching the plot to fill the page.
+% plot(rand(1,100),rand(1,100),'*');
+% saveppt2('test.ppt','Stretching On');
+% 
+% saveppt2('test.ppt','stretch',false);
+% saveppt2 test.ppt -stretch off
+%
+% % copy the plot as both a meta and bitmap.
+% plot(rand(1,100),rand(1,100),'*');
+% saveppt2('test.ppt','driver','meta','scale','stretch');
+% saveppt2('test.ppt','driver','bitmap','scale','stretch');
+%
+% % scale the plot to fill the page, ignoring aspect ratio, with 150 pixels
+% % of padding on all sides
+% plot(rand(1,100),rand(1,100),'*');
+% saveppt2('test.ppt','scale','stretch','Padding',150);
+% saveppt2('test.ppt','scale',true,'stretch',true,'Padding',150);
+%
+% % scale the plot to fill the page, ignoring aspect ratio, with 150 pixels
+% % of padding on left and right sides
+% plot(rand(1,100),rand(1,100),'*');
+% saveppt2('test.ppt','scale','stretch','Padding',[150 150 0 0]);
+% saveppt2('test.ppt','scale',true,'stretch',true,'Padding',[150 150 0 0]);
+%
+% % scale the plot to fill the page, ignoring aspect ratio add blank title
+% plot(rand(1,100),rand(1,100),'*');
+% saveppt2('test.ppt','scale','stretch','title');
+% saveppt2('test.ppt','scale',true,'stretch',true,'title',true);
+%
+% % Align the figure in the upper left corner
+% plot(rand(1,100),rand(1,100),'*');
+% saveppt2('test.ppt','halign','left','valign','top');
+%
+% % Align the figure in the upper left corner
+% plot(rand(1,100),rand(1,100),'*');
+% saveppt2('test.ppt','halign','right','valign','bottom');
+%
+% % Use the template 'Group Report.ppt'
+% plot(rand(1,100),rand(1,100),'*');
+% saveppt2('test.ppt','template','Group Report.ppt');
+%
+% % Plot 4 figures horizontally aligned left with 2 columns
+% a=figure('Visible','off');plot(1:10);
+% b=figure('Visible','off');plot([1:10].^2);
+% c=figure('Visible','off');plot([1:10].^3);
+% d=figure('Visible','off');plot([1:10].^4);
+% saveppt2('test.ppt','figure',[a b c d],'columns',2,'title','Hello World!','halign','left')
+%
+% % Create blank title page.
+% figure('test.ppt','figure',0,'title','New Section');
+%
+% % Create blank page.
+% figure('test.ppt','figure',0);
+%
+% % Plot figures in batch mode. Faster than opening a new powerpoint object each time
+% ppt=saveppt2('batch.ppt','init');
+% for i=1:10
+%     plot(rand(1,100),rand(1,100),'*');
+%     saveppt2('ppt',ppt)
+%     if mod(i,5)==0 % Save half way through incase of crash
+%       saveppt2('ppt',ppt,'save')
+%     end
+% end
+% saveppt2('batch.ppt','ppt',ppt,'close');
+%
+% More flexibility is built in, but it is impossible to show all possible
+% calling combinations, you may check out the source or Test_SavePPT2.m
+%
+% See also print, saveppt, validateInput
+
+% Ver 2.2, Copyright 2005, Mark W. Brown, mwbrown@ieee.org
+%  changed slide type to include title.
+%  added input parameter for title text.
+%  added support for int32 and single data types for Matlab 6.0
+%  added comments about changing bitmap resolution (for large images only)
+%  swapped order of opening PPT and copying to clipboard (thanks to David Abraham)
+%  made PPT invisible during save operations (thanks to Noah Siegel)
+%
+% Ver 3, Copyright 2010, Jed Frey, frey_jed@cat.com
+%  Added template & notes features
+%  Added multiple calling functions
+%  Restructured calling sequence
+
+function varargout=saveppt2(varargin)
+%% Establish valid save file name:
+if nargin<1
+    [fname, fpath] = uiputfile('*.ppt');
+    if fpath == 0; return; end
+    filespec = fullfile(fpath,fname);
+elseif strcmp(varargin{1},'ppt')
+    % If the first input is the Powerpoint COM object
+else
+    % Otherwise the first input is the desired filename.
+    filespec=varargin{1};
+    varargin(1)='';
+    % If the path is empty, use current working directory. If the extension
+    % is blank, add .ppt then create full windows path.
+    [fpath,fname,fext] = fileparts(filespec);
+    if isempty(fpath); fpath = pwd; end
+    if isempty(fext); fext = '.ppt'; end
+    filespec = fullfile(fpath,[fname,fext]);
+end
+
+%% Process additional parameters
+if numel(varargin)>0
+    % Set up valid parameters list
+    validParameters={ ...
+        {'figure','fig','f'}, ... % Figure & driver settings
+        {'init','i'},'close','save','ppt','visible','template', ... % Power Point Control.
+        {'notes','n'},{'text','textbox'}, {'comments','comment'}, ... % Notes, textbox & comments settings
+        {'stretch','st'},{'scale','s','sc'},{'title','t'}, ... % Stretch, Scale & Title settings
+        {'driver','drivers','d'},{'resolution','res'},{'render','r'},... % Title, Resolution and Render Calls
+        {'halign','h'},{'valign','v'},{'padding','pad','p'},{'columns','col','c'}}; % Align, padding and column calls.
+    % Validate additional input
+    addlParms=validateInput(varargin,validParameters);
+else
+    % Just make addlParms an empty struct so that 'isfield' doesn't error
+    % out.
+    addlParms=struct;
+end
+
+%% Parameter Sanity Checks
+
+% PowerPoint File & Init cannot both be specified at the same time.
+if isfield(addlParms,'init')&&isfield(addlParms,'ppt')
+    error('Both init and ppt can not be specified at the same time. Call init first, then use ppt');
+end
+% PowerPoint Close & Init cannot both be specified at the same time
+if isfield(addlParms,'init')&&isfield(addlParms,'close')
+    warning('saveppt2:InitQuit','Both init and quit should not be specified at the same time, ignoring close.');
+    addlParms=rmfield(addlParms,'close');
+end
+% If close is specified, force to save the powerpoint.
+if isfield(addlParms,'close')
+    addlParms.save=true;
+end
+%% Initialize PowerPoint
+% If the user has passed a previous PowerPoint session:
+if isfield(addlParms,'ppt')
+    % Validate that the PPT object passed is actually a PPT object
+    try
+        % Try to get a parameter of the object.
+        if strcmpi(addlParms.ppt.ReadOnly,'msoTrue');
+            % Error if the powerpoint presentation is read only.
+            error('PowerPoint object is read only.');
+        end
+    catch
+        % If the passed parameter isn't the correct PowerPoint object it
+        % will give an error.
+        error('Failed invoking object. Verify that it is a PPT object as returned from a saveppt2(file,''init'') function.');
+    end
+    % Otherwise assign it to the 'open presentation' variable and get the
+    % powerpoint application object.
+    op=addlParms.ppt;
+    ppt=op.Application;
+    % If save or close is set
+    if checkParm(addlParms,'save')
+        % Save the file
+        if ~exist(filespec,'file')
+            % Save file as new if the file doesn't exist:
+            invoke(op,'SaveAs',filespec,1);
+        else
+            % Save existing file:
+            invoke(op,'Save');
+        end
+        % If close is specified, close the powerpoint.
+        if checkParm(addlParms,'close')
+            invoke(op,'Close');
+            % If there are no more open powerpoint presentations, quit the
+            % application
+            if ppt.Presentations.Count==0
+                invoke(ppt,'Quit');
+            end
+        end
+        return;
+    end
+else
+    % If a powerpoint object isn't passed, open one.
+    ppt = actxserver('PowerPoint.Application');
+    % Check if the savefile exists.
+    if exist(filespec,'file')
+        % If the save file already exists, the template cannot be applied.
+        if isfield(addlParms,'template')
+            addlParms=rmfield(addlParms,'template');
+            warning('saveppt2:fileexist','Save file exists, skipping opening template');
+        end
+        op = invoke(ppt.Presentations,'Open',filespec,[],[],0);
+    else
+        % If a template is specified
+        if isfield(addlParms,'template')
+            % Check that the file exists
+            if ~exist(addlParms.template,'file');
+                warning('saveppt2:notemplate','Template file does not exist, skipping.');
+                op = invoke(ppt.Presentations,'Add');
+            else
+                % Open the template file
+                op = invoke(ppt.Presentations,'Open',addlParms.template,[],[],0);
+            end
+        else
+            op = invoke(ppt.Presentations,'Add');
+        end
+    end
+    % If saveppt2 was just called to init the plots, return the PowerPoint
+    % presentation object.
+    if isfield(addlParms,'init')&&addlParms.init
+        varargout{1}=op;
+        return;
+    end
+end
+
+% Set Visibility.
+if checkParm(addlParms,'visible')
+    ppt.visible=1;
+end
+%% Additional Parameter Sanity Checks
+% Validate that halign is a valid setting
+if isfield(addlParms,'halign')&&~any(strcmpi(addlParms.halign,{'left','center','right'}))
+    warning('saveppt2:InvalidHalign','Invalid horizontal align "%s" specified, ignoring',addlParms.halign);
+    addlParms=rmfield(addlParms,'halign');
+end
+% Validate that valign is a valid setting
+if isfield(addlParms,'valign')&&~any(strcmpi(addlParms.valign,{'top','center','bottom'}))
+    warning('saveppt2:InvalidValign','Invalid vertical align "%s" specified, ignoring',addlParms.valign);
+    addlParms=rmfield(addlParms,'valign');
+end
+% If there is more than 1 figure, scale must be enabled so that all of the
+% figures will fit on a slide.
+if isfield(addlParms,'figure')&&length(addlParms.figure)>1
+    if isfield(addlParms,'scale')&&addlParms.scale==false
+        warning('saveppt2:ScaleForced','More than one figure given, scaling forced to enable so that the plots will fit');
+    end
+    addlParms.scale=true;
+end
+% Stretch only makes sense when used with scale. Ignore otherwise
+if ~checkParm(addlParms,'scale')&&checkParm(addlParms,'stretch')
+    warning('saveppt2:ScaleForcedStretch','Stretch is enabled, scaling forced to enabled.');
+    addlParms.scale=true;
+end
+% Comments only works when the PowerPoint is visible.
+if ~checkParm(addlParms,'visible')&&checkParm(addlParms,'comments')
+    error('Visibility must be enabled to use comments.');
+end
+% Validate padding input
+if isfield(addlParms,'padding')
+    % Make sure that padding is a number
+    if ~isnumeric(addlParms.padding)
+        addlParms=rmfield(addlParms,'padding');
+        warning('saveppt2:IncorrectPadding','Padding non-numeric. Must be [l, r, t, b] or a single number, ignoring.')
+        % Validate padding size
+    elseif ~any(size(addlParms.padding,2)==[1 4])
+        addlParms=rmfield(addlParms,'padding');
+        warning('saveppt2:IncorrectPaddingSize','Incorrect Padding Size. Must be [l, r, t, b] or a single number, ignoring.')
+        % If padding is just one number, fill in so that all of the numbers are
+        % the same
+    elseif size(addlParms.padding,2)==1
+        addlParms.padding=repmat(addlParms.padding,1,4);
+    end
+end
+
+%% Set up defaults
+% If no text for title is specified, set it to blank
+if checkParm(addlParms,'title');
+    addlParms.title='';
+end
+% If no text for textbox is specified, set it to blank
+if checkParm(addlParms,'text');
+    addlParms.text='';
+end
+% If no text for comment is specified, set it to blank
+if checkParm(addlParms,'comments');
+    addlParms.comments='';
+end
+% If no note is specified, clear it and give a warning
+if checkParm(addlParms,'notes');
+    warning('saveppt2:NoNoteGiven','No note was specified');
+    addlParms=rmfield(addlParms,'notes');
+end
+% Stretch was not specified
+if ~isfield(addlParms,'stretch');
+    addlParms.stretch=true;
+end
+% Scale was not specified
+if ~isfield(addlParms,'scale');
+    addlParms.scale=true;
+end
+% Comments only work when the PowerPoint slide is visible.
+if ~checkParm(addlParms,'visible')&&isfield(addlParms,'comments')
+    warning('saveppt2:VisibleComments','Comments are only available if PowerPoint is visible. Removing');
+   addlParms=rmfield(addlParms,'comments'); 
+end  
+% Default the number of columns to 2
+if ~isfield(addlParms,'columns')||checkParm(addlParms,'columns')
+    addlParms.columns=2;
+end
+% If no close is specified, default to close the fields.
+if ~isfield(addlParms,'close')&&~isfield(addlParms,'ppt')
+    addlParms.close=true;
+end
+%% Configure Print Options
+% Validate all of the figures
+if isfield(addlParms,'figure')
+    % Meaning they just put 'Figure', but didn't specify one, default
+    % behavior for print, just remove the field
+    if checkParm(addlParms,'figure')
+        addlParms=rmfield(addlParms,'figure');
+    else
+        % More than 4 figures makes it hard to read
+        if length(addlParms.figure)>4
+            warning('saveppt2:TooManyFigures','More than 4 figures is not reccomended')
+        end
+    end
+    % Check that the figures actually exist
+    for i=1:length(addlParms.figure)
+        try
+            a=get(addlParms.figure(i));
+        catch
+            error('saveppt2:FigureDoesNotExist',['Figure ' addlParms.figure(i) ' does not exist']);
+        end
+    end
+else
+    % If no figure is specified, use the current figure.
+    addlParms.figure=gcf;
+end
+% Resolution options
+if isfield(addlParms,'resolution')
+    resOpt=['-r ' num2str(addlParms.resolution)];
+else
+    resOpt='';
+end
+% Driver options
+if isfield(addlParms,'driver')
+    if strmatch(addlParms.driver(1),'d')
+        addlParms.driver(1)='';
+    end
+    switch lower(addlParms.driver)
+        case 'meta'
+            addlParms.driver='-dmeta';
+        case 'bitmap'
+            addlParms.driver='-dbitmap';
+        otherwise
+            error('saveppt2:UnknownRenderer','Unknown Print Driver: %s',addlParms.driver);
+    end
+else
+    addlParms.driver='-dmeta';
+end
+% Render schema options
+if isfield(addlParms,'render')
+    switch lower(addlParms.render)
+        case 'painters'
+            rendOpt='-painters';
+        case 'zbuffer'
+            rendOpt='-zbuffer';
+        case 'opengl'
+            rendOpt='-opengl';
+        case 'render'
+            rendOpt='';
+        otherwise
+            error('saveppt2:UnknownDriver','Unknown Renderer: %s',addlParms.render);
+    end
+else
+    rendOpt='';
+end
+
+%% Slide functions
+% Get height and width of slide:
+slide_H = op.PageSetup.SlideHeight;
+slide_W = op.PageSetup.SlideWidth;
+% Get current number of slides:
+slide_count = get(op.Slides,'Count');
+% Add a new slide (with title object):
+slide_count = int32(double(slide_count)+1);
+% Create the appropriate slide (w or w/o title)
+if isfield(addlParms,'title')
+    % Slide with Title
+    if addlParms.figure(1)==0 % Title slide only.
+        new_slide = invoke(op.Slides,'Add',slide_count,1);
+    else % Title slide with plots.
+        new_slide = invoke(op.Slides,'Add',slide_count,11);
+        % Set the text frame to autosize
+        new_slide.Shapes.Title.TextFrame.AutoSize=1;
+        % If padding is specified, use that.
+        if isfield(addlParms,'padding')
+            set(new_slide.Shapes.Title,'Top',addlParms.padding(3));
+        else
+            % Otherwise move the title up towards the top of the scope
+            set(new_slide.Shapes.Title,'Top',get(new_slide.Shapes.Title.TextFrame.TextRange.Font,'Size')/4);
+        end
+        % Resize the title so that it is the width of the slide
+        set(new_slide.Shapes.Title,'Left',0);
+        set(new_slide.Shapes.Title,'Width',slide_W);
+        % Set the 'top' of where the bottom of the title is.
+        top=get(new_slide.Shapes.Title,'Top')+get(new_slide.Shapes.Title,'Height');
+    end
+    % Set the text in the title to the specified title
+    set(new_slide.Shapes.Title.TextFrame.TextRange,'Text',addlParms.title);
+else
+    % Slide with No Title
+    new_slide = invoke(op.Slides,'Add',slide_count,12);
+    if isfield(addlParms,'padding')
+        top=addlParms.padding(3);
+    else
+        top=0;
+    end
+end
+% If padding is given, use that (top is specified above)
+if isfield(addlParms,'padding')
+    left=addlParms.padding(1);
+    right=addlParms.padding(2);
+    bottom=addlParms.padding(4);
+else
+    bottom=0;
+    left=0;
+    right=0;
+end
+%% Figure Functions
+% Calculate the number of rows and columns
+fig.count=length(addlParms.figure);
+fig.rows=(floor((fig.count-1)/addlParms.columns))+1;
+fig.columns=min(fig.count,addlParms.columns);
+% For each figure
+for i=1:fig.count
+    % For title page only, skip.
+    if addlParms.figure(i)==0
+        continue;
+    end
+    % Determine what row and column the current figure is on
+    row=floor((i-1)/addlParms.columns);
+    column=mod(i-1,addlParms.columns);
+    % Copy the figure to the clipboard
+    print(addlParms.driver,['-f' num2str(addlParms.figure(i))],rendOpt,resOpt);
+    % Paste the contents of the Clipboard:
+    pic1 = invoke(new_slide.Shapes,'Paste');
+    % Get height and width of picture:
+    pic_H = get(pic1,'Height');
+    pic_W = get(pic1,'Width');
+    % If scale is specified:
+    if checkParm(addlParms,'scale')
+        % If stretch is specified, scretch the figure to it's 'box' (full
+        % page if there is only 1)
+        if checkParm(addlParms,'stretch')
+            set(pic1,'LockAspectRatio','msoFalse')
+            set(pic1,'Width',(slide_W-(left+right))/fig.columns);
+            set(pic1,'Height',(slide_H-(top+bottom))/fig.rows);
+        else
+            % Determine if the height or the width will be the constraint,
+            % then set the picture height or width accordingly
+            if ((slide_H)/fig.rows)/((slide_W)/fig.columns)>(pic_H+(top+bottom))/(pic_W+(left+right))
+                set(pic1,'Width',(slide_W-(left+right))/fig.columns);
+            else
+                set(pic1,'Height',(slide_H-(top+bottom))/fig.rows);
+            end
+        end
+    end
+    % Get the figure height and widths
+    fig.width=get(pic1,'Width');
+    fig.height=get(pic1,'Height');
+    % Do a vertical alignment based on input
+    if isfield(addlParms,'valign')
+        if strcmpi(addlParms.valign,'center')
+            set(pic1,'Top',top+0.5*(slide_H-(fig.height*fig.rows+top+bottom))+fig.height*row);
+        elseif strcmpi(addlParms.valign,'top')
+            set(pic1,'Top',top+fig.height*row);
+        elseif strcmpi(addlParms.valign,'bottom')
+            set(pic1,'Top',slide_H-(fig.height*fig.rows+bottom)+fig.height*row);
+        end
+    else
+        % Or default to center
+        set(pic1,'Top',top+0.5*(slide_H-(fig.height*fig.rows+top+bottom))+fig.height*row);
+    end
+    % Do a horizontal alignment based on input
+    if isfield(addlParms,'halign')
+        if strcmpi(addlParms.halign,'center')
+            set(pic1,'Left',left+0.5*(slide_W-(fig.width*min(fig.count-fig.columns*row,fig.columns)+left+right))+fig.width*column);
+        elseif strcmpi(addlParms.halign,'left')
+            set(pic1,'Left',left+fig.width*column);
+        elseif strcmpi(addlParms.halign,'right')
+            set(pic1,'Left',slide_W-(fig.width*min(fig.count-fig.columns*row,fig.columns)+left+right)+fig.width*column);
+        end
+    else
+        % Or default
+        set(pic1,'Left',left+0.5*(slide_W-(fig.width*min(fig.count-fig.columns*row,fig.columns)+left+right))+fig.width*column);
+    end
+end
+% Clean up notes & text box strings.
+text={'notes','text','comments'};
+for i=1:numel(text)
+    % If the notes are a number, convert it to text
+    if isfield(addlParms,text{i})
+        if isnumeric(addlParms.(text{i}))
+            addlParms.(text{i})=num2str(addlParms.(text{i}));
+        else
+            % Convert \n & \t into characters for powerpoint
+            warning('off','MATLAB:strrep:InvalidInputType');
+            addlParms.(text{i})=strrep(addlParms.(text{i}),'\t',9);
+            addlParms.(text{i})=strrep(addlParms.(text{i}),'\n',13);
+            % Convert \n into characters for powerpoint, if added via
+            % sprintf, eg note=sprintf('%s\n%s','Hello','World');
+             addlParms.(text{i})(addlParms.(text{i})==10)=13;
+        end
+    end
+end
+% Add notes if they are specified
+if isfield(addlParms,'notes')
+    % Taken from this page: http://www.mahipalreddy.com/vba.htm
+    if get(new_slide.notesPage.Shapes,'Count')==0
+        % Still haven't figured this Matlab -> VBA out. AddRect returns an
+        % error
+        warning('saveppt2:nonoteadded','No note box found, none added');
+    else
+        % For each of the shapes, loop through until you find one with a
+        % text frame.
+        for i=1:get(new_slide.notesPage.Shapes,'Count')
+            % If it has a text frame, set the text and break out of the
+            % loop.
+            if strcmp(get(new_slide.notesPage.Shape.Item(i),'HasTextFrame'),'msoTrue')
+                set(new_slide.notesPage.Shape.Item(i).TextFrame.TextRange,'Text',addlParms.notes);
+                break;
+            end
+        end
+    end
+end
+% If comment field is specified
+if isfield(addlParms,'comments')
+    new_comment=invoke(new_slide.Shapes,'AddComment');
+    set(new_comment.TextFrame.TextRange,'Text',addlParms.comments);
+end
+% Add textbox if it is specified
+if isfield(addlParms,'text')
+    new_text=invoke(new_slide.Shapes,'AddTextbox','msoTextOrientationHorizontal',0,0,720,540/4);
+    set(new_text.TextFrame.TextRange,'Text',addlParms.text);
+end
+%% Exit Functions
+% If saveppt2 was called after an init as part of a batch process, just
+% return
+if isfield(addlParms,'ppt');
+    return;
+end
+% Save the file
+if ~exist(filespec,'file')
+    % Save file as new:
+    invoke(op,'SaveAs',filespec,1);
+else
+    % Save existing file:
+    invoke(op,'Save');
+end
+% If asked to close the file.
+if checkParm(addlParms,'close')
+    % Check if other presentations are open. If so, only close this
+    % powerpoint, otherwise quit the application.
+    if checkParm(addlParms,'close')
+        invoke(op,'Close');
+        if ppt.Presentations.Count==0
+            invoke(ppt,'Quit');
+        end
+    end
+else
+    % If the user isn't closing the presentation and is assigning the
+    % PowerPoint presentation object to a variable, return it.
+    if nargout==1
+        varargout{1}=op;
+    end
+end
+% Sanity checking for when called from within a script. If saveppt2 are
+% called too close together then the file will not be done being written to
+% or powerpoint will not have completely closed, causing an error. This
+% simply calls a
+
+% If it doesn't exit by 1000, return anyway
+for i=1:1000;
+    try
+        % Try to get visibility
+        ppt.Visible
+    catch
+        % When an error is thrown (the ActiveX object is destroyed), return
+        return;
+    end
+end
+end
+
+%% Supporting Functions. Here Be Dragons.
+% Check to see if the parameters is 'set'
+function result=checkParm(addlParms,parm)
+result=0;
+try
+    if isfield(addlParms,parm)
+        if islogical(addlParms.(parm))&&addlParms.(parm)==true
+            result=1;
+        end
+    end
+catch
+end
+return
+end
+##### SOURCE END #####
+-->
+   </body>
+</html>

@@ -174,11 +174,11 @@ cla(gca)
     pos1 = get(gcf,'Position');
     pos2 = pos1;
     pos2(4) = 0.045.*length(desc);
-    pos2(2) = pos1(2)-1.1.*pos2(4)+.05 ;
+    pos2(2) = max([pos1(2)-1.2.*pos2(4),0]);
     if pos2(2)<0
        pos2(2) = pos1(2) + pos1(4) + .125;
     end
-       
+    dplot = gcf;   
     figure(double(gcf)+1); 
     set(gcf,'units','normalized','position',pos2);
     mid =  imagegap(time_,[1:tests],qc_tests);
@@ -202,6 +202,7 @@ cla(gca)
         %      set(tx(x),'units','data','clipping','on')
     end
     qc_fig = gcf;
+    figure_(dplot);
 %     panes = length(fields);
 %     if panes>0
 %        fig_pos = get(var_fig,'position');

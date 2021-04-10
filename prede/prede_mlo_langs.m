@@ -1,22 +1,23 @@
 % read in prede sun...
- prede = read_prede;
+ prede = read_pom2;
 %  prede.LatN = 19.5365;
 %  prede.LonE = -155.5761;
 %  [prede.zen_sun,prede.azi_sun, prede.soldst, HA_Sun, Decl_Sun, prede.ele_sun, prede.airmass] = ...
 %     sunae(prede.LatN, prede.LonE, prede.time);
  amm = sort(prede.airmass); amm([1 end])
- good = prede.airmass>1.15 & prede.airmass<15;
+ good = prede.airmass>2.15 & prede.airmass<15;
 %%
 % tic
 %These test points determined by looking at lowest error in Vo vs Lambda
 % test_ii = [338, 392,278,741,812,833,1020 ];
 % 315, 400, 500, 675, 870, 940, 1020
-[Vo,tau,Vo_, tau_, good(good)] = dbl_lang(prede.airmass(good),prede.filter_5(good),2.5,5);
-[Vo,tau,Vo_, tau_, good(good)] = dbl_lang(prede.airmass(good),prede.filter_7(good),3.5,5);
-[Vo,tau,Vo_, tau_, good(good)] = dbl_lang(prede.airmass(good),prede.filter_2(good),3.5,5);
+% (airmass,V,stdev_mult,Ntimes,steps,show);
+[Vo,tau,Vo_, tau_, good(good)] = dbl_lang(prede.airmass(good),prede.filter_5(good),2.5,5,1,1);
+[Vo,tau,Vo_, tau_, good(good)] = dbl_lang(prede.airmass(good),prede.filter_7(good),3.5,5,1,1);
+[Vo,tau,Vo_, tau_, good(good)] = dbl_lang(prede.airmass(good),prede.filter_2(good),3.5,5,1,1);
 %%
 clear Vo tau Vo_ tau_
-for f = [7:-1:1]
+for f = [prede.header.numFilters:-1:1]
 %    disp(['wavelength = ',num2str(Lambda(L))])
    [Vo(f), tau(f), P,S,Mu,dVo(f)] = lang(prede.airmass(good),prede.(['filter_',num2str(f)])(good));
    [Vo_(f),tau_(f), P_] = lang_uw(prede.airmass(good),prede.(['filter_',num2str(f)])(good));

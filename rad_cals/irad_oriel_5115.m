@@ -24,9 +24,7 @@ H=0;
 irad = (nm.^-5) .* exp(A + B./nm) .* (C + D./nm + E./nm.^2 + F./nm.^3 + G./nm.^4  + H./nm.^5);
 rad = irad * .99 ./pi;
 
-rad_506 = planck_fit(lamp_506.wl_nm, lamp_506.I,[sws.Si_lambda;sws.In_lambda]);
-
-tmp = loadit(['D:\case_studies\radiation_cals\Spectralon_panels\Schmidt.12x12_spectralon.txt']);
+tmp = loadit(['D:\drag and plop\radiation_cals\cal_sources_references_xsec\Spectralon_panels\Schmidt.12x12_spectralon.txt']);
 spec_panel.nm = tmp(:,1);
 spec_panel.Refl = tmp(:,2);
 figure; plot(spec_panel.nm, spec_panel.Refl,'o-');
@@ -37,6 +35,6 @@ spec_panel.SWS_refl(ext) = interp1(spec_panel.nm, spec_panel.Refl, nm(ext),'near
 figure; plot(spec_panel.nm, spec_panel.Refl,'o',spec_panel.SWS_nm, spec_panel.SWS_refl,'.');
 
 radiance = (1e4.*rad_577.Irad(1:256).*spec_panel.SWS_refl(1:256)./pi);
-
+rad_506 = planck_fit(lamp_506.wl_nm, lamp_506.I,[sws.Si_lambda;sws.In_lambda]);
 
 return

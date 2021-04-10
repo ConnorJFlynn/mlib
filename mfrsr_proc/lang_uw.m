@@ -1,6 +1,6 @@
 function [Vo,tau,P] = lang_uw(airmass, V);
 % [Vo,tau,P] = lang_uw(airmass, V);
-% unweighted langley
+% unweighted langley as per Alder-Golden 2007
    [P] = polyfit(1./airmass, real(log(V))./airmass, 1);
    Vo = exp(P(1));
    y_int = polyval(P, 0);

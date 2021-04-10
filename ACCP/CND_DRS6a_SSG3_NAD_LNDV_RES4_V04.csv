@@ -1,0 +1,75 @@
+CND_DRS6a_SSG3_NAD_LNDV_RES4_V04.csv, Comments: A sample ACCP 8K assessment output file
+GV#, GVname, QIscore, mean error, RMSE
+ 1, AAOD_l_UV_column,    0.239,    0.548,    0.264
+ 2, AAOD_l_UV_PBL,    0.921,    0.271,    0.986
+ 3, AAOD_l_VIS_column,    0.144,    0.010,    0.741
+ 4, AAOD_l_VIS_PBL,    0.687,    0.285,    0.240
+ 5, AAOD_l_UV_column,    0.879,    0.010,    0.799
+ 6, AAOD_l_UV_PBL,    0.185,    0.254,    0.196
+ 7, AAOD_l_VIS_column,    0.191,    0.764,    0.250
+ 8, AAOD_l_VIS_PBL,    0.519,    0.846,    0.598
+ 9, ASYM_UV,    0.079,    0.162,    0.610
+10, ASYM_VIS,    0.639,    0.280,    0.812
+11, AEFR_l_column,    0.013,    0.147,    0.953
+12, AEFR_l_PBL,    0.550,    0.323,    0.616
+13, AE2BR_l_UV_column,    0.655,    0.182,    0.162
+14, AE2BR_l_UV_PBL,    0.221,    0.727,    0.782
+15, AE2BR_l_VIS_column,    0.326,    0.086,    0.945
+16, AE2BR_l_VIS_PBL,    0.713,    0.113,    0.973
+17, AE2BR_l_NIR_column,    0.199,    0.791,    0.335
+18, AE2BR_l_NIR_PBL,    0.108,    0.489,    0.488
+19, AODF_l_UV_column,    0.924,    0.272,    0.243
+20, AODF_l_UV_PBL,    0.762,    0.108,    0.652
+21, AODF_l_VIS_column,    0.424,    0.207,    0.839
+22, AODF_l_VIS_PBL,    0.508,    0.805,    0.895
+23, AODF_l_NIR_column,    0.349,    0.388,    0.397
+24, AODF_l_NIR_PBL,    0.162,    0.650,    0.822
+25, ANSPH_l_UV_column,    0.221,    0.852,    0.578
+26, ANSPH_l_UV_PBL,    0.268,    0.148,    0.985
+27, ANSPH_l_VIS_column,    0.538,    0.225,    0.961
+28, ANSPH_l_VIS_PBL,    0.020,    0.049,    0.720
+29, ANSPH_l_NIR_column,    0.515,    0.989,    0.557
+30, ANSPH_l_NIR_PBL,    0.339,    0.855,    0.575
+31, AOD_l_UV_column,    0.316,    0.034,    0.402
+32, AOD_l_UV_PBL,    0.530,    0.918,    0.457
+33, AOD_l_VIS_column,    0.804,    0.968,    0.465
+34, AOD_l_VIS_PBL,    0.974,    0.644,    0.247
+35, AOD_l_NIR_column,    0.130,    0.894,    0.868
+36, AOD_l_NIR_PBL,    0.338,    0.618,    0.805
+37, APM25,    0.294,    0.207,    0.066
+38, ARIR_l_column,    0.436,    0.967,    0.734
+39, ARIR_l_PBL,    0.170,    0.049,    0.950
+40, AIIR_l_column,    0.016,    0.185,    0.096
+41, AIIR_l_PBL,    0.122,    0.990,    0.733
+42, AABS_z_UV_profile_above_PBL,    0.522,    0.897,    0.379
+43, AABS_z_UV_profile_in_PBL,    0.782,    0.532,    0.031
+44, AABS_z_VIS_profile_above_PBL,    0.617,    0.724,    0.825
+45, AABS_z_VIS_profile_in_PBL,    0.465,    0.682,    0.003
+46, AEFR_z_profile_above_PBL,    0.837,    0.270,    0.035
+47, AEFR_z_profile_in_PBL,    0.888,    0.033,    0.620
+48, AEXT_z_UV_profile_above_PBL,    0.418,    0.356,    0.342
+49, AEXT_z_UV_profile_in_PBL,    0.134,    0.836,    0.433
+50, AEXT_z_VIS_profile_above_PBL,    0.772,    0.586,    0.187
+51, AEXT_z_VIS_profile_in_PBL,    0.205,    0.827,    0.707
+52, AEXT_z_NIR_profile_above_PBL,    0.657,    0.945,    0.076
+53, AEXT_z_NIR_profile_in_PBL,    0.208,    0.027,    0.051
+54, AE2BR_z_UV_profile_above_PBL,    0.541,    0.397,    0.141
+55, AE2BR_z_UV_profile_in_PBL,    0.679,    0.681,    0.558
+56, AE2BR_z_VIS_profile_above_PBL,    0.456,    0.822,    0.375
+57, AE2BR_z_VIS_profile_in_PBL,    0.865,    0.697,    0.263
+58, AE2BR_z_NIR_profile_above_PBL,    0.831,    0.151,    0.476
+59, AE2BR_z_NIR_profile_in_PBL,    0.535,    0.728,    0.470
+60, AEXTF_z_UV_profile_above_PBL,    0.892,    0.258,    0.669
+61, AEXTF_z_UV_profile_in_PBL,    0.668,    0.997,    0.341
+62, AEXTF_z_VIS_profile_above_PBL,    0.408,    0.830,    0.927
+63, AEXTF_z_VIS_profile_in_PBL,    0.918,    0.844,    0.692
+64, AEXTF_z_NIR_profile_above_PBL,    0.121,    0.286,    0.827
+65, AEXTF_z_NIR_profile_in_PBL,    0.601,    0.952,    0.661
+66, ANSPH_z_UV_profile_above_PBL,    0.689,    0.142,    0.774
+67, ANSPH_z_UV_profile_in_PBL,    0.287,    0.559,    0.023
+68, ANSPH_z_VIS_profile_above_PBL,    0.224,    0.284,    0.802
+69, ANSPH_z_VIS_profile_in_PBL,    0.155,    0.922,    0.605
+70, ANSPH_z_NIR_profile_above_PBL,    0.806,    0.430,    0.210
+71, ANSPH_z_NIR_profile_in_PBL,    0.358,    0.480,    0.873
+72, ANC_z_profile_above_PBL,    0.744,    0.058,    0.408
+73, ANC_z_profile_in_PBL,    0.138,    0.937,    0.931

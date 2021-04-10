@@ -8,7 +8,7 @@ if ~exist('dim','var')
    dim = find(size(D)~=1,1,'first');
 end
 [D,NSHIFTS] = shiftdim(D,dim-1);
-nand = isNaN(D);
+nand = builtin('isnan',D);
 D(nand) = 0;
 S = size(D);
 %Have to make sure that all n following records have same number of subsamples

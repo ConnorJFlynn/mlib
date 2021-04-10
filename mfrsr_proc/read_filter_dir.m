@@ -71,14 +71,14 @@ if ~exist('pname', 'var')
       [fname pname] = uigetfile([pname, '*.*'], 'Pick a filter file.');
    end
 end
-pname = [pname, filesep];
+pname = [pname, filesep];pname = strrep(pname, [filesep filesep], filesep);
 ftrace = struct([]);
 file_list = dir([pname, fmask]);
 
 if length(file_list)>0
    for f =1:length(file_list)
       if ~file_list(f).isdir
-         [ftrace] = read_filter_file([pname, '/',file_list(f).name], ftrace);
+         [ftrace] = read_filter_file([pname, filesep,file_list(f).name], ftrace);
       end
    end
    [ftrace] = filter_cals(ftrace);

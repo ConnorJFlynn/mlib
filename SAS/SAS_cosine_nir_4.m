@@ -3,7 +3,7 @@ function spec = SAS_cosine_4(infile)
 % This version reads files containing multiple spectra, darks and lights at
 % varying angles, zeros only periodically.
 % 
-spec = SAS_read_ava(getfullname('*.csv','ava','Select cosine correction data'));
+spec = SAS_read_Albert_csv(getfullname('*.csv','ava','Select cosine correction data'));
 spec.nm(spec.nm<=0) = NaN;
 %%
 wl_r = spec.nm>950&spec.nm<1700;

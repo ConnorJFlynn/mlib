@@ -1,5 +1,8 @@
 function [clap, raw] = rd_tap_tty(infile);
-
+% [clap, raw] = rd_tap_tty(infile);
+% This reads TAP or CLAP serial data logged by puTTY which includes not
+% only actual data packets but also query responses.
+% Thus the file is read one row at a time.
 if ~exist('infile','var')
     infile = getfullname('tap.*.dat','tap_tty','Select tap puTTY log file.');
 end
@@ -54,7 +57,7 @@ while ~feof(fid)
         tmp = A{1}; tmp = tmp{:}; A(1) = []; raw.secs_hex(n) = sscanf(tmp,'%x');
         tmp = A{1}; tmp = tmp{:}; A(1) = []; raw.filter_id_hex(n) = sscanf(tmp,'%x');
         raw.spot(n) = A{1};
-        raw.flow_slpm(n) = A{2};
+        raw.flow_lpm(n) = A{2};
         raw.spot_vol(n) = A{3};
         raw.T_case(n) = A{4};
         raw.T_sample(n) = A{5}; A(1:5) = [];
@@ -80,13 +83,13 @@ fclose(fid)
 
 % myriad flows that actually come from other files but for QL quality we'll
 % use these nominal values.
-
+clap.pname = raw.pname, clap.fname = raw.fname;
 clap.time = (start_time + (raw.secs_hex-raw.secs_hex(1))./(24*60*60))';
 clap.flags = uint16(raw.flags_hex)';
 clap.spot_active = raw.spot';
 clap.spot_vol = raw.spot_vol';
 clap.filter_id = uint16(raw.filter_id_hex)';
-clap.flow_slpm = raw.flow_slpm';
+clap.flow_lpm = raw.flow_lpm';
 clap.T_case = raw.T_case';
 clap.T_sample = raw.T_sample';
 

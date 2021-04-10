@@ -61,17 +61,21 @@ if ~exist('A','var') || length(A{end})~=len_A
     end
 end
     fclose(fid);
-    D = A{1}; A(1) = [];
-%     T = A{1}; A(1) = [];
-%     for N = length(A{end}):-1:1
-%         DT(N) = {[D{N}, ' ', T{N}]};
-%     end
-    try
-    bnl.time = datenum(D,'yyyy-mm-dd HH:MM:SS.fff'); clear D;
-    catch
-    bnl.time = datenum(D,'yyyy-mm-dd HH:MM:SS'); clear D;
+    Dd = A{1}; A(1) = [];
+    Ti = A{1}; A(1) = [];
+%     Dd_ = datenum(Dd);
+%     Ti_ = datenum(Ti);
+    for N = length(A{end}):-1:1
+        DT(N) = {[Dd{N}, ' ', Ti{N}]};
     end
-    for lab = 2:length(AA)
+    bnl.time  = datenum(DT);
+%     try
+%             bnl.time = datenum(D); clear D;
+% %     bnl.time = datenum(D,'yyyy-mm-dd HH:MM:SS.fff'); clear D;
+%     catch
+%     bnl.time = datenum(D,'yyyy-mm-dd HH:MM:SS'); clear D;
+%     end
+    for lab = 3:length(AA)
         
         bnl.(legalize_fieldname(AA{lab})) = A{1};
         A(1) = [];

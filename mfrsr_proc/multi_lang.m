@@ -1,7 +1,9 @@
 function [good, Vo,tau,Vo_, tau_,settings, final_stats] = multi_lang(in_data,tests,show);
 % [good, Vo,tau,Vo_, tau_,settings, final_stats] = multi_lang(in_data,tests,show);
 % Sequential application of standard and unweighted langley with Thompson
-% outlier rejection via Schmid 
+% iterative outlier rejection via Schmid until all test conditions are met
+% Attempts to bracket physically reasonable Vo to avoid sub-Rayleigh and
+% ginourmous tau.
 % in_data.time, required
 % in_data.V, required
 % in_data.airmass, required
@@ -29,9 +31,9 @@ if ~isfield(in_data,'Vo')||isempty(in_data.Vo)||(in_data.Vo<=0)||isinf(in_data.V
 else
    Vo = in_data.Vo;
 end
-if ~exist('tests','var')
-   tests.stdev_mult=2.5;
-   tests.steps = 1;
+if ~exist('tests','var')||isempty(tests)
+   tests.stdev_mult=3.5;
+   tests.steps = 10;
    tests.Ntimes = 50;
    tests.tau_max = 1;
    tests.prescreen.on = false;
@@ -57,10 +59,10 @@ settings = tests;
 % settigns.stdev_mult=tests.stdev_mult;
 % settigns.steps = steps;
 % settigns.Ntimes = Ntimes;
-settigns.tau_max = tau_max;
+settings.tau_max = tau_max;
 % settigns.prescreen =prescreen;
-settigns.std_max = std_max;
-settigns.min_am_span = min_am_span;
+settings.std_max = std_max;
+settings.min_am_span = min_am_span;
 
 if isfield(tests,'prescreen')
    prescreen = tests.prescreen;
@@ -82,15 +84,34 @@ end
 Vos = NaN(size(in_data.time));
 TOD = NaN(size(in_data.time));
 aero = false(size(in_data.time));
-good = isfinite(in_data.V)&(in_data.V>0)&(~isNaN(in_data.V));
+
 % good_ii = find(good);
 
 tau_ray = tau_std_ray_atm(in_data.lambda_nm/1000);
-Vos(good) = exp(tau_ray.*in_data.airmass(good)).*in_data.V(good);
+atm = 1; 
+if isfield(in_data,'press_hPa')&&in_data.press_hPa>10
+    atm = (in_data.press_hPa./1013);
+end
+if (atm >.01 & atm<1 )|(atm>1&atm<1.1)
+    tau_ray = tau_ray .*atm;
+end
+    tr_ray = exp(-tau_ray.*in_data.airmass);
+   
+
+% Divide by Rayleigh transmittances to obtain "refined" Langley
+%     in_data.V = in_data.V./tr_ray; 
+
+good = isfinite(in_data.V)&(in_data.V>0)&(~isNaN(in_data.V))&in_data.airmass>=1;
+if isfield(in_data,'good')&&all(size(good)==size(in_data.good))
+    good = good&in_data.good;
+end
+Vos(good) = exp(tau_ray.*in_data.airmass(good)).*in_data.V(good);% Legacy from non-refined
+% Vos(good) = in_data.V(good);
 % figure; plot(airmass(good), Vos(good), '.')
 Vo_ray = max([Vo,Vos(good)]);
-TOD(good)= log(Vo_ray./in_data.V(good))./in_data.airmass(good);
-Vos(good) = exp(tau_max.*in_data.airmass(good)).*in_data.V(good);
+% Preliminary TOD assuming Vo_ray is true, used only for prescreen
+TOD(good)= log(Vo_ray./in_data.V(good))./in_data.airmass(good); 
+% Vos(good) = exp(tau_max.*in_data.airmass(good)).*in_data.V(good);
 % Vo_max = min(Vos(good));
 
 if prescreen.on
@@ -144,7 +165,7 @@ if sum(good)>=tests.Ntimes
       % figure; plot(airmass(good), Vos(good), '.')
       % Vo_ray = max([Vo,Vos(good)]);
       % TOD(good)= log(Vo_ray./in_data.V(good))./in_data.airmass(good);
-      Vos(good) = exp(tau_max.*in_data.airmass(good)).*in_data.V(good);
+%       Vos(good) = exp(tau_max.*in_data.airmass(good)).*in_data.V(good);
 %       Vo_max = min(Vos(good));
       goods = sum(good);
       [P] = polyfit(in_data.airmass(good)',logV(good)',1);
@@ -180,12 +201,13 @@ if sum(good)>=tests.Ntimes
       val_test = val<tests.stdev_mult;
       val_ = max(abs(dev_(good)))/sdev_;
       val_test_uw = val_<tests.stdev_mult;
-      tau_test = (tau>tau_ray)&&(tau<tau_max);
-      tau_test_uw = (tau_>tau_ray)&&(tau_<tau_max);
-      Vo_test = (Vo > Vo_ray);%&&(Vo < Vo_max);
-      Vo_test_uw = (Vo_ > Vo_ray);%&&(Vo_ < Vo_max);
+      tau_test = ((tau>.5*tau_ray)||((tau+0.03)>tau_ray))&&(tau<tau_max);
+      tau_test_uw = ((tau_>.5*tau_ray)||((tau_+0.03)>tau_ray))&&(tau_<tau_max);
+%       tau_test_uw = ((tau_+.01)>tau_ray)&&(tau_<tau_max);
+      Vo_test = (Vo > 0.95.*Vo_ray);%&&(Vo < Vo_max);
+      Vo_test_uw = (Vo_ > 0.95.*Vo_ray);%&&(Vo_ < Vo_max);
        if show==2
-         ax(1) = subplot(2,1,1);
+         ax(1) = subplot(3,1,1);
          scatter(in_data.airmass(good), in_data.V(good), 5,abs(dev(good))/sdev);colorbar;
          logy;
          %    semilogy(airmass(good), V(good),'.');
@@ -198,7 +220,7 @@ if sum(good)>=tests.Ntimes
          plot( in_data.airmass(good), exp(polyval(P, in_data.airmass(good))),'r')
          hold('off');
          
-         ax(2) = subplot(2,1,2);
+         ax(2) = subplot(3,1,2);
          scatter(1./in_data.airmass(good), real(logV(good))./in_data.airmass(good), 6,abs(dev_(good))./sdev_);colorbar;
          %    plot(1./airmass(good), real(logV(good))./airmass(good),'.');
          
@@ -209,6 +231,12 @@ if sum(good)>=tests.Ntimes
          hold('on');
          plot( 1./in_data.airmass(good), polyval(P_, 1./in_data.airmass(good)),'r');
          hold('off');
+         subplot(3,1,3); 
+         plot([1,1],[0,double(std_test)],'-o',[2,2],[0,double(std_test_uw)],'-o',...
+             [3,3],[0,double(val_test)],'-o',[4,4],[0,double(val_test_uw)],'-o', ...
+             [5,5],[0,double(val_test)],'-o',[6,6],[0,double(tau_test_uw)],'-o', ...
+             [7,7],[0,double(Vo_test)],'-x',[8,8],[0,double(Vo_test_uw)],'-x', ...
+             [9,9],[0,double(am_test)],'-x'); legend('std','std uw','val','val uw','tau','tau uw','Vo','Vo uw','am','location','eastoutside')
          pause(.1);
       end
       % Identify which tests dominate:

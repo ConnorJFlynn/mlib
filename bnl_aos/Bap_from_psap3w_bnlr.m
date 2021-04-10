@@ -32,5 +32,6 @@ figure; plot(serial2hs(psapR.time), psapR.vdata.mass_flow,'.')
 V = 1./60000; A = 2e-5;
 L = V./A
 
-psap = anc_load;
+psap = anc_load;psap.vatts.transmittance_blue;
+psap1s = anc_load;
 figure; plot(serial2hs(psap.time),psap.vdata.Ba_B_PSAP3W./1e6,'k.')

@@ -3,14 +3,14 @@ function mono = SAS_koolatron_test(indir)
 % header row identifying the measurements in underlying columns.
 tmp = getfullname('*.csv','ava','Select vis spectrometer 37');
 [pname, fname, ext] = fileparts(tmp);
-inside_spec = SAS_read_ava(tmp);
+inside_spec = SAS_read_Albert_csv(tmp);
 inside_spec.pname = pname;
 inside_spec.fname = [fname, ext];
 [dmp, sn] = strtok(fname,'_');
 inside_spec.sn = sn(2:end);
 tmp = getfullname('*.csv','ava','Select NIR spectrometer 46');
 [pname, fname, ext] = fileparts(tmp);
-outside_spec = SAS_read_ava(tmp);
+outside_spec = SAS_read_Albert_csv(tmp);
 outside_spec.pname = pname;
 outside_spec.fname = [fname, ext];
 [dmp, sn] = strtok(fname,'_');

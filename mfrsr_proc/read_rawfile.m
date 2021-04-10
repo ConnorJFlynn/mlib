@@ -14,8 +14,10 @@ if ~exist('filename', 'var')
    filename = [pname, fname];
 end
 %%
-[pname, fname, ext] = fileparts(filename);
-pname = [pname, filesep];
+[pname, fname, ext] = fileparts(filename); pname = [pname, filesep];
+pname = strrep(pname, [filesep,filesep,filesep],filesep);
+pname = strrep(pname, [filesep,filesep,],filesep);
+
 fname = [fname, ext];
 
 try
@@ -49,11 +51,11 @@ catch
 %          raw_file = read_rawfile('tmp.tmp');
 %          delete('tmp.tmp');
       end
-      fid = fopen('tmp.tmp','w');
+      fid = fopen([pname,'tmp.tmp'],'w');
       fwrite(fid, txt, 'char');
       fclose(fid);
-      raw_file = read_rawfile('tmp.tmp');
-      delete('tmp.tmp');
+      raw_file = read_rawfile([pname,'tmp.tmp']);
+      delete([pname,'tmp.tmp']);
    else
       raw_file = [];
    end

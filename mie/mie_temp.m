@@ -1,15 +1,25 @@
 r_eff = .102/2;
 wl = .6328;
 %Mie size parameter xx
-xx = 2*pi*r_eff/wl;
+xxx = 2*pi*r_eff/wl;
 % Number of angles between 0-90 degrees
 n_ref = 1.59; % Complex index of refraction, in this case purely real
-nang = [181,1001,2001];
+nang = [180];
 
-for n = 1:length(nang);
+r_eff = [100:10000];
+wl = [300:2000]';
+xx = 2.*pi.*((ones(size(wl))*r_eff)./(wl*ones(size(r_eff))));
+xxx = sort(xx(:));
+xxx = xxx(1:10:end);
+for x = length(xxx):-1:1
 % Compute Mie scattering properties for each radius
-
-    [s1,s2,qext(n),qsca(n),qback(n),gsca(n)]=bhmie(xx,n_ref,nang(n));
+   xx =xxx(x);
+   [~,~,qext(x)]=bhmie(xx,n_ref,nang);
+   if mod(x,1000)==0
+       disp(x)
+   end
+end
+[s1,s2,qext(x),qsca(x),qback(x),gsca(x)]=bhmie(xx,n_ref,nang);
     crosssection(n) = qsca(n) * pi * (r_eff).^2;
     K = 4./(qsca(n)*xx.^2);
     i1 = abs(s1).^2;

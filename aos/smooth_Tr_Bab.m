@@ -1,37 +1,20 @@
 function [Bab, Tr_ss, dV_ss, dL_ss] = smooth_Tr_Bab(time, sample_flow, Tr,ss, spot_area);
 % [Bab, Tr_ss, sample_flow, dV_ss, dL_ss] = smooth_Tr_Bab(time, flow, Tr,ss, spot_area);
-% Apply box-car filter of width "ss" to flow and filter transmittance
-% Expects all fields to be on a regular time grid.
-% optional "spot_area" is in units of mm^2, approx 17.5
-% Now uses Yohei's boxxfilt which excludes NaNs
+% Apply smoothing filter of half-width "ss" to flow and filter transmittance
+% Requires time [days], sample_flow [lpm], Tr [unitless filter transmittance]
+% smoothing window ss [seconds] and spot_area [mm^2] are optional
+
+% optional "spot_area" is in units of mm^2, def 17,81
+
 if ~exist('spot_area','var')||isempty(spot_area)
    spot_area = 17.81;
 end
 
-% [yf, sn] = boxxfilt(x, y, xbl)
-%    tic; sample_flow = smooth(flow,ss); toc
-%    sample_flow = boxxfilt(time, flow, 4.*ss./(24*60*60));
-dt = ss./(24*60*60);
+% dt = 4.*ss./(24*60*60); % Not sure why I had a factor of 4 in here.  Probably because original PSAP records are mod4
+dt = 2.*ss./(24*60*60); % factor of two to go from half-width to full-width
 % sample_flow = sliding_polyfit(time, flow, dt);   
 Tr_ss = sliding_polyfit(time,Tr,dt);
-% for i = length(time):-1:1
-%     ii_ = abs(time - time(i))<= dt;
-%     if sum(ii_)>3
-%       [P,~, mu] = polyfit(time(ii_),Tr(ii_), 2);
-%       good_fit(i) = true;
-%       Tr_ss(i) = polyval(P,time(i),[],mu);
-%     elseif sum(ii_)>1
-%       [P,~, mu] = polyfit(time(ii_),Tr(ii_), 1);
-%       good_fit(i) = true;
-%       Tr_ss(i) = polyval(P,time(i),[],mu);
-%     else
-%         good_fit(i) = false;
-%     end
-%     if mod(i,1000)==0
-%         disp(i)
-%     end
-% end
-   
+
    dV_ss = zeros(size(sample_flow));
    abs_ss = zeros(size(sample_flow));      
    for tt = (ss):length(sample_flow)-1
@@ -48,14 +31,8 @@ Tr_ss = sliding_polyfit(time,Tr,dt);
    % Convert from 1/m to 1/Mm
    Bab = 1e6.*abs_ss./dL_ss;  
 
+   Bab_ = interp1(time, Bab, time +(ss/2)./(24*60*60), 'nearest','extrap');
    % Shift x-axis to account for width of smoothing window
 %    s1 = -0.5./(24*60*60);   
-
-%    Bab = interp1(time+s1.*ss, Bab,time, 'linear','extrap')'; 
-% Tr_ss = interp1(time+s1.*ss, Tr_ss,time, 'linear','extrap')'; 
-
-% s1 = -0.5./(24*60*60);
-% Bab_5s_ = interp1((psapr_00.time+s1.*5), Bab_5s,psapr_00.time, 'pchip'); 
-
 
 return

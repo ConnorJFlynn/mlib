@@ -1,10 +1,10 @@
 function y = sliding_polyfit(x,y,w)
 %  y = sliding_polyfit(x,y,w)
-% Computes a polyfit over a sliding window of width w.
+% Computes a polyfit over a sliding window of width w (half-width w/2)
 % Polyfit is quadratic if more than 3 points are within window, else linear
 
 for i = length(x):-1:1
-    ii_ = abs(x - x(i))<= w;
+    ii_ = abs(x - x(i))<= double(w)./2 & ~isnan(y);
     if sum(ii_)>3
       [P,~, mu] = polyfit(x(ii_),y(ii_), 2);
       y(i) = polyval(P,x(i),[],mu);

@@ -1,9 +1,9 @@
 %%
-vis = SAS_read_ava;
+vis = SAS_read_Albert_csv;
 
 %%
 
-nir = SAS_read_ava;
+nir = SAS_read_Albert_csv;
 
 %%
 ins_dark = (vis.Shuttered_0==0);

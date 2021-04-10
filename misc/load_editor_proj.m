@@ -16,7 +16,7 @@ else
     if isempty(ex)
         proj_name = [proj_name, '.ed'];
     end
-    projname = [prefdir, filesep,proj_name];
+    projname = [getnamedpath('editor_projs'), filesep,proj_name];
 end
 if exist(projname,'file')
     fid = fopen(projname,'r');

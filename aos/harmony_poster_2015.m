@@ -91,86 +91,119 @@
 % gt = gtext(txt); set(gt,'backgroundColor','w');
 % 
 % % Now, get impactor M1, S1, and Neph M1, S1
-% nephS1 = ARM_nc_display;
-% nephM1 = ARM_nc_display;
-% 
-% % M1_qci = anc_qc_impacts(nephM1.vdata.Bs_G_Dry_Neph3W, nephM1.vatts.qc_Bs_G_Dry_Neph3W);
-% % S1_qci = anc_qc_impacts(, nephS1.vatts.qc_Bs_G_Dry_Neph3W);
-% 
-% M1_good = anc_sift(nephM1, nephM1.vdata.qc_Bs_G_Dry_Neph3W==0);
-% [M1_good_1um, M1_good_10um] = anc_sift(M1_good,M1_good.vdata.impactor_state==1);
-% M1_good_10um = anc_sift(M1_good_10um,M1_good_10um.vdata.impactor_state==10);
-% 
-% S1_good = anc_sift(nephS1, nephS1.vdata.qc_Bs_G_Dry_Neph3W==0);
-% [S1_good_1um, S1_good_10um] = anc_sift(S1_good,S1_good.vdata.impactor_state==1);
-% S1_good_10um = anc_sift(S1_good_10um,S1_good_10um.vdata.impactor_state==10);
-% 
-% [ainb, bina] = nearest(M1_good_1um.time, S1_good_1um.time);
-% M1_both_1um = anc_sift(M1_good_1um, ainb);
-% S1_both_1um = anc_sift(S1_good_1um, bina);
-% 
-% [ainb, bina] = nearest(M1_good_10um.time, S1_good_10um.time);
-% M1_both_10um = anc_sift(M1_good_10um, ainb);
-% S1_both_10um = anc_sift(S1_good_10um, bina);
-% 
-% 
-% figure; 
-% ax(1) = subplot(2,1,1);
-% plot(serial2doys(M1_both.time(M1_both.vdata.impactor_state==1)), M1_both.vdata.Bs_G_Dry_Neph3W(M1_both.vdata.impactor_state==1),'b.',...
-% serial2doys(S1_both.time(S1_both.vdata.impactor_state==1)), S1_both.vdata.Bs_G_Dry_Neph3W(S1_both.vdata.impactor_state==1), 'g.'); 
-% legend('M1 1um','S1 1um');
-% ax(2) = subplot(2,1,2);
-% plot(serial2doys(M1_both.time(M1_both.vdata.impactor_state==10)), M1_both.vdata.Bs_G_Dry_Neph3W(M1_both.vdata.impactor_state==10),'b.',...
-% serial2doys(S1_both.time(S1_both.vdata.impactor_state==10)), S1_both.vdata.Bs_G_Dry_Neph3W(S1_both.vdata.impactor_state==10), 'g.'); 
-% legend('M1 10um','S1 10um');
-% linkaxes(ax,'xy')
-% 
-% xl = xlim;
-% % First the 10 um cut
-% xl_ = serial2doys(M1_both_10um.time)>=xl(1) & serial2doys(M1_both_10um.time)<=xl(2);
-% 
-% maxd = max([max(M1_both_10um.vdata.Bs_G_Dry_Neph3W(xl_)), max(S1_both_10um.vdata.Bs_G_Dry_Neph3W(xl_))]);
+nephS1 = anc_bundle_files;
+nephM1 = anc_bundle_files;
+
+M1_qci = anc_qc_impacts(nephM1.vdata.Bs_G, nephM1.vatts.qc_Bs_G);
+
+
+M1_good = anc_sift(nephM1, nephM1.vdata.qc_Bs_G==0);
+[M1_good_1um, M1_good_10um] = anc_sift(M1_good,M1_good.vdata.impactor_state==1);
+M1_good_10um = anc_sift(M1_good_10um,M1_good_10um.vdata.impactor_state==10);
+
+S1_good = anc_sift(nephS1, nephS1.vdata.qc_Bs_G_Dry_Neph3W==0);
+[S1_good_1um, S1_good_10um] = anc_sift(S1_good,S1_good.vdata.impactor_state==1);
+S1_good_10um = anc_sift(S1_good_10um,S1_good_10um.vdata.impactor_state==10);
+
+[ainb, bina] = nearest(M1_good_1um.time, S1_good_1um.time);
+M1_both_1um = anc_sift(M1_good_1um, ainb);
+S1_both_1um = anc_sift(S1_good_1um, bina);
+
+[ainb, bina] = nearest(M1_good_10um.time, S1_good_10um.time);
+M1_both_10um = anc_sift(M1_good_10um, ainb);
+S1_both_10um = anc_sift(S1_good_10um, bina);
+
+
+figure; 
+ax(1) = subplot(2,1,1);
+plot(serial2doys(M1_good.time(M1_good.vdata.impactor_state==1)), M1_good.vdata.Bs_G_Dry_Neph3W(M1_good.vdata.impactor_state==1),'b.',...
+serial2doys(S1_good.time(S1_good.vdata.impactor_state==1)), S1_good.vdata.Bs_G_Dry_Neph3W(S1_good.vdata.impactor_state==1), 'g.'); 
+legend('M1 1um','S1 1um');
+ax(2) = subplot(2,1,2);
+plot(serial2doys(M1_good.time(M1_good.vdata.impactor_state==10)), M1_good.vdata.Bs_G_Dry_Neph3W(M1_good.vdata.impactor_state==10),'b.',...
+serial2doys(S1_good.time(S1_good.vdata.impactor_state==10)), S1_good.vdata.Bs_G_Dry_Neph3W(S1_good.vdata.impactor_state==10), 'g.'); 
+legend('M1 10um','S1 10um');
+linkaxes(ax,'xy')
+
+xl = xlim;
+% First the 10 um cut
+xl_ = serial2doys(M1_both_10um.time)>=xl(1) & serial2doys(M1_both_10um.time)<=xl(2);
+
+maxd = max([max(M1_both_10um.vdata.Bs_G_Dry_Neph3W(xl_)), max(S1_both_10um.vdata.Bs_G_Dry_Neph3W(xl_))]);
 % [P,S] = polyfit(M1_both_10um.vdata.Bs_G_Dry_Neph3W(xl_), S1_both_10um.vdata.Bs_G_Dry_Neph3W(xl_),1);
 % [P_,S_] = polyfit(S1_both_10um.vdata.Bs_G_Dry_Neph3W(xl_),M1_both_10um.vdata.Bs_G_Dry_Neph3W(xl_),1);
 % P_bar = (P + 1./P_)./2;
 % stats = fit_stat(M1_both_10um.vdata.Bs_G_Dry_Neph3W(xl_), S1_both_10um.vdata.Bs_G_Dry_Neph3W(xl_),P_bar,S);
-% 
-% figure; plot(M1_both_10um.vdata.Bs_G_Dry_Neph3W(xl_), S1_both_10um.vdata.Bs_G_Dry_Neph3W(xl_), '.', ...
-%    [0,maxd],[0,maxd],'k--', [0,maxd],polyval(P_bar,[0,maxd]),'r-');axis('square'); axis(1.1*[0,maxd,0,maxd]);
-% 
-% xlabel('M1 B_s_p Green 10 um size cut [1/Mm]'); ylabel('S1 B_s_p Green 10 um size cut[1/Mm]');
-% txt = {['N pts= ', num2str(stats.N)],...
-%    ['slope = ',sprintf('%1.3f',P_bar(1))], ...
-%     ['bias (y-x) =  ',sprintf('%1.1f',stats.bias)], ...
-%     ['Y\_int = ', sprintf('%0.02g',P_bar(2))],...
-%     ['R^2 = ',sprintf('%1.3f',stats.R_sqrd)],...
-%     ['RMSE = ',sprintf('%1.3f',stats.RMSE)]};
-% gt = gtext(txt); set(gt,'backgroundColor','w');
-% 
-% % Now the 1 um cut
-% xl_ = serial2doys(M1_both_1um.time)>=xl(1) & serial2doys(M1_both_1um.time)<=xl(2);
-% 
-% maxd = max([max(M1_both_1um.vdata.Bs_G_Dry_Neph3W(xl_)), max(S1_both_1um.vdata.Bs_G_Dry_Neph3W(xl_))]);
-% [P,S] = polyfit(M1_both_1um.vdata.Bs_G_Dry_Neph3W(xl_), S1_both_1um.vdata.Bs_G_Dry_Neph3W(xl_),1);
-% [P_,S_] = polyfit(S1_both_1um.vdata.Bs_G_Dry_Neph3W(xl_),M1_both_1um.vdata.Bs_G_Dry_Neph3W(xl_),1);
-% P_bar = (P + 1./P_)./2;
-% stats = fit_stat(M1_both_1um.vdata.Bs_G_Dry_Neph3W(xl_), S1_both_1um.vdata.Bs_G_Dry_Neph3W(xl_),P_bar,S);
-% 
-% figure; plot(M1_both_1um.vdata.Bs_G_Dry_Neph3W(xl_), S1_both_1um.vdata.Bs_G_Dry_Neph3W(xl_), '.', ...
-%    [0,maxd],[0,maxd],'k--', [0,maxd],polyval(P_bar,[0,maxd]),'r-');axis('square'); axis(1.1*[0,maxd,0,maxd]);
-% 
-% xlabel('M1 B_s_p Green 1 um size cut [1/Mm]'); ylabel('S1 B_s_p Green 1 um size cut[1/Mm]');
-% txt = {['N pts= ', num2str(stats.N)],...
-%    ['slope = ',sprintf('%1.3f',P_bar(1))], ...
-%     ['bias (y-x) =  ',sprintf('%1.1f',stats.bias)], ...
-%     ['Y\_int = ', sprintf('%0.02g',P_bar(2))],...
-%     ['R^2 = ',sprintf('%1.3f',stats.R_sqrd)],...
-%     ['RMSE = ',sprintf('%1.3f',stats.RMSE)]};
-% gt = gtext(txt); set(gt,'backgroundColor','w');
+
+[P_bar,stats] = bifit(M1_both_10um.vdata.Bs_G_Dry_Neph3W(xl_), S1_both_10um.vdata.Bs_G_Dry_Neph3W(xl_));
+figure; plot(M1_both_10um.vdata.Bs_G_Dry_Neph3W(xl_), S1_both_10um.vdata.Bs_G_Dry_Neph3W(xl_), '.', ...
+   [0,maxd],[0,maxd],'k--', [0,maxd],polyval(P_bar,[0,maxd]),'r-');axis('square'); axis(1.1*[0,maxd,0,maxd]);
+
+xlabel('M1 B_s_p Green 10 um size cut [1/Mm]'); ylabel('S1 B_s_p Green 10 um size cut[1/Mm]');
+txt = {['N pts= ', num2str(stats.N)],...
+   ['slope = ',sprintf('%1.3f',P_bar(1))], ...
+    ['bias (y-x) =  ',sprintf('%1.1f',stats.bias)], ...
+    ['Y\_int = ', sprintf('%0.02g',P_bar(2))],...
+    ['R^2 = ',sprintf('%1.3f',stats.R_sqrd)],...
+    ['RMSE = ',sprintf('%1.3f',stats.RMSE)]};
+gt = gtext(txt); set(gt,'backgroundColor','w');
+
+% Now the 1 um cut
+xl_ = serial2doys(M1_both_1um.time)>=xl(1) & serial2doys(M1_both_1um.time)<=xl(2);
+
+maxd = max([max(M1_both_1um.vdata.Bs_G_Dry_Neph3W(xl_)), max(S1_both_1um.vdata.Bs_G_Dry_Neph3W(xl_))]);
+[P_bar,stats] = bifit(M1_both_1um.vdata.Bs_G_Dry_Neph3W(xl_), S1_both_1um.vdata.Bs_G_Dry_Neph3W(xl_));
+figure; plot(M1_both_1um.vdata.Bs_G_Dry_Neph3W(xl_), S1_both_1um.vdata.Bs_G_Dry_Neph3W(xl_), '.', ...
+   [0,maxd],[0,maxd],'k--', [0,maxd],polyval(P_bar,[0,maxd]),'r-');axis('square'); axis(1.1*[0,maxd,0,maxd]);
+
+xlabel('M1 B_s_p Green 1 um size cut [1/Mm]'); ylabel('S1 B_s_p Green 1 um size cut[1/Mm]');
+txt = {['N pts= ', num2str(stats.N)],...
+   ['slope = ',sprintf('%1.3f',P_bar(1))], ...
+    ['bias (y-x) =  ',sprintf('%1.1f',stats.bias)], ...
+    ['Y\_int = ', sprintf('%0.02g',P_bar(2))],...
+    ['R^2 = ',sprintf('%1.3f',stats.R_sqrd)],...
+    ['RMSE = ',sprintf('%1.3f',stats.RMSE)]};
+gt = gtext(txt); set(gt,'backgroundColor','w');
 
 %% Now PSAP M1 and S1
+xl = xlim;
+% First the 10 um cut
+xl_ = serial2doys(M1_both_10um.time)>=xl(1) & serial2doys(M1_both_10um.time)<=xl(2);
 
+maxd = max([max(M1_both_10um.vdata.Ba_G_combined(xl_)), max(S1_both_10um.vdata.Ba_G_combined(xl_))]);
+[P_bar, stats] = bifit(M1_both_10um.vdata.Ba_G_combined(xl_), S1_both_10um.vdata.Ba_G_combined(xl_));
 
+figure; plot(M1_both_10um.vdata.Ba_G_combined(xl_), S1_both_10um.vdata.Ba_G_combined(xl_), '.', ...
+   [0,maxd],[0,maxd],'k--', [0,maxd],polyval(P_bar,[0,maxd]),'r-');axis('square'); axis(1.1*[0,maxd,0,maxd]);
+
+xlabel('M1 B_a_p Green 10 um size cut [1/Mm]'); ylabel('S1 B_a_p Green 10 um size cut[1/Mm]');
+txt = {['N pts= ', num2str(stats.N)],...
+   ['slope = ',sprintf('%1.3f',P_bar(1))], ...
+    ['bias (y-x) =  ',sprintf('%1.1f',stats.bias)], ...
+    ['Y\_int = ', sprintf('%0.02g',P_bar(2))],...
+    ['R^2 = ',sprintf('%1.3f',stats.R_sqrd)],...
+    ['RMSE = ',sprintf('%1.3f',stats.RMSE)]};
+gt = gtext(txt); set(gt,'backgroundColor','w');
+
+% Now the 1 um cut
+xl_ = serial2doys(M1_both_1um.time)>=xl(1) & serial2doys(M1_both_1um.time)<=xl(2);
+
+maxd = max([max(M1_both_1um.vdata.Ba_G_combined(xl_)), max(S1_both_1um.vdata.Ba_G_combined(xl_))]);
+[P_bar, stats] = bifit(M1_both_1um.vdata.Ba_G_combined(xl_), S1_both_1um.vdata.Ba_G_combined(xl_));
+
+figure; plot(M1_both_1um.vdata.Ba_G_combined(xl_), S1_both_1um.vdata.Ba_G_combined(xl_), '.', ...
+   [0,maxd],[0,maxd],'k--', [0,maxd],polyval(P_bar,[0,maxd]),'r-');axis('square'); axis(1.1*[0,maxd,0,maxd]);
+
+xlabel('M1 B_a_p Green 1 um size cut [1/Mm]'); ylabel('S1 B_a_p Green 1 um size cut[1/Mm]');
+txt = {['N pts= ', num2str(stats.N)],...
+   ['slope = ',sprintf('%1.3f',P_bar(1))], ...
+    ['bias (y-x) =  ',sprintf('%1.1f',stats.bias)], ...
+    ['Y\_int = ', sprintf('%0.02g',P_bar(2))],...
+    ['R^2 = ',sprintf('%1.3f',stats.R_sqrd)],...
+    ['RMSE = ',sprintf('%1.3f',stats.RMSE)]};
+gt = gtext(txt); set(gt,'backgroundColor','w');
+
+%%
 psapr = anc_bundle_files(getfullname('*.nc','psapr','Select psap r file'));
 psapa1 = anc_bundle_files(getfullname('*.nc','psapa','Select psap a1 file'));
 psapb1 = anc_bundle_files(getfullname('*.nc','psapb','Select psap b1 file'));

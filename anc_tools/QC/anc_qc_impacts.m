@@ -2,6 +2,7 @@ function qc_impact = anc_qc_impacts(qc, qatts)
 % qc_impact =  anc_qc_impacts(qc, qatts)
 % generates a value of 0,1,2 if qc is good, indeterminate, or bad 
 % based on VAP convention qc flags.
+% Should also handle bit-mapped mentor QC
    qc_bits = fieldnames(qatts);
    
    if (isfield(qatts,'description')...

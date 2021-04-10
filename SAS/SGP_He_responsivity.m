@@ -2,9 +2,9 @@ function SGP_He_responsivity
 clear; close('all');
 % And now computing responsivity of He specs from ARM sphere radiances
 % First, load the SAS data files:
-pname = 'C:\case_studies\SAS\Cals pre deployment\He1_1010108U1_1010110U1\point8 inches back\';
-visname = '20101216_1010108U1.csv';
-He_vis_1010108U1 = SAS_read_ava([pname, visname]);
+pname = 'C:\case_studies\SAS\Cals pre deployment\He2_0911135U1_0911145U1\point8 inches back\';
+visname = '20101214_0911135U1.csv';
+He_vis_1010108U1 = SAS_read_Albert_csv([pname, visname]);
 He_vis_1010108U1.spec_sans_dark = He_vis_1010108U1.spec-ones([length(He_vis_1010108U1.Shuttered_0),1])...
    *mean(He_vis_1010108U1.spec(He_vis_1010108U1.Shuttered_0==0,:));
 figure; semilogy(He_vis_1010108U1.nm, He_vis_1010108U1.spec_sans_dark(He_vis_1010108U1.Shuttered_0==1,:),'r',...
@@ -37,7 +37,7 @@ title('Avaspec CCD 2048 variance vs signal')
 xlabel('dark-subtracted signal')
 ylabel('variance')
 hold('on')
-good = ~isNaN(ccd.mean_sig)&~isNaN(ccd.var_sig)&(ccd.mean_sig>0)&(ccd.var_sig>0)&good;
+good = ~isnan(ccd.mean_sig)&~isnan(ccd.var_sig)&(ccd.mean_sig>0)&(ccd.var_sig>0)&good;
 [P_cmos,S_cmos,MU_cmos] = polyfit(ccd.mean_sig(good),(ccd.var_sig(good)),1);
 read_noise_variance = polyval(P_cmos,-MU_cmos(1)./MU_cmos(2));
 spec_g = P_cmos(1)./MU_cmos(2);
@@ -55,8 +55,8 @@ tx1 = text(.03,.9,...
 %%
 % pname = 'C:\case_studies\SAS\Cals pre
 % deployment\He1_1010108U1_1010110U1\3point16 inches back no plate\';
-nirname = '20101216_1010110U1.csv';
-He_nir_H1010110U1 = SAS_read_ava([pname, nirname]);
+nirname = '20101214_0911145U1.csv';
+He_nir_H1010110U1 = SAS_read_Albert_csv([pname, nirname]);
 He_nir_H1010110U1.spec_sans_dark = He_nir_H1010110U1.spec-ones([length(He_nir_H1010110U1.Shuttered_0),1])...
    *mean(He_nir_H1010110U1.spec(He_nir_H1010110U1.Shuttered_0==0,:));
 
@@ -94,7 +94,7 @@ title('SAS-He nir variance vs signal')
 xlabel('dark-subtracted signal')
 ylabel('variance')
 hold('on')
-good = ~isNaN(nir.mean_sig)&~isNaN(nir.var_sig)&(nir.mean_sig>0)&(nir.var_sig>0)&good;
+good = ~isnan(nir.mean_sig)&~isnan(nir.var_sig)&(nir.mean_sig>0)&(nir.var_sig>0)&good;
 [P_cmos,S_cmos,MU_cmos] = polyfit(nir.mean_sig(good),(nir.var_sig(good)),1);
 read_noise_variance = polyval(P_cmos,-MU_cmos(1)./MU_cmos(2));
 spec_g = P_cmos(1)./MU_cmos(2);
@@ -107,7 +107,7 @@ tx1 = text(.03,.9,...
    ['read noise variance =',sprintf('%2.2f',read_noise_variance)]},...
    'units','normal','backgroundcolor','w','edgecolor','k','fontname','Tahoma','fontweight','bold');
 %%
-He_vis_1010108U1.resp(isNaN(He_vis_1010108U1.resp))= 0;
+He_vis_1010108U1.resp(isnan(He_vis_1010108U1.resp))= 0;
 % fid = fopen(['C:\case_studies\SAS\Cals pre deployment\Ze1_1010109U1_1001069U1\40ms\Ze_vis_1010109U1.dat'],'w'); 
 fid = fopen([pname,'He_vis_1010108U1.dat'],'w'); 
 
@@ -115,7 +115,7 @@ fid = fopen([pname,'He_vis_1010108U1.dat'],'w');
 % fprintf(fid,'Units:   Responsivity in (cts-dark)/ms/[mW/(m^2.sr.nm)] \n');
 fprintf(fid,'%4.2f, %4.5g \n',[He_vis_1010108U1.nm; He_vis_1010108U1.resp]);
 fclose(fid);
-He_nir_H1010110U1.resp(isNaN(He_nir_H1010110U1.resp))= 0;
+He_nir_H1010110U1.resp(isnan(He_nir_H1010110U1.resp))= 0;
 % fid = fopen(['C:\case_studies\SAS\Cals pre deployment\Ze1_1010109U1_1001069U1\40ms\He_nir_H1010110U1.dat'],'w'); 
 fid = fopen([pname, 'He_nir_H1010110U1.dat'],'w'); 
 

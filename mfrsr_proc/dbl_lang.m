@@ -63,7 +63,7 @@ while ~done
    test_ = val_<stdev_mult;
    done = (test && test_)||time_test;
    if show==1
-      scatter(ax(1),airmass(good), V(good), 5,abs(dev(good))/sdev);colorbar;
+      scatter(ax(1),airmass(good), V(good), 25,abs(dev(good))/sdev);colorbar;
       logy(ax(1));
       %    semilogy(airmass(good), V(good),'.');
       title(ax(1),['goods=',num2str(goods),...
@@ -77,7 +77,7 @@ while ~done
       hold(ax(1),'off');
       
 
-      scatter(ax(2),1./airmass(good), real(logV(good))./airmass(good), 6,abs(dev_(good))./sdev_);colorbar;
+      scatter(ax(2),1./airmass(good), real(logV(good))./airmass(good), 36,abs(dev_(good))./sdev_);colorbar;
       %    plot(1./airmass(good), real(logV(good))./airmass(good),'.');
       
       title(ax(2),['goods=',num2str(goods),...
@@ -110,7 +110,7 @@ while ~done
 end
 if show>0
    ax(1) = subplot(2,1,1);
-   scatter(airmass(good), V(good), 5,abs(dev(good))/sdev);colorbar;
+   scatter(airmass(good), V(good), 25,abs(dev(good))/sdev);colorbar;
    logy;
    %    semilogy(airmass(good), V(good),'.');
    title(['goods=',num2str(goods),...
@@ -124,7 +124,7 @@ if show>0
    hold('off');
    
    ax(2) = subplot(2,1,2);
-   scatter(1./airmass(good), real(logV(good))./airmass(good), 6,abs(dev_(good))./sdev_);colorbar;
+   scatter(1./airmass(good), real(logV(good))./airmass(good), 36,abs(dev_(good))./sdev_);colorbar;
    %    plot(1./airmass(good), real(logV(good))./airmass(good),'.');
    
    title(['goods=',num2str(goods),...
