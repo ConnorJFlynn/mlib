@@ -10,8 +10,8 @@ function [fname, pname] = putfile(fspec,pathfile,dialog);
 %
 % putfile uses uiputfile to place and name the mat file to be saved.
 upath = which ('userpath.m');
-if ~isempty(upath)&&exist(upath,'file')&&exist(strtok(userpath,pathsep),'dir')&&...
-      exist([strtok(userpath,pathsep),filesep,'datapath'],'dir')
+if ~isempty(upath)&&exist(upath,'file')&&isadir(strtok(userpath,pathsep))&&...
+      isadir([strtok(userpath,pathsep),filesep,'datapath'])
    pathdir = [strtok(userpath,pathsep),filesep,'datapath',filesep];
 else %start from scratch.  Identify userpath, create datapath directory
    userpath('reset');
@@ -25,26 +25,26 @@ else %start from scratch.  Identify userpath, create datapath directory
 end
 
 
-if ~exist('dialog','var')||isempty(dialog)
-   if exist('pathfile','var')&&~isempty(pathfile)
+if isempty(who('dialog'))||isempty(dialog)
+   if ~isempty(who('pathfile'))&&~isempty(pathfile)
       dialog = ['Select a file for ',pathfile,'.'];
    else
       dialog = ['Select a file.'];
    end
 end
-if ~exist('pathfile','var')||isempty(pathfile)
+if isempty(who('pathfile'))||isempty(pathfile)
    pathfile = 'lastpath.mat';
 end
-if ~exist('fspec','var')||isempty(fspec)
+if isempty(who('fspec'))||isempty(fspec)
    fspec = '*.*';
 end
 if isempty(fspec)
    fspec = '*.*';
 end
 
-if ~exist([pathdir,pathfile],'file')&&exist([pathdir,pathfile,'.mat'],'file')
+if isempty(dir([pathdir,pathfile]))&&~isempty(dir([pathdir,pathfile,'.mat']))
    pathfile = [pathfile,'.mat'];
-elseif ~exist([pathdir,pathfile],'file')&&~exist([pathdir,pathfile,'.mat'],'file')
+elseif isempty(dir([pathdir,pathfile]))&&isempty(dir([pathdir,pathfile,'.mat']))
    if ~isempty(strfind(pathfile,'.mat'))
       newpathfile = pathfile;
    else
@@ -53,12 +53,12 @@ elseif ~exist([pathdir,pathfile],'file')&&~exist([pathdir,pathfile,'.mat'],'file
    pathfile = 'lastpath.mat';
 end
 
-if exist([pathdir,pathfile],'file')
+if ~isempty(dir([pathdir,pathfile]))
    load([pathdir,pathfile]);
-   if ~exist('pname','var')
+   if isempty(who('pname'))
       pname = pwd;
    end
-  if ~ischar(pname)||~exist(pname,'dir')
+  if ~ischar(pname)||~isadir(pname)
      %disp(['The path specified in the indicated pathfile ''',pathfile, [''' does not exist.'];
      disp('The pathfile will be deleted.');
       delete([pathdir,pathfile]);
@@ -97,15 +97,15 @@ end;
 %   end;
 % end;
 %%
-if exist(fspec,'file')&&~exist(fspec,'dir')
+if ~isempty(dir(fspec))&&~isadir(fspec)
    [pname, fname, ext] = fileparts(fspec);
    fname = [fname ext];
 else
    [pth,fstem,ext] = fileparts(fspec);
    fspec = [fstem,ext];
-   if exist(pth,'dir')
+   if isadir(pth)
       [fname,pname] = uiputfile([pth,filesep,fspec],dialog);
-   elseif exist(pname,'dir')
+   elseif isadir(pname)
       [fname,pname] = uiputfile([pname,filesep,fspec],dialog);
    else
       [fname,pname] = uiputfile(fspec,dialog);
@@ -114,7 +114,7 @@ end
 
 if ~isempty(pname)
    fullname = fullfile(pname,filesep, fname);
-   if exist('newpathfile','var')
+   if ~isempty(who('newpathfile'))
       save([pathdir,newpathfile], 'pname');
    else
       save([pathdir,pathfile], 'pname');

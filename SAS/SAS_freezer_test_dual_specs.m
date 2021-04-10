@@ -10,7 +10,7 @@ trh_tmp = getfullname([A,'*T_RH.csv;',A,'*T_RH.mat'],'ava','Select trh file');
 if strcmp(nir_tmp(end-2:end),'mat')
    NIR_spec = loadinto(nir_tmp);
 else
-   NIR_spec = SAS_read_ava(nir_tmp);
+   NIR_spec = SAS_read_Albert_csv(nir_tmp);
 end
 [pname, fname, ext] = fileparts(nir_tmp);
 NIR_spec.pname = pname;
@@ -21,7 +21,7 @@ NIR_spec.sn = sn(2:end);
 if strcmp(vis_tmp(end-2:end),'mat')
    VIS_spec = loadinto(vis_tmp);
 else
-   VIS_spec = SAS_read_ava(vis_tmp);
+   VIS_spec = SAS_read_Albert_csv(vis_tmp);
 end
 [pname, fname, ext] = fileparts(vis_tmp);
 VIS_spec.pname = pname;

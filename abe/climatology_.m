@@ -49,7 +49,7 @@ for season = abe.dims.season.length:-1:1
       new_ext(season,bin,:) = corr_ext_ * (aod_mean./aod_corr);
       new_ext(season,bin,~r.lte_6p5) = 0;
       tmp = squeeze(new_ext(season,bin,:));
-      tmp(isNaN(tmp))=0;
+      tmp(isnan(tmp))=0;
       tmp(~isfinite(tmp))=0;
       new_ext(season,bin,:) = tmp;
       

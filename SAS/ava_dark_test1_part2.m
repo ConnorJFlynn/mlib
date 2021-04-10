@@ -19,7 +19,7 @@ end
 [ava.tint, inds] = sort(ava.tint);
 ava.mean_samp = ava.mean_samp(inds,:);
 ava.std_samp = ava.std_samp(inds,:);
-noNaNs = ~any(isNaN(ava.mean_samp));
+noNaNs = ~any(isnan(ava.mean_samp));
 ava.mean_mean = mean(ava.mean_samp(:,noNaNs),2);
 ava.Pofmean = polyfit(ava.tint, ava.mean_mean,1);
 noNaNs_ii = find(noNaNs);

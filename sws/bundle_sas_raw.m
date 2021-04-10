@@ -1,6 +1,7 @@
-function sas =bundle_sas_raw(files);
+function sas =bundle_sas_raws(files);
 % sas =bundle_sas_raw;
-% bundles selected raw sas files into one continuous structure 
+% bundles selected raw sas files into one continuous structure while
+% discarding spectral data
 % Uses rd_raw_sas and catsas 
 if ~exist('files','var')
     files = getfullname('SAS*.csv','sas_raw','Select raw SAS files to bundle.');

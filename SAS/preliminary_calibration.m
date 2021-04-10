@@ -76,7 +76,7 @@ labsphere = loadinto('C:\mlib\ARRA_SAS\adhoc_labsphere_cal.mat');
 % SN 0911137U1: CCDx14
 % SN 0911134U1: CCD
 % SN 0911129U1: CMOS
-CCD34 = SAS_read_ava(getfullname('*.csv','ava','Select Zenith collimator spectra for CCD34'));
+CCD34 = SAS_read_Albert_csv(getfullname('*.csv','ava','Select Zenith collimator spectra for CCD34'));
 CCD34.dark = sum(CCD34.spec,2)<mean(sum(CCD34.spec,2));
 CCD34.darks = mean(CCD34.spec(CCD34.dark,:),1);
 CCD34.lights = mean(CCD34.spec(~CCD34.dark,:),1)-CCD34.darks;
@@ -89,7 +89,7 @@ title('Zenith darks');
 subplot(2,1,2); semilogy(CCD34.nm, CCD34.lights,'b-');
 title('Zenith DN-darks');
 %%
-CCDx37 = SAS_read_ava(getfullname('*.csv','ava','Select Zenith collimator spectra for CCDx37'));
+CCDx37 = SAS_read_Albert_csv(getfullname('*.csv','ava','Select Zenith collimator spectra for CCDx37'));
 CCDx37.dark = sum(CCDx37.spec,2)<mean(sum(CCDx37.spec,2));
 CCDx37.darks = mean(CCDx37.spec(CCDx37.dark,:),1);
 CCDx37.lights = mean(CCDx37.spec(~CCDx37.dark,:),1)-CCDx37.darks;
@@ -102,7 +102,7 @@ title('Zenith darks');
 subplot(2,1,2); semilogy(CCDx37.nm, CCDx37.lights,'b-');
 title('Zenith DN-darks');
 %%
-NIR_46 = SAS_read_ava(getfullname('*.csv','ava','Select Zenith collimator spectra for NIR_46'));
+NIR_46 = SAS_read_Albert_csv(getfullname('*.csv','ava','Select Zenith collimator spectra for NIR_46'));
 NIR_46.dark = sum(NIR_46.spec,2)<mean(sum(NIR_46.spec,2));
 NIR_46.darks = mean(NIR_46.spec(NIR_46.dark,:),1);
 NIR_46.lights = mean(NIR_46.spec(~NIR_46.dark,:),1)-NIR_46.darks;
@@ -117,7 +117,7 @@ title('Zenith DN-darks');
 %%
 % Next, read in each of the zenith sky measurements, apply calibration and
 % plot
-NIR = SAS_read_ava(getfullname('*.csv','ava','Select NIR 0911146U1 spectrometer'));
+NIR = SAS_read_Albert_csv(getfullname('*.csv','ava','Select NIR 0911146U1 spectrometer'));
 NIR.time(NIR.Intgration==100) = [];
 NIR.Averages(NIR.Intgration==100) = [];
 NIR.Temp(NIR.Intgration==100) = [];
@@ -136,7 +136,7 @@ NIR.rad = NIR.lights_per_ms .* (ones([size(NIR.lights_per_ms,1),1])*NIR_46.cal);
 figure; semilogy(NIR.nm, NIR.rad,'-');
 title('NIR dark-subtracted zenith signal');
 %%
-CCD = SAS_read_ava(getfullname('*.csv','ava','Select CCD 0911134U1spectrometer'));
+CCD = SAS_read_Albert_csv(getfullname('*.csv','ava','Select CCD 0911134U1spectrometer'));
 CCD.time(CCD.Intgration>=100) = [];
 CCD.Averages(CCD.Intgration>=100) = [];
 CCD.Temp(CCD.Intgration>=100) = [];
@@ -156,7 +156,7 @@ figure; semilogy(CCD.nm, CCD.rad,'-');
 title('CCD calibrated radiance');
 
 %%
-CCDx = SAS_read_ava(getfullname('*.csv','ava','Select CCD 0911137U1 spectrometer'));
+CCDx = SAS_read_Albert_csv(getfullname('*.csv','ava','Select CCD 0911137U1 spectrometer'));
 CCDx = rmfield(CCDx,'Shuttered_0');
 CCDx.sums = sum(CCDx.spec,2);
 %%

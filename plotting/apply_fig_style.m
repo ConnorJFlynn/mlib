@@ -1,7 +1,7 @@
 function [h, figout] = apply_fig_style(h, h_)
 % [h, figout] = apply_fig_style(h, h_)
-% Applies style changes to an existing figure based on either the default
-% settings or a supplied figure as template. 
+% Applies style changes to an existing figure with handle 'h' based on either the default
+% settings or a supplied figure with handle 'h_' as template. 
 % Returns both the handle to the modified figure and the resulting output
 % file.
 if ~exist('h','var');

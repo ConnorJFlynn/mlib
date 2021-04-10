@@ -1,5 +1,6 @@
 function figout = savefig(fig,figout,tweak);
 % figout = savefig(fig,figout,tweak);
+% overloaded to support batch or interactive save if tweak is true
 % fig is a figure handle
 % figout is the output filename
 % tweak is a boolean T/F indication to permit interaction before save

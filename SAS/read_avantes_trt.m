@@ -92,7 +92,7 @@ if fid>0
       in_file.(label{ii})(1:length(txt{ii})) =  txt{ii};
       
    end
-   in_file.good = ~isNaN(in_file.nm);
+   in_file.good = ~isnan(in_file.nm);
    if ~quiet
    figure(9);
 %    figure;

@@ -22,7 +22,7 @@ clear bare_fiber
 button_tempRamp = pack_specs_in_dir;
 
 button_tempRamp.TempC = interp1(serial2doy(in_temp.time), in_temp.TempC, serial2doy(button_tempRamp.time));
-if sum(~isNaN(button_tempRamp.TempC))==0
+if sum(~isnan(button_tempRamp.TempC))==0
     button_tempRamp.time = button_tempRamp.time - (6+5/6)./24;
     button_tempRamp.TempC = interp1(serial2doy(in_temp.time), in_temp.TempC, serial2doy(button_tempRamp.time));
 end
@@ -32,7 +32,7 @@ save([button_tempRamp.pname, button_tempRamp.fname, '.mat'],'-struct','button_te
 pname_ramp = button_tempRamp.pname;
 clear button_tempRamp 
 spec = load([pname_ref,'ReferenceFiber.mat']);
-ii = find(spec.Shutter_open_TF==1&~isNaN(spec.TempC));
+ii = find(spec.Shutter_open_TF==1&~isnan(spec.TempC));
 vis_nm = spec.nm_vis>=400 & spec.nm_vis<=1030;
 nir_nm = spec.nm_nir>=1000 & spec.nm_nir<=1700;
 
@@ -46,7 +46,7 @@ figure; vlines = plot(spec.nm_vis(vis_nm), ...
 
 %%
 spec2 = load([pname_ramp,'SpectralonFiber_QFS_Button_tempRamp.mat']);;
-jj = find(spec2.Shutter_open_TF==1&~isNaN(spec2.TempC));
+jj = find(spec2.Shutter_open_TF==1&~isnan(spec2.TempC));
 [ainb, bina] = nearest(spec.time(ii), spec2.time(jj([1,end])));
 [maxT,maxi] = max(spec2.TempC(jj));
 maxj = jj(maxi);

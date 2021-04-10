@@ -11,7 +11,7 @@ if ~exist('resp_dir','var')
     resp_dir = ['C:\case_studies\SWS\docs\from_DMF_Suty\sgpswsC1\response_funcs\'];
 end
 if ~exist(resp_dir,'dir')
-    resp_dir = getdir('sws_resp','Select a directory to save SWS responsivities');
+    resp_dir = getnamedpath('sws_resp','Select a directory to save SWS responsivities');
 end
 db = '';
 resp_stem = ['sgpswsC1.resp_func.',datestr(time,'yyyymmdd0000'),det_str,num2str(tint),'ms',db,'.dat'];
@@ -25,3 +25,5 @@ out = [sws_resp(:,[1 end])]';
 fid = fopen([resp_dir,resp_stem],'w');
 fprintf(fid,'   %5.3f    %5.3f \n',out);
 fclose(fid);
+
+return

@@ -2,7 +2,7 @@ function ava = SAS_polar_1(ins)
 % This script to confirm that source is strongly polarized based on
 % extinction of crossed polarizers. 
 
-ins = SAS_read_ava
+ins = SAS_read_Albert_csv
 pre_stem = 'CrossedPolScan_';
 sum_darks = sum(ins.spec(ins.Shuttered_0==0,:),2);
 sum_darks = sum_darks./mean(sum_darks);

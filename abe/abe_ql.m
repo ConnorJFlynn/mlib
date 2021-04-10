@@ -1,7 +1,7 @@
 function abe = abe_old_ql(abe_new, abe_old)
 
 if ~exist('abe_new','var')
-    infile = getfullname('sgpaerosol*.cdf','abe_new');
+    infile = getfullname_('sgpaerosol*.cdf','abe_new');
 end
 abe_new = ancload(infile);
 
@@ -13,7 +13,7 @@ plot_qcs(abe_new)
 
 [pname, fname, ext] = fileparts(infile);
 if ~exist('abe_old','var')
-    infile = getfullname([fname,ext],'abe_old');
+    infile = getfullname_([fname,ext],'abe_old');
 end
 abe_old = ancload(infile);
 

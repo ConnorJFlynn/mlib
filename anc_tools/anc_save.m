@@ -1,7 +1,7 @@
 
-function status = anc_save (ncstruct, ncfile)
+function status = anc_save (ncstruct, ncfile,quiet)
 
-% status = anc_SAVE (ncstruct, ncfile)
+% status = anc_SAVE (ncstruct, ncfile, quiet)
 %
 %   Writes an input netcdf structure to the specified file.  By default
 %   Matlab sorts all structure elements alphabetically, but ancsave writes
@@ -72,16 +72,20 @@ function status = anc_save (ncstruct, ncfile)
 %-------------------------------------------------------------------
 
 status = 1;
-if (nargin < 1 || nargin > 2)
-    help anc_save;
-    return;
-elseif nargin == 1
-    ncfile = ncstruct.fname;
+if (nargin < 1 || nargin > 3)
+   help anc_save;
+   return;
+end
+if nargin == 1 || isempty(ncfile)
+   ncfile = ncstruct.fname;
 end
 
-quiet = false;
-if isfield(ncstruct,'quiet')
-   quiet = ncstruct.quiet;
+if ~isavar('quiet')
+   if isfield(ncstruct,'quiet')
+      quiet = ncstruct.quiet;
+   else
+      quiet = false;
+   end
 end
 
 cmode = 'nc_noclobber';
@@ -105,7 +109,7 @@ if (isfield(ncstruct,'gatts'))
     while (true)
 
         % Get element by next id.
-        [val,key] = getnextelem(ncstruct.ncdef.atts,nextid)        
+        [val,key] = getnextelem(ncstruct.ncdef.atts,nextid) ;       
         if (strcmp(key,''))
             break;
         end

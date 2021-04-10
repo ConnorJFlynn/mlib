@@ -10,15 +10,24 @@ function [Z] = eval_eq(X,K,eq)
 % 	1./X     
 % 	X.*exp(X)
 % Also, don't forget the "dots" !
-[order] = length(K);
-Z=zeros(size(X));
+% Modified 2019-08-23 for evaluation of n-dimensional K
+[order] = size(K,2);
+Z=zeros([size(X,1),size(K,1)]);
 if iscell(eq)
    for i = 1:order
-      Z = Z + K(i).*eval(eq{i});
+      term = eval(eq{i});
+      if numel(term)==1
+         term = term.*ones(size(X));
+      end
+      Z = Z + term*(K(:,i)');
    end
 else
    for i = 1:order
-      Z = Z + K(i).*eval(eq(i,:));
+      term = eval(eq(i));
+      if numel(term)==1
+         term = term.*ones(size(X));
+      end
+      Z = Z + term*(K(:,i)');
    end
 end
 return

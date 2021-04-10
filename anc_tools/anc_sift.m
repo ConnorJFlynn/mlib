@@ -60,7 +60,7 @@ function [nc1, nc2] = anc_sift (nc, dim_indices,  dim)
 %-------------------------------------------------------------------
 
 % Determine complement of input dimension indices.
-if ~exist('dim','var')
+if isempty(who('dim'))
     if isfield(nc.ncdef,'recdim')&&~isempty(nc.ncdef.recdim.name)
         dim = nc.ncdef.dims.(nc.ncdef.recdim.name);
     else

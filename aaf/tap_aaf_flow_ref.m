@@ -1,4 +1,4 @@
-function [P_flow, flows ] = psap_pnnl_flow_ref;
+function [P_flow, flows ] = tap_aaf_flow_ref;
 % This function encapsulates measurements of the TAP AAF serial displayed flow and a TSI 4100 connected in series.
 % We'll reference the flows reported by AAF PSAP, PNNL PSAP, and AAF TAP to
 % this single flow meter.  While not absolutely calibrated it should remove

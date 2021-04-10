@@ -1,7 +1,7 @@
 clear; close('all')
 %%
 aipfrh = ancload(['E:\case_studies\ABE_vert_profs\newABE\sgpaipfrhC1.c1.20060101.000000.cdf']);
-[infilename] = getfullname(['E:\case_studies\ABE_vert_profs\newABE\sgpaip1ogrenC1.*.cdf']);
+[infilename] = getfullname_(['E:\case_studies\ABE_vert_profs\newABE\sgpaip1ogrenC1.*.cdf']);
 aip = ancload(infilename);
 
 [pname, fname] = fileparts(infilename);

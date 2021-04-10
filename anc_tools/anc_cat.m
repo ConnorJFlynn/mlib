@@ -61,27 +61,55 @@ nc1 = anc_timesync(nc1);
 varnames = fieldnames(nc1.vdata);
 for v = 1:length(varnames)
     % Skip time fields (have already been synchronized).
+    
     if (~strcmp(varnames{v},'time') && ~strcmp(varnames{v},'base_time') && ~strcmp(varnames{v},'time_offset'))
-        v1 = nc1.vdata.(varnames{v});
+        v1 = nc1.vdata.(varnames{v}); %disp(varnames{v})
         % Make sure compatible variable exists in second struct.
         if (isfield(nc2.vdata, varnames{v}))
             v2 = nc2.vdata.(varnames{v});
+            ndims = max(numel(size(v1)),numel(size(v2)));
             catdim = find(strcmp(nc1.ncdef.vars.(varnames{v}).dims,nc1.ncdef.recdim.name));
+            % In the netcdf file, the recdim should be the last dim but if
+            % it is of length one it may be suppressed, so to prevent this
+            % shift so that it is in first position, then re-shift at the
+            % end
+            
+            
             if catdim ==1
                 [v1,NSHIFTS] = shiftdim(v1,catdim-1);
                 [v2,NSHIFTS] = shiftdim(v2,catdim-1);
+                if size(v2,2)==1
+                    v1 = v1'; v2 = v2';
+                end
                 v1 = [v1, v2];
                 v1 = v1(:,sortinds);
                 [v1] = shiftdim(v1,NSHIFTS);
+                if size(v2,2)==1
+                    v1 = v1'; v2 = v2';
+                end
                 nc1.vdata.(varnames{v}) = v1;
-            elseif catdim > 1
+            elseif catdim ==2
                 [v1,NSHIFTS] = shiftdim(v1,catdim-1);
                 [v2,NSHIFTS] = shiftdim(v2,catdim-1);
                 v1 = [v1; v2];
                 v1 = v1(sortinds,:);
                 [v1] = shiftdim(v1,NSHIFTS);
                 nc1.vdata.(varnames{v}) = v1;
-
+            elseif catdim ==3
+                if numel(size(v1))==2
+                   [v1,NSHIFTS] = shiftdim(v1,-1);
+                else
+                    [v1,NSHIFTS] = shiftdim(v1,catdim-1);
+                end
+                if numel(size(v2))==2
+                    [v2,NSHIFTS] = shiftdim(v2,-1);
+                else
+                   [v2,NSHIFTS] = shiftdim(v2,catdim-1);
+                end
+                v1 = [v1; v2];
+                v1 = v1(sortinds,:,:);
+                [v1] = shiftdim(v1,1);
+                nc1.vdata.(varnames{v}) = v1;
             end
         end
     end

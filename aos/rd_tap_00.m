@@ -14,7 +14,7 @@ end
 % DateTime,Record type,Status,Elapsed time,Filter ID,Active spot,Flow rate,Sample vol,Case temp,Sample air temp,Ref0 DARK, Ref0 RED, Ref0 GRN, Ref0 BLU,CH1 DARK,CH1 RED,CH1 GRN,CH1 BLU,CH2 DARK,CH2 RED,CH2 GRN,CH2 BLU,CH3 DARK,CH3 RED,CH3 GRN,CH3 BLU,CH4 DARK,CH4 RED,CH4 GRN,CH4 BLU,CH5 DARK,CH5 RED,CH5 GRN,CH5 BLU,CH5 DARK,CH6 RED,CH6 GRN,CH6 BLU,CH7 DARK,CH7 RED,CH7 GRN,CH7 BLU,CH8 DARK,CH8 RED,CH8 GRN,CH8 BLU,Ref9 DARK, Ref9 RED, Ref9 GRN, Ref9 BLU
 % 2015-12-06T04:00:00.48Z, 03, 0000, 004f9b2f, 001a, 07, 1.584, 0.137717, 34.89, 35.46, c2ffc983, 4901c0e3, 48a0d990, 48e0b5d6, c33fe12a, 48c3a7c2, 48694746, 4897c850, c2da3546, 48de59c3, 4877ca1d, 48a6e390, c2e9be6d, 48d85943, 4877e963, 48a977d6, c366147a, 48f16633, 488c113f, 48b4ce49, c3694505, 48ebd0ea, 4888d908, 48b4a963, c3865bbe, 48ea7770, 4894b35e, 48b35962, c38530e2, 49087568, 48ad6053, 48df6066, c268f27d, 48eae5b0, 4896e0ab, 48d33d80, c29fb28a, 490d8b02, 48b69957, 48f2391b
 this = fgetl(fid);
-while ~isempty(strfind(this,'DateTime'))&&~feof(fid)
+while isempty(strfind(this,'Date(yymmdd),'))&&~feof(fid)
     this = fgetl(fid);
 end
 
@@ -124,8 +124,6 @@ tap.DN_Grn_9= typecast(uint32(hex2dec(raw.DN_Grn_9)),'single');
 tap.DN_Blu_9= typecast(uint32(hex2dec(raw.DN_Blu_9)),'single');
 
 
-% c343ef6c
-% typecast(uint32(hex2dec('c343ef6c')),'single');
 N = 20;
 % figure; plot(serial2hs(tap.time(spot_4)), real(log(-diffN((tap.DN_Red_4(spot_4)-tap.DN_Dark_4(spot_4))./((tap.DN_Red_0(spot_4)-tap.DN_Dark_0(spot_4))),N))),'.',...
 %    serial2hs(tap.time(~spot_4)), real(log(-diffN((tap.DN_Red_5(~spot_4)-tap.DN_Dark_5(~spot_4))./((tap.DN_Red_1(~spot_4)-tap.DN_Dark_1(~spot_4))),N))),'.')

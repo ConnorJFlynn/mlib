@@ -42,19 +42,19 @@ for f = 1:length(fields)
       end
    end
 end
-[dqr.all.id, ij] = unique(dqr.all.id);
-dq_fld(2) = [];
-for fld = 1:length(dq_fld)
-   fld = dq_fld{fld};
-   dqr.all.(fld) = dqr.all.(fld)(ij);
-end
-vars = fieldnames(dqr.vars);
-for v = 1:length(vars)
-   var = vars{v};
-   [ids,ij] = intersect(dqr.all.id, dqr.vars.(var).id);
+if exist('dqr','var')&&~isempty(dqr)
+   [dqr.all.id, ij] = unique(dqr.all.id);
+   dq_fld(2) = [];
+   for fld = 1:length(dq_fld)
+      fld = dq_fld{fld};
+      dqr.all.(fld) = dqr.all.(fld)(ij);
+   end
+   vars = fieldnames(dqr.vars);
+   for v = 1:length(vars)
+      var = vars{v};
+      [ids,ij] = intersect(dqr.all.id, dqr.vars.(var).id);
       dqr.ids_by_var.(var) = ij;
+   end
 end
-
-
 return
 % https://www.db.arm.gov/cgi-bin/PIFCARDQR2/browse/GetID.pl?id=tmp.id_str{1}

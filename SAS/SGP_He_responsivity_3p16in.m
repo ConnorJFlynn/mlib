@@ -5,11 +5,11 @@ function SGP_He_responsivity_3p16in
 pname = 'C:\case_studies\SAS\Cals pre deployment\He1_1010108U1_1010110U1\3point16 inches back no plate\';
 visname = '20101216_1010108U1.csv';
 nirname = '20101216_1010110U1.csv';
-He_vis_1010108U1 = SAS_read_ava([pname, visname]);
+He_vis_1010108U1 = SAS_read_Albert_csv([pname, visname]);
 He_vis_1010108U1.spec_sans_dark = He_vis_1010108U1.spec-ones([length(He_vis_1010108U1.Shuttered_0),1])...
    *mean(He_vis_1010108U1.spec(He_vis_1010108U1.Shuttered_0==0,:));
 
-He_nir_H1010110U1 = SAS_read_ava([pname, nirname]);
+He_nir_H1010110U1 = SAS_read_Albert_csv([pname, nirname]);
 He_nir_H1010110U1.spec_sans_dark = He_nir_H1010110U1.spec-ones([length(He_nir_H1010110U1.Shuttered_0),1])...
    *mean(He_nir_H1010110U1.spec(He_nir_H1010110U1.Shuttered_0==0,:));
 figure; semilogy(He_vis_1010108U1.nm, He_vis_1010108U1.spec_sans_dark(He_vis_1010108U1.Shuttered_0==1,:),'r',...
@@ -44,7 +44,7 @@ He_vis_1010108U1.resp = (mean(He_vis_1010108U1.spec_sans_dark(He_vis_1010108U1.S
 % xlabel('dark-subtracted signal')
 % ylabel('variance')
 % hold('on')
-% good = ~isNaN(ccd.mean_sig)&~isNaN(ccd.var_sig)&(ccd.mean_sig>0)&(ccd.var_sig>0)&good;
+% good = ~isnan(ccd.mean_sig)&~isnan(ccd.var_sig)&(ccd.mean_sig>0)&(ccd.var_sig>0)&good;
 % [P_cmos,S_cmos,MU_cmos] = polyfit(ccd.mean_sig(good),(ccd.var_sig(good)),1);
 % read_noise_variance = polyval(P_cmos,-MU_cmos(1)./MU_cmos(2));
 % spec_g = P_cmos(1)./MU_cmos(2);
@@ -96,7 +96,7 @@ legend('vis','nir');
 % xlabel('dark-subtracted signal')
 % ylabel('variance')
 % hold('on')
-% good = ~isNaN(nir.mean_sig)&~isNaN(nir.var_sig)&(nir.mean_sig>0)&(nir.var_sig>0)&good;
+% good = ~isnan(nir.mean_sig)&~isnan(nir.var_sig)&(nir.mean_sig>0)&(nir.var_sig>0)&good;
 % [P_cmos,S_cmos,MU_cmos] = polyfit(nir.mean_sig(good),(nir.var_sig(good)),1);
 % read_noise_variance = polyval(P_cmos,-MU_cmos(1)./MU_cmos(2));
 % spec_g = P_cmos(1)./MU_cmos(2);
@@ -112,7 +112,7 @@ legend('vis','nir');
 % saveasp(He_vis_1010108U1, [pname,'He_vis_1010108U1_p8in.m']);
 % saveasp(He_nir_H1010110U1, [pname,'He_nir_H1010110U1_p8in.m']);
 % 
-% He_vis_1010108U1.resp(isNaN(He_vis_1010108U1.resp))= 0;
+% He_vis_1010108U1.resp(isnan(He_vis_1010108U1.resp))= 0;
 % % fid = fopen(['C:\case_studies\SAS\Cals pre deployment\Ze1_1010109U1_1001069U1\40ms\Ze_vis_1010109U1.dat'],'w'); 
 % fid = fopen([pname,'He_vis_1010108U1.dat'],'w'); 
 % 
@@ -120,7 +120,7 @@ legend('vis','nir');
 % % fprintf(fid,'Units:   Responsivity in (cts-dark)/ms/[mW/(m^2.sr.nm)] \n');
 % fprintf(fid,'%4.2f, %4.5g \n',[He_vis_1010108U1.nm; He_vis_1010108U1.resp]);
 % fclose(fid);
-% He_nir_H1010110U1.resp(isNaN(He_nir_H1010110U1.resp))= 0;
+% He_nir_H1010110U1.resp(isnan(He_nir_H1010110U1.resp))= 0;
 % % fid = fopen(['C:\case_studies\SAS\Cals pre deployment\Ze1_1010109U1_1001069U1\40ms\He_nir_H1010110U1.dat'],'w'); 
 % fid = fopen([pname, 'He_nir_H1010110U1.dat'],'w'); 
 % 
@@ -142,8 +142,8 @@ saveasp(tmp, [pname,'sgpsashe_InGaAs_resp_3p16in_20110307.m']);
 % saveasp(He_vis_1010108U1, [pname,'He_vis_1010108U1_p8in.m']);
 % saveasp(He_nir_H1010110U1, [pname,'He_nir_H1010110U1_p8in.m']);
 blah = sgpsashe_Si_resp_3p16in_20110307;
-blah(2,isNaN(blah(2,:))) = 0;
-% He_vis_1010108U1.resp(isNaN(He_vis_1010108U1.resp))= 0;
+blah(2,isnan(blah(2,:))) = 0;
+% He_vis_1010108U1.resp(isnan(He_vis_1010108U1.resp))= 0;
 % fid = fopen(['C:\case_studies\SAS\Cals pre deployment\Ze1_1010109U1_1001069U1\40ms\Ze_vis_1010109U1.dat'],'w'); 
 fid = fopen([pname,'He_vis_1010108U1_3p16in.dat'],'w'); 
 % fprintf(fid,'Source:  ARM Labsphere via SWS to ARCS 455 \n');
@@ -152,7 +152,7 @@ fprintf(fid,'%4.2f, %4.5g \n',blah);
 fclose(fid);
 
 blah = sgpsashe_InGaAs_resp_3p16in_20110307;
-blah(2,isNaN(blah(2,:))) = 0;
+blah(2,isnan(blah(2,:))) = 0;
 % fid = fopen(['C:\case_studies\SAS\Cals pre deployment\Ze1_1010109U1_1001069U1\40ms\He_nir_H1010110U1.dat'],'w'); 
 fid = fopen([pname, 'He_nir_H1010110U1_3p16in.dat'],'w'); 
 

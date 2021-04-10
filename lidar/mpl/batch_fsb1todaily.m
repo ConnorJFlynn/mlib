@@ -49,7 +49,10 @@ if ~exist(bad_dir, 'dir')
    mkdir(bad_dir);
 end
 
-in_files = dir([in_dir,'*.cdf']);
+in_files = dir([in_dir,'*mpl*.nc']);
+in_files_ = dir([in_dir,'*mpl*.cdf']); 
+in_files = [in_files;in_files_];
+
 for d = length(in_files):-1:1
    tmp = fliplr(in_files(d).name);
    [dmp,tmp] = strtok(tmp,'.');
@@ -61,7 +64,7 @@ for d = length(in_files):-1:1
 end
 [ds, ind] = sort(dates);
 
-out_files = dir([out_dir,'*.cdf.out']);
+out_files = dir([out_dir,'*.nc.out']);
 % out_files = [];
 for m = 1:length(in_files)
    done = false;
@@ -79,8 +82,8 @@ for m = 1:length(in_files)
       tic
 %Suggested addition: try to read next netcdf file, if there is an error 
 % then copy it to the bad directory and move on.
-      fid_out = fopen([out_dir,in_files(ind(m)).name,'.out'],'w');
-      fclose(fid_out);
+%       fid_out = fopen([out_dir,in_files(ind(m)).name,'.out'],'w');
+%       fclose(fid_out);
       disp(['Reading ',in_files(ind(m)).name]);
       anc_mplpol_ = anc_loadcoords([in_dir,in_files(ind(m)).name]);
       status = status + 1;
@@ -97,9 +100,9 @@ for m = 1:length(in_files)
             fclose(fid_bad);
          end
          if ~isempty(anc_mplpol)
-            [polavg_new,tail_ind] = proc_mplpolfsb1_4(anc_mplpol,mpl_inarg);
+            [polavg_new,tail_ind] = proc_mplpolfsb1_5(anc_mplpol,mpl_inarg);
             anc_mplpol_tail = anc_sift(anc_mplpol,[tail_ind:length(anc_mplpol.time)]);
-            if exist('polavg','var')
+            if exist('polavg','var')&&length(polavg.time)>1
                polavg = catpol(polavg,polavg_new);
             else
                polavg = polavg_new;
@@ -107,13 +110,21 @@ for m = 1:length(in_files)
             clear polavg_new;
             date_m = min([floor(ds(m)),floor(polavg.time(1))]);
             [polavg, nextavg] = splitpol(polavg, polavg.time>(1+date_m));
-            if ~isempty(nextavg.time)
+            if length(nextavg.time)>2 && length(polavg.time)>2
                fout_name = [mpl_inarg.fstem,datestr(date_m,'yyyymmdd'),'.doy',num2str(serial2doy(date_m)),'.mat'];
                save([mat_dir, fout_name],'polavg', '-mat');
-               plot_pol_lin_bs(polavg,mpl_inarg);
-%                plot_pol_log_bs(polavg,mpl_inarg);
+               %                plot_pol_lin_bs(polavg,mpl_inarg);
+               polavg = plot_pola_log_bs(polavg,mpl_inarg);
+               if isfield(polavg,'inarg')
+                  mpl_inarg = polavg.inarg; mpl_inarg.manual_limits = false;
+                  polavg = rmfield(polavg,'inarg');
+               end
+               if isfield(mpl_inarg,'assess_ray')&&mpl_inarg.assess_ray
+                  assess_mpl_ray(polavg,mpl_inarg);
+               end
                polavg = nextavg;
                nextavg = [];
+               close('all');
             end
          else
             disp('Skipping empty file')
@@ -127,14 +138,21 @@ end
 status = status + 1;
 %%
 
-while length(polavg.time>0)
+while length(polavg.time>1)
    date_m = floor(polavg.time(1));
    [polavg, nextavg] = splitpol(polavg, polavg.time>(1+date_m));
-   if ~isempty(polavg.time)
+   if length(polavg.time)>1
       fout_name = [mpl_inarg.fstem,datestr(date_m,'yyyymmdd'),'.doy',num2str(serial2doy(date_m)),'.mat'];
-      save([mat_dir, fout_name],'polavg', '-mat');
-plot_pol_lin_bs(polavg,mpl_inarg);
-%       plot_pol_log_bs(polavg,mpl_inarg);
+      save([mat_dir, fout_name],'polavg', '-mat');  
+      polavg = plot_pola_log_bs(polavg,mpl_inarg);
+%       plot_pol_lin_bs(polavg,mpl_inarg);
+      if isfield(polavg,'inarg')
+         mpl_inarg = polavg.inarg; mpl_inarg.manual_limits = false;
+         polavg = rmfield(polavg,'inarg');
+      end
+      if isfield(mpl_inarg,'assess_ray')&&mpl_inarg.assess_ray
+         assess_mpl_ray(polavg,mpl_inarg);
+      end
       polavg = nextavg;
       nextavg = [];
    end
@@ -145,12 +163,25 @@ disp('done!')
 return
 
 function mpl_inarg = define_mpl_inarg
-   mpl_inarg.in_dir = getdir('mpl_data','Select directory containing mplpol b1 data');
-   rid_ni = fliplr(mpl_inarg.in_dir(1:end-1));
-   tok = strtok(rid_ni,filesep);
-   kot = fliplr(tok);
-   mpl_inarg.tla = kot(1:3); % Typically 3-letter site designation, but also IOP names
+in_file = getfullname('*mpl*.nc;*mpl*.cdf;','mpl_data','Select an MPL netcdf file in th directory to process...');
+if iscell(in_file)
+   in_file = in_file{1};
+end
+[in_dir, fname, ext] = fileparts(in_file); in_dir = [in_dir, filesep]; fname = [fname ext];
+anc_ = anc_link(in_file);
+
+ mpl_inarg.in_dir = in_dir;
+%    mpl_inarg.in_dir = getdir('mpl_data','Select directory containing mplpol b1 data');
+%    rid_ni = fliplr(mpl_inarg.in_dir(1:end-1));
+%    tok = strtok(rid_ni,filesep);
+%    kot = fliplr(tok);
+%    mpl_inarg.tla = kot(1:3); % Typically 3-letter site designation, but also IOP names
 %    mpl_inarg.tla = 'ufo'
+fac = strtok(fname, '.'); sss = fac(1:3); fac(1:3) = [];
+while ~isempty(fac) &&(~strcmp(fac(1),upper(fac(1))))
+   fac(1) = [];
+end
+   mpl_inarg.tla = [sss fac];
    mpl_inarg.fstem = [mpl_inarg.tla,'_mplpol_3flynn.'];
    mpl_inarg.out_dir = [mpl_inarg.in_dir, 'out',filesep];
    mpl_inarg.bad_dir = [mpl_inarg.out_dir,'..',filesep, 'bad',filesep];
@@ -158,19 +189,38 @@ function mpl_inarg = define_mpl_inarg
    mpl_inarg.fig_dir = [mpl_inarg.out_dir,'..',filesep, 'fig',filesep];
    mpl_inarg.png_dir = [mpl_inarg.out_dir,'..',filesep, 'png',filesep];
    
-   mpl_inarg.Nsecs = 150;
-   mpl_inarg.Nrecs = 7500;
+   mpl_inarg.Nsecs = 90;
+   mpl_inarg.Nrecs = 10000;
+   mpl_inarg.manual_limits = true;
+   if isfield(anc_.vatts,'afterpulse_correction_height')
+      mpl_inarg.ap_in_file = true;
+   end
+   mpl_inarg.assess_ap = false;
+   mpl_inarg.replace_ap = false;
+   
+   if isfield(anc_.vatts,'deadtime_correction')
+      mpl_inarg.dtc_in_file = true;
+   end
+      if isfield(anc_.vatts, 'overlap_correction')
+      mpl_inarg.ol_corr_in_file = true;
+   end
+   mpl_inarg.replace_ol = false;
+   mpl_inarg.assess_ray = true;
    mpl_inarg.dtc = eval(['@dtc_',mpl_inarg.tla,'_']); %accept and return MHz
    mpl_inarg.ap = eval(['@ap_',mpl_inarg.tla,'_']); %accept range, return .cop, .crs
    mpl_inarg.ol_corr = eval(['@ol_',mpl_inarg.tla,'_']); % accept range, return ol_corr
    
-   mpl_inarg.cop_snr = 3;% larger numbers eliminate data
-   mpl_inarg.ldr_snr = 2;% larger numbers eliminate data
-   mpl_inarg.ldr_error_limit = .2; %smaller numbers eliminate data
-   mpl_inarg.fig = gcf;
+   mpl_inarg.cop_snr = 4;% larger numbers eliminate data
+   mpl_inarg.ldr_snr = 5;% larger numbers eliminate data
+   mpl_inarg.ldr_error_limit = 1; %smaller numbers eliminate data
+   fig = 1; 
+   while isgraphics(fig)
+      fig = fig+1;
+   end
+   mpl_inarg.fig = fig;
    mpl_inarg.vis = 'on';
-   mpl_inarg.cv_log_bs = [0.75,4];
-   mpl_inarg.cv_dpr = [-1.15,0];
+   mpl_inarg.cv_log_bs = [2,4];
+   mpl_inarg.cv_dpr = [-2.5,0];
    mpl_inarg.plot_ranges = [15,10,5,2];
 return
 function mpl_inarg = populate_mpl_inarg(mpl_inarg);
@@ -214,19 +264,19 @@ function mpl_inarg = populate_mpl_inarg(mpl_inarg);
       mpl_inarg.Nrecs = 2500; % This is the number of netcdf records to read at a time.
    end   
    if ~isfield(mpl_inarg,'cop_snr');
-      mpl_inarg.cop_snr = 2;
+      mpl_inarg.cop_snr = 2.5;
    end
    if ~isfield(mpl_inarg,'ldr_snr');
-      mpl_inarg.ldr_snr = 1.5;
+      mpl_inarg.ldr_snr = 2.5;
    end
    if ~isfield(mpl_inarg,'ldr_error_limit');
-      mpl_inarg.ldr_error_limit = 0.25;
+      mpl_inarg.ldr_error_limit = 0.5;
    end
    if ~isfield(mpl_inarg,'vis');
       mpl_inarg.vis = 'on';
    end
    if ~isfield(mpl_inarg,'cv_log_bs');
-      mpl_inarg.cv_log_bs = [1.5,4.5];
+      mpl_inarg.cv_log_bs = [0,4];
    end   
 
 return

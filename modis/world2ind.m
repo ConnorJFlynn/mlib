@@ -27,6 +27,12 @@ tile_width = 2*pi*R ./ 36;
 tile_height = tile_width;
 cells = xdim; %number of pixels in the MODIS tile image
 pixel_size = tile_width ./ cells;
+% This longitude part here doesn't work because we don't have a rectangular
+% array.  In KORUS, the UL is actually to the right of the LR corner.
+% So what to do?  In fact, while the y divisions are uniform segments in
+% Lat and straight, the x contours are sinusoidals.  This might mean that
+% "samples" are also sinusoids
+
 xi = floor(interp1([LL(1),UR(1)],[1,xdim],x,'linear')-1); % longitude
 yi = floor(interp1([UR(2),LL(2)],[1,ydim],y,'linear')-1); % latitude
 

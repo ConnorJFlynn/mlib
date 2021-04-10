@@ -32,12 +32,3 @@ changes = find(diff(stable)==1);
 
 return
 
-
-
-
-
-
-
-
-
-return

@@ -16,6 +16,8 @@ iso = ['MCD43GF_iso_Band2_225_2013.hdf'];
 
 lat_U = 29.609100;
 lon_L = -95.168300;
+lat_U = 37.312;
+lon_L = 127.31;
 % According to MODLAND Tile Calculator:
 % for 4STAR ground lat,lon position on Aug 16 of 29.6091,-95.1683
 % [sn k fwd tp] lat 29.609100  long -95.168300  =>  vert tile 6  horiz tile 9  line 46.41  samp 870.59

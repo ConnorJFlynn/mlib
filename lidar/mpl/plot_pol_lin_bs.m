@@ -21,7 +21,7 @@ if ~exist('inarg','var');
    cop_snr = 2;
    ldr_snr = 1.5;
    ldr_error_limit = .25;
-   cv_lin_bs = [1,1500];
+   cv_lin_bs = [1,15000];
    fstem = 'sgpmplpol_3flynn.';
    fig = gcf;
    vis = 'on';
@@ -76,7 +76,7 @@ else
    if isfield(inarg,'cv_lin_bs')
       cv_lin_bs = inarg.cv_lin_bs;
    else
-      cv_lin_bs = [1,1500];
+      cv_lin_bs = [1,15000];
    end
 end
 
@@ -102,7 +102,7 @@ end
 
 % cv_bs = [2,5];
 % cv_bs = [2,5]; % for ISDAC due to weaker signal compared to NIM.
-cv_dpr = [-2.25,0]; 
+cv_dpr = [-2,0]; 
 cv_dpr = 10.^cv_dpr; %for lin scale dpr
 %% Determine if we are plotting 0-12 or 12-24
 hh_HH = [floor(serial2Hh(polavg.time(1))),ceil(floor(serial2Hh(polavg.time(1)))+(polavg.time(end)-polavg.time(1))*24)];
@@ -136,7 +136,7 @@ mask(polavg.r.lte_15,:) = 1./(std_attn_prof*ones([1,length(polavg.time)]));
 mask(polavg.cop_snr<cop_snr) = NaN;
 end_time = floor(polavg.time(end));
 
-figure(fig); 
+figure_(double(fig)); 
 set(gcf,'visible',vis);
 set(gcf,'position',[18    72   658   708]);
 x = 24*(polavg.time-floor(polavg.time(1)));
@@ -201,8 +201,8 @@ cmap = colormap;
 
 [rgb,color_sqr] = rgb_weight(x,y,z2,z1,cmap,cv_dpr,cv_lin_bs,0.15,mask(r.lte_15,:));
 % ax(3) = subplot(3,1,3); 
-figure(fig+1); 
-set(fig+1,'visible',vis);
+figure_(double(fig)+1); 
+set(double(fig)+1,'visible',vis);
 set(gcf,'position',[ 26 476 1043  319]);
 ax2(1) = subplot('position',[0.0471    0.15    0.6080    0.760]);
 ax2(2) = subplot('position',[0.6864    0.15    0.2500    0.76]);
@@ -214,7 +214,7 @@ ax2(2) = subplot('position',[0.6864    0.15    0.2500    0.76]);
 axes(ax2(2));
 imagegap(cv_lin_bs,cv_dpr,color_sqr);
 % image(10.^cv_bs,10.^cv_dpr,color_sqr);axis('xy');axis('square');logy; logx;
-set(fig+1,'visible',vis);
+set(double(fig)+1,'visible',vis);
 % imagegap(cb_2',cb_1',rgb_2);
 axis(ax2(2),'square');
 title('composite colormap')
@@ -227,7 +227,7 @@ set(ax2(2),'TickDir','out');
 
 axes(ax2(1));
 imagegap(x,y,rgb); 
-set(fig+1,'visible',vis);
+set(double(fig)+1,'visible',vis);
 ylabel('range (km)');
 set(ax2(1),'TickDir','out');
 xlab = xlabel('time (UTC)');
@@ -262,15 +262,17 @@ xlim(xl);
 % set(cb,'YTickLabel',tick_label);
 % set(cb,'YTick',ytick);
 
-set(fig,'visible','off');
+
    fname1 = [fstem,'bs_ldr.',datestr(polavg.time(1), 'yyyy-mm-dd'),hh_HH_str2,'.'];
    saveas(fig, [figdir,filesep,fname1,'fig']);
-%    set(fig,'visible',vis);
+%    set(fig,'visible','off');
+   set(fig,'visible',vis);
 
 axes(ax2(1));
-set(fig+1,'visible','off');
+
    fname2 = [fstem,'comp.',datestr(polavg.time(1), 'yyyy-mm-dd'),hh_HH_str2,'.'];
-   saveas(fig+1, [figdir,filesep,fname2,'fig']);
+   saveas(double(fig)+1, [figdir,filesep,fname2,'fig']);
+   set(double(fig)+1,'visible','on');
 %    set(fig+1,'visible',vis);
    
 for rr = fliplr(ranges)
@@ -281,9 +283,9 @@ for rr = fliplr(ranges)
    if ~isempty(pngdir)
       saveas(fig,[pngdir, filesep, fname1, 'emf']);
       saveas(fig,[pngdir, filesep, fname1, 'png']);
-      set(fig+1, 'PaperPositionMode','auto');
-      saveas(fig+1,[pngdir, filesep, fname2, 'emf']);   
-      saveas(fig+1,[pngdir, filesep, fname2, 'png']);
+      set(double(fig)+1, 'PaperPositionMode','auto');
+      saveas(double(fig)+1,[pngdir, filesep, fname2, 'emf']);   
+      saveas(double(fig)+1,[pngdir, filesep, fname2, 'png']);
 %        saveas(fig+1, [figdir,filesep,fname2,'fig']);
 %       print(gcf, '-dpng', [pngdir, filesep, fname, 'png']) ;
    end

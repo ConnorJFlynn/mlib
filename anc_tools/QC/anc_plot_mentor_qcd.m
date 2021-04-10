@@ -109,7 +109,7 @@ if isfield(anc.vdata,field)&& isfield(anc.vdata,['qc_',field])&& ...
     if pos2(2)<0
        pos2(2) = pos1(2) + pos1(4) + .125;
     end
-    
+    dplot = gcf;
     figure(double(gcf)+1);
 %     ax(2)=subplot(2,1,2); 
     mid =  imagegap(time_,[1:tests],qc_tests);
@@ -128,5 +128,6 @@ if isfield(anc.vdata,field)&& isfield(anc.vdata,['qc_',field])&& ...
       tx(x) = text('string', desc(x),'interpreter','none','units','normalized','position',[0.01,(x-.5)/tests],...
          'fontsize',8,'color','black','linestyle','-','edgecolor',[.5,.5,.5]);
    end
-   zoom('on')
+   zoom('on');
+   figure(dplot);
 end

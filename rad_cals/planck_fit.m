@@ -33,7 +33,7 @@ function [rad,lamp] = planck_fit(nm_in,Irad_in, nm_out)
 
 % I presume that the measured wavelength can be taken at face value, as can
 % the linearity of the absolute calibration.  
-figure(67);
+figure_(67);
 if ~exist('nm_in','var')||~exist('Irad_in','var')
 lamp.nm = [250:10:400 450 500 555 600 654.6 700 800 900 1050 1150 1200 1300 1540 1600 1700 2000 2100 2300 2400 2500];
 lamp.I = [1.806e-8, 3.203e-8, 5.299e-8, 8.343e-8, 1.26e-7, 1.832e-7,2.585e-7,3.544e-7,4.732e-7,6.197e-7,7.956e-7,...
@@ -170,7 +170,7 @@ while mean(resid_p)<mean(resid) && mean(resid)<mean(resid_n) && T<T_max
     % by N.
     
     %%
-    figure(67); s(1) = subplot(2,1,1);
+    figure_(67); s(1) = subplot(2,1,1);
         plot(lamp.nm, lamp.T_bb,'k-');
     xlim(xl);
     ylabel('T_B [K]')

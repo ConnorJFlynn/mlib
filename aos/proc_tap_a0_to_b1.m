@@ -58,8 +58,11 @@ spot = [1:10];
 active = tap_a0.vdata.active_spot_number;
 first_good = find(active>0,1,'first');
 first_good_spot = active(first_good);
-changes = find((active(2:end)>0)& ((active(2:end)>active(1:end-1)) |...
-    (tap_a0.vdata.filter_id(2:end)~=tap_a0.vdata.filter_id(1:end-1)) ) )+1;
+% find changes when active spot is greater than 0 AND when active spot
+% advances, or active spot goes from 8 to 1 or filter ID changes
+changes = find((active(2:end)>0) & ...
+    (active(2:end)>active(1:end-1) | (active(2:end)==1 & active(1:end-1)==8) | ...
+    tap_a0.vdata.filter_id(2:end)~=tap_a0.vdata.filter_id(1:end-1) )  )+1;
 % Extend bounds of loop to extend to end of file
 bounds = unique([changes, length(tap_a0.time)]);
 
@@ -79,13 +82,34 @@ if exist('me_old','var')
     end
 end
 % first_good_spot = active(changes(1));
-% Check to see if I have any problem with the bounds index since clean_green 
-% is not matching Annette's attempt in C or Fortran.
+% Have verified that the bounds are good by walking through and examining
+% indices.
+wrapped = false;
 for t = 1:length(bounds)-1
+    {datestr(tap_a0.time(bounds(t)-1)), tap_a0.vdata.filter_id(bounds(t)-1), tap_a0.vdata.active_spot_number(bounds(t)-1);...
+        datestr(tap_a0.time(bounds(t))), tap_a0.vdata.filter_id(bounds(t)), tap_a0.vdata.active_spot_number(bounds(t));...
+        datestr(tap_a0.time(bounds(t)+1)), tap_a0.vdata.filter_id(bounds(t)+1), tap_a0.vdata.active_spot_number(bounds(t)+1)}
     active = tap_a0.vdata.active_spot_number(bounds(t));
-    me.clean_blue(spot>=active,(bounds(t)):bounds(end)) = me.signal_blue(spot>=active, bounds(t))*ones([1,length([(bounds(t)):bounds(end)])]);
-    me.clean_green(spot>=active,(bounds(t)):bounds(end)) = me.signal_green(spot>=active, bounds(t))*ones([1,length([(bounds(t)):bounds(end)])]);
-    me.clean_red(spot>=active,(bounds(t)):bounds(end)) = me.signal_red(spot>=active, bounds(t))*ones([1,length([(bounds(t)):bounds(end)])]);
+
+    % If the spot goes backwards for the same filter and the last change
+    % was > 30 minutes ago, then the filter is probably exhausted and we're
+    % just wrapping around with an old filter. Else, it probably just did a
+    % white filter test or cycled to seat spots in a clean filter
+    if tap_a0.vdata.active_spot_number(bounds(t))< tap_a0.vdata.active_spot_number(bounds(t)-1) &&...
+            tap_a0.vdata.filter_id(bounds(t)-1) == tap_a0.vdata.filter_id(bounds(t)) && ...
+            t>1 && dtime(datevec(tap_a0.time(bounds(t))),datevec(tap_a0.time(bounds(t-1))))>30*60
+        wrapped = true;
+    end
+    % Reset wrapped to false when the filter Id changes again
+    if tap_a0.vdata.filter_id(bounds(t)-1) ~= tap_a0.vdata.filter_id(bounds(t))
+        wrapped = false;
+    end        
+
+    if ~wrapped
+        me.clean_blue(spot>=active,(bounds(t)):bounds(end)) = me.signal_blue(spot>=active, bounds(t))*ones([1,length([(bounds(t)):bounds(end)])]);
+        me.clean_green(spot>=active,(bounds(t)):bounds(end)) = me.signal_green(spot>=active, bounds(t))*ones([1,length([(bounds(t)):bounds(end)])]);
+        me.clean_red(spot>=active,(bounds(t)):bounds(end)) = me.signal_red(spot>=active, bounds(t))*ones([1,length([(bounds(t)):bounds(end)])]);
+    end
 end
 me.norm_blue = me.signal_blue ./ me.clean_blue;
 me.norm_green = me.signal_green ./ me.clean_green;
@@ -167,10 +191,28 @@ me.transmittance_red(me.active_spot==0) = NaN;
 
 
 %
-figure; plot(serial2hs(tap_a0.time), tap_a0.vdata.active_spot_number,'o'); ax(1) = gca;
-figure; plot(serial2hs(tap_a0.time), me.norm_blue, '-'); title('blue normalized to spot change'); ax(2) = gca;
-figure; plot(serial2hs(tap_a0.time), me.spot_tr_blue, '-'); title('blue spot Tr'); ax(3) = gca;
-figure; plot(serial2hs(tap_a0.time), me.transmittance_blue, '-'); title('blue transmittance'); ax(5) = gca;
+
+figure; these = plot((tap_a0.time), tap_a0.vdata.active_spot_number,'o'); ax(1) = gca; dynamicDateTicks
+title('active spot');
+figure; plot(tap_a0.time, tap_a0.vdata.tap_flow_rate, 'x-'); title('tap_flow_rate'); ax(end+1) = gca; dynamicDateTicks;
+
+figure; these = plot((tap_a0.time), me.signal_green, '-'); title('green signal'); ax(end+1) = gca;
+dynamicDateTicks
+legend('1','2','3','4','5','6','7','8','9','10'); recolor(these,[1:10]);
+
+figure; these = plot((tap_a0.time), me.norm_green, '-'); title('green normalized to spot change'); ax(end+1) = gca;
+dynamicDateTicks
+legend('1','2','3','4','5','6','7','8','9','10');recolor(these,[1:10]);
+
+figure; these = plot((tap_a0.time), me.spot_tr_green, '-'); title('green spot Tr'); ax(end+1) = gca;
+dynamicDateTicks
+legend('1','2','3','4','5','6','7','8','9','10'); recolor(these,[1:10]);
+
+figure; plot((tap_a0.time), me.transmittance_blue, '-',...
+    (tap_a0.time), me.transmittance_green, '-',...
+    (tap_a0.time), me.transmittance_red, '-'); title('transmittances'); 
+ax(end+1) = gca;
+dynamicDateTicks
 % figure; plot(serial2hs(tap_a0.time), me.norm_green, '-'); title('green normalized to spot change'); ax(3) = gca;
 % figure; plot(serial2hs(tap_a0.time), me.norm_red, '-'); title('red normalized to spot change'); ax(4) = gca;
 linkaxes(ax,'x');

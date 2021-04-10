@@ -85,8 +85,8 @@ elseif size(raw_file,2)==9
             titlestr2 = sprintf('CWL = %3.1f, FWHM = %3.1f ',(ftrace{i}.normed.cw),(ftrace{i}.normed.FWHM));
             title([titlestr1, titlestr2]);
             text(ftrace{i}.normed.cw + .5, 0, 'CWL', 'color', 'red')
-            print(gcf,'-dpng',[pname, fname, '.filter',num2str(i),'.png'])
-
+%             print(gcf,'-dpng',[pname, fname, '.filter',num2str(i),'.png'])
+            saveas(gcf,[pname, fname, '.filter',num2str(i),'.png'])
             pause(1);
         end
     end
@@ -103,7 +103,8 @@ elseif size(raw_file,2)==10
             titlestr2 = sprintf('CWL = %3.1f, FWHM = %3.1f ',(ftrace{i}.normed.cw),(ftrace{i}.normed.FWHM));
             title([titlestr1, titlestr2]);
             text(ftrace{i}.normed.cw + .5, 0, 'CWL', 'color', 'red')
-            print(gcf,'-dpng',[pname, fname, '.filter',num2str(i),'.png'])
+            print(gcf,'-dpng',[pname, fname, '.filter',num2str(i),'.png']);
+            saveas(gcf,[pname, fname, '.filter',num2str(i),'.png']);
             pause(1);
         end
     end

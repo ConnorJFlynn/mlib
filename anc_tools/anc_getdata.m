@@ -128,7 +128,10 @@ for d = 1:length(dimids);
    end
    count(d) = dimlength;
 end
-
+[varname,xtype,dimids,natts] = netcdf.inqVar(ncid,varid);
+if xtype==12
+   nodata = true;
+end
 if (nodata)
    vdata = [];
    status = 0;

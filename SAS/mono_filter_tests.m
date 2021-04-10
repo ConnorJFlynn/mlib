@@ -1,4 +1,5 @@
 % mono plus blocking filters mono 425
+% 20140725_monoscan_filter_stray_light_tests_VIS and subfolders.
 
 mono  = SAS_read_Albert_csv;
 mono.darks = mean(mono.spec(mono.Shuttered_0==0,:)); 

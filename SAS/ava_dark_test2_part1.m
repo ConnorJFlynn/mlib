@@ -15,7 +15,7 @@ for ii = 2:length(infiles)
    ava = cat_trt_data(ava,[pname, infiles(ii).name]);
 end
 %    ava
-noNaNs = ~any(isNaN(ava.Sample));
+noNaNs = ~any(isnan(ava.Sample));
    ava.mean_samp = mean(ava.Sample(:,noNaNs),2);
   figure; 
   plot(ava.tint, ava.mean_samp, 'o');

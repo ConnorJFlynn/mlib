@@ -1,5 +1,7 @@
 function mono = SAS_temp_test_interp_dk(indir)
-indir = 'C:\case_studies\ARRA\SAS\data_tests\temp_tests\20100211FullThermoEval\';
+% This was very early work before developing more structured CVS files. The
+% data files are flat ASCII files as described below
+% indir = 'D:\case_studies\SAS\testing_and_characterization\temp_tests\20100211FullThermoEval\';
 if ~exist('indir','var')
    indir = getdir;
 end
@@ -41,7 +43,8 @@ pmt = fliplr(strtok(ridni(2:end),filesep));
       V(6) = sscanf(time_str(16:17),'%d');
       back.time(m) = datenum(V);
      light = load([pname,back_files(m).name]);
-     back.vis_deg_C(m) = light(end,2);
+     % last value in file is actually a dummy row containing temperature in the second column
+     back.vis_deg_C(m) = light(end,2); 
      nm_vis = light(:,1); nm_vis(end) = [];
      nm_nir = light(:,3); nm_nir(end) = [];
      spec_vis = light(:,2); spec_vis(end) = [];
@@ -102,13 +105,23 @@ pmt = fliplr(strtok(ridni(2:end),filesep));
    %%
 % 
  figure; 
- lines1 = plot(mono.nm_vis, mono.raw_vis,'-');
+ lines1 = plot(mono.nm_vis, mono.spec_vis,'-');
  title(['Vis detector ',mono.vis_sn,' temperature response']);
  xlabel('wavelength [nm]');
  ylabel('raw DN')
  recolor(lines1,mono.vis_deg_C); colorbar;
  zoom('on');
-%% 
+%%
+
+ figure; 
+ lines1 = plot(mono.nm_vis, mono.spec_vis,'-');
+ title(['Vis detector ',mono.vis_sn,' temperature response']);
+ xlabel('wavelength [nm]');
+ ylabel('rate')
+ recolor(lines1,mono.vis_deg_C); colorbar;
+ zoom('on');
+%%
+
  figure; 
  lines3 = plot(back.nm_nir, back.spec_nir,'-');
  recolor(lines3,back.nir_deg_C); colorbar;

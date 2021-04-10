@@ -1,4 +1,5 @@
 function status = copyfile2(infile,outfile);
+ % Full binary byte-for-byte binary copy.  
 if exist('infile','var')&&exist(infile,'file')&&~exist(infile,'dir')
    %Then infile is a proper input filename
    if exist('outfile','var')&&~exist(outfile,'file')

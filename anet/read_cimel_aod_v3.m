@@ -2,7 +2,7 @@ function cimel = read_cimel_aod_v3(filename);
 %This should read AOD version 3 files from the Aeronet AOD site, but not the
 %inversions.  To read the inversions, try read_cimel_aip
 if ~exist('filename', 'var')
-   filename= getfullname('*.lev20*','anet_aod');
+   filename= getfullname('*.lev*','anet_aod');
 end
    [pname, fname,ext] = fileparts(filename);
    fname = [fname,ext];
@@ -15,6 +15,11 @@ end
 % All Points,UNITS can be found at,,, http://aeronet.gsfc.nasa.gov/new_web/units.html
 % Date(dd-mm-yyyy),Time(hh:mm:ss),Day_of_Year,Day_of_Year(Fraction),AOD_1640nm,AOD_1020nm,AOD_870nm,AOD_675nm,AOD_667nm,AOD_555nm,AOD_551nm,AOD_532nm,AOD_531nm,AOD_500nm,AOD_490nm,AOD_443nm,AOD_440nm,AOD_412nm,AOD_380nm,AOD_340nm,Precipitable_Water(cm),Triplet_Variability_1640,Triplet_Variability_1020,Triplet_Variability_870,Triplet_Variability_675,Triplet_Variability_667,Triplet_Variability_555,Triplet_Variability_551,Triplet_Variability_532,Triplet_Variability_531,Triplet_Variability_500,Triplet_Variability_490,Triplet_Variability_443,Triplet_Variability_440,Triplet_Variability_412,Triplet_Variability_380,Triplet_Variability_340,Triplet_Variability_Precipitable Water(cm),440-870_Angstrom_Exponent,380-500_Angstrom_Exponent,440-675_Angstrom_Exponent,500-870_Angstrom_Exponent,340-440_Angstrom_Exponent,440-675_Angstrom_Exponent[Polar],Data_Quality_Level,AERONET_Instrument_Number,Site_Latitude(Degrees),Site_Longitude(Degrees),Site_Elevation(m),Solar_Zenith_Angle(Degrees),Optical_Air_Mass,Sensor_Temperature(Degrees_C),Ozone(Dobson),NO2(Dobson),Last_Date_Processed,Number_of_Wavelengths,Exact_Wavelengths_of_AOD
 % 15:07:2012,13:31:40,197,197.563657,0.034630,0.062542,0.084788,0.135716,-999.000000,-999.000000,-999.000000,-999.000000,-999.000000,0.248363,-999.000000,-999.000000,0.306553,-999.000000,0.384448,0.434197,2.322172,0.002402,0.002370,0.002895,0.002983,-999.000000,-999.000000,-999.000000,-999.000000,-999.000000,0.002127,-999.000000,-999.000000,0.001715,-999.000000,0.001923,0.003038,0.011069,1.912505,1.605432,1.932701,1.944621,1.362569,-999.,lev15,402,42.030478,-70.049317,47.853600,45.453674,1.423875,28.000000,0.329231,0.208681,28:06:2016,8,1.639400,1.020700,0.867600,0.672700,0.498900,0.439400,0.380100,0.339700
+
+% Another format wtih date using colons instead of dashes.
+% Date(dd:mm:yyyy),Time(hh:mm:ss),Day_of_Year,Day_of_Year(Fraction),AOD_1640nm,AOD_1020nm,AOD_870nm,AOD_865nm,AOD_779nm,AOD_675nm,AOD_667nm,AOD_620nm,AOD_560nm,AOD_555nm,AOD_551nm,AOD_532nm,AOD_531nm,AOD_510nm,AOD_500nm,AOD_490nm,AOD_443nm,AOD_440nm,AOD_412nm,AOD_400nm,AOD_380nm,AOD_340nm,Precipitable_Water(cm),AOD_681nm,AOD_709nm,AOD_Empty,AOD_Empty,AOD_Empty,AOD_Empty,AOD_Empty,Triplet_Variability_1640,Triplet_Variability_1020,Triplet_Variability_870,Triplet_Variability_865,Triplet_Variability_779,Triplet_Variability_675,Triplet_Variability_667,Triplet_Variability_620,Triplet_Variability_560,Triplet_Variability_555,Triplet_Variability_551,Triplet_Variability_532,Triplet_Variability_531,Triplet_Variability_510,Triplet_Variability_500,Triplet_Variability_490,Triplet_Variability_443,Triplet_Variability_440,Triplet_Variability_412,Triplet_Variability_400,Triplet_Variability_380,Triplet_Variability_340,Triplet_Variability_Precipitable_Water(cm),Triplet_Variability_681,Triplet_Variability_709,Triplet_Variability_AOD_Empty,Triplet_Variability_AOD_Empty,Triplet_Variability_AOD_Empty,Triplet_Variability_AOD_Empty,Triplet_Variability_AOD_Empty,440-870_Angstrom_Exponent,380-500_Angstrom_Exponent,440-675_Angstrom_Exponent,500-870_Angstrom_Exponent,340-440_Angstrom_Exponent,440-675_Angstrom_Exponent[Polar],Data_Quality_Level,AERONET_Instrument_Number,AERONET_Site_Name,Site_Latitude(Degrees),Site_Longitude(Degrees),Site_Elevation(m),Solar_Zenith_Angle(Degrees),Optical_Air_Mass,Sensor_Temperature(Degrees_C),Ozone(Dobson),NO2(Dobson),Last_Date_Processed,Number_of_Wavelengths,Exact_Wavelengths_of_AOD(um)_1640nm,Exact_Wavelengths_of_AOD(um)_1020nm,Exact_Wavelengths_of_AOD(um)_870nm,Exact_Wavelengths_of_AOD(um)_865nm,Exact_Wavelengths_of_AOD(um)_779nm,Exact_Wavelengths_of_AOD(um)_675nm,Exact_Wavelengths_of_AOD(um)_667nm,Exact_Wavelengths_of_AOD(um)_620nm,Exact_Wavelengths_of_AOD(um)_560nm,Exact_Wavelengths_of_AOD(um)_555nm,Exact_Wavelengths_of_AOD(um)_551nm,Exact_Wavelengths_of_AOD(um)_532nm,Exact_Wavelengths_of_AOD(um)_531nm,Exact_Wavelengths_of_AOD(um)_510nm,Exact_Wavelengths_of_AOD(um)_500nm,Exact_Wavelengths_of_AOD(um)_490nm,Exact_Wavelengths_of_AOD(um)_443nm,Exact_Wavelengths_of_AOD(um)_440nm,Exact_Wavelengths_of_AOD(um)_412nm,Exact_Wavelengths_of_AOD(um)_400nm,Exact_Wavelengths_of_AOD(um)_380nm,Exact_Wavelengths_of_AOD(um)_340nm,Exact_Wavelengths_of_PW(um)_935nm,Exact_Wavelengths_of_AOD(um)_681nm,Exact_Wavelengths_of_AOD(um)_709nm,Exact_Wavelengths_of_AOD(um)_Empty,Exact_Wavelengths_of_AOD(um)_Empty,Exact_Wavelengths_of_AOD(um)_Empty,Exact_Wavelengths_of_AOD(um)_Empty,Exact_Wavelengths_of_AOD(um)_Empty
+% 02:01:2008,15:50:28,2,2.660046,0.027715,0.030546,0.030595,-999.000000,-999.000000,0.031348,-999.000000,-999.000000,-999.000000,-999.000000,-999.000000,-999.000000,-999.000000,-999.000000,0.036988,-999.000000,-999.000000,0.038891,-999.000000,-999.000000,0.039517,0.039591,0.426345,-999.000000,-999.000000,-999.000000,-999.000000,-999.000000,-999.000000,-999.000000,0.004762,0.003593,0.003766,-999.000000,-999.000000,0.004068,-999.000000,-999.000000,-999.000000,-999.000000,-999.000000,-999.000000,-999.000000,-999.000000,0.004889,-999.000000,-999.000000,0.004220,-999.000000,-999.000000,0.004231,0.004667,0.027218,-999.000000,-999.000000,-999.000000,-999.000000,-999.000000,-999.000000,-999.000000,0.375972,0.237546,0.516072,0.347983,0.070908,-999.000000,lev15,374,TABLE_MOUNTAIN_CA,34.380000,-117.680000,2200.000000,81.377596,6.404450,8.500000,0.285357,0.268806,12:04:2018,9,1.642900,1.020900,0.870800,-999.,-999.,0.673700,-999.,-999.,-999.,-999.,-999.,-999.,-999.,-999.,0.500300,-999.,-999.,0.440500,-999.,-999.,0.380200,0.340000,0.940200,-999.,-999.,-999.,-999.,-999.,-999.,-999.
+
 
 % One notable difference in V3 files is that lat/lon have become column values.   
 fid = fopen(filename);
@@ -31,7 +36,8 @@ if fid>0
          if ~isempty(findstr(tmp,'Email='))
             contact_line = tmp;
          end
-         if ~isempty(strfind(tmp,'Date(dd-mm-yy'))&&~isempty(strfind(tmp,'Time(hh:mm:ss)'))
+         if ~isempty(strfind(tmp,'Date(dd-mm-yy'))&&~isempty(strfind(tmp,'Time(hh:mm:ss)'))...
+               ||(~isempty(strfind(tmp,'Date(dd:mm:yy'))&&~isempty(strfind(tmp,'Time(hh:mm:ss)')))
             label_line = tmp;
          end
       end
@@ -91,15 +97,21 @@ if fid>0
    while ~isempty(label_line)
       [tmp,label_line] = strtok(label_line,',');
       label_line = label_line(2:end);
+      ang = findstr(lower(tmp),'angstrom_exponent[polar]');
+      if ang>0
+         tmp = ['AE_Pol_' tmp(1:(ang-1))];
+      end      
       ang = findstr(lower(tmp),'angstrom');
       if ang>0
-         tmp = ['Angstrom_' tmp(1:(ang-1))];
+         tmp = ['AE_' tmp(1:(ang-1))];
       end
-      label{lab} = legalizename(tmp);
-      if ~isempty(strfind(label{lab},'Date'))||~isempty(strfind(label{lab},'Data_Quality'))
+      label{lab} = legalizename(tmp); legalizename(tmp)
+      if ~isempty(strfind(label{lab},'Date'))...
+            ||~isempty(strfind(label{lab},'Data_Quality'))...
+            ||~isempty(strfind(label{lab},'Site_Name'))
          format_str = [format_str '%s '];
-      elseif ~isempty(strfind(label{lab},'Exact_Wavelengths'))
-%           format_str = [format_str '%*f ']; 
+      elseif ~isempty(strfind(label{lab},'Exact_Wavelengths')) || ~isempty(strfind(label{lab},'Empty'))
+          format_str = [format_str '%*s ']; 
           label(lab) = []; lab = lab -1;
       else
          format_str = [format_str '%f '];

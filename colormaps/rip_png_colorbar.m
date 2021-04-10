@@ -25,7 +25,7 @@ end
 cbarx(1,:,:) = cbar;
 figure; done = false;
 while ~done
-image(cbarx)
+image(cbarx); grid('off')
 dun = menu('Select option','Delete from front','Delete from back','Done');
 if dun==1 
     cbarx(:,1,:) = [];
@@ -47,7 +47,7 @@ for r = size(cbarx,2):-1:1
    end
 end
 end
-cbar = squeeze(cbarx);   
+cbarx = squeeze(cbarx);   
 cbar = double(cbarx)./255; % This normalization assume RGB values from 0-255
 return
 %%

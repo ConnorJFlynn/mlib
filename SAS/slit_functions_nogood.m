@@ -78,11 +78,11 @@ SAS_monoscans_4
 in_spec.FWHM = NaN(size(in_spec.scan_nm));
 in_spec.FWHM(~flagged) = smooth(FWHM(~flagged),12);
 plot(in_spec.scan_nm(~flagged),FWHM(~flagged),'o-',in_spec.scan_nm(~flagged),in_spec.FWHM(~flagged),'rx');
-in_spec.FWHM(isNaN(in_spec.FWHM)) = interp1(in_spec.scan_nm(~flagged),in_spec.FWHM(~flagged),in_spec.scan_nm(isNaN(in_spec.FWHM)),'pchip');
-in_spec.scan_nm(isNaN(in_spec.FWHM))
+in_spec.FWHM(isnan(in_spec.FWHM)) = interp1(in_spec.scan_nm(~flagged),in_spec.FWHM(~flagged),in_spec.scan_nm(isnan(in_spec.FWHM)),'pchip');
+in_spec.scan_nm(isnan(in_spec.FWHM))
 in_spec.scan_nm(~flagged)
-interp1(in_spec.scan_nm(~flagged),in_spec.FWHM(~flagged),in_spec.scan_nm(isNaN(in_spec.FWHM)),'pchip')
-interp1(in_spec.scan_nm(~flagged),in_spec.FWHM(~flagged),in_spec.scan_nm(isNaN(in_spec.FWHM)),'linear')
+interp1(in_spec.scan_nm(~flagged),in_spec.FWHM(~flagged),in_spec.scan_nm(isnan(in_spec.FWHM)),'pchip')
+interp1(in_spec.scan_nm(~flagged),in_spec.FWHM(~flagged),in_spec.scan_nm(isnan(in_spec.FWHM)),'linear')
 sum(~isflagged)
 sum(~flagged)
 diff(in_spec.scan_nm(~flagged)

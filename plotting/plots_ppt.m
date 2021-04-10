@@ -1,4 +1,7 @@
 %powerpoint_plots
+set(groot,'DefaultAxesColorOrder',[0 0 1; 0 .5 0; 1 0 0; 0 .75 .75; ...
+                                   .75 0 .75; .75 .75 0; .25 .25 .25]);
+set(groot,'DefaultFigureColorMap',jet);     
 
 set(0,'DefaultAxesFontName','Tahoma');
 set(0,'DefaultAxesFontSize',16);

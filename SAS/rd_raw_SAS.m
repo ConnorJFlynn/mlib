@@ -51,23 +51,31 @@ if fid>0
         end
     end
     ins.lambda = polyval(flipud(ins.lambda_fit), (ins.pix_range(1):ins.pix_range(2)));
-    
+    % Flip lambda definition to force lambda(1)<lambda(end)  
+    if ins.lambda(1)>ins.lambda(end) ins.lambda = fliplr(ins.lambda);end
     pix_start = find(strcmp(labels,'Px_0'));
     pixels = length(labels)-pix_start+1;
-    for p = 1:pixels
+    for p = pixels:-1:1
         ins.spec(:,p) = txt{pix_start +p-1};
     end
     for r = 7:pix_start-1
         ins.(labels{r}) = txt{r};
     end
-    figure(1000); plot(ins.lambda, mean(ins.spec(ins.Shutter_open_TF==1,:))-mean(ins.spec(ins.Shutter_open_TF==0,:)),'-'); 
-    title(fname, 'interp','none'); [rows,cols] = size(ins.spec(ins.Shutter_open_TF==1,:));
-        figure(1001); these = plot(ins.lambda, ins.spec(ins.Shutter_open_TF==1,:)-ones([rows,1])*mean(ins.spec(ins.Shutter_open_TF==0,:)),'-'); 
-        recolor(these,[1:rows])
+%     figure_(1000); plot(ins.lambda, mean(ins.spec(ins.Shutter_open_TF==1,:))-mean(ins.spec(ins.Shutter_open_TF==0,:)),'-'); 
+%     title(fname, 'interp','none'); 
+[rows,cols] = size(ins.spec(ins.Shutter_open_TF==1,:));
+%         
+%     figure_(1001); these = plot(ins.lambda, ins.spec(ins.Shutter_open_TF==1,:)-ones([rows,1])*mean(ins.spec(ins.Shutter_open_TF==0,:)),'-'); 
+%         recolor(these,[1:rows]);
 % figure; plot([1:rows], ins.spec(ins.Shutter_open_TF==1,600),'o-')
-figure(1002); plot(ins.lambda, (ins.spec(ins.Shutter_open_TF==1,:)),'-'); 
-
+% figure_(1002); plot(ins.lambda, (ins.spec(ins.Shutter_open_TF==1,:)),'-'); 
+ins.sig = NaN(size(ins.spec));
+ins.sig(ins.Shutter_open_TF==1,:) = ins.spec(ins.Shutter_open_TF==1,:)...
+    - ones([rows,1]) * mean(ins.spec(ins.Shutter_open_TF==0,:));
+ins.rate = ins.sig ./ (ins.t_int_ms * ones([1,cols]));
+% figure_(1003); plot(ins.lambda, meannonan(ins.rate),'ko',ins.lambda, ins.rate,'-');
+% figure; lines = plot(ins.lambda, ins.rate,'-'); recolor(lines, [1:length(lines)]);
 end
 %%
-
+% ins = rmfield(ins,{'sig','rate'});
 return

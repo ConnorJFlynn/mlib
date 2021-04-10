@@ -1,5 +1,5 @@
-function [lidar, status] = rd_sigma_fsX(filename,start_here);
-% [lidar,status] = rd_sigma_fs(filename,start_here)
+function [lidar, status] = rd_sigma_fsx(filename,start_here);
+% [lidar,status] = rd_sigma_fsx(filename,start_here)
 % Reads an entire Sigma raw MPL files in its entirety populating MPL structure
 
 if nargin==0
@@ -13,7 +13,7 @@ end
 status = 0;
 fid = fopen(filename);
 disp(['filename: ',filename]);
-rd_sigmaraw;
+rd_sigmaraw_fsx;
 fclose(fid);
 %[lidar, status] = read_sigmaraw(fid);
 if ~bad_file
@@ -58,8 +58,7 @@ if ~bad_file
    lidar.statics = statics;
    lidar.hk = hk;
    c =  2.99792458e8;
-   range = 1e-3*[0:numbins-1]'*c*1e-9*range_bin_time/2;
-   statics.pulse_to_pulse_range = 60 * unique(pulse_rep)./2500;
+   range = 1e-3*[0:numbins-1]*c*1e-9*range_bin_time/2;
 
    
    if ~isstruct(profile_bins)
@@ -69,49 +68,39 @@ if ~bad_file
       lidar.hk.std_bg = std(lidar.rawcts(r.bg,:));
       prof = lidar.rawcts - ones(size(lidar.rawcts,1))*lidar.hk.bg;
    else
-       %%
-       prof = profile_bins.ch_1 - ones([size(profile_bins.ch_1,1),1])*bkgnd_copol;
+      r.bg = [1:hk.first_bin];
+      ch = fieldnames(profile_bins);
+      for ch_i = 1:length(ch)
+         lidar.rawcts.(ch{ch_i}) = profile_bins.(ch{ch_i});
+         lidar.hk.bg.(ch{ch_i}) = mean(lidar.rawcts.(ch{ch_i})(r.bg,:));
+         lidar.hk.std_bg.(ch{ch_i}) = std(lidar.rawcts.(ch{ch_i})(r.bg,:));
+      end
+      prof = lidar.rawcts.ch_1 - ones([size(lidar.rawcts.ch_1,1),1])*lidar.hk.bg.ch_1;
       tzb = [1:length(range)]'*ones([size(time)]);
       first_block = 1:length(range);
-      %%
       if ~any(prof(first_block,:)>1)
           first_block = true(size(range));
-          tzb = find(first_block)*ones(size(time));
+          tzb = find(first_block')*ones(size(time));
       end
-      %%
       tzb(prof(first_block,:)<1) = NaN;
-      %%
       tzb = min(tzb);
       tzb(isNaN(tzb)) = min(tzb);
       if isempty(tzb)||all(isNaN(tzb))
          tzb=1;
       end
       range_offset = range(tzb);
-      %%
-      range = range - mean(range_offset);
-      range(tzb) =NaN;
-      range(range<0) = range(range<0) + statics.pulse_to_pulse_range;
-       
-      r.bg = [1:hk.first_bin-3];
-      ch = fieldnames(profile_bins);
-      for ch_i = 1:length(ch)
-         lidar.rawcts.(ch{ch_i}) = profile_bins.(ch{ch_i});
-         lidar.hk.bg.(ch{ch_i}) = mean(lidar.rawcts.(ch{ch_i})(r.bg,:));
-         lidar.hk.std_bg.(ch{ch_i}) = std(lidar.rawcts.(ch{ch_i})(r.bg,:));
-         
-      end
-      
 %       range = [0:(range(2)-range(1)):30]';
 %       keep = [0:length(range)-1]';
       
    end
    bins = length(range);
-% keep = false(size(prof));
-% for t = 1:length(lidar.time)
+keep = false(size(prof));
+for t = 1:length(lidar.time)
 %    keep(tzb:tzb+bins-1,t) = true;
-% end
+      keep(tzb:end,t) = true;
+end
 clear prof profile_bins
-lidar.range = range;
+lidar.range = range';
 r.squared = (lidar.range>0).*(lidar.range.^2);
 r.lte_5 = lidar.range>=0 & lidar.range<=5;
 r.lte_10 = lidar.range>=0 & lidar.range<=10;
@@ -120,16 +109,15 @@ r.lte_20 = lidar.range>=0 & lidar.range<=20;
 r.lte_25 = lidar.range>=0 & lidar.range<=25;
 r.lte_30 = lidar.range>=0 & lidar.range<=30;
 if ~isstruct(lidar.rawcts)
-      lidar.prof = lidar.rawcts - ones(size(range))*lidar.hk.bg;
+      lidar.prof = lidar.rawcts - ones(size(lidar.range))*lidar.hk.bg;
    lidar.prof = lidar.prof .* (r.squared * ones(size(lidar.time)));
 else
     ch = fieldnames(lidar.rawcts);
-    block = zeros([bins,length(time)]);
+    block = zeros([bins,t]);
     for ch_i = 1:length(ch)
-%       block(:) = lidar.rawcts.(ch{ch_i})(keep);
-      block(:) = lidar.rawcts.(ch{ch_i});
-      lidar.rawcts.(ch{ch_i}) = block;
-      lidar.prof.(ch{ch_i}) = lidar.rawcts.(ch{ch_i}) - ones(size(range))*lidar.hk.bg.(ch{ch_i});
+%       block = lidar.rawcts.(ch{ch_i})(keep);
+%       lidar.rawcts.(ch{ch_i}) = block;
+      lidar.prof.(ch{ch_i}) = lidar.rawcts.(ch{ch_i}) - ones(size(lidar.range))*lidar.hk.bg.(ch{ch_i});
       lidar.prof.(ch{ch_i}) = lidar.prof.(ch{ch_i}) .* (r.squared * ones(size(lidar.time)));
    end
 end
@@ -162,5 +150,4 @@ end
 %To get the original shots per bin, multiply ProfileBins by ShotsSummed and by BinTime in microseconds
 % ProfileBins = ProfileBins * ShotsSummmed/(BinTime/1000);
 %%
-
 return

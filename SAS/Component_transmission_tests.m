@@ -6,30 +6,30 @@
 % 10m SAS fiber
 %% Transmission of 10 m fiber, 600 micron solid core (10m / Shutter)
 
-TenM.vis = SAS_read_ava;
-TenM.nir = SAS_read_ava;
-TenM.vis.bkgnd = SAS_read_ava;
-TenM.nir.bkgnd = SAS_read_ava;
+TenM.vis = SAS_read_Albert_csv;
+TenM.nir = SAS_read_Albert_csv;
+TenM.vis.bkgnd = SAS_read_Albert_csv;
+TenM.nir.bkgnd = SAS_read_Albert_csv;
 
 %%
-Shutter.vis = SAS_read_ava;
-Shutter.nir = SAS_read_ava;
-Shutter.vis.bkgnd = SAS_read_ava;
-Shutter.nir.bkgnd = SAS_read_ava;
+Shutter.vis = SAS_read_Albert_csv;
+Shutter.nir = SAS_read_Albert_csv;
+Shutter.vis.bkgnd = SAS_read_Albert_csv;
+Shutter.nir.bkgnd = SAS_read_Albert_csv;
 
 
 %% Transmission of Shutter (Shutter / Splitter)
-Splitter.vis = SAS_read_ava;
-Splitter.nir = SAS_read_ava;
-Splitter.vis.bkgnd = SAS_read_ava;
-Splitter.nir.bkgnd = SAS_read_ava;
+Splitter.vis = SAS_read_Albert_csv;
+Splitter.nir = SAS_read_Albert_csv;
+Splitter.vis.bkgnd = SAS_read_Albert_csv;
+Splitter.nir.bkgnd = SAS_read_Albert_csv;
 
 
 %% 
-Spectro.vis = SAS_read_ava;
-Spectro.nir = SAS_read_ava;
-Spectro.vis.bkgnd = SAS_read_ava;
-Spectro.nir.bkgnd = SAS_read_ava;
+Spectro.vis = SAS_read_Albert_csv;
+Spectro.nir = SAS_read_Albert_csv;
+Spectro.vis.bkgnd = SAS_read_Albert_csv;
+Spectro.nir.bkgnd = SAS_read_Albert_csv;
 
 %%
 TenM.vis.avg = (mean(TenM.vis.spec) - mean(TenM.vis.bkgnd.spec))./unique(TenM.vis.Integration);

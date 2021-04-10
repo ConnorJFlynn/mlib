@@ -89,11 +89,17 @@ end
 
 % then subtract bg, ap, ...
 % This block for spare at SGP
-ap = loadinto('C:\case_studies\mpl_fastsw\fast_ap.mat');
+ap = loadinto('C:\case_studies\MPL4212_for_MARCUS\fast_ap.mat');
+if isempty(ap)
+    ap = rd_sigma_fsxx;
+end
+ap.cop = mean(ap.rawcts.ch_2,2); ap.crs = mean(ap.rawcts.ch_1,2);
+ap.cop_smoothed = interp1(ap.range, ap.cop, polavg.range,'nearest');
+ap.crs_smoothed = interp1(ap.range, ap.crs, polavg.range,'nearest');
 polavg.cop_ap = zeros(size(polavg.range));
 polavg.crs_ap = polavg.cop_ap;
-% polavg.cop(polavg.range>=0,:) = polavg.cop(polavg.range>=0,:) - ap.cop_smoothed*ones(size(polavg.time));
-% polavg.crs(polavg.range>=0,:) = polavg.crs(polavg.range>=0,:) - ap.crs_smoothed*ones(size(polavg.time)); 
+polavg.cop = polavg.cop - ap.cop_smoothed*ones(size(polavg.time));
+polavg.crs = polavg.crs - ap.crs_smoothed*ones(size(polavg.time)); 
 
 %Now do background subtraction
 polavg.hk.cop_bg = mean(polavg.cop(polavg.r.bg,:),1);

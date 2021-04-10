@@ -29,8 +29,11 @@ sp2.(cols{1}) = data{1};
 data(1) = []; cols(1) = [];
 sp2.cnts = [data{1:200}]; 
 data(1:200) = []; cols(1:200) = [];
-sp2.scat_cnts = [data{1:200}]; 
-data(1:200) = []; cols(1:200) = [];
+sp2.scat_cnts = [data{1:200}];
+data(1:200) = [];
+if ~isempty(cols)
+   cols(1:200) = [];
+end
 
 sp2.Dmin = sp2.SP2_Dmin(isfinite(sp2.SP2_Dmin))'; sp2 = rmfield(sp2,'SP2_Dmin');
 sp2.Dmax = sp2.SP2_Dmax(isfinite(sp2.SP2_Dmax))'; sp2 = rmfield(sp2,'SP2_Dmax');

@@ -9,13 +9,20 @@ function brdf = get_modis_brdf(lat,lon,doy);
 % [sn q fwd tp] lat 29.609100  long -95.168300  =>  vert tile 6  horiz tile 9  line 187.13  samp 3483.87
 
 % Looking for modis BRDF parameters for 4STAR ground-based sky scans
+% Identify the correct modis file.  We'll use MCD43A1 which has 0.5 km
+% resolution and potentially average a ring around the central pixel.
+
+
 if ~exist('lat','var')
     lat = 29.6091; lon = -95.1683;
 end
+%taehwa 37.312N,127.310E
+lat = 37.312; lon= 127.310;
 g_lon = floor(interp1([-180,180],[1,43200],lon,'linear'));
 g_lat = floor(interp1([90,-90],[1,21600],lat,'linear'));
 
 pname = 'D:\data\4STAR\Anet_4STAR_compares\Jens_aeronet_SEAC4RS_compares\';
+pname = getnamedpath('modis','Select a MODIS MCD43 file.');
 fstem = 'MCD43GF_geo_BandN_225_2013.hdf';
 vstem =  '/MCD43GF_30arc_second/Data Fields/';
 bstem = {['Albedo_Map_0.659'];['Albedo_Map_0.858'];['Albedo_Map_0.47'];['Albedo_Map_0.555'];['Albedo_Map_1.24'];['Albedo_Map_1.64'];['Albedo_Map_2.13']};

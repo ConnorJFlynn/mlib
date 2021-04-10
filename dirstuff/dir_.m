@@ -20,7 +20,7 @@ end
 %     pathdir = [strtok(userpath,pathsep),filesep,'filepaths',filesep];
 %%%
 pname = strrep(userpath,';',filesep);
-pathdir = [pname, 'filepaths',filesep];
+pathdir = [pname,filesep, 'filepaths',filesep];
 if ~exist(pathdir,'dir')
     mkdir(pname, 'filepaths');
 end
@@ -90,12 +90,12 @@ mask = textscan(masks,'%s','delimiter',';,');
 mask = mask{:};
 list = [];
 for i = 1:length(mask)
-    mask_i = mask{i};
-    if isempty(strfind(mask_i,pname))
-    list = [list;dir([pname, mask_i])];
-    else
-       list = [list;dir([mask_i])];
-    end
+   mask_i = mask{i};
+   if isempty(strfind(mask_i,pname))
+      list = [list;dir([pname, mask_i])];
+   else
+      list = [list;dir([mask_i])];
+   end
 end
 
 if isempty(pname) || isempty(list)

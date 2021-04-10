@@ -6,14 +6,14 @@
 % 10m SAS fiber
 %% Transmission of 10 m fiber, 600 micron solid core (10m / Shutter)
 
-Mixer.vis = SAS_read_ava;
-NoMixer.vis = SAS_read_ava;
+Mixer.vis = SAS_read_Albert_csv;
+NoMixer.vis = SAS_read_Albert_csv;
 
 %%
-Radin.vis = SAS_read_ava;
-Radin.nir = SAS_read_ava;
-Spectralon.vis = SAS_read_ava;
-Spectralon.nir = SAS_read_ava;
+Radin.vis = SAS_read_Albert_csv;
+Radin.nir = SAS_read_Albert_csv;
+Spectralon.vis = SAS_read_Albert_csv;
+Spectralon.nir = SAS_read_Albert_csv;
 
 %%
 Radin.vis.dark = max(Radin.vis.spec,[],2)<10000;
@@ -40,10 +40,10 @@ figure; plot(Radin.vis.nm, Radin.vis.light./Spectralon.vis.light, 'b-',Radin.nir
 % difference 
 %% 
 
-Mixer.vis = SAS_read_ava;
-Mixer.nir = SAS_read_ava;
-FiberA.vis = SAS_read_ava;
-FiberA.nir = SAS_read_ava;
+Mixer.vis = SAS_read_Albert_csv;
+Mixer.nir = SAS_read_Albert_csv;
+FiberA.vis = SAS_read_Albert_csv;
+FiberA.nir = SAS_read_Albert_csv;
 
 %%
 Mixer.vis.dark = max(Mixer.vis.spec,[],2)<1000;

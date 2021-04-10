@@ -1,6 +1,6 @@
 function albedo = fill_albedo(w, bdrf)
 % albedo = fill_albedo(w, bdrf);
-% Returns the corresponding abdrf lbedo model parameters interpolated
+% Returns the corresponding bdrf albedo model parameters interpolated
 % versus wavelength
 % Uses a default bdrf table unless one is specified. 
 if ~exist('w','var');

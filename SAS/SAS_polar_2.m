@@ -2,7 +2,7 @@ function ava = SAS_polar_2(ins)
 % This script to assess the degree of sensitivity to polarized light as a
 % function of angle of the rotating polarizer
 close('all');
-ins = SAS_read_ava
+ins = SAS_read_Albert_csv
 pre_stem = 'PolScan_';
 sum_darks = sum(ins.spec(ins.Shuttered_0==0,:),2);
 sum_darks = sum_darks./mean(sum_darks);

@@ -4,48 +4,64 @@ function toms = get_oz(lat,lon,toms)
 % the indicated lat and lon postion for the supplied TOMS file.
 % The existing ozone, lat, and lon variables are replaced 
 % with the more restricted set and outputs the results as netcdf struct.
+% 2017-04-17: CJF, updating for anc_struct (with vdata) and to examine
+% noise issues
 
 if ~exist('toms','var')
    toms.fname = getfullname('*.cdf','ozone');
-   toms = ancload(toms.fname);
+   toms = anc_load(toms.fname);
 end
-miss = toms.vars.ozone.data <0;
-toms.vars.ozone.data(miss) = NaN;
-dist = geodist(toms.vars.lat.data*ones(size(toms.vars.lon.data'))*pi/180,ones(size(toms.vars.lat.data))*toms.vars.lon.data'*pi/180,lat*pi/180, lon*pi/180)./1000;
+miss = toms.vdata.ozone <0;
+toms.vdata.ozone(miss) = NaN;
+dist = geodist(toms.vdata.lat*ones(size(toms.vdata.lon'))*pi/180,ones(size(toms.vdata.lat))*toms.vdata.lon'*pi/180,lat*pi/180, lon*pi/180)./1000;
 max_dist = max(max(dist));
 neg_dist = dist<0;
 dist(neg_dist) = 2*max_dist + dist(neg_dist);
-[dis,ind] = sort(dist(:));
+[dis,ind] = sort(dist(:));dis = dis(1:500);
 [subs.I,subs.J] = ind2sub(size(dist),ind(1:500));
-dist_inds = sub2ind(size(dist),subs.I(1:10), subs.J(1:10));
+dist_inds = sub2ind(size(dist),subs.I, subs.J);
+% for each time, compute a gaussian weighted average about the current lat
+% and lon, excluding NaNs.  
 for t = length(toms.time):-1:1
-    oz_inds = sub2ind(size(toms.vars.ozone.data),subs.I(1:10), subs.J(1:10), t.*ones(size(subs.J(1:10))));
-    oz = toms.vars.ozone.data(oz_inds);
-    toms.oz_weight(t) = trapz(dis(1:10),oz .* gaussian(dis(1:10), 0, 100))./trapz(dis(1:10),gaussian(dis(1:10), 0, 100));
+   oz_t = toms.vdata.ozone(:,:,t);
+%     oz_inds = sub2ind(size(toms.vdata.ozone(:,:,t)),subs.I(1:10), subs.J(1:10), t.*ones(size(subs.J(1:10))));
+%     oz_inds = sub2ind(size(oz_t),subs.I, subs.J, t.*ones(size(subs.J)));
+    oz = oz_t(dist_inds); bads = isNaN(oz); 
+    if sum(~bads)>1
+       toms.oz_weight(t) = trapz(dis(~bads),oz(~bads) .* gaussian(dis(~bads), 0, 100))./trapz(dis(~bads),gaussian(dis(~bads), 0, 100));
+    else 
+       toms.oz_weight(t) = meannonan(oz(~bads));
+    end
 end
-toms.vars.ozone.data = toms.oz_weight;
-toms.vars.ozone.dims = {'time'};
-% NaNs = isNaN(toms.vars.ozone.data);
-% toms.vars.ozone.data(NaNs) = interp1(toms.time(~NaNs), toms.vars.ozone.data(~NaNs), toms.time(NaNs), 'linear','extrap');
-toms.vars.lat.data = single(lat);
-toms.vars.lat.dims = {''};
-toms.vars.lon.data = single(lon);
-toms.vars.lon.dims = {''};
-toms.dims = rmfield(toms.dims,'lat');
-toms.dims = rmfield(toms.dims,'lon');
-toms.vars = rmfield(toms.vars, 'ai');
-if isfield(toms.vars, 'reflectivity')
-toms.vars = rmfield(toms.vars, 'reflectivity');
+bads = isNaN(toms.oz_weight); 
+% Replace NaNs at a given time with mean
+toms.oz_weight(bads) = meannonan(toms.oz_weight);
+toms.vdata.ozone = toms.oz_weight;
+toms.ncdef.vars.ozone.dims = {'time'};
+% NaNs = isNaN(toms.vdata.ozone);
+% toms.vdata.ozone(NaNs) = interp1(toms.time(~NaNs), toms.vdata.ozone(~NaNs), toms.time(NaNs), 'linear','extrap');
+toms.vdata.lat = single(lat);
+toms.ncdef.vars.lat.dims = {''};
+toms.vdata.lon = single(lon);
+toms.ncdef.vars.lon.dims = {''};
+toms.ncdef.dims = rmfield(toms.ncdef.dims,'lat');
+toms.ncdef.dims = rmfield(toms.ncdef.dims,'lon');
+toms.vdata = rmfield(toms.vdata, 'ai');
+toms.ncdef.vars = rmfield(toms.ncdef.vars, 'ai');
+if isfield(toms.vdata, 'reflectivity')
+toms.vdata = rmfield(toms.vdata, 'reflectivity');
+toms.ncdef.vars = rmfield(toms.ncdef.vars, 'reflectivity');
 end
-if isfield(toms.vars, 'radiative_cloud_fraction');
-   toms.vars = rmfield(toms.vars, 'radiative_cloud_fraction');
+if isfield(toms.vdata, 'radiative_cloud_fraction');
+   toms.vdata = rmfield(toms.vdata, 'radiative_cloud_fraction');
+   toms.ncdef.vars = rmfield(toms.ncdef.vars, 'radiative_cloud_fraction');
 end
 toms = rmfield(toms, 'oz_weight');
-toms.vars = rmfield(toms.vars,'date');
-toms.dims = rmfield(toms.dims, 'string_length');
-toms.fname = [toms.fname, '.nc'];
+toms.vdata = rmfield(toms.vdata,'date');
+toms.ncdef.vars = rmfield(toms.ncdef.vars,'date');
+toms.ncdef.dims = rmfield(toms.ncdef.dims, 'string_length');
+toms.fname = strrep(toms.fname,'.cdf','.nc');
 
-
-
+return
 
 

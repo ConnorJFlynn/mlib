@@ -52,8 +52,8 @@ function [cdf] = anc_load (ncfile, arm_time)
 %
 %-------------------------------------------------------------------
 
-status = 0;
-if ~exist('ncfile','var')||~exist(ncfile,'file')
+% status = 0;
+if isempty(who('ncfile'))||isempty(dir(ncfile))
    ncfile = getfullname('*.cdf;*.nc','nc_file');
 end
 
@@ -96,6 +96,11 @@ for q = 1:length(fields)
         return;
     end
     cdf.vdata.(vkey) = vdata;
+    if isempty(vdata)
+        cdf.ncdef.vars = rmfield(cdf.ncdef.vars,vkey);
+        cdf.vdata = rmfield(cdf.vdata, vkey);
+        cdf.vatts = rmfield(cdf.vatts,vkey);
+    end
 end
 
 % Create and populate a 'time' field at the base level of cdf
@@ -104,14 +109,64 @@ end
 % [tok, rest] = strtok(rest);
 % cdf.ncdef.vars.base_time.data  = int32(serial2epoch(datenum(rest,['yyyy-mm-dd HH:MM:SS 0:00'])));
 % cdf.time = (epoch2serial(double(cdf.ncdef.vars.base_time.data) + cdf.ncdef.vars.time_offset.data));
-if ~exist('arm_time','var')
+if isfield(cdf.vdata,'time') && isfield(cdf.vatts.time,'units') && ~isempty(strfind(cdf.vatts.time.units,'since'))
+    [A,B] = strtok(cdf.vatts.time.units,' '); [~,B] = strtok(B,' '); 
+    if foundstr(B,'/')==2
+        dstr = 'yyyy/mm/dd';
+    elseif foundstr(B,'-')>=2
+        dstr = 'yyyy-mm-dd';
+    else
+        dstr = 'yyyymmdd';
+    end
+    if foundstr(B,'T')
+        dstr = [dstr 'T'];
+    else 
+        dstr = [dstr, ' '];
+    end
+    if foundstr(B,':')==1
+            dstr = [dstr 'HH:MM'];
+    elseif foundstr(B,':')==2
+        dstr = [dstr 'HH:MM:SS'];
+    end
+    if foundstr(B,'.')==1
+        dstr = [dstr, '.FFF'];
+    end
+   
+    baset = datevec(datenum(B,dstr));
+
+if strcmp(A,'seconds')
+    cdf.time = datenum(baset(1),baset(2),baset(3),baset(4), baset(5), baset(6)+double(cdf.vdata.time));
+elseif strcmp(A,'minutes')
+    cdf.time = datenum(baset(1),baset(2),baset(3),baset(4), baset(5)+double(cdf.vdata.time), baset(6));
+elseif strcmp(A,'hours')
+    cdf.time = datenum(baset(1),baset(2),baset(3),baset(4)+double(cdf.vdata.time), baset(5), baset(6));
+elseif strcmp(A,'days')
+    cdf.time = datenum(baset(1),baset(2),baset(3)+double(cdf.vdata.time),baset(4), baset(5), baset(6));
+elseif strcmp(A,'years')
+    cdf.time = datenum(baset(1)+double(cdf.vdata.time),baset(2),baset(3),baset(4), baset(5), baset(6));
+end
+% mpl_dat.time = mpl_dat.time';
+if all(cdf.time>datenum(1970,1,1,0,0,-1))&&all(cdf.time<datenum(2100,1,1,0,0,0))
+    arm_time = true;
+end
+end
+
+
+if isempty(who('arm_time'))
    if isfield(cdf.ncdef.vars,'base_time')&&isfield(cdf.ncdef.vars,'time_offset')
       arm_time = true;
    else
       arm_time = false;
    end
 end
-if arm_time
+
+
+if arm_time 
+    if ~isfield(cdf.ncdef,'recdim') && isfield(cdf.ncdef.dims,'time')
+        cdf.ncdef.recdim.name = 'time';
+        cdf.ncdef.recdim.id = cdf.ncdef.dims.time.id;
+        cdf.ncdef.recdim.length = cdf.ncdef.dims.time.length;
+    end
    cdf = anc_timesync(cdf);
 end
 

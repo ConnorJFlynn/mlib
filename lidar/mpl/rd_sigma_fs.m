@@ -13,7 +13,7 @@ end
 status = 0;
 fid = fopen(filename);
 disp(['filename: ',filename]);
-rd_sigmaraw_fsX;
+rd_sigmaraw_fsx;
 fclose(fid);
 %[lidar, status] = read_sigmaraw(fid);
 if ~bad_file
@@ -74,7 +74,6 @@ if ~bad_file
          lidar.rawcts.(ch{ch_i}) = profile_bins.(ch{ch_i});
          lidar.hk.bg.(ch{ch_i}) = mean(lidar.rawcts.(ch{ch_i})(r.bg,:));
          lidar.hk.std_bg.(ch{ch_i}) = std(lidar.rawcts.(ch{ch_i})(r.bg,:));
-         
       end
       prof = lidar.rawcts.ch_1 - ones([size(lidar.rawcts.ch_1,1),1])*lidar.hk.bg.ch_1;
       tzb = [1:length(range)]'*ones([size(time)]);
@@ -90,17 +89,18 @@ if ~bad_file
          tzb=1;
       end
       range_offset = range(tzb);
-      range = [0:(range(2)-range(1)):30]';
-      keep = [0:length(range)-1]';
+%       range = [0:(range(2)-range(1)):30]';
+%       keep = [0:length(range)-1]';
       
    end
    bins = length(range);
 keep = false(size(prof));
 for t = 1:length(lidar.time)
-   keep(tzb:tzb+bins-1,t) = true;
+%    keep(tzb:tzb+bins-1,t) = true;
+      keep(tzb:end,t) = true;
 end
 clear prof profile_bins
-lidar.range = range;
+lidar.range = range';
 r.squared = (lidar.range>0).*(lidar.range.^2);
 r.lte_5 = lidar.range>=0 & lidar.range<=5;
 r.lte_10 = lidar.range>=0 & lidar.range<=10;
@@ -109,15 +109,15 @@ r.lte_20 = lidar.range>=0 & lidar.range<=20;
 r.lte_25 = lidar.range>=0 & lidar.range<=25;
 r.lte_30 = lidar.range>=0 & lidar.range<=30;
 if ~isstruct(lidar.rawcts)
-      lidar.prof = lidar.rawcts - ones(size(range))*lidar.hk.bg;
+      lidar.prof = lidar.rawcts - ones(size(lidar.range))*lidar.hk.bg;
    lidar.prof = lidar.prof .* (r.squared * ones(size(lidar.time)));
 else
     ch = fieldnames(lidar.rawcts);
     block = zeros([bins,t]);
     for ch_i = 1:length(ch)
-      block(:) = lidar.rawcts.(ch{ch_i})(keep);
-      lidar.rawcts.(ch{ch_i}) = block;
-      lidar.prof.(ch{ch_i}) = lidar.rawcts.(ch{ch_i}) - ones(size(range))*lidar.hk.bg.(ch{ch_i});
+%       block = lidar.rawcts.(ch{ch_i})(keep);
+%       lidar.rawcts.(ch{ch_i}) = block;
+      lidar.prof.(ch{ch_i}) = lidar.rawcts.(ch{ch_i}) - ones(size(lidar.range))*lidar.hk.bg.(ch{ch_i});
       lidar.prof.(ch{ch_i}) = lidar.prof.(ch{ch_i}) .* (r.squared * ones(size(lidar.time)));
    end
 end
@@ -150,4 +150,4 @@ end
 %To get the original shots per bin, multiply ProfileBins by ShotsSummed and by BinTime in microseconds
 % ProfileBins = ProfileBins * ShotsSummmed/(BinTime/1000);
 %%
-
+return
