@@ -1,6 +1,7 @@
 function  found = foundstr(strarr, str)
 % found = foundstr(strarr, str)
 % Returns the number of times str is found in strarr
+
 if iscell(str)
    str = str{:};
 end

@@ -2,12 +2,12 @@ function [Si_resp, In_resp] = rad_cals_SWSpec_vs_GSFC_Grande_2016_07_12
 % 2016_07_12.NASA_GSFC.SWS_PreENA_deploy
 % This calibration was only of the SWS head, not including baffle and
 % window required for ENA installation.  Final calibration will require
-% incorporating this calibration against Grande with another at PNNL on 2016_08_22
-% using the green integrating sphere as reference with and without the window and baffle.
-%
+% incorporating this calibration against Grande with another at PNNL on 2016_08_22 
+% using the green integrating sphere as reference with and without the window and baffle. 
+% 
 %%
-
-rad = get_grande([getnamedpath('rad_cals'),'\cal_sources_references_xsec\GSFC_Grande\']);
+grande_path = getnamedpath('grande');
+rad = get_grande(grande_path);
 done = false;
 while ~done
     cal = menu('Compute responsivity or done?','Compute resp','Done');
@@ -15,24 +15,25 @@ while ~done
         done= true;
     else
         pause(.05);
-        nir_file = getfullname('*SASZe*nir*.csv','SASZE_cals','Select SASZe NIR cal file.');
-        nir = rd_raw_SAS(nir_file);
+nir_file = getfullname('*SASZe*nir*.csv','SASZE_cals','Select SASZe NIR cal file.');
+nir = rd_raw_SAS(nir_file);        
         [pname, fname] = fileparts(nir_file);pname = [pname, filesep];
         
         lamp_i = strfind(fname, 'Lamps');
         if ~isempty(lamp_i)
             lamp = fname(lamp_i-1);
         end
-        
+
         filename = [nir.pname, strrep(nir.fname{:}, 'nir','vis')];
         vis = rd_raw_SAS(filename);
-        
-        
+
+        %Fit lamp 1 in order to subtract it later on since for some reason
+        % Grande was run with lamp 1 off but the radiances are for it on
         nir.rad.(['lamps_',lamp,'_fit']) = planck_fit(rad.nm, rad.(['lamps_',lamp]),[nir.lambda]);
         nir.rad.lamp_1_fit = planck_fit(rad.nm, rad.lamps_1,nir.lambda);
         vis.rad.(['lamps_',lamp,'_fit']) = planck_fit(rad.nm, rad.(['lamps_',lamp]),[vis.lambda]);
         vis.rad.lamp_1_fit = planck_fit(rad.nm, rad.lamps_1,vis.lambda);
-        
+
         
         %%
         vis_cal.t_int_ms = unique(vis.t_int_ms);
@@ -42,6 +43,8 @@ while ~done
         nir_cal.lambda = nir.lambda;
         nir_cal.resp_units = ['(counts/ms)/(W/(m^2.sr.um))'];
         %%
+        bad_int = vis_cal.t_int_ms > 1000; 
+        vis_cal.t_int_ms(bad_int) = [];
         for vt = 1:length(vis_cal.t_int_ms)
             vis_cal.time = min(vis.time(vis.t_int_ms==vis_cal.t_int_ms(vt)));
             vis_cal.(['light_',num2str(vis_cal.t_int_ms(vt)),'_ms']) = mean(vis.spec(vis.Shutter_open_TF==1 & vis.t_int_ms==vis_cal.t_int_ms(vt),:));
@@ -50,7 +53,7 @@ while ~done
             vis_cal.(['rate_',num2str(vis_cal.t_int_ms(vt)),'_ms']) = vis_cal.(['sig_',num2str(vis_cal.t_int_ms(vt)),'_ms'])./vis_cal.t_int_ms(vt);
             rad_sub = vis.rad.(['lamps_',lamp,'_fit']).Irad(1:length(vis_cal.lambda))-vis.rad.lamp_1_fit.Irad(1:length(vis_cal.lambda));
             vis_cal.(['resp_',num2str(vis_cal.t_int_ms(vt)),'_ms']) = vis_cal.(['rate_',num2str(vis_cal.t_int_ms(vt)),'_ms'])./rad_sub;
-            figure_(8);
+            figure_(8);          
             sa(1) = subplot(2,1,1);
             plot(vis_cal.lambda,  vis_cal.(['light_',num2str(vis_cal.t_int_ms(vt)),'_ms']), 'c-',...
                 vis_cal.lambda, vis_cal.(['dark_',num2str(vis_cal.t_int_ms(vt)),'_ms']), 'r-');
@@ -61,7 +64,7 @@ while ~done
             legend('signal');
             linkaxes(sa,'x');
             figure_(9)
-            %             set(gcf,'position',[f8.pos(1)+f8.pos(3)+50, f8.pos(2), f8.pos(3), f8.pos(4)]);
+%             set(gcf,'position',[f8.pos(1)+f8.pos(3)+50, f8.pos(2), f8.pos(3), f8.pos(4)]);
             sb(1) = subplot(2,1,1);
             plot(vis_cal.lambda, vis_cal.(['rate_',num2str(vis_cal.t_int_ms(vt)),'_ms']), 'b-');
             title(['Vis spectrometer: ',lamp,' Lamps, t_int_ms=',num2str(vis_cal.t_int_ms(vt))],'interp','none');
@@ -71,7 +74,7 @@ while ~done
             legend('resp');
             linkaxes(sb,'x');
             %%
-            vxl_lower = 349; vxl_upper = 1071;v1 = axis(sb(1));v2 = axis(sb(2));
+            vxl_lower = 319; vxl_upper = 1071;v1 = axis(sb(1));v2 = axis(sb(2));
             if ~exist('vxl_lower','var')
                 v1 = axis(sb(1));v2 = axis(sb(2));
                 zoom('on');
@@ -111,38 +114,28 @@ while ~done
             %%
             
             in_cal = [vis_cal.lambda', vis_cal.(['resp_',num2str(vis_cal.t_int_ms(vt)),'_ms'])',...
-                vis_cal.(['rate_',num2str(vis_cal.t_int_ms(vt)),'_ms'])',vis_cal.(['sig_',num2str(vis_cal.t_int_ms(vt)),'_ms'])',...
-                vis_cal.(['light_',num2str(vis_cal.t_int_ms(vt)),'_ms'])',vis_cal.(['dark_',num2str(vis_cal.t_int_ms(vt)),'_ms'])',...
-                (vis.rad.(['lamps_',lamp,'_fit']).Irad(1:length(vis_cal.lambda)))']';
+               vis_cal.(['rate_',num2str(vis_cal.t_int_ms(vt)),'_ms'])',vis_cal.(['sig_',num2str(vis_cal.t_int_ms(vt)),'_ms'])',...
+               vis_cal.(['light_',num2str(vis_cal.t_int_ms(vt)),'_ms'])',vis_cal.(['dark_',num2str(vis_cal.t_int_ms(vt)),'_ms'])',...
+               (vis.rad.(['lamps_',lamp,'_fit']).Irad(1:length(vis_cal.lambda)))']';
             [resp_stem, resp_dir] = gen_sasze_resp_file(in_cal,header,vis_cal.time, vis_cal.t_int_ms(vt),pname);
             
             resp_Si = [vis_cal.lambda; vis_cal.(['resp_',num2str(vis_cal.t_int_ms(vt)),'_ms'])]';
             [resp_stem, resp_dir] = gen_sws_resp_files(resp_Si,floor(vis_cal.time(1)), unique(vis_cal.t_int_ms(vt)),pname);
-            
+
             menu('OK','OK')
-            [~, resp_stem,ext] = fileparts(resp_stem);
-            [~, resp_stem, ex] = fileparts(resp_stem);
-            ii_ = strfind(ex,'_'); ex(ii_:end) = [];
-            resp_stem = [resp_stem, ex];
-            n = 1; resp_stem_ = resp_stem;
-            while isafile([resp_dir, resp_stem, '.fig'])
-                n = n+1
-                resp_stem = [resp_stem_, sprintf('_%d',n)];
-            end
-            saveas(gcf,[resp_dir,resp_stem,'.fig']);
+            saveas(gcf,[resp_dir,strrep(resp_stem,'.dat','.fig')]);
+            % Begin pasted block
+            %%
+
+            %% End of pasted block
+                        
         end
-        [~, resp_stem, ext] = fileparts(resp_stem);
-        n = 1; resp_stem_ = resp_stem;
-        while isafile([resp_dir, resp_stem, '.mat']);
-            n = n+1;
-            resp_stem = [resp_stem_, sprintf('_%d',n)];
-        end
-        save([resp_dir, resp_stem, '.mat'],'-struct','vis_cal');
-        clear vis_cal
-        %         rad.(['lamps_',lamp,'_fit']) = planck_fit(rad.nm, rad.(['lamps_',lamp]),[sws.In_lambda]);
-        %         nir_cal.t_int_ms = unique(sws.In_ms)
-        %         nir_cal.lambda = sws.In_lambda;
-        %         nir_cal.resp_units = ['(counts/ms)/(W/(m^2.sr.um))'];
+        [~, resp_stem, ext] = fileparts(resp_stem); [~, resp_stem, ext] = fileparts(resp_stem);
+        save([resp_dir, resp_stem,'.mat'],'-struct','vis_cal'); clear vis_cal
+%         rad.(['lamps_',lamp,'_fit']) = planck_fit(rad.nm, rad.(['lamps_',lamp]),[sws.In_lambda]);
+%         nir_cal.t_int_ms = unique(sws.In_ms)
+%         nir_cal.lambda = sws.In_lambda;
+%         nir_cal.resp_units = ['(counts/ms)/(W/(m^2.sr.um))'];
         clear vxl_lower
         %% !nir
         for vt = 1:length(nir_cal.t_int_ms)
@@ -154,7 +147,7 @@ while ~done
             rad_sub = nir.rad.(['lamps_',lamp,'_fit']).Irad(1:length(nir_cal.lambda))-nir.rad.lamp_1_fit.Irad(1:length(nir_cal.lambda));
             nir_cal.(['resp_',num2str(nir_cal.t_int_ms(vt)),'_ms']) = nir_cal.(['rate_',num2str(nir_cal.t_int_ms(vt)),'_ms'])./rad_sub;
             figure_(18);
-            
+
             sa(1) = subplot(2,1,1);
             plot(nir_cal.lambda,  nir_cal.(['light_',num2str(nir_cal.t_int_ms(vt)),'_ms']), 'c-',...
                 nir_cal.lambda, nir_cal.(['dark_',num2str(nir_cal.t_int_ms(vt)),'_ms']), 'r-');
@@ -220,31 +213,21 @@ while ~done
                 nir_cal.(['rate_',num2str(nir_cal.t_int_ms(vt)),'_ms'])',nir_cal.(['sig_',num2str(nir_cal.t_int_ms(vt)),'_ms'])',...
                 nir_cal.(['light_',num2str(nir_cal.t_int_ms(vt)),'_ms'])',nir_cal.(['dark_',num2str(nir_cal.t_int_ms(vt)),'_ms'])',...
                 (nir.rad.(['lamps_',lamp,'_fit']).Irad(1:length(nir_cal.lambda)))']';
-            
+
             [resp_stem, resp_dir] = gen_sasze_resp_file(in_cal,header,nir_cal.time, nir_cal.t_int_ms(vt),pname);
+
             resp_InGaAs = [nir_cal.lambda; nir_cal.(['resp_',num2str(nir_cal.t_int_ms(vt)),'_ms'])]';
             [resp_stem, resp_dir] = gen_sws_resp_files(resp_InGaAs,floor(nir_cal.time(1)), unique(nir_cal.t_int_ms(vt)),pname);
+
             menu('OK','OK')
-            [~, resp_stem,ext] = fileparts(resp_stem);
-            [~, resp_stem, ex] = fileparts(resp_stem);
-            ii_ = strfind(ex,'_'); ex(ii_:end) = [];
-            resp_stem = [resp_stem, ex];
-            n = 1; resp_stem_ = resp_stem;
-            while isafile([resp_dir, resp_stem, '.fig'])
-                n = n+1
-                resp_stem = [resp_stem_, sprintf('_%d',n)];
-            end
-            saveas(gcf,[resp_dir,resp_stem,'.fig']);
+            saveas(gcf,[resp_dir,strrep(resp_stem,'.dat','.fig')]);
+
+            % Begin pasted block
+            %%
+            %% End of pasted block
         end
-        [~, resp_stem, ext] = fileparts(resp_stem);
-        n = 1; resp_stem_ = resp_stem;
-        while isafile([resp_dir, resp_stem, '.mat']);
-            n = n+1;
-            resp_stem = [resp_stem_, sprintf('_%d',n)];
-        end
-        save([resp_dir, resp_stem,'.mat'],'-struct','nir_cal');
-        clear nir_cal
-        
+        [~, resp_stem, ext] = fileparts(resp_stem); [~, resp_stem, ext] = fileparts(resp_stem);
+        save([resp_dir, resp_stem,'.mat'],'-struct','nir_cal'); clear nir_cal
         
         %% !nir
         

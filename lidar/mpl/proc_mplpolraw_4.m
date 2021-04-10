@@ -124,17 +124,35 @@ polavg.crs = polavg.crs - ones(size(polavg.range))*polavg.hk.crs_bg;
 % Then compute SNR, dpr, ...
 polavg.cop_snr = polavg.cop ./ polavg.cop_noise;
 polavg.crs_snr = polavg.crs ./ polavg.crs_noise;
+% The following line yields the equivalent copolarized signal from lidar
+% measuring linear polarization. When striking a spherical non-depolarizing
+% scatterer, the MPL copol signal is equivalent to the standard linear
+% co-polarized signal (with crs = 0).  But when striking a hypothetically
+% completely depolarizing scatterer, the MPL circular depolarization = 0
+% while a linear depolarization measurement would return a value of half 
+% the total return, in fact equal to the cross-polarized return.  
+% Thus, cop_lin = cop_circ + crs_lin or cop_lin = polavg.cop +polavg.crs
+cop_lin = (polavg.cop + polavg.crs);
+% The noise will add in quadrature...
 cop_lin_noise = sqrt(polavg.cop_noise.^2 + polavg.crs_noise.^2);
+% SNR is nothing more than cop_lin / cop_lin_noise
 cop_lin_snr = (polavg.cop + polavg.crs)./cop_lin_noise;
+
 polavg.attn_bscat = (polavg.cop + polavg.crs + polavg.crs);
 polavg.attn_bscat_noise = sqrt(cop_lin_noise.^2 +polavg.crs_noise.^2);
 polavg.attn_bscat_snr = (polavg.cop + 2.* polavg.crs)./polavg.attn_bscat_noise;
+
 polavg.ldr = zeros(size(polavg.cop));
 gtz = find(((polavg.cop(:)+polavg.crs(:))>0)&(polavg.crs(:)>0));
 polavg.ldr(gtz) = polavg.crs(gtz)./(polavg.cop(gtz) + polavg.crs(gtz));
+polavg.ldr_snr = 1./ sqrt( 1./polavg.crs_snr.^2 + 1./cop_lin_snr.^2);
 % d = 2Dm/(1+Dm)
 polavg.d = 2.*polavg.ldr ./(1+polavg.ldr);
-polavg.ldr_snr = 1./ sqrt( 1./polavg.crs_snr.^2 + 1./cop_lin_snr.^2);
+
+polavg.attn_bscat = (polavg.cop + 2.* polavg.crs);
+polavg.attn_bscat_noise = sqrt(cop_lin_noise.^2 +polavg.crs_noise.^2);
+polavg.attn_bscat_snr = (polavg.cop + 2.* polavg.crs)./polavg.attn_bscat_noise;
+
 
 % Apply overlap correction and energy monitor normalization
 polavg.ol_corr = inarg.ol_corr(polavg.range,polavg.time(1));

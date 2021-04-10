@@ -51,9 +51,11 @@ if fid>0
         end
     end
     ins.lambda = polyval(flipud(ins.lambda_fit), (ins.pix_range(1):ins.pix_range(2)));
+
     if ins.lambda(2)<ins.lambda(1) 
         ins.lambda = fliplr(ins.lambda); 
     end
+
     pix_start = find(strcmp(labels,'Px_0'));
     pixels = length(labels)-pix_start+1;
     for p = pixels:-1:1
@@ -74,9 +76,11 @@ ins.sig = NaN(size(ins.spec));
 ins.sig(ins.Shutter_open_TF==1,:) = ins.spec(ins.Shutter_open_TF==1,:)...
     - ones([rows,1]) * mean(ins.spec(ins.Shutter_open_TF==0,:));
 ins.rate = ins.sig ./ (ins.t_int_ms * ones([1,cols]));
+
 % figure_(1003); 
 % these = plot(ins.lambda, meannonan(ins.rate),'ko',ins.lambda, ins.rate,'-');
 % recolor(these, [1:length(ins.time)]);
+
 end
 %%
 % ins = rmfield(ins,{'sig','rate'});

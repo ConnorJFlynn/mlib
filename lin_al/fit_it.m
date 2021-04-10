@@ -12,6 +12,7 @@ function K = fit_it(X,Y,eq,V)
 % 	1./X     
 % 	X.*exp(X)
 % Also, don't forget the "dots" !
+
 % Modified 2019-12-28 to allow for non-X dependent V
 % Previously modified to permit evaluation of n-dimensional Y yielding N-dim K
 

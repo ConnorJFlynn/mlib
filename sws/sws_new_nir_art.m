@@ -7,8 +7,10 @@ function sws_mono_cat = sws_new_nir_art;
 %  C:\case_studies\SWS\calibration\sws_art_all\sws_art_nir\Feb3_tint_60ms
 % load dark
 %%
-pname = ['C:\case_studies\SWS\calibration\sws_art_all\sws_art_nir\Feb3_tint_60ms\'];
-darkfile = ['\dark\sgpswscf.00.20110203.104355.raw.dat'];
+pname = ['D:\case_studies\SWS\calibration\sws_art_all\sws_art_nir\Feb3_tint_60ms\'];
+pname = ['D:\case_studies\SWS\calibration\sws_art_all\sws_art_nir\Feb4_dual_800_1100nm_200ms\'];
+darkfile = ['dark\sgpswscf.00.20110203.104355.raw.dat'];
+darkfile = ['dark\sgpswscf.00.20110204.115046.raw.dat'];
 sws_60 = read_sws_raw([pname, darkfile]);
 dark = mean(sws_60.In_DN,2);
 %%
@@ -24,7 +26,9 @@ sws_60.In_spec = (sws_60.In_DN - dark * ones(size(sws_60.time)))./unique(sws_60.
 figure; lines = plot(sws_60.In_lambda, sws_60.In_spec,'-');
 recolor(lines,[1:length(sws_60.time)]);
 colorbar
-
+hold('on');
+lines = plot(sws_60.Si_lambda, sws_60.Si_spec,'-');
+recolor(lines,[1:length(sws_60.time)]);
 %  C:\case_studies\SWS\calibration\sws_art_all\sws_art_nir\Feb3_tint_60ms
 % load dark
 %%

@@ -1,5 +1,7 @@
 function A = area_overlap(r, R, d)
-
+% r: radius of smaller circle
+% R: radius of larger circle
+% d: offset between circle centers?
 d = abs(d);
 
 part_1 = r.^2 .* (acos((d.^2 + r.^2 -R.^2)./(2.*d.*r)));

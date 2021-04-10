@@ -1,6 +1,5 @@
 % Aetheometer mass absorption cross-sections
 
-
 spec_attn.Magee.nm = [370,470,520,590,660,880,950];
 spec_attn.Magee.sigma = [39.5, 31.1, 28.1, 24.8, 22.2, 16.6, 15.4];
 spec_attn.Magee.P = polyfit(log(spec_attn.Magee.nm./1000), log(spec_attn.Magee.sigma), 1);P.Magee = spec_attn.Magee.P;
@@ -15,8 +14,6 @@ spec_attn.Aeth33.nm = [370,470,520,590,660,880,950];
 spec_attn.Aeth33.sigma = [18.47, 14.54, 13.14, 11.58, 10.35, 7.77, 7.19];
 spec_attn.Aeth33.P = polyfit(log(spec_attn.Aeth33.nm./1000), log(spec_attn.Aeth33.sigma), 1);P.Ae33 = spec_attn.Aeth33.P;
 
-
-
 figure; 
 plot(spec_attn.Magee.nm, spec_attn.Magee.sigma, 'bo-', ...
    spec_attn.EC.nm, spec_attn.EC.sigma, 'ro-', ...
@@ -28,8 +25,6 @@ logx; logy;
 
 aeth = anc_bundle_files(getfullname('coraosae*.nc','aeth'));
 
-
-
 figure_(7); these = plot(aeth.time, aeth.vdata.reference_intensity, '-'); recolor(these,aeth.vdata.wavelength);
 dynamicDateTicks; axs(1) = gca; title('Reference'); 
 
@@ -40,6 +35,17 @@ figure_(9); these = plot(aeth.time, aeth.vdata.sample_intensity_spot_1, '-'); re
 dynamicDateTicks; axs(3) = gca; title('Spot 1'); 
 
 linkaxes(axs,'xy')
+
+attn0 = find( ~bitget(aeth.vdata.instrument_status,1) & bitget(aeth.vdata.instrument_status,2));
+tr_1 = aeth.vdata.sample_intensity_spot_1./aeth.vdata.reference_intensity; 
+Tr_1 = tr_1./(tr_1(:,attn0)*ones(size(aeth.time)));
+tr_2 = aeth.vdata.sample_intensity_spot_2./aeth.vdata.reference_intensity; 
+Tr_2 = tr_2./(tr_2(:,attn0)*ones(size(aeth.time)));
+
+figure; plot(aeth.time,Tr_1, '-',aeth.time,Tr_2, '--'); title('Tr spot 1 and 2'); dynamicDateTicks
+
+aeth.vdata.optical_attenuation_1 = -100.*(log(Tr_1));
+aeth.vdata.optical_attenuation_2 = -100.*(log(Tr_2));
 
 % According to manual, define ATN0 when bit 1 = 0 and bit 2 = 1
 ii = find( ~bitget(aeth.vdata.instrument_status,1) & bitget(aeth.vdata.instrument_status,2));

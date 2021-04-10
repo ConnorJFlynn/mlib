@@ -84,6 +84,9 @@ for L = length(labels):-1:1
     lamp_cal.(labels{L}) = C{L};
 end
 %%
+if ~isfield(lamp_cal,'spec_SN')||isempty(lamp_cal.spec_SN)
+   lamp_cal.spec_SN = 'SN N/A';
+end
 figure; plot(lamp_cal.lambda_nm, lamp_cal.resp,'-k.');
 xlabel('wavelenght [nm]');
 ylabel(lamp_cal.resp_units,'interp','none');

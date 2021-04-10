@@ -1,5 +1,5 @@
 function M = M_delta_theta(delta, theta)
-% M = M_delta_theta(theta)
+% M = M_delta_theta(delta, theta)
 % Returns the Mueller matrix for an arbitrary retardation delta 
 % (in deg with 90 deg = quarter-wave) along theta degrees from slow axis
 % Method: first compute retardation for quarter wave at theta.

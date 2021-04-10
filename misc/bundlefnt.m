@@ -18,6 +18,11 @@ if isempty(who('skip_mats'))||~islogical(skip_mats)
 end
 disp('Save the bundle as...')
 [outname,outpath] = uiputfile([getnamedpath('bundles','Save zipped bundle:'),fnt,'.zip'],'Save the bundle as...');
+
+if isadir(outpath) && ~strcmp(outpath, getnamedpath('bundles'))
+   setnamedpath('bundles',outpath);
+end
+
 % use matlab.codetools.requiredFilesAndProducts if it exists, else depfun
 if isempty(which('matlab.codetools.requiredFilesAndProducts'))
   this = depfun(fnt,'-quiet');
@@ -184,8 +189,4 @@ for ln = length(this):-1:1
 end
 
 return
-
-
-% $DataFiles:
-
 

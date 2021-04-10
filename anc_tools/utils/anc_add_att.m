@@ -23,8 +23,8 @@ anc.vatts.(field).(att_name)= att.(att_name);
 
 else
 anc.ncdef.atts.(att_name).datatype = class_to_dtype(att.(att_name));
-anc.ncdef.atts.(att_name)= init_ids(anc.ncdef.vars.(field).atts);
-anc.atts.(att_name)= att.(att_name);
+anc.ncdef.atts = init_ids(anc.ncdef.atts);
+anc.gatts.(att_name)= att.(att_name);
     
 end
 return

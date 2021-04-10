@@ -250,7 +250,7 @@ quiet = isquiet(cdf);
 
 vars = fieldnames(cdf.ncdef.vars);
 for v = 1:length(vars)
-    disp(vars(v))
+    if ~quiet disp(vars(v)); end
     variable = cdf.ncdef.vars.(vars{v});
     variable.data = cdf.vdata.(vars{v});
     nvardims = length(variable.dims);

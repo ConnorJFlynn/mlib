@@ -298,6 +298,22 @@ cmap = colormap;
 % hsv_weight(x,y,cmap,ax(2),ax(1));
 
 %%
+fig99 = figure_(99); 
+s(1) = subplot(1,2,1);
+s(2) = subplot(1,2,2); 
+cv_z = cv_dpr; cv_a = cv_log_bs;
+col_sqr = (ones([length(colormap),1])*linspace(cv_z(1), cv_z(2), length(colormap)))'; 
+alpha_sqr =(ones([length(colormap),1])*linspace(0, 1, length(colormap)));
+img = imagesc(cv_a, cv_z,col_sqr); caxis(cv_z); axis(s(2),'square','xy');
+set(s(2),'YAxisLocation','right');
+s1_pos = get(s(1), 'position'); 
+s2_pos = get(s(2),'position');
+s1_pos_ = s1_pos; s2_pos_ = s2_pos; 
+s2_pos_(1) = s2_pos_(1) + s2_pos(3)./2; s2_pos_(3) = s2_pos(3)./2 ;
+set(s(2),'position',s2_pos_); 
+ xlabel('bscat'); ylabel('ldr')
+set(gca,'color','k')
+set(img,'alphadata',alpha_sqr);
 
 [rgb,color_sqr] = rgb_weight(x,y,z2,z1,cmap,cv_dpr,cv_log_bs,0.01,mask(r.lte_25,:));
 % ax(3) = subplot(3,1,3); 
@@ -338,6 +354,64 @@ hold('on');
 plot(0, 0,'w.'); legend(['Composite of backscatter & dpr'],'location','northwest'); 
 hold('off')
 tl = title(ax2(1),titlestr); set(tl,'units','normalized'); 
+
+dx = (s2_pos(1) - s1_pos(1)-s1_pos(3));
+s1_pos_(3) = s2_pos_(1) - dx -.05;
+s1_pos_(1) = s1_pos(1).*(.75);
+set(s(1), 'position',s1_pos_);
+axes(s(1));
+
+ [fig99, img99, axs99] = comp_image(x,y,z2, z1, cv_log_bs, mask(r.lte_25,:));
+ xlabel('time [UTC]'); ylabel('range [km]');
+ caxis(cv_dpr);
+  tx = text(.5, .5, ['Composite of backscatter & dpr']); 
+ set(tx,'color','w')
+set(tx,'units','normalized');set(tx,'position',[.02,.95,0])
+ titlestr = {[ds_, datestr(polavg.time(1), ', yyyy-mm-dd ')]};
+tl = title(titlestr)
+ 
+ 
+ 
+%  %Brightens set(img99, 'alphadata',get(img99, 'alphadata').^(.75));
+% [rgb,color_sqr] = rgb_weight(x,y,z2,z1,cmap,cv_dpr,cv_log_bs,0.01,mask(r.lte_25,:));
+% % ax(3) = subplot(3,1,3); 
+% figure(double(fig)+1); 
+% set(double(fig)+1,'visible',vis);
+% set(gcf,'position',[17          70        1043         319]);
+% ax2(1) = subplot('position',[0.0800    0.1500    0.560    0.7600]);
+% % set(ax2(1),'position',[0.0800    0.1500    0.560    0.7600])
+% ax2(2) = subplot('position',[0.6864    0.15    0.2500    0.76]);
+% % cb_1 = linspace(cv_dpr(1), cv_dpr(2),length(cmap));
+% % cb_2 = linspace(cv_bs(1),cv_bs(2),length(cmap))';
+% % zz1 = ones(size(cb_2))*cb_1;
+% % zz2 = cb_2*ones(size(cb_1));
+% % rgb_2 = rgb_weight(cb_1,cb_2,zz1',zz2',cmap,cv_dpr,cv_bs,.15);
+% axes(ax2(2));
+% imagegap(cv_log_bs,cv_dpr,color_sqr);
+% % image(10.^cv_bs,10.^cv_dpr,color_sqr);axis('xy');axis('square');logy; logx;
+% set(double(fig)+1,'visible',vis);
+% % imagegap(cb_2',cb_1',rgb_2);
+% axis(ax2(2),'square');
+% title('composite colormap')
+% xlabel('log_1_0(atten bscat ratio)')
+% ylabel('log_1_0(ldr)')
+% set(gca,'YAxisLoc','right')
+% set(ax2(2),'TickDir','out');
+% % set(ax2(2),'position',[0.15    0.2    0.1567    0.2359])
+% % set(ax2(2),'xcolor','red','ycolor','red','color','red')
+% 
+% axes(ax2(1));
+% imagegap(x,y,rgb); 
+% set(double(fig)+1,'visible',vis);
+% ylabel('range (km)');
+% set(ax2(1),'TickDir','out');
+% xlab = xlabel('time (UTC)');
+% 
+% titlestr = {[ds_, datestr(polavg.time(1), ', yyyy-mm-dd ')]};
+% hold('on'); 
+% plot(0, 0,'w.'); legend(['Composite of backscatter & dpr'],'location','northwest'); 
+% hold('off')
+% tl = title(ax2(1),titlestr); set(tl,'units','normalized'); 
 
 %%
 

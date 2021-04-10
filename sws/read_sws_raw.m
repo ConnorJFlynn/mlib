@@ -4,9 +4,9 @@ function [sws_raw] = read_sws_raw(filename);
 
 %%
 
-if ~exist('filename', 'var')
+if ~isavar('filename')
    filename = getfullname('*.*','sws_raw');
-else
+elseif ~isafile(filename)
    filename = getfullname(filename,'sws_raw');
 end
 [pname, fname,ext] = fileparts(filename);
@@ -49,7 +49,7 @@ if fid>0
    lambdasi = [3.02659e2 3.29952 4.73434e-4 -1.74417e-6];
    lambdair = [  2220.03 -4.51056 -5.68468e-4 -6.68489e-6 -5.08914e-9 ]; % old one
 %
-   lambdair = [2206.58 -4.48404 -3.19203e-4 -9.1953e-6];
+%    lambdair = [2206.58 -4.48404 -3.19203e-4 -9.1953e-6];
    inds = [0:255];sdni = fliplr(inds);
    sws_raw.Si_lambda = lambdasi(1) + lambdasi(2).*inds + lambdasi(3).*inds.^2 + lambdasi(4).*inds.^3 ;
    sws_raw.In_lambda = lambdair(1) + lambdair(2).*sdni + lambdair(3).*sdni.^2 + lambdair(4).*sdni.^3 + lambdair(5).*sdni.^4;

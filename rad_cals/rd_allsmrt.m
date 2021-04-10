@@ -2,6 +2,7 @@ function esr_smart = rd_allsmrt
 % esr_smart = rd_allsmrt
 % CJF: wrote this a little while ago (FY19?)
 % Can't resist making comparisons to Odelle Coddington's ESR best-estimate
+
 % Parses AllSMRTETR.txt file which contain a column for nm and  7 different ESR spectra we want
 % plus two irregular spectra we don't want. Read it with a call to read
 % only the first 8 of all rows.
@@ -36,6 +37,5 @@ legend('ChKur','Guey','newKur','ThKur','Wehrli','CebChKur');xlim([200,3000]); ti
 
 % 
 ssi = anc_load(['D:\drag and plop\radiation_cals\cal_sources_references_xsec\ESR\ssi_v02r01_monthly_s201801_e201812_c20190409.nc'])
-
 
 return
