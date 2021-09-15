@@ -1,6 +1,8 @@
 function nc = anc_bundle_files(filelist,N)
-% This procedure is just an empty shell.
-% It interactively requests a raw data file directory and then
+% nc = anc_bundle_files(filelist,N)
+% Attempts to concatenate all files in filelist into a single nc struct
+% Reads files in groups of N for improved memory handling
+% Fails if one of the files has different dimensionality
 % loops over the user specified actions for each file.
 if ~isavar('N')
     N = 25;
