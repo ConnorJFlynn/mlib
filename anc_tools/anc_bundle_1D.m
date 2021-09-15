@@ -41,7 +41,7 @@ else
         try xticks([]);yticks([]);
         catch
         end
-        pause(0.01);
+        pause(0.01);tic
         [pname, fname, ext] = fileparts(filelist{i}); 
         disp(['Processing ', fname, ext,' : ', num2str(i), ' of ', num2str(length(filelist))]);
         %    do_somethin_to_it([pname dirlist(i).name], [outdir dirlist(i).name]);
@@ -50,19 +50,35 @@ else
             nc__.vdata = rmfield(nc__.vdata,rmv);
             nc__.ncdef.vars = rmfield(nc__.ncdef.vars, rmv);
             nc__.vatts = rmfield(nc__.vatts, rmv);
+            try
             nc_ = anc_cat(nc_,nc__);
+            catch
+               [~,fname,ex] = fileparts(nc__.fname);
+               disp(['Split bundle at ',fname,ex])
+               [~, ~, ex] = fileparts(nc_.fname);
+               save(strrep(nc_.fname,ex,'.mat'),'-struct','nc_')
+               nc_ = nc__;                 
+            end
         else
             if ~isavar('nc')
                 nc = nc_;
             else
+               try
                 nc = anc_cat(nc, nc_);
+               catch
+                  [~,fname, ex] = fileparts(nc_.fname);
+                  disp(['Split bundle at ',fname, ex]);
+                  [~, ~, ex] = fileparts(nc.fname);
+                  save(strrep(nc.fname,ex,'.mat'),'-struct','nc')
+                  nc = nc_;
+               end
             end
             nc_ = anc_load(filelist{i});
             nc_.vdata = rmfield(nc_.vdata,rmv);
             nc_.ncdef.vars = rmfield(nc_.ncdef.vars, rmv);
             nc_.vatts = rmfield(nc_.vatts, rmv);
         end       
-        disp(['Done processing ', fname,ext]);        
+        disp(['Done processing ', fname,ext]); toc      
     end
     if ~isavar('nc')
         nc = nc_;
