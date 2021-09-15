@@ -78,7 +78,7 @@ for v = 1:length(varnames)
             if catdim ==1
                 [v1,NSHIFTS] = shiftdim(v1,catdim-1);
                 [v2,NSHIFTS] = shiftdim(v2,catdim-1);
-                if size(v2,2)==1
+                if size(v2,2)==1 && size(v2,1)~=1
                     v1 = v1'; v2 = v2';
                 end
                 v1 = [v1, v2];
