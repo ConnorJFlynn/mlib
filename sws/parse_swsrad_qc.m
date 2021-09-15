@@ -1,11 +1,18 @@
-% assess sws.b0 QC
+% parse sws.b1 QC values
+% test each QC field for internal consistency
 
-rad_b0 = anc_load(getfullname('*swsrad*.b0.*.nc','sws'));
+
 rad = anc_load(getfullname('*swsrad*.b1.*.nc','sws'));
 
 nm_500 = interp1(rad.vdata.wavelength_SW, [1:length(rad.vdata.wavelength_SW)], 500,'nearest');
-
 figure; plot(serial2doys(rad.time), rad.vdata.zenith_radiance_SW(nm_500,:),'-');
+
+
+% problem with qc_responsivity_SW and qc_responsivity_LW
+% Not flipping indeterminate for _warn values
+
+[rad.vdata.wavelength_LW, rad.vdata.responsivity_LW, anc_qc_impacts(rad.vdata.qc_responsivity_LW, rad.vatts.qc_responsivity_LW)']
+[rad.vdata.wavelength_SW, rad.vdata.responsivity_SW, anc_qc_impacts(rad.vdata.qc_responsivity_SW, rad.vatts.qc_responsivity_SW)']
 
 rad.vdata.qc_zenith_radiance_LW
 gyr = anc_qc_impacts(rad.vdata.qc_zenith_radiance_SW(nm_500,:), rad.vatts.qc_zenith_radiance_SW);

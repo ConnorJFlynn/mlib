@@ -26,7 +26,7 @@ AAE_BG_Vavg = ang_exp(Ba_B_Vavg, Ba_G_Vavg, B, G);
 AAE_BR_Vavg = ang_exp(Ba_B_Vavg, Ba_R_Vavg, B, R);
 AAE_GR_Vavg = ang_exp(Ba_G_Vavg, Ba_R_Vavg, G, R);
 
-[Ba_B_Virk,~, ~, ~, ~, ~,~, SSA_V_B]  = compute_Virkkula(aop.vdata.transmittance_blue, aop.vdata.Bs_B, aop.vdata.Ba_B_raw, 1);
+[Ba_B_Virk,~, ~, ~, ~, ~,~, SSA_V_B] = compute_Virkkula(aop.vdata.transmittance_blue, aop.vdata.Bs_B, aop.vdata.Ba_B_raw, 1);
 [Ba_G_Virk,~, ~, ~, ~, ~,~, SSA_V_G] = compute_Virkkula(aop.vdata.transmittance_green, aop.vdata.Bs_G, aop.vdata.Ba_G_raw, 2);
 [Ba_R_Virk,~, ~, ~, ~, ~,~, SSA_V_R] = compute_Virkkula(aop.vdata.transmittance_red, aop.vdata.Bs_R, aop.vdata.Ba_R_raw, 3);
 AAE_BG_Virk = ang_exp(Ba_B_Virk, Ba_G_Virk, B, G);
