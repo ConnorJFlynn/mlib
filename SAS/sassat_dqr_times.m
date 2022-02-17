@@ -1,7 +1,7 @@
  function in =sassat_dqr_times 
 
 in_file = getfullname('*sat*.mat','satmat');
-bloop = 
+
 if ~iscell(in_file)
    in_file = {in_file};
 end
