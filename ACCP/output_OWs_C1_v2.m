@@ -1,4 +1,4 @@
-function out = output_OWs_C1_v2(OQS, adj);
+function out = output_OWs_C1_v2(OQS, adj)
 % out = output_OWs_C1(OQS, adj);
 % If "adj" is provided, then it will be incorporated into the output name to 
 % to distinguish whether adjustements have been applied to OQS and whether 
@@ -55,7 +55,7 @@ out.obs = ["NAD=mean(NADLC1,NADBC0)","NAN=mean(NANLC0,NANLC1)","OND=ONDPC0"];
 out.sfc = ["Land","Ocean"]; 
 out.obj = [5:8]; 
 out.(['OQS',adj]) = OQS;
-save([getnamedpath('VF_out'),'SITA_OQS',adj,'_C0C1_',datestr(dnow,'yyyymmdd_HHMM'),'.mat'],'-struct','out');
+save([getnamedpath('VF_out'),'SITA_OQS',adj,'_C0C1_',datestr(dnow,'yyyymmdd_HHMM'),'.mat'],'-v7.3','-struct','out');
 
 % ins = squeeze(OQS(lay,1,1,2,:));
 % [nanmean(ins(:)),nanstd(ins(:))]

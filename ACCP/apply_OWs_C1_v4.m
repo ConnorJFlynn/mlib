@@ -1,5 +1,5 @@
-function [OQS] = apply_OWs_C1_v3(QIS)
-% OQS = apply_OWs_C1_v3(QIS)
+function [OQS] = apply_OWs_C1_v4(QIS)
+% OQS = apply_OWs_C1_v4(QIS)
 % Accepts a 7D QIS matrix
 % Applies Objective-specific weights based on TYP
 % Adds Obj[5-8] dimension while eliminating GRP, TYP, and RES dims to produce 5D OQS
@@ -11,7 +11,7 @@ function [OQS] = apply_OWs_C1_v3(QIS)
 % No output files produced to avoid ambiguity related to adjustments
 % Reviewed and re-verified by Connor on 2020-10-18
 
-%v3: including LIC
+%v4: Breaking out OBS for Tyler Thorsen
 
 % QIS(GV,GRP,TYP,PFM,OBI,SFC,REZ)
 % OQS(gv[65],pfm[4],obi[3],sfc[2],obj[4])

@@ -1,4 +1,4 @@
-function ACCP_SITA_Sept_pngs_ppts_v28(gv, gv2, do_plot)
+function ACCP_SITA_Sept_pngs_ppts_v29(gv, gv2, do_plot)
 % ACCP_SITA_Sept_pngs_ppts_v28(gv, gv2, do_plot)
 % Shell function for reading and then plotting ACCP results
 % Created Sept 1, 2020 by Connor.
@@ -15,6 +15,7 @@ function ACCP_SITA_Sept_pngs_ppts_v28(gv, gv2, do_plot)
 % applying adjustments or computing objective weights unless the bounds of
 % the related averaging functions are expanded accordingly.  Functions
 % within ObjQIS_v2 do so, but be cautious with older code versions.
+% v29, generate output for Tyler Thorsen
 % v28, Update propagated fields, incorporate new ObjQIS, apply_OW_C1_v2, output_OWs_C1_v2
 % v27, Incorporate LIC results
 % v26, 2020-10-28: refactoring to avoid ambiguous OQS files without clear
@@ -109,7 +110,7 @@ qnan = isNaN(RMS); len = length(RMS(~qnan));
 %These are objective-weighted output, with and without adjustments.
 % OWQadj are provided to VF team as ASCII files
 % [OWQadj,OWQ] = ObjQIS(QIS);
-[OWQadj,OWQ] = ObjQIS_v2(QIS,true); % Calls apply_OWs_C1_v2 and output_OWs_C1_v2
+[OWQadj,OWQ] = ObjQIS_v2_thor(QIS,true, 'adj'); % Calls apply_OWs_C1_v2 and output_OWs_C1_v2
 
 ACCP_pngs = setnamedpath('ACCP_pngs',[],'Select a directory for AACP png files, creating if necessary.');
 PPT_path = setnamedpath('ACCP_ppts',[],'Select a directory for AAPC ppt files, create if necessary.');
@@ -141,7 +142,7 @@ if do_plot(1)
     % However, it would be valuable to see the Means, ObjMeans, MeansAdj and ObjMeansAdj
 
     % Plot QMR summaries...
-    % Each group individually averaged, then over group, then adjusted
+    % Each group individually averaged, then avg over group, then adjusted
     plot_SITA_Sept_QMRadj_v1(QIS,MER,RMS,gv,'LAND',obs,'RES1', [PPT_path pptname]);
     plot_SITA_Sept_QMRadj_v2(QIS,MER,RMS,gv,'OCEN',obs,'RES1', [PPT_path pptname]); %With LIC
     plot_SITA_Sept_QMRadj_v1(QIS,MER,RMS,gv,'LAND',obc,'RES1', [PPT_path pptname]);
