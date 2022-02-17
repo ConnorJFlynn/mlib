@@ -22,7 +22,7 @@ T_o = 273.15;
 P_o = 101325;
 
 lambda_cm = lambda*100; %cm
-mu = 1/lambda_cm;
+mu = 1./lambda_cm;
 
 ao = 83.42;
 a1 = 185.08;
@@ -39,26 +39,26 @@ b2 = 6.24e4;
 
 N_A = 6.023e23; % [1/mol]
 R = 8.3143; % [J/(mol-K)]
-N_no = (N_A / R);
+N_no = (N_A ./ R);
 %N_no = 0.7242996e22;
-N_s = (N_no) * (P_o/T_o); % [K/J]
+N_s = (N_no) * (P_o./T_o); % [K/J]
 N = (N_no) * (P./T); % [K/J]
 
 d = .0279; 
-depol_factor = (6+3*d)/(6-7*d);% with d determined from P(90) = (1-d)/(1+d)
+depol_factor = (6+3*d)./(6-7*d);% with d determined from P(90) = (1-d)/(1+d)
 %depol_factor = 1.048; % depol factor may be as low as 1.023
 
 
 %DP method
-N_ro = (ao + a1/(1-(mu/b1)^2) + a2/(1-(mu/b2)^2))*(T_o +15)/(P_o/100); %pressure in mbar
-N_r = N_ro*(P./T)/100;
-n = N_r/1e6 + 1 ;%index of refraction as a function of range (via P,T profiles)
+N_ro = (ao + a1./(1-(mu./b1).^2) + a2./(1-(mu./b2).^2))*(T_o +15)./(P_o./100); %pressure in mbar
+N_r = N_ro.*(P./T)./100;
+n = N_r./1e6 + 1 ;%index of refraction as a function of range (via P,T profiles)
 
-alpha_R = 1000*((depol_factor)*(24*pi^3)/(lambda^4))*((n.^2-1)./(n.^2+2)).^2 ./N;
+alpha_R = 1000*((depol_factor)*(24*pi.^3)./(lambda.^4)).*((n.^2-1)./(n.^2+2)).^2 ./N;
 
-S_R = 8*pi/3; %Extinction/backscatter ratio 
+S_R = 8*pi./3; %Extinction/backscatter ratio 
 
-beta_R = alpha_R/S_R;
+beta_R = alpha_R./S_R;
 
 
 
