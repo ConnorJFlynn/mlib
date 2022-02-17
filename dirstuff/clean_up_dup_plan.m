@@ -17,3 +17,4 @@
 % 3. Sort vs filnames, retaining only those where one filename is a
 % substring of another.
 
+[dd,fnames] = dirrec('C:\sgpmfrsr*.cdf');

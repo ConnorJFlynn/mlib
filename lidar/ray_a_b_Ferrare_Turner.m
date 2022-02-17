@@ -31,14 +31,14 @@ end
   zms  = 1.0 + ((zms1 + zms2 + zms3) ./ 1.0e8);
   zns  = 2.547e19;
   del  = 0.035;
-  sigr1 = (8.0 * pi^3 * (((zms*zms - 1.0).^2))) ./ (3.0 * (wavec.^4) * zns * zns);
-  sigr2 = (6.0 + 3.0 * del) ./ (6.0 - 7.0 * del);
-  sigr = sigr1 * sigr2;
+  sigr1 = (8.0 * pi.^3 .* (((zms.*zms - 1.0).^2))) ./ (3.0 * (wavec.^4) .* zns .* zns);
+  sigr2 = (6.0 + 3.0 .* del) ./ (6.0 - 7.0 .* del);
+  sigr = sigr1 .* sigr2;
 
-sigma_pi_Ray = sigr * 3 ./(8*pi);
+sigma_pi_Ray = sigr .* 3 ./(8.*pi);
 boltzmanns_konstant = 1.381e-23; %units J/K
-NumberDensity = 1e-6*P./(boltzmanns_konstant*T); % Units molecules / cm^3
+NumberDensity = 1e-6*P./(boltzmanns_konstant.*T); % Units molecules / cm^3
 beta_R = sigma_pi_Ray .* NumberDensity; %units 1/(cm-sr)
-beta_R = beta_R * 1e5; % units now in inverse km
-alpha_R = beta_R * 8*pi./3;
+beta_R = beta_R .* 1e5; % units now in inverse km
+alpha_R = beta_R .* 8*pi./3;
 

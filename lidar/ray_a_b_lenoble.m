@@ -9,7 +9,7 @@ function [alpha_R, beta_R] = ray_a_b_lenoble(T, P, wavelength);
 %
 % For pure Rayleigh scattering, the extinction alpha is (8pi/3)*beta
 
-%From Lenoble "Atmospheric Radiation Transfer" page 155
+%From Lenoble "Atmospheric Radiation Transfer" page 155 (12.27)
 % Rayleigh tot scat alpha = (24pi^3/lambda^4) * ((m_s^2-1)/(m_s^2+2))^2 * ((6+3d)/(6-7d)) * N/(N_s^2)
 % m_s ~=  1 + (77.46 + 0.459/lambda^2)* 1e-6 * P_o/T_o % where lambda[um], P_o[hPa] and T_o[K]
 %   lambda = .523 % [um]
@@ -40,22 +40,22 @@ end
 
 lambda_um = lambda*1e6; % [um]
 lambda_cm = lambda*100; %cm
-mu = 1/lambda_cm;
+mu = 1./lambda_cm;
 
-m_s =  1 + (77.46 + 0.459/lambda_um^2)* 1e-6 * (P_o/100)/T_o ; % lambda[um], P_o[hPa] and T_o[K]
+m_s =  1 + (77.46 + 0.459./lambda_um.^2).* 1e-6 .* (P_o./100)./T_o ; % lambda[um], P_o[hPa] and T_o[K]
 
 N_A = 6.023e23; % [1/mol]
 R = 8.3143; % [J/(mol-K)]
-N_no = (N_A / R);
+N_no = (N_A ./ R);
 %N_no = 0.7242996e22;
-N_s = (N_no) * (P_o/T_o); % [K/J]
-N = (N_no) * (P./T); % [K/J]
+N_s = (N_no) .* (P_o./T_o); % [K/J]
+N = (N_no) .* (P./T); % [K/J]
 
 d = .0279; 
-depol_factor = (6+3*d)/(6-7*d);% with d determined from P(90) = (1-d)/(1+d)
+depol_factor = (6+3.*d)./(6-7.*d);% with d determined from P(90) = (1-d)/(1+d)
 %depol_factor = 1.048; % depol factor may be as low as 1.023
 
-alpha_R = 1000*N*(depol_factor)*(24*pi^3)/(lambda^4) * ((m_s^2-1)/(m_s^2+2))^2 /(N_s^2);
+alpha_R = 1000.*N.*(depol_factor).*(24.*pi.^3)./(lambda.^4) .* ((m_s.^2-1)./(m_s.^2+2)).^2 ./(N_s.^2);
 
 %DP method, the snippet of code below is an alternate method from Donna Powell's thesis.  
 % The index of refraction is differently parameterized, but the two methods agree 
@@ -71,7 +71,7 @@ alpha_R = 1000*N*(depol_factor)*(24*pi^3)/(lambda^4) * ((m_s^2-1)/(m_s^2+2))^2 /
 
 %alpha_R = 1000*((depol_factor)*(24*pi^3)/(lambda^4))*((n.^2-1)./(n.^2+2)).^2 ./N;
 
-S_R = 8*pi/3; %Extinction/backscatter ratio 
+S_R = 8.*pi./3; %Extinction/backscatter ratio 
 
-beta_R = alpha_R/S_R;
+beta_R = alpha_R./S_R;
 

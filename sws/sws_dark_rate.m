@@ -27,6 +27,7 @@ for t = (sws.time(1)+hwin):tstep:(sws.time(end)-hwin)
    maxs = max(rate(win,:),[],2);
    good = rpoly_mad(ts,mins,1,3);
    good2 = rpoly_mad(ts,maxs,1,3);
+   
    good = good & good2;
 %    if sum(good)<length(good)
 %       disp('Screening out erratic darks')
