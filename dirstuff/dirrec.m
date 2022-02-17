@@ -4,7 +4,17 @@ if ~isavar('mask')
    mask = [getdir([],'Select a folder or diretory.'),'*.*'];
 end
 [pname, fmask,ext] = fileparts(mask); 
-if isempty(pname)||~isadir(pname), pname = getdir([],'Select a folder or diretory.');end
+if isempty(pname)||~isadir(pname)
+   [fid,errmsg] = fopen(pname, 'w'); 
+   if fid>0 
+      fclose(fid);
+   end
+   if ~isempty(errmsg)&&strcmp(errmsg,'Permission denied')
+      fprintf('Permission denied! Skipping: [%s] \n',pname);
+   else
+      pname = getdir([],'Select a folder or diretory.');
+   end
+end
 pname = [pname, filesep]; pname = strrep(pname, [filesep filesep],filesep);
 fmask = [fmask,ext]; mask = [pname, fmask];
 dd = dir(mask);
