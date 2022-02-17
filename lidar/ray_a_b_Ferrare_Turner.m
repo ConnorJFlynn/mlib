@@ -22,6 +22,7 @@ else
 end
 
 % IDL syntax from rayleigh_cross_section written by Dave Turner, logic by Rich Ferrare
+% Using refractive index of air from Penndorf (1957) 
 % lambda = 523
   wavem = lambda ./ 1000.0	; %Wavelength in microns
   wavec = wavem ./ 10000.0	; %Wavelength in centimeters

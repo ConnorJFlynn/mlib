@@ -31,7 +31,7 @@ end;
     
 %disp('Calculating Rayleigh Backscatter coefficient beta');
 P_o = 101325; % [Pa]
-T_o = 273.16; % [deg K]
+T_o = 273.15; % [deg K]
 if nargin >= 3
     lambda = wavelength;
 else 
