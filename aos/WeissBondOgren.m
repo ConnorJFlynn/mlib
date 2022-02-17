@@ -9,7 +9,7 @@ function k_WBO = WeissBondOgren(Tr)
 % 1/1.22 * Weiss
 
 % Ogren correction:
-% 0.97.*873 * Bond
+% 0.97.*.873 * Bond
 
 k0 = 1.5557; k1 = 1.0227;
 

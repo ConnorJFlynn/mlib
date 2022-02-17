@@ -1,5 +1,5 @@
-function [Ba_V,ii_,k0,k1,h0,h1,s,ssa] = compute_Virkkula_ext(Tr,Be,Ba_raw,N)
-% [Ba_V,ii,k0,k1,h0,h1,s,ssa] = compute_Virkkula_ext(Tr,Bs,Ba_raw,N)
+function [Ba_V,ii_,k0,k1,h0,h1,s,ssa] = Virk_wi_ext(Tr,Ba_raw,Be,N)
+% [Ba_V,ii,k0,k1,h0,h1,s,ssa] = Virk_wi_ext(Tr,Ba_raw,Be,N)
 % Requires filter transmittance, total extinction coef, raw absorption
 % coef, and "N" identifying the fit parameters to be used from Virkkula
 % 2010 where N: 1=Blue(467nm), 2=Green(530nm), 3=Red(660nm), 4=wavelength averaged
@@ -47,7 +47,6 @@ Ba_V = NaN(size(Tr));
 ii_ = zeros(size(Tr));
 stay = (Be>0)&(Ba_raw>0)&(ssa>0)&(ssa<=1.1)&(Tr<=1)&(Tr>=0.5);
 % stay_ = (Be>0)&(Ba_raw>0)&(ssa>0)&(ssa<=1.1)&(Tr<=1)&(Tr>=0.5);
-stays = sum(stay);
 ii = 1;
 ii_(stay) = ii;
 ssa(stay) = (Be(stay)-Ba_raw(stay)) ./ Be(stay);
@@ -59,17 +58,15 @@ Ba_V(stay) = (k0 + k1 .* (h0+ h1.*ssa(stay)) .* log(Tr(stay))).*Ba_raw(stay) - s
 % stay_(stay) = abs(ssa(stay_)- (Be(stay_).*ssa(stay_))./Be(stay_)) >0.001;
 stay(stay) = abs(ssa(stay)- (Be(stay).*ssa(stay))./(Be(stay).*ssa(stay)+Ba_V(stay))) >0.001;
 % disp('Check to see if stay and stay_ are equivalent.  Should be!')
-dstays = stays - sum(stay);
 stays = sum(stay);
-while ii<20 && dstays>0
+while ii<20 && stays>0
    ii = ii+ 1;
    ii_(stay) = ii;
    ssa(stay) = (Be(stay) -Ba_V(stay)) ./ Be(stay);
    Ba_V(stay) = (k0 + k1.*(h0+ h1.*ssa(stay)).*log(Tr(stay))).*Ba_raw(stay) - s.*Be(stay).*ssa(stay);
 %    stay_(stay_) = abs(ssa(stay_)- (Be(stay_).*ssa(stay_))./Be(stay_)) >0.0001;
-   stay(stay) = abs(ssa(stay)- (Be(stay).*ssa(stay))./(Be(stay).*ssa(stay)+Ba_V(stay))) >0.0001;
+   stay(stay) = abs(ssa(stay)- (Be(stay).*ssa(stay))./(Be(stay).*ssa(stay)+Ba_V(stay))) >0.00001;
 %    disp('Check to see if stay and stay_ are equivalent.  Should be!')
-   dstays = stays - sum(stay);
    stays = sum(stay);   
 end
 
