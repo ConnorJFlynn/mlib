@@ -15,8 +15,6 @@ cim(3) = pack_anet_aodv3(read_cimel_aod_v3(getfullname('*.lev*','anet_aod_v3','S
 % nnn = pack_anet_aodv3(read_cimel_aod_v3(getfullname('*.lev*','anet_aod_v3','Select Aeronet AOD v3 file'))); %ARM SGP
 
 nim(1) = pack_xmfrx_aod(anc_bundle_files(getfullname('*nimfraod*.cdf;*nimfraod*.nc','nimfr','Select NIMFR AOD files')));
-nim(2) = pack_xmfrx_aod(anc_bundle_files(getfullname('*nimfraod*.mat;*nimfraod*.nc','nimfr','Select NIMFR AOD files')));
-nim(3) = pack_xmfrx_aod(anc_bundle_files(getfullname('*nimfraod*.mat;*nimfraod*.nc','nimfr','Select NIMFR AOD files')));
 mfr(1) = pack_xmfrx_aod(anc_bundle_files(getfullname('*mfrsraod*.cdf;*mfrsraod*.nc','mfrC1','Select MFRSR C1 AOD files')));
 mfr(2) = pack_xmfrx_aod(anc_bundle_files(getfullname('*mfrsraod*.cdf;*mfrsraod*.nc','mfrE13','Select MFRSR E13 AOD files')));
 

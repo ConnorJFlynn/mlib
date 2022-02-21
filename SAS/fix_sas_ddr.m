@@ -57,15 +57,15 @@ DNDR_orig = DNDR_orig.*(am*ones(size(wl)));
 he_fix.DNDR_fix = he_fix.dirh_fix./he_fix.difh_fix;
 he_fix.DNDR_fix(sun_,:) = he_fix.DNDR_fix(sun_,:).*(am(sun_)*ones(size(wl)));
 
-% figure; 
-% ax(1) = subplot(2,1,1); 
-% plot(he.time, DNDR_orig(:,pixel(1)), 'k.', he_fix.time(sun_), he_fix.DNDR_fix(sun_,pixel(1)),'.',mfr.time, mfr.vdata.direct_diffuse_ratio_filter1, '-');
-% dynamicDateTicks; legend('orig ddr','fixed ddr','mfr ddr');
-% ax(2) = subplot(2,1,2);
-% plot(he.time, he.dirh_raw_new(:,pixel(1)), 'k.', he_fix.time(sun_), he_fix.dirh_fix(sun_,pixel(1)),'.',mfr.time, 400.*mfr.vdata.direct_horizontal_narrowband_filter1, '-');
-%  legend('orig dirh','fixed dirh','mfr dirh'); 
-%  dynamicDateTicks; logy;linkaxes(ax,'x'); axis(ax(1),v)
-% 
+figure; 
+ax(1) = subplot(2,1,1); 
+plot(he.time, DNDR_orig(:,pixel(1)), 'k.', he_fix.time(sun_), he_fix.DNDR_fix(sun_,pixel(1)),'.',mfr.time, mfr.vdata.direct_diffuse_ratio_filter1, '-');
+dynamicDateTicks; legend('orig ddr','fixed ddr','mfr ddr');
+ax(2) = subplot(2,1,2);
+plot(he.time, he.dirh_raw_new(:,pixel(1)), 'k.', he_fix.time(sun_), he_fix.dirh_fix(sun_,pixel(1)),'.',mfr.time, 400.*mfr.vdata.direct_horizontal_narrowband_filter1, '-');
+ legend('orig dirh','fixed dirh','mfr dirh'); 
+ dynamicDateTicks; logy;linkaxes(ax,'x'); axis(ax(1),v)
+
 % figure; plot(he_fix.time(sun_), he_fix.difh_fix(sun_,pixel(2)),'-o');
 % figure; plot(he_fix.time(sun_), he_fix.difh_fix(sun_,pixel(1)).*am,'-'); dynamicDateTicks; xlim(v(1:2))    
 % figure; plot(he_fix.time(sun_), ff,'r-' ); xlim(v(1:2)); dynamicDateTicks;
