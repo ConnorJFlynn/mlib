@@ -53,7 +53,7 @@ if ~isavar('ttau')
             ttau.nm = [ttau.nm; wl.*ones([length(mfr.time),1])];
             ttau.srctag = [ttau.srctag; src.*ones([length(mfr.time),1])];
             qs = anc_qc_impacts(mfr.vdata.(flds{qc_ii(qc)}), mfr.vatts.(flds{qc_ii(qc)}));
-            good = qs==0; sus = qs == 1;
+            good = qs==0; sus = qs == 1; good = qs<=2;
             tmp_aod = mfr.vdata.(flds{qc_ii(qc)-1})'; tmp_aod(~good) = NaN;
             ttau.aod = [ttau.aod; tmp_aod];
         end
@@ -98,18 +98,18 @@ while dd <= length(dates)
     this_day = day==dates(dd);
     this_i = find(this_day,1);
 %     src_str{unique(ttau.srctag(this_day))}
-    AM_leg.airmass = []; AM_leg.aod_fit = []; AM_leg.time_LST = [];
-    PM_leg.airmass = []; PM_leg.aod_fit = []; PM_leg.time_LST = [];
+    AM_leg.airmass = []; AM_leg.aod_fit = []; AM_leg.time_LST = []; AM_leg.nm = []; AM_leg.src = [];
+    PM_leg.airmass = []; PM_leg.aod_fit = []; PM_leg.time_LST = []; PM_leg.nm = []; PM_leg.src = [];
     %% AM leg
     while serial2Hh(ttau.time_LST(this_i)) < (noon-.5) && this_i < find(this_day,1,'last')%
-        these_m = day==dates(dd) & abs(ttau.airmass-ttau.airmass(this_i))<.1;
+        these_m = day==dates(dd) & (serial2Hh(ttau.time_LST) < (noon-.5)) & abs(ttau.airmass-ttau.airmass(this_i))<.1;
         srcs = unique(ttau.srctag(these_m)); srcs_str = [sprintf('%s, ',src_str{srcs(1:end-1)}),sprintf('%s',src_str{srcs(end)})];
         % Loop over all unique sources, taking mean of each source by wl
         % Plotting each in a different color.
         clear this_am src
         this_am.src = []; this_am.nm = []; this_am.aod = [];
         this_am.time_LST = mean(ttau.time_LST(these_m));
-        clf; cla; hold('on')
+        figure_(22); clf; cla; hold('on');
         title({[datestr(mean(ttau.time_LST(these_m)),'yyyy-mm-dd HH:MM'), sprintf(', AM airmass = %2.1f',mean(ttau.airmass(these_m)))];...
             ['Sources: ',srcs_str]});
         for s_i = 1:length(srcs) % check that srcs is the right orientation
@@ -124,7 +124,7 @@ while dd <= length(dates)
             this_am.aod = [this_am.aod; src(s_i).aod];
             this_am.nm = [this_am.nm; src(s_i).nm];
             this_am.src = [this_am.src ; srcs(s_i).*ones(size(src(s_i).aod))];
-            plot(src(s_i).nm, src(s_i).aod,'o', 'MarkerSize',4,'MarkerEdgeColor',src_color(srcs(s_i),:)); logx; logy; hold('on');
+            figure_(22); plot(src(s_i).nm, src(s_i).aod,'o', 'MarkerSize',4,'MarkerEdgeColor',src_color(srcs(s_i),:)); logx; logy; hold('on');
         end
         % Fit best AOD and plot in black dots every 20 nm for this am and time.
         % Save best fit AOD
@@ -135,11 +135,13 @@ while dd <= length(dates)
         else
             [aod_fit, good_wl_] = rfit_aod_basis(this_am.nm, this_am.aod, wl_out, mad_factor);
         end
-        plot(wl_out, aod_fit,'k--');
+        figure_(22);plot(wl_out, aod_fit,'k--');
         lg = legend([src(:).str,'fit']); set(lg,'interp','none');pause(.1)
         AM_leg.time_LST = [AM_leg.time_LST; this_am.time_LST];
         AM_leg.aod_fit = [AM_leg.aod_fit; aod_fit];
         AM_leg.airmass = [AM_leg.airmass; mean(ttau.airmass(these_m))];
+        AM_leg.nm = unique([AM_leg.nm; this_am.nm]);
+        AM_leg.src = unique([AM_leg.src; this_am.src]);
         this_i = find(these_m, 1,'last')+1;
     end % of AM leg
     if ~isfield(lang_legs,AM_str)
@@ -164,9 +166,9 @@ while dd <= length(dates)
 %     this_i = find(these_m, 1,'last')+1;
     figure_(22);
     % Start PM leg
-
-    while  this_i < find(this_day,1,'last')&& serial2Hh(ttau.time_LST(this_i)) > (noon+.5) %         
-        these_m = day==dates(dd) & abs(ttau.airmass-ttau.airmass(this_i))<.1;
+    this_i = find(this_day & (serial2Hh(ttau.time_LST)>(noon+.5)),1,'first');
+    while  ~isempty(this_i)&&(this_i < find(this_day,1,'last'))%         
+        these_m = day==dates(dd) & (serial2Hh(ttau.time_LST) > (noon+.5)) & abs(ttau.airmass-ttau.airmass(this_i))<.1;
         srcs = unique(ttau.srctag(these_m)); srcs_str = [sprintf('%s, ',src_str{srcs(1:end-1)}),sprintf('%s',src_str{srcs(end)})];
         % Loop over all unique sources, taking mean of each source by wl
         % Plotting each in a different color.
@@ -188,7 +190,7 @@ while dd <= length(dates)
             this_am.aod = [this_am.aod; src(s_i).aod];
             this_am.nm = [this_am.nm; src(s_i).nm];
             this_am.src = [this_am.src ; srcs(s_i).*ones(size(src(s_i).aod))];
-            plot(src(s_i).nm, src(s_i).aod,'o', 'MarkerSize',4,'MarkerEdgeColor',src_color(srcs(s_i),:)); logx; logy; hold('on');
+            figure_(22);plot(src(s_i).nm, src(s_i).aod,'o', 'MarkerSize',4,'MarkerEdgeColor',src_color(srcs(s_i),:)); logx; logy; hold('on');
         end
         % Fit best AOD and plot in black dots every 20 nm for this am and time.
         % Save best fit AOD
@@ -199,11 +201,13 @@ while dd <= length(dates)
         else
             [aod_fit, good_wl_] = rfit_aod_basis(this_am.nm, this_am.aod, wl_out, mad_factor);
         end
-        plot(wl_out, aod_fit, 'r--');pause(.1)
+        figure_(22);plot(wl_out, aod_fit, 'r--');pause(.1)
         lg = legend([src(:).str,'fit']); set(lg,'interp','none');pause(.1)
         PM_leg.time_LST = [PM_leg.time_LST; this_am.time_LST];
         PM_leg.aod_fit = [PM_leg.aod_fit; aod_fit];
         PM_leg.airmass = [PM_leg.airmass; mean(ttau.airmass(these_m))];
+        PM_leg.nm = unique([PM_leg.nm; this_am.nm]);
+        PM_leg.src = unique([PM_leg.src; this_am.src]);
         this_i = find(these_m, 1,'last')+1;
     end % of PM leg
     if ~isfield(lang_legs,PM_str)
