@@ -6,6 +6,7 @@ function DU = ppv2DU(ppv, MW, P);
 % P [mbarr] is optional, default is 1013.25 mbar = 1.01325 bar = 1 atm. 
 % This code assumed STP = 1013.25 mbarr at 0 deg C = 273.15 K
 % and thus the molar volume of an ideal gas is 2.2414e4 cm^3 * atm / mol
+% See also xs_ppv2od and xs_cm2od to convert cross-section to OD 
 
 if ~isavar('ppv')||ppv>1
     error('PPV is required <=1)')
