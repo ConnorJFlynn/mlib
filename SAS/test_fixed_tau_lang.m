@@ -40,7 +40,7 @@ Cal.time_LST = []; Cal.ro = [];
 if isafile(which('lang_legs.mat'))
     Lang_Legs = load('lang_legs');
 else
-    [ttau, Lang_Legs] = lang_tau_series;
+    [Lang_Legs,ttau] = lang_tau_series;
 end
 if isfield(Lang_Legs,'lang_legs')
     Lang_Legs = Lang_Legs.lang_legs;
