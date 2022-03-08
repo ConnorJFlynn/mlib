@@ -16,7 +16,9 @@ if ~isavar('ttau')||isempty(ttau)
     ttau.nm = [];
     ttau.aod = [];
     ttau.srctag = [];
+
     src = 0;
+
     cimfile = getfullname('*.*','anet_aod_v3');
     while ~isempty(cimfile)&&isafile(cimfile)
         [~,fname,ext] =fileparts(cimfile);[fname,ext]
@@ -40,18 +42,23 @@ if ~isavar('ttau')||isempty(ttau)
     mfr_day = [];
     mfr_files(1) = {getfullname('*aod1mich*','aod1mich')};
     while ~isempty(mfr_files{end})
+
         [~,fname,ext] =fileparts(mfr_files{end}{1});[fname,ext]
         src = src + 1;
         src_str(src) = {input('Enter a label for this source: ','s')};
         next = min([30,length(mfr_files{end})]);
         mfr_files(end+1) = {getfullname('*aod1mich*','aod1mich')};
-    end
+    end 
     mfr_files(end) = [];
     for m = 1:length(mfr_files)
-        src= cims + m;
-        mfr = anc_bundle_files({mfr_files{m}{1:next}});
+%         if ~isavar('mfr')
+            mfr = anc_bundle_files({mfr_files{m}{1:next}});
+%         else
+%             mfr(end+1) = anc_bundle_files({mfr_files{end}{1:next}});
+%         end; 
         mfr_files{m}(1:next) = [];
         flds = fields(mfr.vdata);
+        mfr_day = min([mfr_day, ceil(mfr(end).time(end))]); %read more files on this date
         qc_aod_ = foundstr(flds, 'qc_aerosol_optical_depth');
         qc_ii = find(qc_aod_);
         for qc = 1:sum(qc_aod_)
@@ -64,9 +71,9 @@ if ~isavar('ttau')||isempty(ttau)
             good = qs==0;
             tmp_aod = mfr.vdata.(flds{qc_ii(qc)-1})'; tmp_aod(~good) = NaN;
             ttau.aod = [ttau.aod; tmp_aod];
-        end
+        end        
     end
-
+    
     % By here we've read all Cimels files and one of each xmfrx file to
     % determine start date for entire series.
 
@@ -108,13 +115,50 @@ ttau_fit.wl = wl_out;
 mad_factor = 4;
 
 while ~all_MT
+    if dates(dd)>=mfr_day
+        mfr_day = [];
+        %check if more mfr data needed...
+        for m = 1:length(mfr_files)
+            src = cims + m;
+            next = min([30,length(mfr_files{m})]);
+            mfr = anc_bundle_files({mfr_files{m}{1:next}});
+            mfr_files{m}(1:next) = [];
+            flds = fields(mfr.vdata);
+            mfr_day = min([mfr_day, ceil(mfr.time(end))]); %read more files on this day
+            qc_aod_ = foundstr(flds, 'qc_aerosol_optical_depth');
+            qc_ii = find(qc_aod_);
+            for qc = 1:sum(qc_aod_)
+                wl = sscanf(mfr.gatts.(['filter',num2str(qc),'_CWL_measured']),'%f');
+                ttau.time = [ttau.time; mfr.time'];
+                ttau.airmass = [ttau.airmass; mfr.vdata.airmass'];
+                ttau.nm = [ttau.nm; wl.*ones([length(mfr.time),1])];
+                ttau.srctag = [ttau.srctag; src.*ones([length(mfr.time),1])];
+                qs = anc_qc_impacts(mfr.vdata.(flds{qc_ii(qc)}), mfr.vatts.(flds{qc_ii(qc)}));
+                good = qs==0;
+                tmp_aod = mfr.vdata.(flds{qc_ii(qc)-1})'; tmp_aod(~good) = NaN;
+                ttau.aod = [ttau.aod; tmp_aod];
+            end
+        end
+        [ttau.time, ij] = sort(ttau.time);
+        ttau.airmass = ttau.airmass(ij);
+        ttau.nm = ttau.nm(ij);
+        ttau.srctag = ttau.srctag(ij);
+        ttau.aod = ttau.aod(ij);
+        bad = ttau.time<0 | ttau.airmass<0 | ttau.aod <0| isnan(ttau.time)|isnan(ttau.airmass)|isnan(ttau.aod);
+        ttau.time(bad) = [];ttau.airmass(bad) = [];
+        ttau.nm(bad) = [];ttau.srctag(bad) = []; ttau.aod(bad) = [];
+        ttau.time_LST = ttau.time + double(mfr.vdata.lon/15)./24;
+    end
+    ttau.time_LST = ttau.time + double(mfr.vdata.lon/15)./24;
     day = floor(ttau.time_LST);
     dates = unique(day);
     all_MT = isempty(mfr_files{end}); m = length(mfr_files)-1;
     while all_MT && m > 0
         all_MT = all_MT && isempty(mfr_files{m}); m = m -1;
     end
+
     if ~quiet fig22 = figure_(22); end
+
     Day_str = ['SolarDay_',datestr(dates(dd),'yyyymmdd')];
     fprintf('%s%s... ','Starting ',Day_str);
     this_day = day==dates(dd);
@@ -123,7 +167,7 @@ while ~all_MT
     ttau_fit.airmass = []; ttau_fit.aod_fit = []; ttau_fit.time_LST = []; ttau_fit.nm = []; ttau_fit.src = [];
     if ~quiet figure_(22);end
     while  ~isempty(this_i)&&(this_i < find(this_day,1,'last'))%
-        etime_mins = (ttau.time-ttau.time(this_i)).*24.*60;
+        etime_mins = (ttau.time-ttau.time(this_i)).*24.*60; 
         etime_mins(etime_mins<0) = NaN;
         these_m = day==dates(dd) & abs(ttau.airmass-ttau.airmass(this_i))<.1 & etime_mins>=0& etime_mins<5;
         srcs = unique(ttau.srctag(these_m)); srcs_str = [sprintf('%s, ',src_str{srcs(1:end-1)}),sprintf('%s',src_str{srcs(end)})];
@@ -184,42 +228,9 @@ while ~all_MT
         ttau_fit.nm = unique([ttau_fit.nm; this_am.nm]);
         ttau_fit.src = unique([ttau_fit.src; this_am.src]);
         this_i = find(these_m, 1,'last')+1;
-    end
+    end 
     fprintf('%s \n','Done. ');
     dd = dd +1;
-    %check if more mfr data needed...
-    for m = 1:length(mfr_files)
-        src = cims + m;
-        m_days = length(unique(floor(ttau.time((ttau.time>ttau.time(this_i)) & (ttau.srctag==src)))));
-        if m_days<3 % load files
-            next = min([30,length(mfr_files{m})]);
-            mfr = anc_bundle_files({mfr_files{m}{1:next}});
-            mfr_files{m}(1:next) = [];
-            flds = fields(mfr.vdata);
-            qc_aod_ = foundstr(flds, 'qc_aerosol_optical_depth');
-            qc_ii = find(qc_aod_);
-            for qc = 1:sum(qc_aod_)
-                wl = sscanf(mfr.gatts.(['filter',num2str(qc),'_CWL_measured']),'%f');
-                ttau.time = [ttau.time; mfr.time'];
-                ttau.airmass = [ttau.airmass; mfr.vdata.airmass'];
-                ttau.nm = [ttau.nm; wl.*ones([length(mfr.time),1])];
-                ttau.srctag = [ttau.srctag; src.*ones([length(mfr.time),1])];
-                qs = anc_qc_impacts(mfr.vdata.(flds{qc_ii(qc)}), mfr.vatts.(flds{qc_ii(qc)}));
-                good = qs==0;
-                tmp_aod = mfr.vdata.(flds{qc_ii(qc)-1})'; tmp_aod(~good) = NaN;
-                ttau.aod = [ttau.aod; tmp_aod];
-            end
-        end
-    end
-    [ttau.time, ij] = sort(ttau.time);
-    ttau.airmass = ttau.airmass(ij);
-    ttau.nm = ttau.nm(ij);
-    ttau.srctag = ttau.srctag(ij);
-    ttau.aod = ttau.aod(ij);
-    bad = ttau.time<0 | ttau.airmass<0 | ttau.aod <0| isnan(ttau.time)|isnan(ttau.airmass)|isnan(ttau.aod);
-    ttau.time(bad) = [];ttau.airmass(bad) = [];
-    ttau.nm(bad) = [];ttau.srctag(bad) = []; ttau.aod(bad) = [];
-    ttau.time_LST = ttau.time + double(mfr.vdata.lon/15)./24;
 end
 
 end

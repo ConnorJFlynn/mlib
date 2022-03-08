@@ -1,4 +1,4 @@
-function [ttau, lang_legs] = lang_tau_series(ttau)
+function [lang_legs, ttau] = lang_tau_series(ttau)
 % compose a time series of tau from multiple potential sources for use in
 % tau-weighted langley retreival for SASabz
 
@@ -53,7 +53,8 @@ if ~isavar('ttau')
             ttau.nm = [ttau.nm; wl.*ones([length(mfr.time),1])];
             ttau.srctag = [ttau.srctag; src.*ones([length(mfr.time),1])];
             qs = anc_qc_impacts(mfr.vdata.(flds{qc_ii(qc)}), mfr.vatts.(flds{qc_ii(qc)}));
-            good = qs==0; sus = qs == 1; good = qs<=2;
+            good = qs==0; sus = qs == 1; 
+            %good = qs<2; % To accept suspect, uncomment this line
             tmp_aod = mfr.vdata.(flds{qc_ii(qc)-1})'; tmp_aod(~good) = NaN;
             ttau.aod = [ttau.aod; tmp_aod];
         end
