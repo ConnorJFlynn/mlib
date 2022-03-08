@@ -20,9 +20,9 @@ dVdlnr= [0.000799	0.000783	0.001214	0.00283	0.008527	0.025265	0.052488	0.056106	
 
 %specifying a larger/different WL range compared to aeronet provides the
 %ability to extend AOD from their specific wavelengths. 
-wl = [325:25:1700];
+wl = [325:25:1700 2000:100:4000 4500:500:10000];
 ni = interp1(lambda, n_i, wl, 'linear','extrap');
-
+ 
 % eaod = rd_anetaip_v3;
 cad = rd_anetaip_v3;
 % aod_lev1p5 = rd_anetaod_v3;
@@ -48,7 +48,7 @@ for ks = 1:length(goods)
         vol.VolC_C(kk).*LnNormal(bin_rad, vol.VMR_C(kk), exp(vol.Std_C(kk)));
     M1.VolC = vol.VolC_F(kk); M1.vmr = vol.VMR_F(kk); M1.std = vol.Std_F(kk);
     M2.VolC = vol.VolC_C(kk); M2.vmr = vol.VMR_C(kk); M2.std = vol.Std_C(kk);
-    [aod_bm,ssa_bm] = anet_mie(wl,ni, bin_rad, M1, M2);
+%     [aod_bm,ssa_bm] = anet_mie(wl,ni, bin_rad, M1, M2);
 [aod, ssa] = anet_mie(wl,ni, siz.bin_radius, siz.dV_dlnr(kk,:));
      sb(1) =subplot(1,2,1);  hold('on'); 
  plot(siz.bin_radius, siz.dV_dlnr(kk,:),'k-o',bin_rad, dVdlnr,'rx'); xlabel('radius [um]'); ylabel('dV/dlnr'); logx

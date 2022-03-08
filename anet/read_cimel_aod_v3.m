@@ -105,7 +105,7 @@ if fid>0
       if ang>0
          tmp = ['AE_' tmp(1:(ang-1))];
       end
-      label{lab} = legalizename(tmp); legalizename(tmp)
+      label{lab} = legalizename(tmp); legalizename(tmp);
       if ~isempty(strfind(label{lab},'Date'))...
             ||~isempty(strfind(label{lab},'Data_Quality'))...
             ||~isempty(strfind(label{lab},'Site_Name'))

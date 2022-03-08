@@ -1,8 +1,9 @@
-function he_fix = fix_sas_ddr(he, mfr)
+function he = fix_sas_ddr(he, mfr)
 % he = fix_sas_ddr(he, mfr)
 % fixes SAS direct_to_diffuse ratio to agree with MFRSR by rescaling and partioning the
-% SAS measured direct and diffuse fields.  Have verified that this portioning is
+% SAS measured direct and diffuse fields.  Have verified that this aportioning is
 % wavelength independent.
+
 if ~isavar('mfr')
     mfr = anc_bundle_files;
 end
@@ -13,58 +14,98 @@ elseif isfield(he,'vdata')&&isfield(he.vdata,'wavelength')
     wl = he.vdata.wavelength;
     pixel = interp1(he.vdata.wavelength, [1:length(he.vdata.wavelength)],[415,500,615,673,870],'nearest'); %this pixel is near the maximum solar brightness
 end
-dirh = he.dirh_raw_new(:,pixel); difh = he.difh_raw_new(:,pixel);
+dirh = he.vdata.dirh_raw_fsb(pixel,:); difh = he.vdata.difh_raw_fsb(pixel,:);
 
-sun_ = dirh(:,2)>0 & (dirh(:,2)./(dirh(:,2)+difh(:,2))) > .15;
-sun = double(sun_); sun(~sun_) = NaN;
+sun_ = dirh(2,:)>0 & (dirh(2,:)./(dirh(2,:)+difh(2,:))) > .15; 
+sun = double(sun_); sun(~sun_) = NaN; %Used to mask non-sun elements in plot
 
+% ff is that fraction by which the direct component is under-represented
+% and which is incorrectly attributed as additional diffuse signal.
+% Compute ff for three wavelengths (for robustness) but apply equally at
+% all wavelengths since this is a geometric effect attributable to the
+% shadow on the diffuser which affects all wavelengths equally
 k = mfr.vdata.direct_diffuse_ratio_filter1./mfr.vdata.airmass;
-k = interp1(mfr.time, k, he.time, 'linear')';
+k = interp1(mfr.time, k, he.time, 'linear');
 k(~sun_) = NaN;
-ff = (k(sun_).*(difh(sun_,1)./dirh(sun_,1))-1)./(k(sun_)+1);
+ff = (k(sun_).*(difh(1,sun_)./dirh(1,sun_))-1)./(k(sun_)+1);
 
 k = mfr.vdata.direct_diffuse_ratio_filter2./mfr.vdata.airmass;
-k = interp1(mfr.time, k, he.time, 'linear')';
+k = interp1(mfr.time, k, he.time, 'linear');
 k(~sun_) = NaN;
-ff(:,2) = (k(sun_).*(difh(sun_,2)./dirh(sun_,2))-1)./(k(sun_)+1);
+ff(2,:) = (k(sun_).*(difh(2,sun_)./dirh(2, sun_))-1)./(k(sun_)+1);
 
 k = mfr.vdata.direct_diffuse_ratio_filter3./mfr.vdata.airmass;
-k = interp1(mfr.time, k, he.time, 'linear')';
+k = interp1(mfr.time, k, he.time, 'linear');
 k(~sun_) = NaN;
-ff(:,3) = (k(sun_).*(difh(sun_,3)./dirh(sun_,3))-1)./(k(sun_)+1);
+ff(3,:) = (k(sun_).*(difh(3, sun_)./dirh(3, sun_))-1)./(k(sun_)+1);
 
-dirh_new = dirh(sun_,:) .*(1+ mean(ff,2)*ones(size(pixel)));
-difh_new = difh(sun_,:) - dirh(sun_,:).*(mean(ff,2)*ones(size(pixel)));
-am = interp1(mfr.time, mfr.vdata.airmass, he.time, 'linear')';
-DDR_new = (dirh_new./difh_new).*(am(sun_)*ones(size(pixel)));
+% Used average ff and confirmed graphically that it looks good for pixel
+% dirh_new = dirh(sun_,:) .*(1+ mean(ff,2)*ones(size(pixel)));
+% difh_new = difh(sun_,:) - dirh(sun_,:).*(mean(ff,2)*ones(size(pixel)));
+% am = interp1(mfr.time, mfr.vdata.airmass, he.time, 'linear')';
+% DDR_new = (dirh_new./difh_new).*(am(sun_)*ones(size(pixel)));
 
-ff = mean(ff,2); ff(ff<-0.1) = NaN;
-baddifdir = (difh(sun_,:)./dirh(sun_,:))<= ff; baddifdir=any(baddifdir,2);
+% physically, ff >= 0 (statistically allow >= -0.1 )and also >= difh/dirh ratio
+% dirh = he.vdata.dirh_raw_fsb(:,pixel); difh = he.vdata.difh_raw_fsb(:,pixel);
+ff = mean(ff,1); ff(ff<-0.1) = NaN;
+baddifdir = (he.vdata.difh_raw_fsb(pixel,sun_)./he.vdata.dirh_raw_fsb(pixel,sun_))<= (ones(size(pixel'))*ff); 
+baddifdir=any(baddifdir,1);
 ff(baddifdir) = NaN;
-he_fix.time = he.time;
-he_fix.ff = ff;
-he_fix.dirh_fix = he.dirh_raw_new;
-he_fix.dirh_fix(sun_,:) = he.dirh_raw_new(sun_,:) .*(1+ mean(ff,2)*ones(size(wl)));
-he_fix.dirh_fix(~sun_,:) = NaN;
+% Intend to create new field ff in he, and output re-scaled direct and
+% diffuse and DNDR components in place.  
 
-he_fix.difh_fix = he.difh_raw_new;
-he_fix.difh_fix(sun_,:) = he.difh_raw_new(sun_,:) - he.dirh_raw_new(sun_,:).*(mean(ff,2)*ones(size(wl)));
-he_fix.difh_fix(~sun_,:) = NaN;
+he.ncdef.vars.shading_error = he.ncdef.vars.airmass;
+he.vdata.shading_error = zeros(size(he.vdata.airmass));
+he.vdata.shading_error(sun_) = ff;
+he.vatts.shading_error = he.vatts.airmass; 
+he.vatts.shading_error.long_name = 'Shading error as a fraction of direct component misplaced'; 
+he.vatts.integration_time.units = '1'; 
 
-DNDR_orig = he.dirh_raw_new./he.difh_raw_new;
-DNDR_orig = DNDR_orig.*(am*ones(size(wl)));
+he.ncdef.vars.dirh_ffixed = he.ncdef.vars.dirh_raw_fsb;
+he.vdata.dirh_ffixed = he.vdata.dirh_raw_fsb;
+he.vdata.dirh_ffixed(:,sun_) = he.vdata.dirh_raw_fsb(:,sun_) .*(1+ ones(size(he.vdata.wavelength))*ff);
+he.vatts.dirh_ffixed = he.vatts.dirh_raw_fsb; 
+he.vatts.dirh_ffixed.long_name = 'Direct horiz., FSB max-min method, fixed to MFRSR DDR'; 
+he.vatts.dirh_ffixed.units = '1/ms'; 
 
-he_fix.DNDR_fix = he_fix.dirh_fix./he_fix.difh_fix;
-he_fix.DNDR_fix(sun_,:) = he_fix.DNDR_fix(sun_,:).*(am(sun_)*ones(size(wl)));
+he.ncdef.vars.difh_ffixed = he.ncdef.vars.difh_raw_fsb;
+% he_fix.difh_fix(sun_,:) = he.difh_raw_new(sun_,:) - he.dirh_raw_new(sun_,:).*(mean(ff,2)*ones(size(wl)));
+he.vdata.difh_ffixed = he.vdata.difh_raw_fsb;
+he.vdata.difh_ffixed(:,sun_) = he.vdata.difh_raw_fsb(:,sun_) - ...
+    he.vdata.dirh_raw_fsb(:,sun_).*(ones(size(he.vdata.wavelength))*ff); 
+he.vatts.difh_ffixed.long_name = 'Diffuse hemisp., FSB max-min method, fixed to MFRSR DDR'; 
+he.vatts.difh_ffixed.units = '1/ms'; 
+ 
+he.ncdef.vars.DNDR_raw = he.ncdef.vars.difh_raw_fsb;
+he.vdata.DNDR_raw = (ones(size(he.vdata.wavelength))*he.vdata.airmass).* he.vdata.dirh_raw_fsb./he.vdata.difh_raw_fsb;
+he.vatts.DNDR_raw = he.vatts.difh_raw_fsb; 
+he.vatts.DNDR_raw.long_name = 'Direct Normal to Diffuse Hemis Ratio: dirn/difh_raw'; 
+he.vatts.DNDR_raw.units = '1'; 
+
+he.ncdef.vars.DNDR_ffixed = he.ncdef.vars.difh_ffixed;
+he.vdata.DNDR_ffixed = (ones(size(he.vdata.wavelength))*he.vdata.airmass).* he.vdata.dirh_ffixed./he.vdata.difh_ffixed;
+he.vatts.DNDR_ffixed = he.vatts.difh_raw_fsb; 
+he.vatts.DNDR_ffixed.long_name = 'Direct Normal to Diffuse Hemisp Ratio: dirn_ffixed/difh_ffixed'; 
+he.vatts.DNDR_ffixed.units = '1'; 
+
+
+% DNDR_orig = he.dirh_raw_new./he.difh_raw_new;
+% DNDR_orig = DNDR_orig.*(am*ones(size(wl)));
+% 
+% he_fix.DNDR_fix = he_fix.dirh_fix./he_fix.difh_fix;
+% he_fix.DNDR_fix(sun_,:) = he_fix.DNDR_fix(sun_,:).*(am(sun_)*ones(size(wl)));
 
 figure; 
 ax(1) = subplot(2,1,1); 
-plot(he.time, DNDR_orig(:,pixel(1)), 'k.', he_fix.time(sun_), he_fix.DNDR_fix(sun_,pixel(1)),'.',mfr.time, mfr.vdata.direct_diffuse_ratio_filter1, '-');
+plot(he.time, he.vdata.DNDR_raw(pixel(1),:), 'k.', he.time(sun_), he.vdata.DNDR_ffixed(pixel(1),sun_),'.',mfr.time, mfr.vdata.direct_diffuse_ratio_filter1, '-');
 dynamicDateTicks; legend('orig ddr','fixed ddr','mfr ddr');
 ax(2) = subplot(2,1,2);
-plot(he.time, he.dirh_raw_new(:,pixel(1)), 'k.', he_fix.time(sun_), he_fix.dirh_fix(sun_,pixel(1)),'.',mfr.time, 400.*mfr.vdata.direct_horizontal_narrowband_filter1, '-');
+plot(he.time, he.vdata.dirh_raw_fsb(pixel(1),:), 'k.', he.time(sun_), he.vdata.dirh_ffixed(pixel(1), sun_),'.',mfr.time, 380.*mfr.vdata.direct_horizontal_narrowband_filter1, '-');
  legend('orig dirh','fixed dirh','mfr dirh'); 
- dynamicDateTicks; logy;linkaxes(ax,'x'); axis(ax(1),v)
+ dynamicDateTicks; logy;linkaxes(ax,'x'); 
+ if isavar('v')
+     axis(ax(1),v)
+ end
 
 % figure; plot(he_fix.time(sun_), he_fix.difh_fix(sun_,pixel(2)),'-o');
 % figure; plot(he_fix.time(sun_), he_fix.difh_fix(sun_,pixel(1)).*am,'-'); dynamicDateTicks; xlim(v(1:2))    

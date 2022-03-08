@@ -43,6 +43,9 @@ elseif isfield(he,'vdata')&&isfield(he.vdata,'wavelength')
     blocked_= he.vdata.tag==8; blocked_ii = find(blocked_);
     sideB_ = he.vdata.tag==10;
 
+    if blocked_ii(end)== length(sideB_)
+        blocked_ii(end) = [];
+    end
     good_blk = sideA_(blocked_ii-1) & sideB_(blocked_ii+1);
     blocked_(blocked_ii(~good_blk)) = false;
     blocked_ii = find(blocked_);
@@ -53,7 +56,9 @@ elseif isfield(he,'vdata')&&isfield(he.vdata,'wavelength')
 %     toth_raw = he.vdata.spectra(blocked_ii-2,:);
 
 end
-
+    if blocked_ii(end)== length(sideB_)
+        blocked_ii(end) = [];
+    end
     sbz = rate(blocked_,:);
     sba = rate(blocked_ii-1,:); 
     sbb = rate(blocked_ii+1,:);
@@ -70,6 +75,12 @@ for b = length(blocked_ii):-1:1
     sb_min(b,:) = abz(max_i(1),:);
     sb_max(b,:) = abz(max_i(3),:);
 end
+if size(sb_avg,1)>size(sbz,1)
+    sb_avg(size(sbz,1)+1:end,:)=[];
+elseif size(sbz,1)>size(sb_avg,1)
+    sbz(size(sb_avg,1)+1:end,:) = [];
+end
+
 dirh_raw_old = sb_avg-sbz;
 dirh_raw_new = sb_max-sb_min;
 % dirh_raw_comb =  dirh_raw_old .* (double(good_band')*ones(size(wl))) + ...
