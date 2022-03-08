@@ -48,7 +48,7 @@ nir_dark = mean(he_nir.spec(he_nir.Shutter_open_TF==0,:));
 figure; lines = semilogy(he_vis.lambda(vis_nm), he_vis.spec(he_vis.Shutter_open_TF==1,vis_nm)-...
    ones(size(he_vis.time(he_vis.Shutter_open_TF==1)))*mean(he_vis.spec(he_vis.Shutter_open_TF==0,vis_nm)), '-',...
 he_nir.lambda(nir_nm), he_nir.spec(he_nir.Shutter_open_TF==1,nir_nm)-ones(size(he_nir.time(he_nir.Shutter_open_TF==1)))*mean(he_nir.spec(he_nir.Shutter_open_TF==0,nir_nm)), '-'   );
-lines = recolor(lines, [he_vis.Tag(he_vis.Shutter_open_TF==1);he_nir.Tag(he_nir.Shutter_open_TF==1)]');
+recolor(lines, [he_vis.Tag(he_vis.Shutter_open_TF==1);he_nir.Tag(he_nir.Shutter_open_TF==1)]');
 colorbar
 %%
 he_vis.TH_low = he_vis.spec(he_vis.Tag==5,:);
