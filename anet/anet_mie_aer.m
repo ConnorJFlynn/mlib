@@ -1,14 +1,13 @@
 function anet_mie_aer
 % Connor, 2022-03-07, off-shoot of anet_mie to text extension to 10 um for Eli Mlawer AER
-% This code tests my mods of Feng Xu's Mie_AERONET in ==>> anet_mie
-% which permit use of aeronet intensive property retrievals V3 for 
-% refractive index (*.rin) and ASD as either PSD in dVdlnr in (*.size)
-% or as log-normal modes in (*.vol)
-% Compares Mie-computed AOD against aeronet aod, cad
+% Initially tested extension of index of refraction to 10 um assuming one
+% of two bounding cases: 
+% 1) Hygroscopic aerosol dominated by large essentially droplets, n* = Re 1.2 Im 0.05
+% 2) Fe2O3 iron oxide dust n* = Re 2 Im 0.02
+% Next testing using 
+% 1) a weighted average of Re @ 1020 nm = 1.5 ==> Re @ 10um 1.7 
+% 2) interpolated between 1.2-> 2 and 0.05 -> 0.02 via Re from 1.3->1.6
 
-% Reproduce Aeronet SD from Aeronet lognormal
-% Getting close but still have scale factor issue and probably error
-% reconstructiong the lognormal PSD from the parameters
 
 % rm=[0.050000,0.065604,0.086077,0.112939,0.148184,0.194429,0.255105,0.334716,0.439173,0.576227,0.756052,0.991996,1.301571,1.707757,2.240702,2.939966,3.857452,5.061260,6.640745,8.713145,11.432287,15.000000];
 % dVdlnr = [0.000321,0.002708,0.010422,0.018989,0.018266,0.011193,0.005670,0.003155,0.002377,0.002548,0.003535,0.005525,0.008811,0.013720,0.020467,0.028187,0.032764,0.028586,0.017028,0.006553,0.001587,0.000240];
@@ -45,6 +44,7 @@ goods = find(good);
 aer_cases_used.bina = bina;
 
 wl = [325:25:1050 1100:100:1900 2000:250:4250 4500:500:10000];
+wl = [325:50:1050 1100:200:1900 2000:500:4500 sort([5000:1000:10000, 7690,8333,9091,11111,12500])];
 wl_1700_ij = interp1(wl, [1:length(wl)],1700,'nearest');
 % wl = [325:25:1700];
 % ni = interp1(lambda, n_i, wl, 'linear','extrap');
@@ -58,11 +58,22 @@ for ij = length(ainb):-1:1
     aer_cases_used.aod_co(ij,:) = aod_co;
 %     Ref_Ind_real = [rin.Refractive_Index_Real_Part(goods(ai),:)];
 %     Ref_Ind_imag = [rin.Refractive_Index_Imaginary_Part(goods(ai),:)];
-    Ref_Ind_real = [rin.Refractive_Index_Real_Part(goods(ai),:),2]; % Fe2O3 iron-oxide dust
-    Ref_Ind_imag = [rin.Refractive_Index_Imaginary_Part(goods(ai),:),0.02];% Fe2O3 iron-oxide dust
-    Ref_Ind_real = [rin.Refractive_Index_Real_Part(goods(ai),:),1.2]; % water
-    Ref_Ind_imag = [rin.Refractive_Index_Imaginary_Part(goods(ai),:),0.05];% water
-
+    Ref_Re_10um(ij) = interp1([1.3,1.6],[1.2,2],rin.Refractive_Index_Real_Part(goods(ai),4),'linear');
+    if isnan(Ref_Re_10um(ij))
+        Ref_Re_10um(ij) = interp1([1.3,1.6],[1.2,2],rin.Refractive_Index_Real_Part(goods(ai),4),'nearest','extrap');
+    end
+    Ref_Im_10um(ij) = interp1([1.3,1.6],[.05,.02],rin.Refractive_Index_Real_Part(goods(ai),4),'linear');
+    if isnan(Ref_Im_10um(ij))
+        Ref_Im_10um(ij) = interp1([1.3,1.6],[.05,.02],rin.Refractive_Index_Real_Part(goods(ai),4),'nearest','extrap');
+    end
+%     Ref_Ind_real = [rin.Refractive_Index_Real_Part(goods(ai),:),2]; % Fe2O3 iron-oxide dust
+%     Ref_Ind_imag = [rin.Refractive_Index_Imaginary_Part(goods(ai),:),0.02];% Fe2O3 iron-oxide dust
+%     Ref_Ind_real = [rin.Refractive_Index_Real_Part(goods(ai),:),1.2]; % water
+%     Ref_Ind_imag = [rin.Refractive_Index_Imaginary_Part(goods(ai),:),0.05];% water
+%     Ref_Ind_real = [rin.Refractive_Index_Real_Part(goods(ai),:),1.7]; % water
+%     Ref_Ind_imag = [rin.Refractive_Index_Imaginary_Part(goods(ai),:),0.03];% water
+    Ref_Ind_real = [rin.Refractive_Index_Real_Part(goods(ai),:),Ref_Re_10um(ij)]; % water
+    Ref_Ind_imag = [rin.Refractive_Index_Imaginary_Part(goods(ai),:),Ref_Im_10um(ij)];% water
     n_i = Ref_Ind_real+j.*Ref_Ind_imag;
     ni = interp1(lambda, n_i, wl, 'linear','extrap');
 
@@ -73,12 +84,12 @@ for ij = length(ainb):-1:1
     M1.VolC = vol.VolC_F(goods(ai)); M1.vmr = vol.VMR_F(goods(ai)); M1.std = vol.Std_F(goods(ai));
     M2.VolC = vol.VolC_C(goods(ai)); M2.vmr = vol.VMR_C(goods(ai)); M2.std = vol.Std_C(goods(ai));
 
-       sb(1) =subplot(1,2,1);  hold('off');
-    plot(siz.bin_radius, siz.dV_dlnr(goods(ai),:),'k-o',bin_rad, dVdlnr,'r-'); xlabel('radius [um]'); ylabel('dV/dlnr'); logx
-    %% 
-    title(['ASD dV/dlnr bins ',datestr(siz.time(goods(ai)),'yyyy-mm-dd HH:MM')]); legend('PSD bins','SM params','Location','NorthWest')
-    hold('on'); set(sb(1),'pos',[ 0.0859    0.1145    0.3956    0.8105]);
-    pause(.2)
+%        sb(1) =subplot(1,2,1);  hold('off');
+%     plot(siz.bin_radius, siz.dV_dlnr(goods(ai),:),'k-o',bin_rad, dVdlnr,'r-'); xlabel('radius [um]'); ylabel('dV/dlnr'); logx
+%     %% 
+%     title(['ASD dV/dlnr bins ',datestr(siz.time(goods(ai)),'yyyy-mm-dd HH:MM')]); legend('PSD bins','SM params','Location','NorthWest')
+%     hold('on'); set(sb(1),'pos',[ 0.0859    0.1145    0.3956    0.8105]);
+%     pause(.2)
     % Bi-modal structs
     tic; aod_bm = anet_mie(wl,ni, bin_rad, M1, M2); toc
     aer_cases_used.aod_bm_1700(ij) = aod_bm(wl_1700_ij);
@@ -87,22 +98,38 @@ for ij = length(ainb):-1:1
     % lognormal composed from bi-modal parameters
 %     tic;  [aod_lg, ssa_lg] = anet_mie(wl,ni, bin_rad, dVdlnr); toc
     % lognormal PSD bin-wise
-    tic; [aod_bin, ssa] = anet_mie(wl,ni, siz.bin_radius, siz.dV_dlnr(goods(ai),:)); toc
+    tic; [aod_bin(ij,:), ssa] = anet_mie(wl,ni, siz.bin_radius, siz.dV_dlnr(goods(ai),:)); toc
 
    aod_bm; aod_bin; aod_co;
+          sb(1) =subplot(1,2,1);  hold('off');
+    plot(siz.bin_radius, siz.dV_dlnr(goods(ai),:),'k-o',bin_rad, dVdlnr,'r-'); xlabel('radius [um]'); ylabel('dV/dlnr'); logx
+    %% 
+    title(['ASD dV/dlnr bins ',datestr(siz.time(goods(ai)),'yyyy-mm-dd HH:MM')]); legend('PSD bins','SM params','Location','NorthWest')
+    hold('on'); set(sb(1),'pos',[ 0.0859    0.1145    0.3956    0.8105]);
    sb(2) = subplot(1,2,2); hold('on');
-   plot(lambda(1:end-1), aod_co,'ro',wl, aod_bin, '-b',wl, aod_bm,'kx'); logy; logx;
+   plot(lambda(1:end-1), aod_co,'ro',wl, aod_bin(ij,:), '-b',wl, aod_bm,'kx'); logy; logx;
    legend('AOD Coi','AOD PSD','AOD BiMod')
    xlabel('wavelength [nm]');ylabel('Optical depth [unitless]');
    hold('on');set(sb(2),'pos',[0.5703    0.1100    0.3805    0.8150]);hold('off')
    title(['AOD from .cad and Mie:',datestr(siz.time(goods(ai)),'yyyy-mm-dd HH:MM')]);
+   yl = ylim;
+   tx = text(1.1e3,1.15.*yl(1),sprintf('n_R_e = %1.2f',Ref_Re_10um(ij))); tx.Color = [0,.7,.7]; tx.Interpreter = 'tex';
+   hold('off');
    pause(.1)
 end
-fid = fopen([rin.pname, filesep,'aer_cases_aods_humid.dat'],'w+');
-fprintf(fid,'%s \n', 'YYYY MM DD hh mm PWV[cm] AOD_440nm AOD_675nm AOD_870nm AOD_1020nm AOD_1700nm AOD_10000nm');
+wl_out = [7690,8333,9091, 10000, 11111,12500]; out_ij = interp1(wl, [1:length(wl)],wl_out,'nearest');
+colr = vol.VolC_C(goods(ainb))./vol.VolC_F(goods(ainb));
+% mask = zeros(size(A(:,1))); mask(colr>5.5) = NaN;
+% [P,S] = polyfit(A(colr<5.5,6),A(colr<5.5,end),1);[P_,S_] = polyfit(A(:,6),A(:,end),1);
+% figure; scatter(A(:,6), A(:,end),36,colr,'filled'); caxis([0,6]); cb = colorbar; cbt = get(cb,'title'); set(cbt, 'string','VolC_C/VolC_F');
+% xl = xlim; hold('on'); v = axis; plot(xl, polyval(P,xl), 'r--',xl, polyval(P_,xl), 'k--'); axis(v)
+
+fid = fopen([rin.pname, filesep,'aer_cases_aods_mucho_dat'],'w+');
+fprintf(fid,'%s \n', 'YYYY MM DD hh mm PWV[cm] VolC_C/VolC_F n_1020 n_Re_10um n_Im_10um AOD_440nm AOD_675nm AOD_870nm AOD_1020nm AOD_1700nm AOD_7692nm AOD_8333nm AOD_9091nm  AOD_10000nm AOD_11111nm AOD_12500nm');
 A = aer_cases_used.data(bina,:);
-A =[A, aer_cases_used.aod_co,aer_cases_used.aod_bm_1700', aer_cases_used.aod_bm_10um']; 
-fprintf(fid, '%d %d %d %d %d %1.2f %1.4f %1.4f %1.4f %1.4f %1.4f %1.4f \n', A');
+NN = [rin.Refractive_Index_Real_Part(goods(ainb),4), Ref_Re_10um', Ref_Im_10um'];
+A =[A, colr,NN, aer_cases_used.aod_co,aer_cases_used.aod_bm_1700', aod_bin(:,out_ij)]; 
+fprintf(fid, '%d %d %d %d %d %1.2f %1.1f %1.3f %1.3f %1.2e %1.3e %1.3e %1.3e %1.3e %1.3e %1.3e %1.3e %1.3e %1.3e %1.3e %1.3e \n', A');
 fclose(fid)
 
 
