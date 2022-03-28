@@ -4,7 +4,7 @@
 % [P,sigma] = gaussian_fwhm(w, mu, FWHM);
 % Gaussian profile with unit height centered on mu with full-width half-max of FWHM
 % Convert to unit area by dividing by (sigma(SS).*sqrt(2*pi))
-
+h2o_fullname = getfullname(['lbl_od*h2o*.nadir']);
 h2o_5cm_rod = load(getfullname(['lbl_od*h2o*.nadir']));
 co2_410ppm_rod = load(getfullname(['lbl_od*co2*.nadir']));
 ch4_1860ppb_rod = load(getfullname(['lbl_od*ch4*.nadir']));
@@ -24,14 +24,35 @@ fprintf('%s %e \n','H2O[5cm]: ',trapz(flipud(nm), flipud(mfrsr_ch7.*h2o_5cm_rod(
 fprintf('%s %e \n','CH4[1860ppb]: ',trapz(flipud(nm), flipud(mfrsr_ch7.*ch4_1860ppb_rod(:,2))));
 fprintf('%s %e \n','CO2[1860ppb]: ',trapz(flipud(nm), flipud(mfrsr_ch7.*co2_410ppm_rod(:,2))));
 
+OD_1600_band.nm;
 OD_1600_band.h20_5cm = h2o_5cm_rod(:,2)-OD_1600_band.ray ;
 OD_1600_band.co2_410ppm = co2_410ppm_rod(:,2)-OD_1600_band.ray ;
-OD_1600_band.ch4_1860ppb = ch4_1860ppb_rod(:,2)-OD_1600_band.ray ;
+OD_1600_band.ch4_1860ppb = ch4_1860ppb_rod(:,2)-OD_1600_band.ray;
 
+neg = OD_1600_band.h20_5cm<0; OD_1600_band.h20_5cm(neg) = 0;
+neg = OD_1600_band.co2_410ppm<0; OD_1600_band.co2_410ppm(neg) = 0;
+neg = OD_1600_band.ch4_1860ppb<0; OD_1600_band.ch4_1860ppb(neg) = 0;
+
+YY = flipud([OD_1600_band.nm, OD_1600_band.h20_5cm, OD_1600_band.co2_410ppm, OD_1600_band.ch4_1860ppb]);
+fprintf(fidout,'%s, %s, %s, %s \n','wavelength[nm]', 'H2O_5cm_OD','CO2_410ppm_OD','CH4_1860ppb_OD');
+fprintf(fidout,'%3.1f, %2.2e, %2.2e, %2.2e \n',YY');
+fclose(fidout);
 
 fprintf('%s %e \n','H2O[5cm]: ',trapz(flipud(nm), flipud(mfrsr_ch7.*OD_1600_band.h20_5cm)))
 fprintf('%s %e \n','CH4[1860ppb]: ',trapz(flipud(nm), flipud(mfrsr_ch7.*OD_1600_band.ch4_1860ppb)))
 fprintf('%s %e \n','CO2[1860ppb]: ',trapz(flipud(nm), flipud(mfrsr_ch7.*OD_1600_band.co2_410ppm)))
+
+figure; plot(nm, OD_1600_band.h20_5cm, '-'); logy
+[A,B] = uisift(nm, OD_1600_band.h20_5cm); 
+h20_base = interp1(nm(B), OD_1600_band.h20_5cm(B), nm,'linear','extrap');
+nans = isnan(h20_base); 
+h20_base(nans) = interp1(nm,OD_1600_band.h20_5cm, nm(nans),'nearest','extrap');
+h20_peaks = OD_1600_band.h20_5cm-h20_base;
+
+
+
+
+
 
 
 cim1640 = cim1640filtfun;
@@ -111,7 +132,71 @@ Tr_CO2 = exp(-OD_1600_band.co2_410ppm.*airmass);
 OD_CO2_mfr = -log(-trapz(nm,Tr_CO2.*OD_1600_band.mfrsr_1625nm))./airmass;
 OD_CO2_cim = -log(-trapz(nm,Tr_CO2.*OD_1600_band.cimel_1640nm))./airmass;
 sum([OD_H2O_mfr,OD_CH4_mfr,OD_CO2_mfr])
-sum([OD_H2O_cim,OD_CH4_cim,OD_CO2_cim])
+sum([OD_H2O_cim,OD_CH4_cim,OD_CO2_cim]);
+
+
+%Now examine the difference between keeping the H2O as on component or
+%splitting into base and peaks with base scaled as the square of pwv
+airmass = 5;
+pwv = 5;
+Tr_base = exp(-h20_base.*airmass.*(pwv./5).^2);
+Tr_peaks = exp(-h20_peaks.*airmass.*(pwv./5));
+Tr_H2O = exp(-OD_1600_band.h20_5cm.*airmass.*(pwv./5));
+OD_H2O_mfr = -log(-trapz(nm,Tr_H2O.*mfrsr_ch7))./airmass;OD_H2O_mfr;
+OD_peak_base = -log(-trapz(nm,Tr_base.*Tr_peaks.*mfrsr_ch7))./airmass;OD_peak_base;
+OD_peak = -log(-trapz(nm,Tr_peaks.*mfrsr_ch7))./airmass;OD_peak;
+OD_base = -log(-trapz(nm,Tr_base.*mfrsr_ch7))./airmass;OD_base;
+
+pwv = 5-sqrt(5);
+Tr_base = exp(-h20_base.*airmass.*(pwv./5).^2);
+Tr_peaks = exp(-h20_peaks.*airmass.*(pwv./5));
+Tr_H2O = exp(-OD_1600_band.h20_5cm.*airmass.*(pwv./5));
+OD_H2O_mfr = -log(-trapz(nm,Tr_H2O.*mfrsr_ch7))./airmass;OD_H2O_mfr;
+OD_peak_base = -log(-trapz(nm,Tr_base.*Tr_peaks.*mfrsr_ch7))./airmass;OD_peak_base;
+OD_peak = -log(-trapz(nm,Tr_peaks.*mfrsr_ch7))./airmass;OD_peak;
+OD_base = -log(-trapz(nm,Tr_base.*mfrsr_ch7))./airmass;OD_base;
+
+
+pwv = 1;
+Tr_base = exp(-h20_base.*airmass.*(pwv./5).^2);
+Tr_peaks = exp(-h20_peaks.*airmass.*(pwv./5));
+Tr_H2O = exp(-OD_1600_band.h20_5cm.*airmass.*(pwv./5));
+OD_H2O_mfr = -log(-trapz(nm,Tr_H2O.*mfrsr_ch7))./airmass; OD_H2O_mfr ;
+OD_peak_base = -log(-trapz(nm,Tr_base.*Tr_peaks.*mfrsr_ch7))./airmass; OD_peak_base;
+
+pwv = .25;
+Tr_base = exp(-h20_base.*airmass.*(pwv./5).^2);
+Tr_peaks = exp(-h20_peaks.*airmass.*(pwv./5));
+Tr_H2O = exp(-OD_1600_band.h20_5cm.*airmass.*(pwv./5));
+OD_H2O_mfr = -log(-trapz(nm,Tr_H2O.*mfrsr_ch7))./airmass;OD_H2O_mfr;
+OD_peak_base = -log(-trapz(nm,Tr_base.*Tr_peaks.*mfrsr_ch7))./airmass;OD_peak_base;
+
+airmass = 5;
+pwv = 5;
+Tr_base = exp(-h20_base.*airmass.*(pwv./5).^2);
+Tr_peaks = exp(-h20_peaks.*airmass.*(pwv./5));
+Tr_H2O = exp(-OD_1600_band.h20_5cm.*airmass.*(pwv./5));
+OD_H2O_mfr = -log(-trapz(nm,Tr_H2O.*mfrsr_ch7))./airmass;OD_H2O_mfr;
+OD_peak = -log(-trapz(nm,Tr_peaks.*mfrsr_ch7))./airmass;OD_peak;
+OD_base = -log(-trapz(nm,Tr_base.*mfrsr_ch7))./airmass;OD_base;
+OD_peak_base = -log(-trapz(nm,Tr_base.*Tr_peaks.*mfrsr_ch7))./airmass;OD_peak_base;
+
+pwv = 1;
+Tr_base = exp(-h20_base.*airmass.*(pwv./5).^2);
+Tr_peaks = exp(-h20_peaks.*airmass.*(pwv./5));
+Tr_H2O = exp(-OD_1600_band.h20_5cm.*airmass.*(pwv./5));
+OD_H2O_mfr = -log(-trapz(nm,Tr_H2O.*mfrsr_ch7))./airmass;OD_H2O_mfr;
+OD_peak_base = -log(-trapz(nm,Tr_base.*Tr_peaks.*mfrsr_ch7))./airmass;OD_peak_base;
+
+pwv = .25;
+Tr_base = exp(-h20_base.*airmass.*(pwv./5).^2);
+Tr_peaks = exp(-h20_peaks.*airmass.*(pwv./5));
+Tr_H2O = exp(-OD_1600_band.h20_5cm.*airmass.*(pwv./5));
+OD_H2O_mfr = -log(-trapz(nm,Tr_H2O.*mfrsr_ch7))./airmass;;OD_H2O_mfr;
+OD_peak_base = -log(-trapz(nm,Tr_base.*Tr_peaks.*mfrsr_ch7))./airmass;;OD_peak_base;
+
+
+
 
 % % At GSFC yesterday we had (at 1640 nm) OD_CH4=0.0086; OD_CO2=0.004651 and OD_H20=0.001 (for wvc~0.55 cm).
 % tau_co2 = 0.0047 * exp(-0.0001215 * elevation); elevation is in meters (if I am not mistaken) -Giles et al. 2019, p.173
