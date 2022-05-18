@@ -1,6 +1,7 @@
 function sas = rd_SAS_raw(ins,plots)
 % Read SAS instrument-raw data
 % sas = rd_raw_SAS(infile, plots)
+% 2022 updating to handle files with irregular lengths
 if ~isavar('ins')||isempty(ins)
    ins = getfullname_('*raw*.csv','sas', 'Select raw sas/sws file(s)');
 end
@@ -49,7 +50,7 @@ else
       fclose(fid);
       %%
       sas.time = datenum([txt{1},txt{2},txt{3},txt{4},txt{5},txt{6}]);
-      if length(sas.time)==5
+      if length(sas.time)>0
       for h = 1:length(sas.header)
          test_str = '_coefs = [';
          str_ii = findstr(sas.header{h},test_str);
@@ -91,11 +92,14 @@ else
           dtime = sas.time(dark_start==ds);
           darks = sas.spec(dark_start==ds,:);
           tint = sas.t_int_ms(dark_start==ds);
-      else
-          
+      else        
           for d = ds:-1:1
               dtime(d) = mean(sas.time(dark_start==d));
-              darks(d,:) = mean(sas.spec(dark_start==d,:));
+              if sum(dark_start==d)>1
+                  darks(d,:) = mean(sas.spec(dark_start==d,:));
+              else 
+                 darks(d,:) = sas.spec(dark_start==d,:);
+              end
               tint(d) = mean(sas.t_int_ms(dark_start==d));
           end
       end
@@ -104,14 +108,18 @@ else
 %       end
       tints = unique(tint);
       if length(dtime)>1
-      for ti = length(tints):-1:1
-         sas.darks(sas.t_int_ms==tints(ti),:) = interp1(dtime(tint==tints(ti)), ...
-            darks(tint==tints(ti),:), sas.time(sas.t_int_ms==tints(ti)),'linear','extrap');
-%          nans = isNaN(sas.darks(sas.t_int_ms==tints(ti),:));
-%          darks_nonans = interp1(dtime(tint==tints(ti)), ...
-%             darks(tint==tints(ti),:), sas.time(sas.t_int_ms==tints(ti)),'nearest','extrap');
-%          sas.darks(nans) = darks_nonans(nans);
-      end
+         for ti = length(tints):-1:1
+            if sum(tint==tints(ti))>1
+            sas.darks(sas.t_int_ms==tints(ti),:) = interp1(dtime(tint==tints(ti)), ...
+               darks(tint==tints(ti),:), sas.time(sas.t_int_ms==tints(ti)),'linear','extrap');
+            else
+               sas.darks(sas.t_int_ms==tints(ti),:) = ones([sum(sas.t_int_ms==tints(ti)),1]) * darks(tint==tints(ti),:);
+            end
+            %          nans = isNaN(sas.darks(sas.t_int_ms==tints(ti),:));
+            %          darks_nonans = interp1(dtime(tint==tints(ti)), ...
+            %             darks(tint==tints(ti),:), sas.time(sas.t_int_ms==tints(ti)),'nearest','extrap');
+            %          sas.darks(nans) = darks_nonans(nans);
+         end
       else
           sas.darks = ones(size(sas.time))*darks;
       end
@@ -134,6 +142,7 @@ if isavar('plots') && plots && ~isempty(sas)
    figure_(2000); these = plot(sas.wl, sas.sig(sas.Shutter_open_TF==1,:),'-');
    recolor(these,[1:sum(sas.Shutter_open_TF==1)]);
    figure_(2001);these = plot(sas.wl, sas.rate(sas.Shutter_open_TF==1,:),'-');
+   recolor(these,sas.t_int_ms(sas.Shutter_open_TF==1))
    recolor(these,[1:sum(sas.Shutter_open_TF==1)]);
    if iscell(sas.fname)&&length(sas.fname)>0
       fname = {['start: ',sas.fname{1}]; ['end :',sas.fname{end}]};
