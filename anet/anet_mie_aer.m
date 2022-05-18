@@ -1,11 +1,11 @@
 function anet_mie_aer
-% Connor, 2022-03-07, off-shoot of anet_mie to text extension to 10 um for Eli Mlawer AER
+% Connor, 2022-03-07, off-shoot of anet_mie to test extension to 10 um for Eli Mlawer AER
 % Initially tested extension of index of refraction to 10 um assuming one
 % of two bounding cases: 
 % 1) Hygroscopic aerosol dominated by large essentially droplets, n* = Re 1.2 Im 0.05
 % 2) Fe2O3 iron oxide dust n* = Re 2 Im 0.02
 % Next testing using 
-% 1) a weighted average of Re @ 1020 nm = 1.5 ==> Re @ 10um 1.7 
+% 1) an aod-weighted average of Re @ 1020 nm = 1.5 ==> Re @ 10um 1.7 
 % 2) interpolated between 1.2-> 2 and 0.05 -> 0.02 via Re from 1.3->1.6
 
 
