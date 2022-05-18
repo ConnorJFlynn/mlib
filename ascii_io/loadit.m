@@ -1,5 +1,5 @@
 function [that, this] = loadit(incoming);
-if ~exist('incoming','var')
+if ~isavar('incoming')
    [fname, pname] = uigetfile;
 else
    if exist(incoming, 'dir')
