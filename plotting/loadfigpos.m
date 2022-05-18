@@ -3,7 +3,7 @@ function pos = loadfigpos(H)
 
 pname = strrep(strrep(userpath,';',filesep),':',filesep);
 pathdir = [pname, 'filepaths'];
-if ~exist(pathdir,'dir')
+if ~isadir(pathdir)
     mkdir(pname, 'filepaths');
 end
 pathdir = [pathdir,filesep];
@@ -15,7 +15,7 @@ elseif isnumeric(H)
 end
 figfile = [pathdir,'figpos.',num2str(num),'.mat'];
 
-if exist('pos','var') && isempty(pos)
+if isavar('pos') && isempty(pos)
     delete(figfile);
 end
 if exist(figfile,'file')

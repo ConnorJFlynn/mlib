@@ -146,5 +146,6 @@ stray_vis.A_stray = A_stray;
 stray_vis.C_stray = C_stray;
 pname = ['E:\case_studies\SAS\testing_and_characterization\2016_10_SAS Internal Scatter Data\'];
 save([pname, 'vis_Zong_stray_correction_0911137U1.mat'],'-struct','stray_vis')
-stray_vis = load(['E:\case_studies\SAS\testing_and_characterization\2016_10_SAS Internal Scatter Data\vis_Zong_stray_correction_0911137U1.mat']);    
+
+
 vis_OG550 = rd_SAS_raw;
