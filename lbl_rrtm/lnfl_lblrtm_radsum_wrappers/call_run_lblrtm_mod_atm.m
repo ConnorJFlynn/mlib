@@ -40,15 +40,15 @@ tic
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Edit these variables to point towards your installation directory for LBLRTM, LNFL,RADSUM, and CHARTS 
 run_lblrtm_input.Directory_Mat = ...
-    str2mat('/home/hermes_rd1/drf/scratch/lblrtm_v11/lblrtm/', ... %location of lblrtm executable
-	    '/home/hermes_rd1/drf/lblrtm/lnfl/', ...   %location of lnfl executable
-	    '/home/hermes_rd1/drf/lblrtm/radsum/',...  %location of radsum executable
-	    '/home/hermes_rd1/drf/charts/');           %location of charts executable
+    str2mat('C:\MinGW\msys\1.0\home\LBLRTM\', ... %location of lblrtm executable
+	    'C:\MinGW\msys\1.0\home\LNFL\', ...   %location of lnfl executable
+	    '',...  %location of radsum executable
+	    '');           %location of charts executable
 run_lblrtm_input.Directory_List = str2mat('LBLRTM','LNFL','RADSUM','CHARTS');
-run_lblrtm_input.executable_names = str2mat('lblrtm_v11.1_pgi_linux_pgf90_dbl', ...
-					    'lnfl_v2.1_pgf90_pgi_linux_sgl',...
-					    'radsum_v2.4_linux_pgi_f90_dbl',...
-					    'charts_lblv8.sgl');
+run_lblrtm_input.executable_names = str2mat('lblrtm_v12.9_mingw_gnu_dbl', ...
+					    'lnfl_v3.2_mingw_gnu_sgl',...
+					    '',...
+					    '');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
