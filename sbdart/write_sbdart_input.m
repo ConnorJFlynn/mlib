@@ -23,7 +23,10 @@ fprintf(fid,'%s \n',y);
 
 for ff = 1:2:length(qry_cell)
    fprintf(fid,'%s = ',upper(qry_cell{ff}));
+   if isnumeric(qry_cell{ff+1})
    fprintf(fid, ' %g, ',qry_cell{ff+1});
+   else fprintf(fid,'%s, ',qry_cell{ff+1});
+   end
    fprintf(fid,' \n');
 end
 y = (['/']);

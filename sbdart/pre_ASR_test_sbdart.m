@@ -2,18 +2,73 @@
 
 %SBDART input values:
 % Clear all components:
+in_pth = 'C:\MinGW\bin\';
+clear sbd out qry
+
+%%
+%PPL
 clear qry
-qry.SZA=81;
+% from Gouyong
+qry.iout=21;
+qry.NF=3;
+qry.idatm=2;
+qry.isat=16;
+% qry.wlinf=0.615;
+% qry.wlsup=0.615;
+% qry.wlinc=.001;
+qry.IAER=3;
+qry.TBAER=0.3;
+qry.RHAER=0.8;
+qry.SAZA=180;
+qry.SZA=45;
+qry.NSTR=20;
+qry.CORINT='.true.';
+% qry.zout = [0,0];
+qry.PHI=[0,180];
+UZEN =[0:5:90]; 
+qry.UZEN = fliplr(180-setxor(UZEN,qry.SZA));
+[out] = qry_sbdart(qry,in_pth);
+
+%ALM
+clear qry
+% from Gouyong
+qry.iout=21;
+qry.NF=3;
+qry.idatm=2;
+% qry.wlinf=0.615;
+% qry.wlsup=0.615;
+qry.isat=16;
+% qry.wlinc=.001;
+qry.ISALB=4;
+% qry.ZCLOUD=1;
+qry.IAER=3;
+qry.TBAER=0.3;
+qry.RHAER=0.8;
+qry.SAZA=180;
+qry.SZA=75;
+qry.NSTR=20;
+qry.CORINT='.true.';
+% qry.zout = [0,0];
+
+qry.PHI=[5:10:355];
+UZEN =[]; 
+qry.UZEN = fliplr(180-setxor(UZEN,qry.SZA));
+tic
+% qry.UZEN = qry.SZA;
+[out] = qry_sbdart(qry,in_pth);
+
+qry.SZA=60;
 qry.IOUT = 1; % WL,FFV,TOPDN,TOPUP,TOPDIR,BOTDN,BOTUP,BOTDIR
 qry.NF = 3; % Modtran resolution 20 cm-1, 
 % qry.NF = 1; % 5s solar spectrum, 5 nm res, 
-qry.wlinf   =  0.250;
-qry.wlsup   =  2.20;
-qry.wlinc   =  0.002;
+qry.wlinf   =  0.30;
+qry.wlsup   =  4.0;
+qry.wlinc   =  0.01;
 qry.idatm = 2; % mid-latitude summer
 qry.idatm = 6; % US 62
 qry.IAER = 2; % Urban aerosol
 
+qry.XN2 = -1;qry.XO2 = -1;
 qry.XRSC = 0; qry.tbaer =0; qry.UW = 0; qry.UO3 =0;qry.XO2 = 0; 
 qry.XO4 = 0; qry.XCH4 =0; qry.XCO2 = 0; qry.XN2O = 0; qry.XCO= 0; 
 qry.XNH3= 0; qry.XSO2= 0; qry.XNO= 0; qry.XHNO3= 0; qry.XNO2= 0; 
@@ -23,7 +78,7 @@ disp('Starting Rayleigh')
 tic
 qry.XRSC = 1; % 0 = no Rayleigh scattering
 
-[qry_cell,out] = write_sbdart_input(qry,'C:\mlib\local\sbdart\');
+[qry_cell,out] = write_sbdart_input(qry,in_pth);
 % WL,FFV,TOPDN,TOPUP,TOPDIR,BOTDN,BOTUP,BOTDIR
 sbd.wl = out{:,1};
 sbd.ffv = out{:,2};
@@ -59,7 +114,7 @@ tic
 qry.XRSC = 0; % 0 = no Rayleigh scattering
 qry.tbaer =.3;
 
-[qry_cell,out] = write_sbdart_input(qry,'C:\mlib\local\sbdart\');
+[qry_cell,out] = write_sbdart_input(qry,in_pth);
 % WL,FFV,TOPDN,TOPUP,TOPDIR,BOTDN,BOTUP,BOTDIR
 sbd.wl = out{:,1};
 sbd.ffv = out{:,2};
@@ -75,7 +130,7 @@ sbd.tau = -log(sbd.T_dir);
 toc
 figure; 
 % subplot(2,1,1);
-semilogy(sbd.wl, -log(sbd.botdir ./ sbd.topdir), 'r-');
+semilogy(sbd.wl, -log(sbd.botdir ./ sbd.topdir).*cosd(qry.SZA), 'r-');
 title('Aerosol optical depth')
 %%
 
@@ -83,12 +138,13 @@ disp('done with Aerosol')
 aero = sbd;
 clear sbd out 
 %
+
 disp('Starting water vapor')
 tic
 qry.tbaer =0;
 qry.UW = -1;
 
-[qry_cell,out] = write_sbdart_input(qry,'C:\mlib\local\sbdart\');
+[qry_cell,out] = write_sbdart_input(qry,in_pth);
 % WL,FFV,TOPDN,TOPUP,TOPDIR,BOTDN,BOTUP,BOTDIR
 sbd.wl = out{:,1};
 sbd.ffv = out{:,2};
@@ -117,7 +173,7 @@ tic
 qry.UW = 0;
 qry.UO3 =-1;
 
-[qry_cell,out] = write_sbdart_input(qry,'C:\mlib\local\sbdart\');
+[qry_cell,out] = write_sbdart_input(qry,in_pth);
 % WL,FFV,TOPDN,TOPUP,TOPDIR,BOTDN,BOTUP,BOTDIR
 sbd.wl = out{:,1};
 sbd.ffv = out{:,2};
@@ -139,43 +195,20 @@ title('Ozone optical depth')
 %%
 
 O3 = sbd;
-clear sbd out 
-%
-disp('Starting Oxygen gas')
-tic
-qry.UO3 =0;
-qry.XRSC = 0; % 0 = no Rayleigh scattering
-qry.XO2 = -1;
-qry.XO4 = 1;
-qry.XCH4 =0;
-qry.XCO2 = 0;
-qry.XN2O = 0; %: volume mixing ratio of N2O (PPM, default = 0.32 )
-qry.XCO= 0; %: volume mixing ratio of CO (PPM, default = 0.15 )
-qry.XNH3= 0; %: volume mixing ratio of NH3 (PPM, default = 5.0e-4)
-qry.XSO2= 0; %: volume mixing ratio of SO2 (PPM, default = 3.0e-4)
-qry.XNO= 0; %: volume mixing ratio of NO (PPM, default = 3.0e-4)
-qry.XHNO3= 0; %: volume mixing ratio of HNO3 (PPM, default = 5.0e-5)
-qry.XNO2= 0; %: volume mixing ratio of NO2 (PPM, default = 2.3e-5)
-[qry_cell,out] = write_sbdart_input(qry,'C:\mlib\local\sbdart\');
+
 % WL,FFV,TOPDN,TOPUP,TOPDIR,BOTDN,BOTUP,BOTDIR
-sbd.wl = out{:,1};
-sbd.ffv = out{:,2};
-sbd.topdn = out{:,3};
-sbd.topup = out{:,4};
-sbd.topdir = out{:,5};
-sbd.botdn = out{:,6};
-sbd.botup = out{:,7};
-sbd.botdir = out{:,8};
-sbd.T_dir = (sbd.botdir ./ sbd.topdir);
-sbd.T_dif = ((sbd.botdn-sbd.botdir) ./ sbd.topdir);
+sbd.wl = out{:,1}; sbd.ffv = out{:,2}; sbd.topdn = out{:,3}; sbd.topup = out{:,4};
+sbd.topdir = out{:,5}; sbd.botdn = out{:,6}; sbd.botup = out{:,7}; sbd.botdir = out{:,8};
+sbd.T_dir = (sbd.botdir ./ sbd.topdir); sbd.T_dif = ((sbd.botdn-sbd.botdir) ./ sbd.topdir);
 sbd.tau = -log(sbd.T_dir);
 toc
-disp('done with oxygen')
-figure; 
-% subplot(2,1,1);
+disp('done ')
+%  figure; 
 semilogy(sbd.wl, -log(sbd.botdir ./ sbd.topdir), 'r-');
-title('Oxygen gas (and A-band) optical depth')
+
 %%
+title('Oxygen gas (and A-band) optical depth')
+
 
 O2 = sbd;
 clear sbd out 
@@ -194,7 +227,7 @@ qry.XNO= 0; %: volume mixing ratio of NO (PPM, default = 3.0e-4)
 qry.XHNO3= 0; %: volume mixing ratio of HNO3 (PPM, default = 5.0e-5)
 qry.XNO2= 0; %: volume mixing ratio of NO2 (PPM, default = 2.3e-5)
 
-[qry_cell,out] = write_sbdart_input(qry,'C:\mlib\local\sbdart\');
+[qry_cell,out] = write_sbdart_input(qry,in_pth);
 % WL,FFV,TOPDN,TOPUP,TOPDIR,BOTDN,BOTUP,BOTDIR
 sbd.wl = out{:,1};
 sbd.ffv = out{:,2};
@@ -230,7 +263,7 @@ qry.XNO= 0; %: volume mixing ratio of NO (PPM, default = 3.0e-4)
 qry.XHNO3= 0; %: volume mixing ratio of HNO3 (PPM, default = 5.0e-5)
 qry.XNO2= 0; %: volume mixing ratio of NO2 (PPM, default = 2.3e-5)
 
-[qry_cell,out] = write_sbdart_input(qry,'C:\mlib\local\sbdart\');
+[qry_cell,out] = write_sbdart_input(qry,in_pth);
 % WL,FFV,TOPDN,TOPUP,TOPDIR,BOTDN,BOTUP,BOTDIR
 sbd.wl = out{:,1};
 sbd.ffv = out{:,2};
@@ -265,7 +298,7 @@ qry.XNO= 0; %: volume mixing ratio of NO (PPM, default = 3.0e-4)
 qry.XHNO3= 0; %: volume mixing ratio of HNO3 (PPM, default = 5.0e-5)
 qry.XNO2= 00; %: volume mixing ratio of NO2 (PPM, default = 2.3e-5)
 
-[qry_cell,out] = write_sbdart_input(qry,'C:\mlib\local\sbdart\');
+[qry_cell,out] = write_sbdart_input(qry,in_pth);
 % WL,FFV,TOPDN,TOPUP,TOPDIR,BOTDN,BOTUP,BOTDIR
 sbd.wl = out{:,1};
 sbd.ffv = out{:,2};
@@ -288,6 +321,42 @@ title('N2O optical depth')
 
 N2O = sbd;
 %
+clear sbd out 
+%
+disp('Starting NO2')
+tic
+qry.XCO2 = 0;
+qry.XN2O = 0; %: volume mixing ratio of N2O (PPM, default = 0.32 )
+qry.XCO= 0; %: volume mixing ratio of CO (PPM, default = 0.15 )
+qry.XNH3= 0; %: volume mixing ratio of NH3 (PPM, default = 5.0e-4)
+qry.XSO2= 0; %: volume mixing ratio of SO2 (PPM, default = 3.0e-4)
+qry.XNO= 0; %: volume mixing ratio of NO (PPM, default = 3.0e-4)
+qry.XHNO3= 0; %: volume mixing ratio of HNO3 (PPM, default = 5.0e-5)
+qry.XNO2= 2.3e-1; %: volume mixing ratio of NO2 (PPM, default = 2.3e-5)
+
+[qry_cell,out] = write_sbdart_input(qry,in_pth);
+% WL,FFV,TOPDN,TOPUP,TOPDIR,BOTDN,BOTUP,BOTDIR
+sbd.wl = out{:,1};
+sbd.ffv = out{:,2};
+sbd.topdn = out{:,3};
+sbd.topup = out{:,4};
+sbd.topdir = out{:,5};
+sbd.botdn = out{:,6};
+sbd.botup = out{:,7};
+sbd.botdir = out{:,8};
+sbd.T_dir = (sbd.botdir ./ sbd.topdir);
+sbd.T_dif = ((sbd.botdn-sbd.botdir) ./ sbd.topdir);
+sbd.tau = -log(sbd.T_dir);
+toc
+disp('done with NO2')
+figure; 
+% subplot(2,1,1);
+semilogy(sbd.wl, -log(sbd.botdir ./ sbd.topdir), 'r-');
+title('NO2 optical depth')
+%%
+
+NO2 = sbd;
+%
 
 qry.XRSC = 1; qry.tbaer =0.3; qry.UW = -1; qry.UO3 =-1;qry.XO2 = -1; 
 qry.XO4 = 1; qry.XCH4 =-1; qry.XCO2 = -1; qry.XN2O = -1; qry.XCO= -1; 
@@ -296,7 +365,7 @@ qry.XNH3= -1; qry.XSO2= -1; qry.XNO= -1; qry.XHNO3= -1; qry.XNO2= -1;
 Rayleigh
 disp('Starting full deal')
 tic
-[qry_cell,out] = write_sbdart_input(qry,'C:\mlib\local\sbdart\');
+[qry_cell,out] = write_sbdart_input(qry,in_pth);
 WL,FFV,TOPDN,TOPUP,TOPDIR,BOTDN,BOTUP,BOTDIR
 sbd.wl = out{:,1};
 sbd.ffv = out{:,2};
@@ -370,7 +439,7 @@ qry.XNO= 0; %: volume mixing ratio of NO (PPM, default = 3.0e-4)
 qry.XHNO3= 0; %: volume mixing ratio of HNO3 (PPM, default = 5.0e-5)
 qry.XNO2= 0; %: volume mixing ratio of NO2 (PPM, default = 2.3e-5)
 
-[qry_cell,out] = write_sbdart_input(qry,'C:\mlib\local\sbdart\');
+[qry_cell,out] = write_sbdart_input(qry,in_pth);
 % WL,FFV,TOPDN,TOPUP,TOPDIR,BOTDN,BOTUP,BOTDIR
 sbd.wl = out{:,1};
 sbd.ffv = out{:,2};
@@ -404,7 +473,7 @@ qry.XNO= 0; %: volume mixing ratio of NO (PPM, default = 3.0e-4)
 qry.XHNO3= 0; %: volume mixing ratio of HNO3 (PPM, default = 5.0e-5)
 qry.XNO2= 0; %: volume mixing ratio of NO2 (PPM, default = 2.3e-5)
 
-[qry_cell,out] = write_sbdart_input(qry,'C:\mlib\local\sbdart\');
+[qry_cell,out] = write_sbdart_input(qry,in_pth);
 % WL,FFV,TOPDN,TOPUP,TOPDIR,BOTDN,BOTUP,BOTDIR
 sbd.wl = out{:,1};
 sbd.ffv = out{:,2};
@@ -437,7 +506,7 @@ qry.XNO= 0; %: volume mixing ratio of NO (PPM, default = 3.0e-4)
 qry.XHNO3= 0; %: volume mixing ratio of HNO3 (PPM, default = 5.0e-5)
 qry.XNO2= 0; %: volume mixing ratio of NO2 (PPM, default = 2.3e-5)
 
-[qry_cell,out] = write_sbdart_input(qry,'C:\mlib\local\sbdart\');
+[qry_cell,out] = write_sbdart_input(qry,in_pth);
 % WL,FFV,TOPDN,TOPUP,TOPDIR,BOTDN,BOTUP,BOTDIR
 sbd.wl = out{:,1};
 sbd.ffv = out{:,2};
@@ -469,7 +538,7 @@ qry.XNO= -1; %: volume mixing ratio of NO (PPM, default = 3.0e-4)
 qry.XHNO3= 0; %: volume mixing ratio of HNO3 (PPM, default = 5.0e-5)
 qry.XNO2= 0; %: volume mixing ratio of NO2 (PPM, default = 2.3e-5)
 
-[qry_cell,out] = write_sbdart_input(qry,'C:\mlib\local\sbdart\');
+[qry_cell,out] = write_sbdart_input(qry,in_pth);
 % WL,FFV,TOPDN,TOPUP,TOPDIR,BOTDN,BOTUP,BOTDIR
 sbd.wl = out{:,1};
 sbd.ffv = out{:,2};
@@ -500,7 +569,7 @@ qry.XNO= 0; %: volume mixing ratio of NO (PPM, default = 3.0e-4)
 qry.XHNO3= -1; %: volume mixing ratio of HNO3 (PPM, default = 5.0e-5)
 qry.XNO2= 0; %: volume mixing ratio of NO2 (PPM, default = 2.3e-5)
 
-[qry_cell,out] = write_sbdart_input(qry,'C:\mlib\local\sbdart\');
+[qry_cell,out] = write_sbdart_input(qry,in_pth);
 % WL,FFV,TOPDN,TOPUP,TOPDIR,BOTDN,BOTUP,BOTDIR
 sbd.wl = out{:,1};
 sbd.ffv = out{:,2};
@@ -529,7 +598,7 @@ tic
 qry.XHNO3= 0; %: volume mixing ratio of HNO3 (PPM, default = 5.0e-5)
 qry.XNO2= -1; %: volume mixing ratio of NO2 (PPM, default = 2.3e-5)
 
-[qry_cell,out] = write_sbdart_input(qry,'C:\mlib\local\sbdart\');
+[qry_cell,out] = write_sbdart_input(qry,in_pth);
 % WL,FFV,TOPDN,TOPUP,TOPDIR,BOTDN,BOTUP,BOTDIR
 sbd.wl = out{:,1};
 sbd.ffv = out{:,2};

@@ -8,6 +8,11 @@ function [ttau_fit,ttau] = taufit_series(ttau,quiet)
 % Make contiguous list of all reported tau, one tau per row with time and airmass
 % Filter NaNs and missings out.  Sort by time.
 % Attach a source tag
+
+% 2022-03-10: v1.0 Connor, works but outlier rejection for low aod needs work
+% Probably in rfit_aod_basis, maybe take abs value before sending to madf1
+% mad_factor, and evaluate madf1 on log(aod/aod_fit)
+version_set('1.0');
 lang_legs.mt = []; lang_legs = rmfield(lang_legs, 'mt');
 if ~isavar('ttau')||isempty(ttau)
     ttau.time = [];
@@ -61,7 +66,7 @@ if ~isavar('ttau')||isempty(ttau)
             ttau.nm = [ttau.nm; wl.*ones([length(mfr.time),1])];
             ttau.srctag = [ttau.srctag; src.*ones([length(mfr.time),1])];
             qs = anc_qc_impacts(mfr.vdata.(flds{qc_ii(qc)}), mfr.vatts.(flds{qc_ii(qc)}));
-            good = qs==0;
+            good = qs==0|qs==1; %Accept good and suspect
             tmp_aod = mfr.vdata.(flds{qc_ii(qc)-1})'; tmp_aod(~good) = NaN;
             ttau.aod = [ttau.aod; tmp_aod];
         end
@@ -105,7 +110,7 @@ end
 wl_out = [300:20:1740];
 ttau_fit.wl = wl_out;
 % PM_leg.wl = wl_out;
-mad_factor = 4;
+mad_factor = 3.5;
 
 while ~all_MT
     day = floor(ttau.time_LST);
@@ -192,22 +197,24 @@ while ~all_MT
         src = cims + m;
         m_days = length(unique(floor(ttau.time((ttau.time>ttau.time(this_i)) & (ttau.srctag==src)))));
         if m_days<3 % load files
-            next = min([30,length(mfr_files{m})]);
-            mfr = anc_bundle_files({mfr_files{m}{1:next}});
-            mfr_files{m}(1:next) = [];
-            flds = fields(mfr.vdata);
-            qc_aod_ = foundstr(flds, 'qc_aerosol_optical_depth');
-            qc_ii = find(qc_aod_);
-            for qc = 1:sum(qc_aod_)
-                wl = sscanf(mfr.gatts.(['filter',num2str(qc),'_CWL_measured']),'%f');
-                ttau.time = [ttau.time; mfr.time'];
-                ttau.airmass = [ttau.airmass; mfr.vdata.airmass'];
-                ttau.nm = [ttau.nm; wl.*ones([length(mfr.time),1])];
-                ttau.srctag = [ttau.srctag; src.*ones([length(mfr.time),1])];
-                qs = anc_qc_impacts(mfr.vdata.(flds{qc_ii(qc)}), mfr.vatts.(flds{qc_ii(qc)}));
-                good = qs==0;
-                tmp_aod = mfr.vdata.(flds{qc_ii(qc)-1})'; tmp_aod(~good) = NaN;
-                ttau.aod = [ttau.aod; tmp_aod];
+            if ~isempty(mfr_files{m})
+                next = min([30,length(mfr_files{m})]);
+                mfr = anc_bundle_files({mfr_files{m}{1:next}});
+                mfr_files{m}(1:next) = [];
+                flds = fields(mfr.vdata);
+                qc_aod_ = foundstr(flds, 'qc_aerosol_optical_depth');
+                qc_ii = find(qc_aod_);
+                for qc = 1:sum(qc_aod_)
+                    wl = sscanf(mfr.gatts.(['filter',num2str(qc),'_CWL_measured']),'%f');
+                    ttau.time = [ttau.time; mfr.time'];
+                    ttau.airmass = [ttau.airmass; mfr.vdata.airmass'];
+                    ttau.nm = [ttau.nm; wl.*ones([length(mfr.time),1])];
+                    ttau.srctag = [ttau.srctag; src.*ones([length(mfr.time),1])];
+                    qs = anc_qc_impacts(mfr.vdata.(flds{qc_ii(qc)}), mfr.vatts.(flds{qc_ii(qc)}));
+                    good = qs==0;
+                    tmp_aod = mfr.vdata.(flds{qc_ii(qc)-1})'; tmp_aod(~good) = NaN;
+                    ttau.aod = [ttau.aod; tmp_aod];
+                end
             end
         end
     end
