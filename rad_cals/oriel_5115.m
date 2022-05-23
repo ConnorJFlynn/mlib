@@ -1,9 +1,11 @@
-function [irad,rad] = irad_oriel_5115
-% irad in [mw/(m2 nm)]
+function lamp = oriel_5115;
+% lamp = oriel_5115;
+% lamp.sn = 5115;
+% lamp.nm = [0:
+% lamp.irad in [mw/(m2 nm)]
 % divide by 10 to get uw/(cm^2 nm)
-% rad in irad/sr
+%
 % Model No. 63355 Quartz Tungsten Halogen lamp
-% 
 % Lamp Serial No.: 5115
 % Spectral Range: 250-2400nm
 % Lamp Current: 6.50 Amps
@@ -11,10 +13,12 @@ function [irad,rad] = irad_oriel_5115
 % Room Temperature: 25 C
 % 
 % Fitting equation for non-NIST wavelengths :
-%  Or read in the *.S10 file?
-% Irradiance (mW/m2 nm) = ?  -5 * exp(A + B/?) * (C + D/? + E/?2   + F/?3 + G/?4  + H/?5)
-% (divide values by 10 to obtain results in ?W/cm2 nm)
-nm = [250:2400];
+% Irradiance (mW/m2 nm) = nm.^-5 * exp(A + B/nm) * (C + D/nm + E/nm2   + F/nm3 + G/nm4  + H/nm5)
+src_fname = 'SN5115.xlsx'
+lamp.SN = 5155;
+lamp.units = '[W/(m2 um)]';
+nm = [250:10:2500];
+lamp.nm = nm;
 % Where:
 A= 42.8576801694148;
 B=-4469.83666243075;
@@ -25,10 +29,10 @@ F=98047094.074996;
 G=-12725581693.8496;
 H=0;
 irad = (nm.^-5) .* exp(A + B./nm) .* (C + D./nm + E./nm.^2 + F./nm.^3 + G./nm.^4  + H./nm.^5);
-
-spec_panel = srt_sn_2784;
-Refl = interp1(spec_panel.nm, spec_panel.Refl, nm,'linear');
-rad = irad .* Refl ./pi;
+lamp.irad = irad;
+% spec_panel = srt_sn_2784;
+% Refl = interp1(spec_panel.nm, spec_panel.Refl, nm,'linear');
+% rad = irad .* Refl ./pi;
 
 % 
 % tmp = load(['D:\case_studies\radiation_cals\cal_sources_references_xsec\Spectralon_panels\Schmidt.12x12_spectralon.txt']);
