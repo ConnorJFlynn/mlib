@@ -3,7 +3,7 @@ function [spec] = rd_lblrtm_tape12_od(fname, prec)
 % fname: name a LBLRTM TAPE12 file containing ODs
 % prec: precision of data ('d' for double, 's' or 'f' for single)
 if ~isavar('fname')||~isafile(fname)
-    fname = getfullname(getfullname('TAPE12*.*','tape12'));
+    fname = getfullname('TAPE12*.*','tape12');
 end
 if ~isavar('prec')
     prec = 'd';
