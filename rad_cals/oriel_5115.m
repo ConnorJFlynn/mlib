@@ -32,12 +32,10 @@ irad = (nm.^-5) .* exp(A + B./nm) .* (C + D./nm + E./nm.^2 + F./nm.^3 + G./nm.^4
 % Refl = interp1(spec_panel.nm, spec_panel.Refl, nm,'linear');
 % rad = irad .* Refl ./pi;
 
-spec_panel = srt_sn_2784;
-Refl = interp1(spec_panel.nm, spec_panel.Refl, nm,'linear');
-rad = irad .* Refl ./pi;
+
 oriel.nm = nm;
 oriel.irad = irad;
-oriel.rad = rad;
+% oriel.rad = rad; % Moved details with spectralon panel and radiance cals out.
 
 % 
 % tmp = load(['D:\case_studies\radiation_cals\cal_sources_references_xsec\Spectralon_panels\Schmidt.12x12_spectralon.txt']);
