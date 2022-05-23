@@ -1,4 +1,4 @@
-function [irad,rad] = irad_oriel_5115
+function oriel = irad_oriel_5115
 % irad in [mw/(m2 nm)]
 % divide by 10 to get uw/(cm^2 nm)
 % rad in irad/sr
@@ -29,7 +29,10 @@ irad = (nm.^-5) .* exp(A + B./nm) .* (C + D./nm + E./nm.^2 + F./nm.^3 + G./nm.^4
 spec_panel = srt_sn_2784;
 Refl = interp1(spec_panel.nm, spec_panel.Refl, nm,'linear');
 rad = irad .* Refl ./pi;
-
+oriel.nm = nm;
+oriel.irad = irad;
+oriel.rad = rad;
+% oriel.plank_fit = planck_tungsten_fit(nm, irad,nm);
 % 
 % tmp = load(['D:\case_studies\radiation_cals\cal_sources_references_xsec\Spectralon_panels\Schmidt.12x12_spectralon.txt']);
 % spec_panel.nm = tmp(:,1);
