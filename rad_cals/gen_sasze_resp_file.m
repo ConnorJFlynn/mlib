@@ -19,16 +19,16 @@ end
 SAS_unit_i = findstr(upper(header{i}),upper('SAS_unit:'));
 SAS_unit = lower(header{i}(SAS_unit_i+9:end));
 db = '';
-resp_stem = [SAS_unit,'.resp_func.',datestr(time,'yyyymmdd0000'),det_str,num2str(tint),'ms',db,'.dat'];
+resp_stem = [SAS_unit,'.resp_func.',datestr(time,'yyyymmdd_0000'),det_str,num2str(tint),'ms',db,'.csv'];
 if strcmp(resp_stem(1),'.')
     SAS_unit = 'sws';
     resp_stem = ['sws',resp_stem];
 end
 n =1;
-while exist([resp_dir,resp_stem],'file')
+while isafile([resp_dir,resp_stem])
     n = n+1;
     db = ['_',num2str(n)];
-    resp_stem = [SAS_unit,'.resp_func.',datestr(time,'yyyymmdd0000'),det_str,num2str(tint),'ms',db,'.dat'];
+    resp_stem = [SAS_unit,'.resp_func.',datestr(time,'yyyymmdd_0000'),det_str,num2str(tint),'ms',db,'.csv'];
 end
 
 fid = fopen([resp_dir,resp_stem],'w');
@@ -39,7 +39,7 @@ end
 
 out_cal = [1:length(in_cal(1,:)); in_cal];
 
-fprintf(fid, '%4d %8.1f %9.4g %8.3f %10.3f %10.3f %10.3f %9.3f \n',out_cal);
+fprintf(fid, '%4d,%8.1f,%9.4g, %8.3f, %10.3f,  %10.3f,  %10.3e, %10.4f,   %10.3e \n',out_cal);
 % sprintf('%d      %6.1f      %5.3f    %5.3f   %5.3f    %5.3f    %5.3f    %5.3f \n',[1],in_cal(1,1), in_cal(2:end,1));
 fclose(fid);
 
