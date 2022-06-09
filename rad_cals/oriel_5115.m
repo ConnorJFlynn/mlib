@@ -1,4 +1,4 @@
-function oriel = oriel_5115
+function lamp = oriel_5115
 % irad in [mw/(m2 nm)]
 % divide by 10 to get uw/(cm^2 nm)
 % rad in irad/sr
@@ -28,13 +28,8 @@ F=98047094.074996;
 G=-12725581693.8496;
 H=0;
 irad = (nm.^-5) .* exp(A + B./nm) .* (C + D./nm + E./nm.^2 + F./nm.^3 + G./nm.^4  + H./nm.^5);
-% spec_panel = srt_sn_2784;
-% Refl = interp1(spec_panel.nm, spec_panel.Refl, nm,'linear');
-% rad = irad .* Refl ./pi;
+lamp.irad = irad;
 
-
-oriel.nm = nm;
-oriel.irad = irad;
 % oriel.rad = rad; % Moved details with spectralon panel and radiance cals out.
 
 % 
