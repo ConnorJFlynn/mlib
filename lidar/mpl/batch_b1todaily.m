@@ -49,7 +49,7 @@ if ~exist(bad_dir, 'dir')
    mkdir(bad_dir);
 end
 
-in_files = dir([in_dir,'*.cdf']);
+in_files = dir([in_dir,'*.nc']);
 for d = length(in_files):-1:1
    tmp = fliplr(in_files(d).name);
    [dmp,tmp] = strtok(tmp,'.');
@@ -81,7 +81,7 @@ for m = 1:length(in_files)
       fid_out = fopen([out_dir,in_files(ind(m)).name,'.out'],'w');
       fclose(fid_out);
       disp(['Reading ',in_files(ind(m)).name]);
-      anc_mplpol_ = ancloadcoords([in_dir,in_files(ind(m)).name]);
+      anc_mplpol_ = anc_loadcoords([in_dir,in_files(ind(m)).name]);
       status = status + 1;
       for mm = 1:mpl_inarg.Nrecs:length(anc_mplpol_.time)
          disp(['netcdf record: ',num2str(mm),' of ',num2str(length(anc_mplpol_.time))]);

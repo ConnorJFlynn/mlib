@@ -15,7 +15,7 @@ fig_comp = figure_(double(gcf)+1);
 ax2(1) = subplot(1,2,1);
 ax2(2) = subplot(1,2,2); 
 col_sqr = (ones([length(colormap),1])*linspace(cv_z(1), cv_z(2), length(colormap)))'; 
-alpha_sqr =(ones([length(colormap),1])*linspace(0, 1, length(colormap)));
+alpha_sqr =(ones([length(colormap),1])*linspace(.3, 1, length(colormap)));
 img = imagesc(cv_a, cv_z,col_sqr); caxis(cv_z); grid('off')
 axis(ax2(2),'square','xy');
 axes(ax2(1)); 
@@ -37,16 +37,20 @@ s1_pos_(1) = s1_pos(1).*(.75); s1_pos_(2) = s1_pos(2)+.05;s1_pos_(4) = s1_pos(4)
 set(ax2(1), 'position',s1_pos_);
 axes(ax2(1));
 
-[img, x_grid]= imagegap(x,y,zz);
+%[fig, img, ax, x_grid]
+[~, img, ~, x_grid]= imagegap(x,y,zz);
+ caxis(cv_z);
 %trim to bounds of z1 caxis limits
 op_ = max(cv_a(1),min(cv_a(2),op));
-% scale from 0:1
-op_ = op_-(min(min(op_))); op_ = op_./(max(max(op_)));
-op_ = (op_.*masked); op_ = fill_img(op_, x, x_grid);
-set(img, 'alphadata',op_); set(ax2(1),'color','k');
-
+mino = .35;
+% scale from mina:1
+op_ = interp1(cv_a,[mino,1],op_);
+% op_ = op_-(min(min(op_)))+mino; op_ = op_./(max(max(op_)));
+op_ = (op_.*masked); opa_=fill_img(op_, x, x_grid);
+set(img, 'alphadata',opa_); set(ax2(1),'color','k');
+grid('off');
  xlabel('time [UTC]'); ylabel('range [km]');
- caxis(cv_z);
+
   tx = text(.5, .5, ['Composite of backscatter & dpr']); 
  set(tx,'color','w')
 set(tx,'units','normalized');set(tx,'position',[.02,.95,0])

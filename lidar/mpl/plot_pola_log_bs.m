@@ -129,6 +129,7 @@ while loop
    else
       loop = false;
    end
+   aloop = loop;
    mask = ones(size(polavg.cop));
 
 %    mask(polavg.r.lte_25,:) = 1./(std_attn_prof*ones([1,length(polavg.time)]));
@@ -153,11 +154,11 @@ while loop
    ax1_pos = get(ax(1),'position');
    cb1_pos = get(cb1,'position');
    axis('xy');
-   % colormap(jet_rgb);
-   colormap(comp_map3);
+%    colormap(jet_rgb);
+%    colormap(comp_map3);
    % colormap(jet_bw)
    set(ax(1),'TickDir','out');
-   % colormap('hijet');
+   colormap('hijet');
    ylim([0,max(ranges)]);
    % cv_bs = 10.^cv_bs;
    hold('on');
@@ -251,6 +252,7 @@ while loop
    end
 end
 
+
 % The following lines are used in debug mode to manually adjust the color
 % scales and to capture the settings for use throughout the rest of the
 % function
@@ -270,52 +272,51 @@ linkaxes([ax,ax2(1)],'xy');
 
 xlim(xl);
 
-
-colormap(comp_map3);
+% colormap(comp_map3);
 cmap = colormap;
 
-fig_comp = figure_(double(gcf)+1); 
-ax2(1) = subplot(1,2,1);
-ax2(2) = subplot(1,2,2); 
-cv_z = cv_dpr; cv_a = cv_log_bs;
-col_sqr = (ones([length(colormap),1])*linspace(cv_z(1), cv_z(2), length(colormap)))'; 
-alpha_sqr =(ones([length(colormap),1])*linspace(0, 1, length(colormap)));
-img = imagesc(cv_a, cv_z,col_sqr); caxis(cv_z); 
-axis(ax2(2),'square','xy');
-axes(ax2(1)); 
-set(ax2(2),'YAxisLocation','right');
-s1_pos = get(ax2(1), 'position'); 
-s2_pos = get(ax2(2),'position');
-s1_pos_ = s1_pos; s2_pos_ = s2_pos; 
-s2_pos_(1) = s2_pos_(1) + s2_pos(3)./2; s2_pos_(3) = s2_pos(3)./2 ;
-set(ax2(2),'position',s2_pos_); 
- xt = xlabel(ax2(2),'Log_1_0(bscat)');set(xt,'interp','Tex') ;
- yt = ylabel(ax2(2),'Log_1_0(ldr)'); set(yt, 'interp','Tex');
-%  tl = title('color square')
-
-set(img,'alphadata',alpha_sqr);set(ax2(2),'color','k')
-
-dx = (s2_pos(1) - s1_pos(1)-s1_pos(3));
-s1_pos_(3) = s2_pos_(1) - dx -.05;
-s1_pos_(1) = s1_pos(1).*(.75); s1_pos_(2) = s1_pos(2)+.05;s1_pos_(4) = s1_pos(4)-.05;
-set(ax2(1), 'position',s1_pos_);
-axes(ax2(1));
-
- [fig_comp, img_comp] = comp_image(x,y,z2, z1, cv_log_bs, mask(r.lte_25,:));
- xlabel('time [UTC]'); ylabel('range [km]');
- caxis(cv_dpr);
-  tx = text(.5, .5, ['Composite of backscatter & dpr']); 
- set(tx,'color','w')
-set(tx,'units','normalized');set(tx,'position',[.02,.95,0])
+% fig_comp = figure_(double(gcf)+1); 
+% ax2(1) = subplot(1,2,1);
+% ax2(2) = subplot(1,2,2); 
+% cv_z = cv_dpr; cv_a = cv_log_bs;
+% col_sqr = (ones([length(colormap),1])*linspace(cv_z(1), cv_z(2), length(colormap)))'; 
+% alpha_sqr =(ones([length(colormap),1])*linspace(0, 1, length(colormap)));
+% img = imagesc(cv_a, cv_z,col_sqr); caxis(cv_z); 
+% axis(ax2(2),'square','xy');
+% axes(ax2(1)); 
+% set(ax2(2),'YAxisLocation','right');
+% s1_pos = get(ax2(1), 'position'); 
+% s2_pos = get(ax2(2),'position');
+% s1_pos_ = s1_pos; s2_pos_ = s2_pos; 
+% s2_pos_(1) = s2_pos_(1) + s2_pos(3)./2; s2_pos_(3) = s2_pos(3)./2 ;
+% set(ax2(2),'position',s2_pos_); 
+%  xt = xlabel(ax2(2),'Log_1_0(bscat)');set(xt,'interp','Tex') ;
+%  yt = ylabel(ax2(2),'Log_1_0(ldr)'); set(yt, 'interp','Tex');
+% %  tl = title('color square')
+% 
+% set(img,'alphadata',alpha_sqr);set(ax2(2),'color','k')
+% 
+% dx = (s2_pos(1) - s1_pos(1)-s1_pos(3));
+% s1_pos_(3) = s2_pos_(1) - dx -.05;
+% s1_pos_(1) = s1_pos(1).*(.75); s1_pos_(2) = s1_pos(2)+.05;s1_pos_(4) = s1_pos(4)-.05;
+% set(ax2(1), 'position',s1_pos_);
+% axes(ax2(1));
+% 
+%  [comp2] = comp_image(x,y,z2, z1, cv_dpr,cv_log_bs, mask(r.lte_25,:));
+%  xlabel('time [UTC]'); ylabel('range [km]');
+%  caxis(cv_dpr);
+%   tx = text(.5, .5, ['Composite of backscatter & dpr']); 
+%  set(tx,'color','w')
+% set(tx,'units','normalized');set(tx,'position',[.02,.95,0])
  titlestr = {[ds_, datestr(polavg.time(1), ', yyyy-mm-dd ')]};
 tl = title(titlestr)
  %  %Brightens set(img99, 'alphadata',get(img99, 'alphadata').^(.75));
-set(fig_comp,'InvertHardcopy','off');
-linkaxes([ax,ax2(1)],'xy');
-colormap(comp_map3);
-xlim(xl);
-set(fig,'InvertHardcopy','off');
-
+set(comp.fig,'InvertHardcopy','off');
+% linkaxes([ax,ax2(1)],'xy');
+% colormap(comp_map3);
+% xlim(xl);
+% set(fig,'InvertHardcopy','off');
+% 
 
 set(fig,'visible','on');
    fname1 = [fstem,datestr(polavg.time(1), 'yyyy-mm-dd'),hh_HH_str2,'.doy',num2str(serial2doy(floor(polavg.time(1)))),'.bs_ldr_2panel.',];

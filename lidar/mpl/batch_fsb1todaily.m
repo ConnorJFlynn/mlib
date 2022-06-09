@@ -219,7 +219,7 @@ end
    end
    mpl_inarg.fig = fig;
    mpl_inarg.vis = 'on';
-   mpl_inarg.cv_log_bs = [2,4];
+   mpl_inarg.cv_log_bs = [1,4];
    mpl_inarg.cv_dpr = [-2.5,0];
    mpl_inarg.plot_ranges = [15,10,5,2];
 return
@@ -251,6 +251,12 @@ function mpl_inarg = populate_mpl_inarg(mpl_inarg);
    if ~isfield(mpl_inarg,'dtc');
       mpl_inarg.dtc = eval(['@dtc_',mpl_inarg.tla,'_']); %accept and return MHz
    end
+   
+   mpl_inarg.assess_ap = true;
+   mpl_inarg.replace_ap = false;
+   mpl_inarg.replace_ol = false;
+   mpl_inarg.assess_ray = true;
+
    if ~isfield(mpl_inarg,'ap');
       mpl_inarg.ap = eval(['@ap_',mpl_inarg.tla,'_']); %accept range, return .cop, .crs
    end
