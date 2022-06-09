@@ -44,7 +44,7 @@ ch4_nadir.agod = ch4_nadir.od-ray_f.*ray;
 h2o_nadir.agod = h2o_nadir.od-ray_f.*ray;
 % figure; plot(h2o_nadir.nm, h2o_nadir.agod, '-' ,co2_nadir.nm, co2_nadir.agod, '-',ch4_nadir.nm, ch4_nadir.agod, 'm-'); logy; legend('h_2o','co_2','ch_4','ray')
 
-intor_a = load(['C:\Users\flyn0011\OneDrive - University of Oklahoma\Desktop\xdata\ARM\adc\translator\mfrsr_intor_filters\intor_a.mat']);
+intor_a = load(['C:\Users\Connor Flynn\OneDrive - University of Oklahoma\Desktop\xdata\ARM\adc\translator\mfrsr_intor_filters\intor_a.mat']);
 % figure; plot(1e7./intor_a.nm , intor_a.filts,'k-');
 intor_a.nu = 1e7./intor_a.nm;
 
@@ -71,6 +71,18 @@ trapz(co2_nadir.nm(s2_), co2_nadir.agod(s2_))
 % Define a subset that encompasses all the Intor filter ranges
 nu_mfr = nu>6050 & nu<6300;
 v_mfr = ch4_nadir.v>6050 & ch4_nadir.v<6300;
+
+filt = interp1(intor_a.nu, intor_a.filts(:,1), ch4_nadir.v,'linear');
+filt(isnan(filt)) = 0;
+filt = filt ./ trapz(ch4_nadir.v(v_mfr), filt(v_mfr));
+for am = [6:-.5:1]
+    for cm = 5:-.5:.5;
+        h2o_agod_cm(2*cm,2.*am -1) = -log(trapz(h2o_nadir.v(v_mfr), filt(v_mfr).*exp(-am.*(cm./5).*h2o_nadir.agod(v_mfr))))./am;
+        slant_cm(2*cm,2.*am -1) = am.*cm;
+    end
+end
+figure; plot(slant_cm(:),h2o_agod_cm(:),'o')
+figure; plot(slant_cm,h2o_agod_cm,'o')
 
     fa = 4;  fb = 10; fc = 6; fd = 12;
     cm = 1;
