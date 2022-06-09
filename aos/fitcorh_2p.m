@@ -1,4 +1,4 @@
-   function [a,b, rsqr,dryRH] = fitcorh_2p(RH,YY);
+   function [a,b, rsqr,dryRH,frh] = fitcorh_2p(RH,YY);
    % [a,b,dryRH] = fitcorh_2p(RH,YY);
    % Returns a, b for frh = a.*((1-rh).^(-b));
    % also return effective dry RH such that frh(dry_RH) = 1
@@ -12,7 +12,7 @@
    logPP = polyfit(logXX,logYY,1);
    a = exp(logPP(2));
    b = -logPP(1);
-   % frh = a.*((1-rh).^(-b));
+   frh = a.*((1-RH/100).^(-b));
    % frh = 1 = a.*((1-dryRH).^(-b));
    dryRH = (1-((1./a).^(-1./b)))*100;
    rsqr = R_squared(YY,fitrh_2p(RH,a,b));
