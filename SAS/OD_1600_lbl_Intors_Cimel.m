@@ -62,25 +62,25 @@ intor_d.nu = 1e7./intor_d.nm;
 
 % The two spectral datasets have mismatched ranges, so define subsets of
 % each to compare
-s1_ = nm>1590 & nm<1630;
-s2_ = co2_nadir.nm>1590 & co2_nadir.nm<1630;
+s1_ = nm>1590 & nm<1650;
+s2_ = co2_nadir.nm>1590 & co2_nadir.nm<1650;
 
 trapz(nm(s1_),co2_sgod(s1_))
 trapz(co2_nadir.nm(s2_), co2_nadir.agod(s2_))
 % They look fine to the 3rd decimal point.
 % Define a subset that encompasses all the Intor filter ranges
-nu_mfr = nu>6050 & nu<6300;
-v_mfr = ch4_nadir.v>6050 & ch4_nadir.v<6300;
+nu_mfr = nu>6060 & nu<6300;
+v_mfr = ch4_nadir.v>6060 & ch4_nadir.v<6300;
 
     fa = 4;  fb = 10; fc = 6; fd = 12;
-    cm = 1;
+    cm = 5;
     ch4_agod = []; co2_agod = []; h2o_agod = []; h2o_agod_cm = [];
-    for am = [6:-.5:1]
-        for f = [fd:-1:1]
+    for am = 6:-.5:1
+        for f = fd:-1:1
            % First, integrate low-res spectra in tau
             filt = interp1(intor_d.nu, intor_d.filts(:,f), nu,'linear');
             filt(isnan(filt)) = 0;
-            filt = filt ./ trapz(nu(nu_mfr), filt(nu_mfr));
+            filt = filt ./ trapz(nu(nu_mfr), filt(nu_mfr));            
             ch4_tau(fa+fb+fc + f) = trapz(nu(nu_mfr), ch4_sgod(nu_mfr).*filt(nu_mfr));
             co2_tau(fa+fb+fc + f) = trapz(nu(nu_mfr), co2_sgod(nu_mfr).*filt(nu_mfr));
             h2o_tau(fa+fb+fc + f) = trapz(nu(nu_mfr), h2o_sgod(nu_mfr).*filt(nu_mfr));
@@ -95,11 +95,20 @@ v_mfr = ch4_nadir.v>6050 & ch4_nadir.v<6300;
             filt = interp1(intor_d.nu, intor_d.filts(:,f), ch4_nadir.v,'linear');
             filt(isnan(filt)) = 0;
             filt = filt ./ trapz(ch4_nadir.v(v_mfr), filt(v_mfr));
+            ray_tau(fa+fb+fc + f) = trapz(h2o_nadir.v(v_mfr), ray_f.*filt(v_mfr).*ray(v_mfr));
             ch4_agod(fa+fb+fc + f,2.*am -1) = -log(trapz(ch4_nadir.v(v_mfr), filt(v_mfr).*exp(-am.*ch4_nadir.agod(v_mfr))))./am;
             co2_agod(fa+fb+fc + f,2.*am -1) = -log(trapz(co2_nadir.v(v_mfr), filt(v_mfr).*exp(-am.*co2_nadir.agod(v_mfr))))./am;
             h2o_agod(fa+fb+fc + f,2.*am -1) = -log(trapz(h2o_nadir.v(v_mfr), filt(v_mfr).*exp(-am.*h2o_nadir.agod(v_mfr))))./am;
             h2o_agod_cm(fa+fb+fc + f,2.*am -1) = -log(trapz(h2o_nadir.v(v_mfr), filt(v_mfr).*exp(-am.*(cm./5).*h2o_nadir.agod(v_mfr))))./am;
+
+            % and all together now
+            ; % First, add all the gas OD, compute Tr, then convolve with filter envelope to get eff_Tr
+            % Then take negative log, divide by am.
+            gas_Tr = exp(-am.*(ray_f.*ray  + ch4_nadir.agod + co2_nadir.agod + h2o_nadir.agod));
+            eff_Tr = trapz(h2o_nadir.v(v_mfr), filt(v_mfr).*gas_Tr(v_mfr));
+            gas_od_comb(fa+fb+fc + f,2.*am -1) = -log(eff_Tr)./am;
         end
+
         for f = 1:fc
            % First, integrate low-res spectra in tau
             filt = interp1(intor_c.nu, intor_c.filts(:,f), nu,'linear');
@@ -119,11 +128,20 @@ v_mfr = ch4_nadir.v>6050 & ch4_nadir.v<6300;
             filt = interp1(intor_c.nu, intor_c.filts(:,f), ch4_nadir.v,'linear');
             filt(isnan(filt)) = 0;
             filt = filt ./ trapz(ch4_nadir.v(v_mfr), filt(v_mfr));
+            ray_tau(fa+fb + f) = trapz(h2o_nadir.v(v_mfr), ray_f.*filt(v_mfr).*ray(v_mfr));
             ch4_agod(fa + fb + f,2.*am -1) = -log(trapz(ch4_nadir.v(v_mfr), filt(v_mfr).*exp(-am.*ch4_nadir.agod(v_mfr))))./am;
             co2_agod(fa + fb + f,2.*am -1) = -log(trapz(co2_nadir.v(v_mfr), filt(v_mfr).*exp(-am.*co2_nadir.agod(v_mfr))))./am;
             h2o_agod(fa + fb + f,2.*am -1) = -log(trapz(h2o_nadir.v(v_mfr), filt(v_mfr).*exp(-am.*h2o_nadir.agod(v_mfr))))./am;
             h2o_agod_cm(fa + fb + f,2.*am -1) = -log(trapz(h2o_nadir.v(v_mfr), filt(v_mfr).*exp(-am.*(cm./5).*h2o_nadir.agod(v_mfr))))./am;
+
+            % and all together now
+            ; % First, add all the gas OD, compute Tr, then convolve with filter envelope to get eff_Tr
+            % Then take negative log, divide by am.
+            gas_Tr = exp(-am.*(ray_f.*ray  + ch4_nadir.agod + co2_nadir.agod + h2o_nadir.agod));
+            eff_Tr = trapz(h2o_nadir.v(v_mfr), filt(v_mfr).*gas_Tr(v_mfr));
+            gas_od_comb(fa+fb + f,2.*am -1) = -log(eff_Tr)./am;
         end
+
         for f =  1:fb
            % First, integrate low-res spectra in tau
             filt = interp1(intor_b.nu, intor_b.filts(:,f), nu,'linear');
@@ -143,11 +161,20 @@ v_mfr = ch4_nadir.v>6050 & ch4_nadir.v<6300;
             filt = interp1(intor_b.nu, intor_b.filts(:,f), ch4_nadir.v,'linear');
             filt(isnan(filt)) = 0;
             filt = filt ./ trapz(ch4_nadir.v(v_mfr), filt(v_mfr));
+            ray_tau(fa + f) = trapz(h2o_nadir.v(v_mfr), ray_f.*filt(v_mfr).*ray(v_mfr));
             ch4_agod(fa +f,2.*am -1) = -log(trapz(ch4_nadir.v(v_mfr), filt(v_mfr).*exp(-am.*ch4_nadir.agod(v_mfr))))./am;
             co2_agod(fa +f,2.*am -1) = -log(trapz(co2_nadir.v(v_mfr), filt(v_mfr).*exp(-am.*co2_nadir.agod(v_mfr))))./am;
             h2o_agod(fa +f,2.*am -1) = -log(trapz(h2o_nadir.v(v_mfr), filt(v_mfr).*exp(-am.*h2o_nadir.agod(v_mfr))))./am;
             h2o_agod_cm(fa +f,2.*am -1) = -log(trapz(h2o_nadir.v(v_mfr), filt(v_mfr).*exp(-am.*(cm./5).*h2o_nadir.agod(v_mfr))))./am;
+
+            % and all together now
+            ; % First, add all the gas OD, compute Tr, then convolve with filter envelope to get eff_Tr
+            % Then take negative log, divide by am.
+            gas_Tr = exp(-am.*(ray_f.*ray  + ch4_nadir.agod + co2_nadir.agod + h2o_nadir.agod));
+            eff_Tr = trapz(h2o_nadir.v(v_mfr), filt(v_mfr).*gas_Tr(v_mfr));
+            gas_od_comb(fa + f,2.*am -1) = -log(eff_Tr)./am;          
         end
+
         for f = 1:fa
            % First, integrate low-res spectra in tau
             filt = interp1(intor_a.nu, intor_a.filts(:,f), nu,'linear');
@@ -167,48 +194,54 @@ v_mfr = ch4_nadir.v>6050 & ch4_nadir.v<6300;
             filt = interp1(intor_a.nu, intor_a.filts(:,f), ch4_nadir.v,'linear');
             filt(isnan(filt)) = 0;
             filt = filt ./ trapz(ch4_nadir.v(v_mfr), filt(v_mfr));
+            ray_tau(f) = trapz(h2o_nadir.v(v_mfr), ray_f.*filt(v_mfr).*ray(v_mfr));
             ch4_agod(f,2.*am -1) = -log(trapz(ch4_nadir.v(v_mfr), filt(v_mfr).*exp(-am.*ch4_nadir.agod(v_mfr))))./am;
             co2_agod(f,2.*am -1) = -log(trapz(co2_nadir.v(v_mfr), filt(v_mfr).*exp(-am.*co2_nadir.agod(v_mfr))))./am;
             h2o_agod(f,2.*am -1) = -log(trapz(h2o_nadir.v(v_mfr), filt(v_mfr).*exp(-am.*h2o_nadir.agod(v_mfr))))./am;
             h2o_agod_cm(f,2.*am -1) = -log(trapz(h2o_nadir.v(v_mfr), filt(v_mfr).*exp(-am.*(cm./5).*h2o_nadir.agod(v_mfr))))./am;
+            % and all together now
+            ; % First, add all the gas OD, compute Tr, then convolve with filter envelope to get eff_Tr
+            % Then take negative log, divide by am.
+            gas_Tr = exp(-am.*(ray_f.*ray  + ch4_nadir.agod + co2_nadir.agod + h2o_nadir.agod));
+            eff_Tr = trapz(h2o_nadir.v(v_mfr), filt(v_mfr).*gas_Tr(v_mfr));
+            gas_od_comb(f,2.*am -1) = -log(eff_Tr)./am;        
         end
+
     end
 
-% Code below this hasn't been modified for consistency with code above.  
-% Might work, but no promises.
-
-
-
+            gas_od_indp = ray_tau(1) + ch4_agod + co2_agod + h2o_agod;
+            gas_od_delta = gas_od_comb - gas_od_indp;
+figure; hist(gas_od_delta(:))
 ch4_agod_avga = mean(ch4_agod(1:4,:)); ch4_agod_stda = std(ch4_agod(1:4,:));
 ch4_agod_avgb = mean(ch4_agod(5:14,:)); ch4_agod_stdb = std(ch4_agod(5:14,:));
 ch4_agod_avgc = mean(ch4_agod(15:20,:)); ch4_agod_stdc = std(ch4_agod(15:20,:));
 ch4_agod_avgd = mean(ch4_agod(21:32,:)); ch4_agod_stdd = std(ch4_agod(21:32,:));
     
 figure;
-errorbar([1:10]-.1, ch4_agod_avga, ch4_agod_stda,'-', 'linewidth',2); hold('on');
- errorbar([1:10]-.05, ch4_agod_avgb, ch4_agod_stdb,'-', 'linewidth',2);
-errorbar([1:10]+.05, ch4_agod_avgc, ch4_agod_stdc,'-', 'linewidth',2);
-errorbar([1:10]+.1, ch4_agod_avgd, ch4_agod_stdd,'-', 'linewidth',2);
+errorbar([1:11]-.1, ch4_agod_avga, ch4_agod_stda,'-', 'linewidth',2); hold('on');
+ errorbar([1:11]-.05, ch4_agod_avgb, ch4_agod_stdb,'-', 'linewidth',2);
+errorbar([1:11]+.05, ch4_agod_avgc, ch4_agod_stdc,'-', 'linewidth',2);
+errorbar([1:11]+.1, ch4_agod_avgd, ch4_agod_stdd,'-', 'linewidth',2);
 legend('batch a','batch b','batch c','batch d');hold('off')
 xlabel('airmass'); ylabel('OD subtr.');
 yl = ylim; ylim([0,yl(2)]);
 title('Intor 1625 nm gas corrections, CH_4 (1860 ppb)','interp','tex')
 
 figure;
-errorbar([1:10]-.1, ch4_agod_avga-ch4_agod_avga(1), ch4_agod_stda,'-', 'linewidth',2); hold('on');
- errorbar([1:10]-.05, ch4_agod_avgb-ch4_agod_avgb(1), ch4_agod_stdb,'-', 'linewidth',2);
-errorbar([1:10]+.05, ch4_agod_avgc-ch4_agod_avgc(1), ch4_agod_stdc,'-', 'linewidth',2);
-errorbar([1:10]+.1, ch4_agod_avgd-ch4_agod_avgd(1), ch4_agod_stdd,'-', 'linewidth',2);hold('off')
+errorbar([1:11]-.1, ch4_agod_avga-ch4_agod_avga(1), ch4_agod_stda,'-', 'linewidth',2); hold('on');
+ errorbar([1:11]-.05, ch4_agod_avgb-ch4_agod_avgb(1), ch4_agod_stdb,'-', 'linewidth',2);
+errorbar([1:11]+.05, ch4_agod_avgc-ch4_agod_avgc(1), ch4_agod_stdc,'-', 'linewidth',2);
+errorbar([1:11]+.1, ch4_agod_avgd-ch4_agod_avgd(1), ch4_agod_stdd,'-', 'linewidth',2);hold('off')
 legend('batch a','batch b','batch c','batch d');
 xlabel('airmass'); ylabel('minus am=1');
 yl = ylim; %ylim([0,yl(2)]);
 title('Intor 1625 nm gas corrections, CH_4 (1860 ppb)','interp','tex')
 
 figure;
-errorbar([1:10]-.1, 100.*(ch4_agod_avga./ch4_agod_avga(1)-1), 100.*ch4_agod_stda./ch4_agod_avga(1),'-', 'linewidth',2); hold('on');
- errorbar([1:10]-.05, 100.*(ch4_agod_avgb./ch4_agod_avgb(1)-1), 100.*ch4_agod_stdb./ch4_agod_avgb(1),'-', 'linewidth',2);
-errorbar([1:10]+.05, 100.*(ch4_agod_avgc./ch4_agod_avgc(1)-1), 100.*ch4_agod_stdc./ch4_agod_avgc(1),'-', 'linewidth',2);
-errorbar([1:10]+.1, 100.*(ch4_agod_avgd./ch4_agod_avgd(1)-1), 100.*ch4_agod_stdd./ch4_agod_avgd(1),'-', 'linewidth',2);hold('off')
+errorbar([1:11]-.1, 100.*(ch4_agod_avga./ch4_agod_avga(1)-1), 100.*ch4_agod_stda./ch4_agod_avga(1),'-', 'linewidth',2); hold('on');
+ errorbar([1:11]-.05, 100.*(ch4_agod_avgb./ch4_agod_avgb(1)-1), 100.*ch4_agod_stdb./ch4_agod_avgb(1),'-', 'linewidth',2);
+errorbar([1:11]+.05, 100.*(ch4_agod_avgc./ch4_agod_avgc(1)-1), 100.*ch4_agod_stdc./ch4_agod_avgc(1),'-', 'linewidth',2);
+errorbar([1:11]+.1, 100.*(ch4_agod_avgd./ch4_agod_avgd(1)-1), 100.*ch4_agod_stdd./ch4_agod_avgd(1),'-', 'linewidth',2);hold('off')
 legend('batch a','batch b','batch c','batch d');
 xlabel('airmass'); ylabel('% rel am=1');
 yl = ylim; %ylim([0,yl(2)]);
@@ -220,30 +253,30 @@ co2_agod_avgb = mean(co2_agod(5:14,:)); co2_agod_stdb = std(co2_agod(5:14,:));
 co2_agod_avgc = mean(co2_agod(15:20,:)); co2_agod_stdc = std(co2_agod(15:20,:));
 co2_agod_avgd = mean(co2_agod(21:32,:)); co2_agod_stdd = std(co2_agod(21:32,:));
 figure;
-errorbar([1:10]-.1, co2_agod_avga, co2_agod_stda,'-', 'linewidth',2); hold('on');
- errorbar([1:10]-.05, co2_agod_avgb, co2_agod_stdb,'-', 'linewidth',2);
-errorbar([1:10]+.05, co2_agod_avgc, co2_agod_stdc,'-', 'linewidth',2);
-errorbar([1:10]+.1, co2_agod_avgd, co2_agod_stdd,'-', 'linewidth',2);
+errorbar([1:11]-.1, co2_agod_avga, co2_agod_stda,'-', 'linewidth',2); hold('on');
+ errorbar([1:11]-.05, co2_agod_avgb, co2_agod_stdb,'-', 'linewidth',2);
+errorbar([1:11]+.05, co2_agod_avgc, co2_agod_stdc,'-', 'linewidth',2);
+errorbar([1:11]+.1, co2_agod_avgd, co2_agod_stdd,'-', 'linewidth',2);
 legend('batch a','batch b','batch c','batch d');
 xlabel('airmass'); ylabel('OD subtr.');
 yl = ylim; ylim([0,yl(2)]);
 title('Intor 1625 nm gas corrections, CO_2 (410 ppm)','interp','tex')
 
 figure;
-errorbar([1:10]-.1, co2_agod_avga-co2_agod_avga(1), co2_agod_stda,'-', 'linewidth',2); hold('on');
- errorbar([1:10]-.05, co2_agod_avgb-co2_agod_avgb(1), co2_agod_stdb,'-', 'linewidth',2);
-errorbar([1:10]+.05, co2_agod_avgc-co2_agod_avgc(1), co2_agod_stdc,'-', 'linewidth',2);
-errorbar([1:10]+.1, co2_agod_avgd-co2_agod_avgd(1), co2_agod_stdd,'-', 'linewidth',2);
+errorbar([1:11]-.1, co2_agod_avga-co2_agod_avga(1), co2_agod_stda,'-', 'linewidth',2); hold('on');
+ errorbar([1:11]-.05, co2_agod_avgb-co2_agod_avgb(1), co2_agod_stdb,'-', 'linewidth',2);
+errorbar([1:11]+.05, co2_agod_avgc-co2_agod_avgc(1), co2_agod_stdc,'-', 'linewidth',2);
+errorbar([1:11]+.1, co2_agod_avgd-co2_agod_avgd(1), co2_agod_stdd,'-', 'linewidth',2);
 legend('batch a','batch b','batch c','batch d');
 xlabel('airmass'); ylabel('minus am=1');
 yl = ylim; 
 title('Intor 1625 nm gas corrections, CO_2 (410 ppm)','interp','tex')
 
 figure;
-errorbar([1:10]-.1, 100.*(co2_agod_avga./co2_agod_avga(1)-1), co2_agod_stda./co2_agod_avga(1),'-', 'linewidth',2); hold('on');
- errorbar([1:10]-.05, 100.*(co2_agod_avgb./co2_agod_avgb(1)-1), co2_agod_stdb./co2_agod_avgb(1),'-', 'linewidth',2);
-errorbar([1:10]+.05, 100.*(co2_agod_avgc./co2_agod_avgc(1)-1), co2_agod_stdc./co2_agod_avgc(1),'-', 'linewidth',2);
-errorbar([1:10]+.1, 100.*(co2_agod_avgd./co2_agod_avgd(1)-1), co2_agod_stdd./co2_agod_avgd(1),'-', 'linewidth',2);
+errorbar([1:11]-.1, 100.*(co2_agod_avga./co2_agod_avga(1)-1), co2_agod_stda./co2_agod_avga(1),'-', 'linewidth',2); hold('on');
+ errorbar([1:11]-.05, 100.*(co2_agod_avgb./co2_agod_avgb(1)-1), co2_agod_stdb./co2_agod_avgb(1),'-', 'linewidth',2);
+errorbar([1:11]+.05, 100.*(co2_agod_avgc./co2_agod_avgc(1)-1), co2_agod_stdc./co2_agod_avgc(1),'-', 'linewidth',2);
+errorbar([1:11]+.1, 100.*(co2_agod_avgd./co2_agod_avgd(1)-1), co2_agod_stdd./co2_agod_avgd(1),'-', 'linewidth',2);
 legend('batch a','batch b','batch c','batch d');
 xlabel('airmass'); ylabel('% rel am=1');
 yl = ylim; 
@@ -255,20 +288,20 @@ h2o_agod_avgb = mean(h2o_agod(5:14,:)); h2o_agod_stdb = std(h2o_agod(5:14,:));
 h2o_agod_avgc = mean(h2o_agod(15:20,:)); h2o_agod_stdc = std(h2o_agod(15:20,:));
 h2o_agod_avgd = mean(h2o_agod(21:32,:)); h2o_agod_stdd = std(h2o_agod(21:32,:));
 figure;
-errorbar([1:10]-.1, h2o_agod_avga, h2o_agod_stda,'-o'); hold('on');
- errorbar([1:10]-.05, h2o_agod_avgb, h2o_agod_stdb,'-x');
-errorbar([1:10]+.05, h2o_agod_avgc, h2o_agod_stdc,'-+');
-errorbar([1:10]+.1, h2o_agod_avgd, h2o_agod_stdd,'-*');
+errorbar([1:11]-.1, h2o_agod_avga, h2o_agod_stda,'-o'); hold('on');
+ errorbar([1:11]-.05, h2o_agod_avgb, h2o_agod_stdb,'-x');
+errorbar([1:11]+.05, h2o_agod_avgc, h2o_agod_stdc,'-+');
+errorbar([1:11]+.1, h2o_agod_avgd, h2o_agod_stdd,'-*');
 legend('batch a','batch b','batch c','batch d');
 xlabel('airmass'); ylabel('OD subtr.');
 yl = ylim; ylim([0,yl(2)]);
 title('Intor 1625 nm gas corrections, H2O (5 cm)','interp','tex')
 
 figure;
-errorbar([1:10]-.1, 100.*(h2o_agod_avga-h2o_agod_avga(1))./h2o_agod_avga(1), h2o_agod_stda./h2o_agod_avga(1),'-o'); hold('on');
- errorbar([1:10]-.05, 100.*(h2o_agod_avgb-h2o_agod_avgb(1))./h2o_agod_avgb(1), h2o_agod_stdb./h2o_agod_avgb(1),'-x');
-errorbar([1:10]+.05, 100.*(h2o_agod_avgc-h2o_agod_avgc(1))./h2o_agod_avgc(1), h2o_agod_stdc./h2o_agod_avgc(1),'-+');
-errorbar([1:10]+.1, 100.*(h2o_agod_avgd-h2o_agod_avgd(1))./h2o_agod_avgd(1), h2o_agod_stdd./h2o_agod_avgd(1),'-*');
+errorbar([1:11]-.1, 100.*(h2o_agod_avga-h2o_agod_avga(1))./h2o_agod_avga(1), h2o_agod_stda./h2o_agod_avga(1),'-o'); hold('on');
+ errorbar([1:11]-.05, 100.*(h2o_agod_avgb-h2o_agod_avgb(1))./h2o_agod_avgb(1), h2o_agod_stdb./h2o_agod_avgb(1),'-x');
+errorbar([1:11]+.05, 100.*(h2o_agod_avgc-h2o_agod_avgc(1))./h2o_agod_avgc(1), h2o_agod_stdc./h2o_agod_avgc(1),'-+');
+errorbar([1:11]+.1, 100.*(h2o_agod_avgd-h2o_agod_avgd(1))./h2o_agod_avgd(1), h2o_agod_stdd./h2o_agod_avgd(1),'-*');
 legend('batch a','batch b','batch c','batch d');
 xlabel('airmass'); ylabel('minus am=1');
 yl = ylim; ;
@@ -279,20 +312,20 @@ h2o_agod_cm_avgb = mean(h2o_agod_cm(5:14,:)); h2o_agod_cm_stdb = std(h2o_agod_cm
 h2o_agod_cm_avgc = mean(h2o_agod_cm(15:20,:)); h2o_agod_cm_stdc = std(h2o_agod_cm(15:20,:));
 h2o_agod_cm_avgd = mean(h2o_agod_cm(21:32,:)); h2o_agod_cm_stdd = std(h2o_agod_cm(21:32,:));
 figure;
-errorbar([1:10]-.1, h2o_agod_cm_avga, h2o_agod_cm_stda,'-o'); hold('on');
- errorbar([1:10]-.05, h2o_agod_cm_avgb, h2o_agod_cm_stdb,'-x');
-errorbar([1:10]+.05, h2o_agod_cm_avgc, h2o_agod_cm_stdc,'-+');
-errorbar([1:10]+.1, h2o_agod_cm_avgd, h2o_agod_cm_stdd,'-*');
+errorbar([1:11]-.1, h2o_agod_cm_avga, h2o_agod_cm_stda,'-o'); hold('on');
+ errorbar([1:11]-.05, h2o_agod_cm_avgb, h2o_agod_cm_stdb,'-x');
+errorbar([1:11]+.05, h2o_agod_cm_avgc, h2o_agod_cm_stdc,'-+');
+errorbar([1:11]+.1, h2o_agod_cm_avgd, h2o_agod_cm_stdd,'-*');
 legend('batch a','batch b','batch c','batch d');
 xlabel('airmass'); ylabel('OD subtr.');
 yl = ylim; ylim([0,yl(2)]);
 title('Intor 1625 nm gas corrections, H2O (1 cm)','interp','tex')
 
 figure;
-errorbar([1:10]-.1, (h2o_agod_cm_avga-h2o_agod_cm_avga(1)), h2o_agod_cm_stda,'-o'); hold('on');
- errorbar([1:10]-.05, (h2o_agod_cm_avgb-h2o_agod_cm_avgb(1)), h2o_agod_cm_stdb,'-x');
-errorbar([1:10]+.05, (h2o_agod_cm_avgc-h2o_agod_cm_avgc(1)), h2o_agod_cm_stdc,'-+');
-errorbar([1:10]+.1, (h2o_agod_cm_avgd-h2o_agod_cm_avgd(1)), h2o_agod_cm_stdd,'-*');
+errorbar([1:11]-.1, (h2o_agod_cm_avga-h2o_agod_cm_avga(1)), h2o_agod_cm_stda,'-o'); hold('on');
+ errorbar([1:11]-.05, (h2o_agod_cm_avgb-h2o_agod_cm_avgb(1)), h2o_agod_cm_stdb,'-x');
+errorbar([1:11]+.05, (h2o_agod_cm_avgc-h2o_agod_cm_avgc(1)), h2o_agod_cm_stdc,'-+');
+errorbar([1:11]+.1, (h2o_agod_cm_avgd-h2o_agod_cm_avgd(1)), h2o_agod_cm_stdd,'-*');
 legend('batch a','batch b','batch c','batch d');
 xlabel('airmass'); ylabel('minus am=1');
 yl = ylim; ;
@@ -301,90 +334,45 @@ title('Intor 1625 nm gas corrections, H2O (1 cm)','interp','tex')
 
 
 figure;
-errorbar([1:10]-.1, 100.*(h2o_agod_cm_avga-h2o_agod_cm_avga(1))./h2o_agod_cm_avga(1), h2o_agod_cm_stda./h2o_agod_cm_avga(1),'-o'); hold('on');
- errorbar([1:10]-.05, 100.*(h2o_agod_cm_avgb-h2o_agod_cm_avgb(1))./h2o_agod_cm_avgb(1), h2o_agod_cm_stdb./h2o_agod_cm_avgb(1),'-x');
-errorbar([1:10]+.05, 100.*(h2o_agod_cm_avgc-h2o_agod_cm_avgc(1))./h2o_agod_cm_avgc(1), h2o_agod_cm_stdc./h2o_agod_cm_avgc(1),'-+');
-errorbar([1:10]+.1, 100.*(h2o_agod_cm_avgd-h2o_agod_cm_avgd(1))./h2o_agod_cm_avgd(1), h2o_agod_cm_stdd./h2o_agod_cm_avgd(1),'-*');
+errorbar([1:11]-.1, 100.*(h2o_agod_cm_avga-h2o_agod_cm_avga(1))./h2o_agod_cm_avga(1), h2o_agod_cm_stda./h2o_agod_cm_avga(1),'-o'); hold('on');
+ errorbar([1:11]-.05, 100.*(h2o_agod_cm_avgb-h2o_agod_cm_avgb(1))./h2o_agod_cm_avgb(1), h2o_agod_cm_stdb./h2o_agod_cm_avgb(1),'-x');
+errorbar([1:11]+.05, 100.*(h2o_agod_cm_avgc-h2o_agod_cm_avgc(1))./h2o_agod_cm_avgc(1), h2o_agod_cm_stdc./h2o_agod_cm_avgc(1),'-+');
+errorbar([1:11]+.1, 100.*(h2o_agod_cm_avgd-h2o_agod_cm_avgd(1))./h2o_agod_cm_avgd(1), h2o_agod_cm_stdd./h2o_agod_cm_avgd(1),'-*');
 legend('batch a','batch b','batch c','batch d');
 xlabel('airmass'); ylabel('% rel am=1');
 yl = ylim; ;
 title('Intor 1625 nm gas corrections, H2O (5 cm)','interp','tex')
 
 
+% Code below this hasn't been modified for consistency with code above.  
+% Might work, but no promises.
 
 
-
-
-
-
-cim = load(['C:\Users\Connor Flynn\OneDrive - University of Oklahoma\Desktop\xdata\ARM\adc\translator\cimel_1640_filter_funtion.txt']);
+cim = load(['C:\Users\flyn0011\OneDrive - University of Oklahoma\Desktop\xdata\ARM\adc\translator\1.6_micron_gas_corrections\cimel_1640_filter_funtion.txt']);
 cim_v = 1e7./cim(:,1);
-figure; plot(ch4_nadir.v, ch4_nadir.agod,'-', cim_v, cim(:,2),'c-')
+figure; plot(ch4_nadir.v, ch4_nadir.agod,'-', cim_v, cim(:,2)./100,'c-')
 v_cim = ch4_nadir.v>6030 & ch4_nadir.v<6170;
 cfilt = interp1(cim_v, cim(:,2), ch4_nadir.v,'linear');
 cfilt(isnan(cfilt)) = 0;
 cfilt = cfilt ./ trapz(ch4_nadir.v(v_cim), cfilt(v_cim));
-
-for am = [10:-1:1];
+figure; plot(ch4_nadir.nm, ch4_nadir.agod,'-', ch4_nadir.nm, cfilt ,'c-')
+for am = [6:-1:1];
     cim_ch4_agod(am) = -log(trapz(ch4_nadir.v(v_cim), cfilt(v_cim).*exp(-am.*ch4_nadir.agod(v_cim))))./am;
     cim_co2_agod(am) = -log(trapz(ch4_nadir.v(v_cim), cfilt(v_cim).*exp(-am.*co2_nadir.agod(v_cim))))./am;
     cim_h2o_agod(am) = -log(trapz(ch4_nadir.v(v_cim), cfilt(v_cim).*exp(-am.*h2o_nadir.agod(v_cim))))./am;
+    cim_agod(am) = -log(trapz(ch4_nadir.v(v_cim), cfilt(v_cim).*exp(-am.*(h2o_nadir.agod(v_cim)+co2_nadir.agod(v_cim)+ch4_nadir.agod(v_cim)))))./am;
 end
 cim_ch4_agod;
 cim_co2_agod;
 cim_h2o_agod;
+cim_agod;
 figure;
 sb(1) = subplot(2,1,1);
-plot([1:10], [cim_ch4_agod;cim_co2_agod;cim_h2o_agod./12.5],'-'); legend('CH_4','CO_2','H_2O');
+plot([1:6], [cim_ch4_agod;cim_co2_agod;cim_h2o_agod./12.5],'-'); legend('CH_4','CO_2','H_2O');
 title('Cimel gas subtraction with airmass')
 sb(2) = subplot(2,1,2);
-plot([1:10], [cim_ch4_agod./cim_ch4_agod(1);cim_co2_agod./cim_co2_agod(1);cim_h2o_agod./cim_h2o_agod(1)],'-'); legend('CH_4','CO_2','H_2O');
-title('Fractional change with airmass');
+plot([1:6], [cim_ch4_agod-cim_ch4_agod(1);cim_co2_agod-cim_co2_agod(1);cim_h2o_agod-cim_h2o_agod(1)],'-'); legend('CH_4','CO_2','H_2O');
+title('Change with airmass'); ylabel('od(m) - od(m=1)')
 xlabel('airmass')
 linkaxes(sb,'x')
 
-% Now CO2
-figure; plot(co2(:,1), co2(:,2), 'c-');
-v_nad = co2_nadir.v>6050 & co2_nadir.v<6300;
-v_ = co2(:,1)>6050&co2(:,1)<6300;
-
-filt_a1_joe = interp1(intor_a.v, intor_a.filts(:,1), ch4(:,1),'linear');
-filt_a1_joe(isnan(filt_a1_joe)) = 0;
-filt_a1_joe = filt_a1_joe ./ trapz(ch4(v_,1), filt_a1_joe(v_));
-trapz(ch4(v_,1), filt_a1_joe(v_))
-trapz(co2(v_,1), co2(v_,2).*filt_a1_joe(v_))
-
-filt = interp1(intor_a.v, intor_a.filts(:,1), ch4_nadir.v,'linear');
-filt(isnan(filt)) = 0;
-filt = filt ./ trapz(ch4_nadir.v(v_nad), filt(v_nad));
-trapz(ch4_nadir.v(v_nad), filt(v_nad))
-trapz(co2_nadir.v(v_nad), co2_nadir.od(v_nad).*filt(v_nad))
-
-%now H2O
-trapz(h2o(v_,1), h2o(v_,2).*filt_a1_joe(v_))
-trapz(h2o_nadir.v(v_nad), h2o_nadir.od(v_nad).*filt(v_nad))
-
-% Now cimel, and especially cimel with CH4, and airmass dependence
-
-
-v_ = ch4(:,1)>6030&ch4(:,1)<6300;
-
-
-figure; plot(ch4_nadir.v, ch4_nadir.agod, '-',ch4_nadir.v, cim_lbl, 'r-'); logy;
-cim_lbl = interp1(cim_v, cim(:,2), ch4_nadir.v,'linear');
-cim_lbl(isnan(cim_lbl)) = 0;
-cim_lbl = cim_lbl ./ trapz(ch4_nadir.v(v_nad), cim_lbl(v_nad));
-trapz(ch4_nadir.v(v_nad), cim_lbl(v_nad))
-trapz(ch4_nadir.v(v_nad), ch4_nadir.agod(v_nad).*cim_lbl(v_nad))
-
-% Now, represent in Tr, airmass = 1
-
-for am = [10:-1:1]
-    cim_ch4(am) = -log(trapz(ch4_nadir.v(v_nad), cim_lbl(v_nad).*exp(-am.*ch4_nadir.agod(v_nad))))./am;
-    cim_co2(am) = -log(trapz(co2_nadir.v(v_nad), cim_lbl(v_nad).*exp(-am.*co2_nadir.agod(v_nad))))./am;
-    cim_h2o(am) = -log(trapz(h2o_nadir.v(v_nad), cim_lbl(v_nad).*exp(-am.*h2o_nadir.agod(v_nad))))./am;
-    cim_h2o_cm(am) = -log(trapz(h2o_nadir.v(v_nad), cim_lbl(v_nad).*exp(-am.*(cm./5).*h2o_nadir.agod(v_nad))))./am;
-end
-
-cim_ch4 = cim_ch4./cim_ch4(1); cim_co2 = cim_co2./cim_co2(1); cim_h2o = cim_h2o./cim_h2o(1);cim_h2o_cm;
-mean(cim_ch4(1:4))
