@@ -156,4 +156,3 @@ end
 %rad = reshape(rad, length(v), 1);
 spec.nm = 1e7./spec.v;
 fclose(fid);
-end
