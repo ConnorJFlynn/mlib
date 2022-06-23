@@ -94,6 +94,12 @@ for p = length(A):-1:1
    ch(:,p) = A{p}; A(p) = [];
 end
 raw.ch_8 = ch;
+
+cals = rd_hsr1_cal_file('C:\Users\flyn0011\OneDrive - University of Oklahoma\Desktop\xdata\ARM\adc\dev\sgp\sgphsr1C1.00\Baumer 700004143714 SpectrometerCalibration 2022-03-18.txt');
+one_time = ones(size(raw.time));
+for ch = 1:7
+   raw.(['ch_',num2str(ch)]) = raw.(['ch_',num2str(ch)]) .* (one_time*cals.resp(ch,:)) ./ 20; %divide by 20 to account for integration time.  hack solution
+end
 %  plot([1:801],raw.ch(1:100:end,:),'-')
 raw.maxes(1,:) = max(raw.ch_1); raw.maxes(2,:) = max(raw.ch_2); raw.maxes(3,:) = max(raw.ch_3); raw.maxes(4,:) = max(raw.ch_4);
 raw.maxes(5,:) = max(raw.ch_5); raw.maxes(6,:) = max(raw.ch_6); raw.maxes(7,:) = max(raw.ch_7); raw.maxes(8,:) = max(raw.ch_8);
@@ -104,29 +110,34 @@ raw.maxes(5,:) = max(raw.ch_5); raw.maxes(6,:) = max(raw.ch_6); raw.maxes(7,:) =
 % fraction of the actual diffuse.  Maybe half?
 
 figure; plot([1:801],raw.maxes,'-')
-raw.pix200 = [raw.ch_1(:,200), raw.ch_2(:,200), raw.ch_3(:,200), raw.ch_4(:,200), raw.ch_5(:,200), raw.ch_6(:,200), raw.ch_7(:,200)];
-[~, raw.max_ch] = max(raw.pix200,[],2); [~, raw.min_ch] = min(raw.pix200,[],2);
+
+
+% raw.pix200 = [raw.ch_1(:,200), raw.ch_2(:,200), raw.ch_3(:,200), raw.ch_4(:,200), raw.ch_5(:,200), raw.ch_6(:,200), raw.ch_7(:,200)];
+% [~, raw.max_ch] = max(raw.pix200,[],2); [~, raw.min_ch] = min(raw.pix200,[],2);
+raw.intg = [trapz(raw.nm, raw.ch_1,2),trapz(raw.nm, raw.ch_2,2),trapz(raw.nm, raw.ch_3,2),...
+   trapz(raw.nm, raw.ch_4,2),trapz(raw.nm, raw.ch_5,2),trapz(raw.nm, raw.ch_6,2),...
+   trapz(raw.nm, raw.ch_7,2)];
+[~, raw.max_ch] = max(raw.intg,[],2); [~, raw.min_ch] = min(raw.intg,[],2);
+
 figure;
 for t = length(raw.time):-1:1
    max_str = ['ch_',num2str(raw.max_ch(t))]; min_str = ['ch_',num2str(raw.min_ch(t))];
    raw.dirh(t,:) = raw.(max_str)(t,:)-raw.(min_str)(t,:); raw.diff(t,:) = 2.*raw.(min_str)(t,:);
-
-   %    sb(1) = subplot(3,1,1); plot([300:1100],[raw.ch_1(t,:);raw.ch_2(t,:);raw.ch_3(t,:);raw.ch_4(t,:);raw.ch_5(t,:);raw.ch_6(t,:);raw.ch_7(t,:)],'-'); legend
-   %    title(['t = ', num2str(t)])
-   %    sb(2) = subplot(3,1,2); plot([300:1100],raw.(min_str)(t,:),'-',[300:1100],raw.(max_str)(t,:),'-r'); lg = legend('min_ch', 'max_ch'); set(lg,'interp','none')
-   %    title(['max:', max_str, '  min:',min_str])
+   % if mod(t,20)==0
+   %       sb(1) = subplot(3,1,1); plot([300:1100],[raw.ch_1(t,:);raw.ch_2(t,:);raw.ch_3(t,:);raw.ch_4(t,:);raw.ch_5(t,:);raw.ch_6(t,:);raw.ch_7(t,:)],'-'); legend
+   %       title(['t = ', num2str(t)])
+   %       sb(2) = subplot(3,1,2); plot([300:1100],raw.(min_str)(t,:),'-',[300:1100],raw.(max_str)(t,:),'-r'); lg = legend('min_ch', 'max_ch'); set(lg,'interp','none')
+   %       title(['max:', max_str, '  min:',min_str])
    %
-   %    sb(3) = subplot(3,1,3); plot([300:1100],raw.diff(t,:),'-',[300:1100],raw.dirh(t,:),'r-'); logy;
-   %    yl = ylim; hold('on'); plot([300:1100], raw.dirh(t,:)./raw.diff(t,:),'k-'); ylim(yl); legend('difh', 'dirh','DhDf'); hold('off');
-   %    xlabel('wavelength [nm]')
-   %    pause(.1)
-
+   %       sb(3) = subplot(3,1,3); plot([300:1100],raw.diff(t,:),'-',[300:1100],raw.dirh(t,:),'r-'); logy;
+   %       yl = ylim; hold('on'); plot([300:1100], raw.dirh(t,:)./raw.diff(t,:),'k-'); ylim(yl); legend('difh', 'dirh','DhDf'); hold('off');
+   %       xlabel('wavelength [nm]')
+   %       pause(.01)
+   % end
 end
 raw.DhDf = raw.dirh./raw.diff; raw.DhDf(raw.dirh<=0 |raw.diff<=0) = NaN;
 raw.mfr_nm = [440, 500, 615, 673, 870];
 raw.mfr_ij = interp1(raw.nm, [1:length(raw.nm)], raw.mfr_nm, 'nearest');
-% figure; plot(raw.nm, raw.dirh(200:100:800,:), 'r-',raw.nm, raw.diff(200:100:800,:),'b-');
-% figure; plot(raw.nm, raw.dirh(200,:)./raw.diff(200,:),'-');
 end
 
 function plotme
