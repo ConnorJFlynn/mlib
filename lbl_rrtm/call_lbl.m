@@ -41,10 +41,10 @@ if v>1
     movefile([lbl_path, 'TAPE12'],tape12)
 end
 copyfile(lbl_tape5,[lbl_path,'TAPE5']);
-tic; status = system(lbl_exe.fname)
+tic; cd(lbl_path); status = system(lbl_exe.fname); cd(userpath)
 toc
 tape12_fullname = [lbl_path, 'TAPE12','.',tag];
-movefile([lbl_path, 'TAPE12'],tape12_fullname);
+movefile([lbl_path, 'TAPE12'],[lbl_path, 'TAPE12','.',tag])
 try
     spc = rd_lblrtm_tape12_od(tape12_fullname);
 catch
