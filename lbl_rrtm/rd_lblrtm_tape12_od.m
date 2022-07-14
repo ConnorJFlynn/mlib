@@ -48,7 +48,7 @@ end
 
 v = [];
 od = [];
-spec.v = v; spec.od = od;
+spec.nu = v; spec.od = od;
 
 fid = fopen(fname, 'rb');
 
@@ -107,7 +107,7 @@ if itype == 1
       else
          v_ = linspace(v1,v2,npts)';
       end
-      spec.v = [spec.v; v_(:)];
+      spec.nu = [spec.nu; v_(:)];
       spec.od = [spec.od; tmp(:)];
 
    end
@@ -117,10 +117,11 @@ else
 
       fp = ftell(fid);	tmp0 = fread(fid, 1, 'int'); ftell(fid)-fp;
       fp = ftell(fid);		tmp = fread(fid, 3, 'double'); ftell(fid)-fp;
+      if isempty(tmp)||length(tmp)<3
+          break;
+      end
    	v1 = tmp(1); v2 = tmp(2); dv = tmp(3);
-   	if isnan(v1)
-   		break;
-   	end
+
       fp = ftell(fid);	npts = fread(fid, 1, 'int64'); ftell(fid)-fp;
 
    	if npts ~= 2400
@@ -144,7 +145,7 @@ else
       else
          v_ = linspace(v1,v2,npts)';
       end
-      spec.v = [spec.v; v_(:)];
+      spec.nu = [spec.nu; v_(:)];
       spec.od = [spec.od; tmp(:)];
       disp(['Complete panel ', int2str(panel)]);
    end
@@ -154,6 +155,6 @@ end
 %v = reshape(v, length(v), 1);
 %rad = tmp;
 %rad = reshape(rad, length(v), 1);
-spec.nm = 1e7./spec.v;
+spec.nm = 1e7./spec.nu;
 fclose(fid);
 end
