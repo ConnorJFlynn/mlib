@@ -1,4 +1,4 @@
-function [tape3_fullname,tag,spc] = call_lbl(lbl_tape5)
+function [tape12_fullname,tag,spc] = call_lbl(lbl_tape5)
 % [tape12_fullname, tag] = call_lbl(lbl_tape5,tag)
 % Accepts or queries for lbl_tape5.
 % if isavar(tag), appends tag to supplied/selected lbl_tape5
@@ -21,7 +21,7 @@ end
 if ~isavar('lbl_tape5')||~isfile(lbl_tape5)
     lbl_tape5 = getfullname('*TAPE5*','lbl_tape5');
 end
-[~,tape5,ext]= fileparts(lbl_tape5); 
+[lbl_out,tape5,ext]= fileparts(lbl_tape5); lbl_out = strrep([lbl_out,filesep],[filesep filesep], [filesep]);
 tape5 = [tape5, ext];
 [tape5, tag] = strtok(tape5,'.');
 if ~isempty(tag)
@@ -43,8 +43,12 @@ end
 copyfile(lbl_tape5,[lbl_path,'TAPE5']);
 tic; cd(lbl_path); status = system(lbl_exe.fname); cd(userpath)
 toc
-tape12_fullname = [lbl_path, 'TAPE12','.',tag];
-movefile([lbl_path, 'TAPE12'],[lbl_path, 'TAPE12','.',tag])
+tape12_fullname = [lbl_out, 'TAPE12','.',tag];
+try
+movefile([lbl_path, 'TAPE12'],[lbl_out, 'TAPE12','.',tag])
+catch 
+    copyfile([lbl_path, 'TAPE12'],[lbl_out, 'TAPE12','.',tag])
+end
 try
     spc = rd_lblrtm_tape12_od(tape12_fullname);
 catch
