@@ -125,8 +125,8 @@ else
       end
       
 %       figure_(199); plot(sas.time(sas.Shutter_open_TF==0), sas.spec(sas.Shutter_open_TF==0,100),'-',sas.time, sas.darks(:,100),'.')
-      sas.sig = sas.spec - sas.darks;
-      sas.rate = sas.sig ./ (sas.t_int_ms * ones([1,cols]));
+%       sas.sig = sas.spec - sas.darks;
+%       sas.rate = sas.sig ./ (sas.t_int_ms * ones([1,cols]));
       % This line added to handle Zeiss / Tec5 (SWS) spectrometers with
       % flipped InGaAs arrays
       if sas.wl(1)>sas.wl(2)
