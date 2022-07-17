@@ -1,11 +1,21 @@
-function [out] = qry_sbdart(in_args,in_path);
-%w = qry_sbdart(in_args,in_path);
-% Writes qry (in_args) to INPUT, runs SBDART, parses output depending on iout
+function [out] = qry_sbdart(in_args,outs,how);
+%w = qry_sbdart(in_args);
+% Writes qry (in_args) to INPUT, runs SBDART
+% Pipes stdout to "out". If "how" is > (or empty or absent) creates output
+% If "how" is >>, concatenates to an existing file if any. 
+% parses output depending on iout
 
-if ~exist('in_path','var')|~exist(in_path,'dir')
-    in_path = getdir;
+% if ~exist('in_path','var')|~exist(in_path,'dir')
+%     in_path = getdir;
+% end
+in_path = getpath('sbdart.exe','Select path to SBDART executable.')
+if ~isavar('outs')||isempty('outs')
+    outs = 'outs.dat';
 end
-
+if ~isavar('how')||isempty('how')
+    how = '>';
+end
+how = [' ',how,' '];
 if ~iscell(in_args)
     qry = in_args;
     fields = fieldnames(in_args);
@@ -36,7 +46,7 @@ fprintf(fid,'%s \n',y);
 fclose(fid);
 ret = pwd;
 cd(in_path);
-system('sbdart.exe > outs.dat')
+system(['sbdart.exe ',how, outs]);
 % system(['bash -c /cygdrive/c/mlib/sbdart/sbdart_exe.exe > out.dat']);
 cd(ret);
 q = 1; iout = [];

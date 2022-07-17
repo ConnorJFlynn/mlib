@@ -1,9 +1,57 @@
+function out = pre_ASR_test_sbdart
 % Trying to get T for various atmospheric constituents via SBDART:
 
 %SBDART input values:
 % Clear all components:
-in_pth = 'C:\MinGW\bin\';
+in_pth = getpath('sbdart','Select path to SBDART executable.')
+
 clear sbd out qry
+%SBDART Intro Example 1
+qry.idatm=4;
+qry.isat=0;
+qry.wlinf = .25;
+qry.wlsup = 1.0;
+qry.wlinc = 0.005;
+qry.iout = 1;
+
+[out] = qry_sbdart(qry);
+% Worked!  Plot looks good, matches documentation.
+
+%SBDART Intro Example 2
+clear qry
+qry.idatm=4; 
+qry.isat=0;
+qry.wlinf=.55;
+qry.wlsup=.55;
+qry.isalb=0;
+qry.iout=10;
+qry.sza=30;
+for albcon = [0:.2:1]
+    for tcloud = [0,1,2,4,8,16,32,64];
+        qry.albcon = albcon;
+        qry.tcloud = tcloud;
+        qry_sbdart(qry,'sbchk2.dat','>>');
+    end
+end
+%Seemed to run fine but I never did parse the output file as presented in the docs
+
+%SBDART Intro Example 3: Spectral output in Thermal IR
+
+clear qry
+qry.zcloud = 8;
+qry.nre = 10;
+qry.idatm = 4;
+qry.sza = 95;
+qry.wlinf = 4;
+qry.wlsup = 20;
+qry.wlinc = -.01;
+qry.iout = 1;
+
+for tcloud = [0,1,5]
+    qry.tcloud = tcloud;
+    qry_sbdart(qry,'sbchk3.dat','>>')
+end
+
 
 %%
 %PPL
@@ -20,14 +68,36 @@ qry.IAER=3;
 qry.TBAER=0.3;
 qry.RHAER=0.8;
 qry.SAZA=180;
-qry.SZA=45;
-qry.NSTR=20;
+qry.SZA=70;
 qry.CORINT='.true.';
 % qry.zout = [0,0];
 qry.PHI=[0,180];
-UZEN =[0:5:90]; 
+UZEN =sort([0:5:95]); 
 qry.UZEN = fliplr(180-setxor(UZEN,qry.SZA));
-[out] = qry_sbdart(qry,in_pth);
+[out] = qry_sbdart(qry);
+
+
+% edit and play...
+clear qry
+qry.iout=21;
+qry.NF=3;
+qry.idatm=2;
+qry.isat=16;
+% qry.wlinf=0.615;
+% qry.wlsup=0.615;
+% qry.wlinc=.001;
+qry.IAER=3;
+qry.TBAER=0.3;
+qry.RHAER=0.8;
+qry.SAZA=180;
+qry.SZA=70;
+qry.CORINT='.true.';
+% qry.zout = [0,0];
+qry.PHI=[0 180];
+UZEN =sort([0:5:95]); 
+qry.UZEN = fliplr(180-setxor(UZEN,qry.SZA));
+[out] = qry_sbdart(qry);
+
 
 %ALM
 clear qry
@@ -49,13 +119,13 @@ qry.SZA=75;
 qry.NSTR=20;
 qry.CORINT='.true.';
 % qry.zout = [0,0];
-
-qry.PHI=[5:10:355];
-UZEN =[]; 
+qry.NPHI = 20
+qry.PHI=[1 359];
+UZEN =[15 30 45 60]; 
 qry.UZEN = fliplr(180-setxor(UZEN,qry.SZA));
-tic
-% qry.UZEN = qry.SZA;
-[out] = qry_sbdart(qry,in_pth);
+out = qry_sbdart(qry);
+
+return 
 
 qry.SZA=60;
 qry.IOUT = 1; % WL,FFV,TOPDN,TOPUP,TOPDIR,BOTDN,BOTUP,BOTDIR
