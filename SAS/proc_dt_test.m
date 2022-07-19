@@ -1,9 +1,8 @@
 function proc_dt_test 
 zenir = rd_SAS_raw(getfullname('*sasze*nir*.csv'));
 zevis = rd_SAS_raw(getfullname('*sasze*vis*.csv'));
-% This is for SGP.  HOU didn't work quite right bcuz nir tint hi was 450 ms
-% which was longer than the 0.4 sec period, so filled with -9999
-vlo = 2; vhi = 15;
+% This is for SGP.  
+vlo = 5; vhi = 30;
 dark_ = zevis.Shutter_open_TF==0; 
 dark_(1:end-1) = dark_(1:end-1)&dark_(2:end); dark_(2:end) = dark_(1:end-1)&dark_(2:end);
 dark_lo = dark_ & zevis.t_int_ms==vlo; 
@@ -109,17 +108,23 @@ zenir.rate(zevis.t_int_ms==vhi,:) = zenir.sig(zevis.t_int_ms==vhi,:)./unique(zen
 
 
 
-figure; plot(zevis.wl, max(vrate_lo),'r-')
+figure; plot(zevis.wl, max(zevis.rate(zevis.t_int_ms==vlo,:)),'r-')
 xl = xlim; 
 xl_ = zevis.wl>xl(1) & zevis.wl<xl(2);
 
 shut_ = zevis.Shutter_open_TF==0; 
 shut_(1:end-1) = shut_(1:end-1)|shut_(2:end); shut_(2:end) = shut_(1:end-1)|shut_(2:end);
 zenir.rate(shut_,:) = NaN;
-zevis.rate(shut_,~xl_) = NaN;
+zevis.rate(shut_,:) = NaN; zevis.rate(:,~xl_) = NaN;
 zevis.rate(zevis.spec==2.^16) = NaN;
-nrate_hi = zenir.rate(zevis.t_int_ms==vhi,xl_);
-nrate_lo = zenir.rate(zevis.t_int_ms==vlo,xl_);
+% nrate_hi = zenir.rate(zevis.t_int_ms==vhi,xl_);
+% nrate_lo = zenir.rate(zevis.t_int_ms==vlo,xl_);
+% wd_ni = zenir.wd(zevis.t_int_ms==vhi,xl_);
+% wd_ni = wd_hi(:);
+% wd_no = zenir.wd(zevis.t_int_ms==vlo,xl_);
+% wd_no = wd_lo(:);
+
+
 
 vrate_hi = zevis.rate(zevis.t_int_ms==vhi,xl_);
 vrate_lo = zevis.rate(zevis.t_int_ms==vlo,xl_);
@@ -127,11 +132,11 @@ wd_hi = zevis.wd(zevis.t_int_ms==vhi,xl_);
 wd_hi = wd_hi(:);
 wd_lo = zevis.wd(zevis.t_int_ms==vlo,xl_);
 wd_lo = wd_lo(:);
-figure; plot(zevis.time(zevis.t_int_ms==vhi),vrate_hi(:,300),'.',zevis.time(zevis.t_int_ms==vlo),vrate_lo(:,300),'.')
-vrate_rat = vrate_lo(:)./vrate_hi(:);
+figure; plot(zevis.time(zevis.t_int_ms==vhi),vrate_hi(:,300),'.',zevis.time(zevis.t_int_ms==vlo),vrate_lo(:,300),'.');
+vrate_rat = vrate_lo(:)./vrate_hi(:); vrate_lo(end-1:end,:) = [];
 figure; plot(wd_hi(:),vrate_rat,'.'); logy
 v = axis;
-wd = [0:.01:1]; wd(end) = wd(end) -.005;wd(1) = wd(1) +.005;
+wd = [0:.05:1]; wd(end) = wd(end) -.01;wd(1) = wd(1) +.01;
 for wd_i = length(wd):-1:2
     sub = wd_hi>wd(wd_i-1) & wd_hi<=wd(wd_i) & vrate_rat>(v(3))&vrate_rat<(v(4));
     vrat(wd_i) = nanmean(vrate_rat(sub));
@@ -140,7 +145,7 @@ wd(1) = []; vrat(1) = [];
 figure; plot(wd, vrat,'o-r');
 xlabel('Pixel Well Depth');
 ylabel('Low Gain Rate / High Gain Rate')
-title({'HOU SASZe VIS Dual Rate Test (2 ms / 15 ms)';[datestr(zenir.time(1),'yyyy-mm-dd'),' ~4 hours spanning noon']})
+title({'SGP SASZe VIS Dual Rate Test (5 ms / 30 ms)';[datestr(zenir.time(1),'yyyy-mm-dd'),' ~4 hours spanning noon']})
 % Then we interpolate to the lite_lo times, and subtract darks.
 % Then we repeat for dark_hi.  
 % Then interpolate one light to the other.
