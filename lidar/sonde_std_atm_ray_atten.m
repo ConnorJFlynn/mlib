@@ -12,9 +12,9 @@ function [attn_prof,tau, altitude, temperature, pressure] = sonde_std_atm_ray_at
 % Finally, if a range profile was supplied, the attenuated scattering, 
 % optical depth, temperature, and pressure are interpolated to the match
 % the supplied range up to the max_altitude of the sonde.
-if nargin == 0
-sonde_file = getfullname('*.nc;*.cdf','sonde','Select a sonde file');
-sonde = anc_load(sonde_file);
+if (nargin == 0)||isempty(sonde)
+    sonde_file = getfullname('*.nc;*.cdf','sonde','Select a sonde file');
+    sonde = anc_load(sonde_file);
 end
 if isstruct(sonde)
    altitude = sonde.vdata.alt';

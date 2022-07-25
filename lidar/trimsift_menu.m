@@ -1,5 +1,5 @@
-function [PileA, PileB] = trimsift_nolog(range, InMat);
-%function [pileA pileB] = trimsift_nolog(range, InMat);
+function [PileA, PileB] = trimsift_menu(range, InMat);
+%function [pileA pileB] = trimsift_menu(range, InMat);
 %A trimmed down version of sift.
 % The user zoom into a region and hits enter.
 % Profiles extending above or below the Y limits are excluded from the
@@ -20,7 +20,7 @@ done = 0;
 
 trim = figure;
 figure(trim);
-plot(range, InMat(:,[PileA]),'y',  range, mean(InMat(:,PileA)')','g');
+plot(range, InMat(:,[PileA]),'y',  range, mean(InMat(:,PileA)')','g');zoom('on');
 xl = xlim;
 xlim([xl(1)-.1*xl(2),xl(2)+.1*xl(2)]);v = axis;
 while ~done
@@ -30,13 +30,9 @@ while ~done
       if exist('v', 'var')
          axis(v);
       end
-      title('Zoom in as desired.  Select menu options..')
-      zoom on;
+      title('Zoom in as desired.  Select menu options..'); 
       keep = menu('Select "Trim" to exlude profiles extending beyond y-limits, "Reset" , or "Done"','Trim','Reset','Done');
-      keep = input('Hit enter to trim profiles extending beyond y limits, "R" to reset, and "X" to exit: ', 's');
-      if isempty(keep)
-         keep = 'T';
-      end
+%       keep = input('Hit enter to trim profiles extending beyond y limits, "R" to reset, and "X" to exit: ', 's');
       v = axis;
       lower_limit = max(find(range<=v(1)));
       upper_limit = min(find(range>=v(2)));
@@ -57,7 +53,7 @@ while ~done
       pile(PileA(pileA_undermin))=-1;
 
    else
-              figure(trim);
+      figure(trim);
       plot(range, InMat(:,[PileB]),'y',  range, mean(InMat(:,PileB)')','g');
       if exist('v', 'var')
          axis(v);
@@ -65,10 +61,7 @@ while ~done
       title('Zoom in as desired.  Hit enter when ready.')
       zoom on;
       pause
-      keep = input('Hit enter to trim profiles extending beyond y limits, "R" to reset, and "X" to exit: ', 's');
-      if isempty(keep)
-         keep = 'T';
-      end
+      keep = menu('Select "Trim" to exlude profiles extending beyond y-limits, "Reset" , or "Done"','Trim','Reset','Done');
       v = axis;
       lower_limit = max(find(range<=v(1)));
       upper_limit = min(find(range>=v(2)));
@@ -85,16 +78,16 @@ while ~done
       pile(PileB(pileB_overmax))=1;
       pile(PileB(pileB_undermin))=1;
    end
-   if upper(keep)=='T'
+   if keep==1
       PileA = find(pile>0);
       PileB = find(pile<0);
-   elseif upper(keep)=='R'
+   elseif keep == 2
       pile = ones([profs,1]);
       PileA = find(pile>0);
       PileB = find(pile<0);
       clear v;
-   elseif upper(keep)=='X'
-      done = 1;
+   elseif keep==3
+      done = true;
    end
 end;
 close(trim);

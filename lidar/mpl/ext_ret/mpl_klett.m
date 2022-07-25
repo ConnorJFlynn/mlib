@@ -27,7 +27,7 @@ tau_top = max(tau_R_z) + tau_layer;
 z_top = length(X);
 beta = zeros(size(X));
 Y = zeros(size(X));
-beta_prime = X./lidar_C;
+beta_prime = X./lidar_C;beta_fill = nanmean(beta_prime(range<.5)); beta_prime(isnan(beta_prime)) = beta_fill;
 Y(z_top) = beta_prime(z_top);
 beta(z_top) = Y(z_top)./exp(-2*tau_top);
 % beta(z_top) = profile(z_top)/(lidar_C*exp(-2*tau_top));
