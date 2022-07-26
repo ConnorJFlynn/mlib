@@ -8,9 +8,11 @@ function mpl = mplpolfs_kret_1
 % profiles prior to the retrieval.
 
 anet_aod = rd_anetaod_v3(getfullname('*.lev*','anet_aod'));
-aod_fig = figure_(42); plot(anet_aod.time, anet_aod.AOD_500nm,'*'); dynamicDateTicks; title('AOD vs time')
+aod_fig = figure_(42); plot(serial2Hh(anet_aod.time), anet_aod.AOD_500nm,'c*'); dynamicDateTicks; title('AOD vs time')
 
-mpl = load(getfullname('*mpl*.mat','mpl_mat','Select an MPL mat file to process...')); mpl = mpl.polavg;
+mpl_fullname = getfullname('*mpl*.mat','mpl_mat','Select an MPL mat file to process...');
+[pname, fname] = fileparts(mpl_fullname); pname = strrep([pname, filesep], [filesep, filesep], filesep);
+mpl = load(mpl_fullname); mpl = mpl.polavg; mpl.pname = pname; mpl.fname = fname; 
 
 mpl_ret_pname = ['c:\case_studies\Aerosol_IOP\sgpmplret1flynn.c1\cdf\'];
 %[dirlist,pname] = dir_list('D:\datastream\case_studies\Aerosol_IOP\xmfrx_od\joe\nimfr.aot.*');
@@ -227,4 +229,6 @@ if length(mina)>=1
    %Then output the results to a file
 %    status = write_mpl_ret(mpl,[mpl_ret_pname, fname]);
 end
+mpl.fname = [strrep(mpl.fname, 'pol','kext'),'.mat'];
+save([mpl.pname, mpl.fname], '-struct','mpl')
 return
