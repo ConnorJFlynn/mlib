@@ -16,6 +16,6 @@ for i = start:full;
    frac = i/full;
    back = floor(span*frac);
    if back > 0
-      trace(i) = mean(trace((i-back):i));
+      trace(i) = exp(mean(log(trace((i-back):i))));
    end
 end

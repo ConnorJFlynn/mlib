@@ -1,5 +1,5 @@
 function [alpha_a, beta_a, Sa, tau_out] = auto_klett(range, profile, aod, lidar_C, beta_R, Sa, rec)
-% [beta_a, Sa] = klett_layer(range, profile, aod, lidar_C, beta_R, Sa, rec)
+% [beta_a, Sa] = auto_klett(range, profile, aod, lidar_C, beta_R, Sa, rec)
 % returns aerosol beta, and Sa consistent with the supplied lidar C and aod 
 % (integrated to range=0 by assuming constant extinction below min(range)
 % requires:
@@ -17,18 +17,20 @@ if ~exist('rec','var')
     rec = 0;
 end;
 Sm = 8*pi/3;
-match = 0.00025;
+match = 0.005;
 [alpha_a, beta_a, tau_Sa] = mpl_klett(range, profile, aod, lidar_C, beta_R, Sa);
 % range = range'; alpha_a = alpha_a';
+alpha_a = semify_prof(alpha_a);
 tau_Sa = trapz([0,range'],[alpha_a(1), alpha_a']);
 % tau_Sa = trapz([range],[alpha_a]);
 %If tau_Sa and aod are not close enough, extrapolate a new Sa...
 if (abs(tau_Sa-aod)>match)
-    % Estimate a starting Sa by extrapolation between Sm and Sa 
+    % Estimate a starting Sa by extrapolation between Sm and Sa
     [alpha_a, beta_a, tau_Sm] = mpl_klett(range, profile, aod, lidar_C, beta_R, Sm);
-%     alpha_a = alpha_a';
+    %     alpha_a = alpha_a';
+    alpha_a = semify_prof(alpha_a);
     tau_Sm = trapz([0,range'],[alpha_a(1), alpha_a']);
-%     tau_Sm = trapz([range],[alpha_a]);
+    %     tau_Sm = trapz([range],[alpha_a]);
 
     Sa = Sm + (aod - tau_Sm)*(Sa-Sm)./(tau_Sa - tau_Sm);
     if Sa < Sm
@@ -49,25 +51,23 @@ if (abs(tau_Sa-aod)>match)
         %pause
     else 
         i = 1;
-        while ((i<25)&&(abs(tau_Sa-aod)>match))
+        while ((i<35)&&(abs(tau_Sa-aod)>match))
             i = i+1;
             Sa = Sm + (aod - tau_Sm)*(Sa-Sm)./(tau_Sa - tau_Sm);
 %             Sa = Sa*aod/tau_Sa;
             [alpha_a, beta_a, tau_Sa] = mpl_klett(range, profile, aod, lidar_C, beta_R, Sa);
-%             alpha_a = alpha_a';
+            alpha_a = semify_prof(alpha_a);
             tau_Sa = trapz([0,range'],[alpha_a(1), alpha_a']);
 %             tau_Sa = trapz([range],[alpha_a]);
         end;
-        if i>=25
+        if i>=35
             disp(['Warning! for record number ', num2str(rec)])
             disp(['Failure to converge. Probably something wrong with this profile.'])
             disp(sprintf('Input aod: %1.3f  retrieved aod: %1.3f  Sa: %1.2f', aod, tau_Sa, Sa))
             alpha_a = NaN(size(profile));
             beta_a = NaN(size(profile));
-            pause
+%             pause
         end
     end;
-else
-     disp(['What!? A perfect match on record number ', num2str(rec),'?']);
 end;
 tau_out = tau_Sa;
