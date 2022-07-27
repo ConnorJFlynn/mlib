@@ -189,7 +189,7 @@ end
    mpl_inarg.fig_dir = [mpl_inarg.out_dir,'..',filesep, 'fig',filesep];
    mpl_inarg.png_dir = [mpl_inarg.out_dir,'..',filesep, 'png',filesep];
    
-   mpl_inarg.Nsecs = 90;
+   mpl_inarg.Nsecs = 300;
    mpl_inarg.Nrecs = 10000;
    mpl_inarg.manual_limits = true;
    if isfield(anc_.vatts,'afterpulse_correction_height')
@@ -205,22 +205,23 @@ end
       mpl_inarg.ol_corr_in_file = true;
    end
    mpl_inarg.replace_ol = false;
-   mpl_inarg.assess_ray = true;
+   mpl_inarg.assess_ray = false;
    mpl_inarg.dtc = eval(['@dtc_',mpl_inarg.tla,'_']); %accept and return MHz
    mpl_inarg.ap = eval(['@ap_',mpl_inarg.tla,'_']); %accept range, return .cop, .crs
    mpl_inarg.ol_corr = eval(['@ol_',mpl_inarg.tla,'_']); % accept range, return ol_corr
    
-   mpl_inarg.cop_snr = 4;% larger numbers eliminate data
-   mpl_inarg.ldr_snr = 5;% larger numbers eliminate data
-   mpl_inarg.ldr_error_limit = 1; %smaller numbers eliminate data
+   mpl_inarg.cop_snr =3;% larger numbers eliminate data
+   mpl_inarg.ldr_snr = 2;% larger numbers eliminate data
+   mpl_inarg.ldr_error_limit = .2; %smaller numbers eliminate data
    fig = 1; 
    while isgraphics(fig)
       fig = fig+1;
    end
    mpl_inarg.fig = fig;
    mpl_inarg.vis = 'on';
-   mpl_inarg.cv_log_bs = [1,4];
-   mpl_inarg.cv_dpr = [-2.5,0];
+   mpl_inarg.cv_log_bs = [2.5,5.5];
+   mpl_inarg.cv_dpr = [-2,0];
+
    mpl_inarg.plot_ranges = [15,10,5,2];
 return
 function mpl_inarg = populate_mpl_inarg(mpl_inarg);
@@ -264,19 +265,19 @@ function mpl_inarg = populate_mpl_inarg(mpl_inarg);
       eval(['@ol_',mpl_inarg.tla,'_']); % accept range, return ol_corr
    end   
    if ~isfield(mpl_inarg,'Nsecs');
-      mpl_inarg.Nsecs = 150; % This is the number of seconds to average over
+      mpl_inarg.Nsecs = 120; % This is the number of seconds to average over
    end   
    if ~isfield(mpl_inarg,'Nrecs');
       mpl_inarg.Nrecs = 2500; % This is the number of netcdf records to read at a time.
    end   
    if ~isfield(mpl_inarg,'cop_snr');
-      mpl_inarg.cop_snr = 2.5;
+      mpl_inarg.cop_snr = 3;
    end
    if ~isfield(mpl_inarg,'ldr_snr');
-      mpl_inarg.ldr_snr = 2.5;
+      mpl_inarg.ldr_snr = 2;
    end
    if ~isfield(mpl_inarg,'ldr_error_limit');
-      mpl_inarg.ldr_error_limit = 0.5;
+      mpl_inarg.ldr_error_limit = 0.2;
    end
    if ~isfield(mpl_inarg,'vis');
       mpl_inarg.vis = 'on';

@@ -16,7 +16,7 @@ end
 
 if ~exist('inarg','var');
    inarg = [];
-   Nsecs = 120;
+   Nsecs = 300;
    ldr_snr = .25;
 else
    if isfield(inarg,'out_dir')
@@ -27,7 +27,7 @@ else
    if isfield(inarg,'Nsecs')
       Nsecs = inarg.Nsecs;
    else
-      Nsecs = 60;
+      Nsecs = 300;
    end
    if isfield(inarg,'ldr_snr')
       ldr_snr = inarg.ldr_snr;
