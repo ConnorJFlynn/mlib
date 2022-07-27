@@ -8,7 +8,7 @@ function mpl = mplpolfs_kret_1
 % profiles prior to the retrieval.
 
 anet_aod = rd_anetaod_v3(getfullname('*.lev*','anet_aod'));
-aod_fig = figure_(42); plot(serial2Hh(anet_aod.time), anet_aod.AOD_500nm,'c*'); dynamicDateTicks; title('AOD vs time')
+aod_fig = figure_(42); plot((anet_aod.time), anet_aod.AOD_500nm,'c*'); dynamicDateTicks; title('AOD vs time')
 
 mpl_fullname = getfullname('*mpl*.mat','mpl_mat','Select an MPL mat file to process...');
 [pname, fname] = fileparts(mpl_fullname); pname = strrep([pname, filesep], [filesep, filesep], filesep);
