@@ -60,6 +60,11 @@ global df dlogd x_range y_range
 % Oct06/tcb - Change argument structure; Add neph scattering
 % Nov06/tcb - Made more general; added coating
 % Jul13/tcb - Changed angular scat procedure
+% Aug01,2022/cjf - Three changes
+%                - Pulled "if"s out of the for-loops
+%                - Reversed order of for-loops for speed 
+%                - populate with Mie_result(i,:) to avoid flipping Mie_result end-to-end.
+%                Checked results against original code and against https://omlc.org/calc/mie_calc.html
 
 if nargin<1
     help SizeDist_Optics;
@@ -172,18 +177,20 @@ x_areas = pi/4 * y_range.^2;                         % Areas, nm2
 Mie_result = [];
 asym = [];
 
-% Loop through the diameters. This would be more efficient if 'if'
-% statements were outside, but I don't think it matters much.
+% Reverse for-loops for speed, but also populate Mie_result(i,:) = one_eff 
+% instead of Mie_result = [Mie_result; one_eff] that yield an error by
+% flipping Mie_result end--to-end
+
 if nobackscat
     if iscoated
-        for i=max(size(x_range)):-1:1
+        for i=max(size(x_range)):-1:1 
             xval = pi * mr*x_range(i)/lambda;
             yval = pi * mr*y_range(i)/lambda;
             one_result = Miecoated(mp/mr, mc/mr, xval, yval, 1);
             one_eff = one_result(1:3);
             % add results to the stack
-            Mie_result = [Mie_result; one_eff];
-            asym = [asym; one_result(5)];
+            Mie_result(i,:) = one_eff;
+            asym(i) = one_result(5);
         end
     else
         for i=max(size(x_range)):-1:1
@@ -192,8 +199,8 @@ if nobackscat
             one_result = Mie(mp/mr, xval);
             one_eff = one_result(1:3);
             % add results to the stack
-            Mie_result = [Mie_result; one_eff];
-            asym = [asym; one_result(5)];
+            Mie_result(i,:) = one_eff;
+            asym(i) = one_result(5);
         end
     end
 else
@@ -207,8 +214,8 @@ else
                 'm_coating', mc/mr, 'ycoat', yval);
             one_eff = [one_eff scatcalc(scatidx)];
             % add results to the stack
-            Mie_result = [Mie_result; one_eff];
-            asym = [asym; one_result(5)];
+            Mie_result(i,:) = one_eff;
+            asym(i) = one_result(5);
         end
     else
         for i=max(size(x_range)):-1:1
@@ -219,14 +226,18 @@ else
             scatcalc = angwt_scat(mp/mr, xval, theta, dtheta, scatwts);
             one_eff = [one_eff scatcalc(scatidx)];
             % add results to the stack
-            Mie_result = [Mie_result; one_eff];
-            asym = [asym; one_result(5)];
+            Mie_result(i,:) = one_eff;
+            asym(i) = one_result(5);
         end
     end
 end
 
-% Calculate average cross-section from efficiencies
-Mie_tots = Mie_result' * (x_areas .* df .* dlogd)';
+% Calculate SUMMED cross-section from efficiencies
+% x_areas = pi/4 * y_range.^2;
+ bad = df<0; df(bad)=0; bad = isnan(Mie_result)|(Mie_result<0); Mie_result(bad) =0;
+Mie_tots = Mie_result' * (x_areas .* df .* dlogd)'; % Mie_result(1:10,:)'
+% Ext_tot = sum(Mie_result(:,1)'.*x_areas.*df.*dlogd);
+% From BH_Mie_SizeDist_FM: (pi./4 .* Dp.^2 .* dNdlogDp .* dlogDp)
 
 % Normalize to volume
 if norm2volume
@@ -237,7 +248,7 @@ end
 
 % Average asymmetry parameter
 scats = Mie_result(:,2)' .* x_areas .* df .* dlogd;
-asymav = (asym' * scats') ./sum(scats);
+asymav = (asym * scats') ./sum(scats);
 
 % Put information in structure
 outstruc = struct();
