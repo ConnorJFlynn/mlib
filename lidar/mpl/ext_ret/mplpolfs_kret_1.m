@@ -32,9 +32,9 @@ if length(mina)>=1
    %!! 2004-12-04 Adding manual selection of "clear sky" section.  If none
    %provide, then a pre-saved clear sky profile is used.
    prof_fig = figure_(1111);
-   imagesc(serial2Hh(mpl.time),mpl.range(mpl.r.lte_20), mpl.attn_bscat(mpl.r.lte_20,:));
+   imagesc((mpl.time),mpl.range(mpl.r.lte_20), mpl.attn_bscat(mpl.r.lte_20,:)); dynamicDateTicks
    axis('xy'); colormap('jet');zoom('on');
-   axis([serial2Hh(min(mpl.time)), serial2Hh(max(mpl.time)), min(mpl.range(mpl.r.lte_20)), max(mpl.range(mpl.r.lte_20)), 0 4 0 4]);
+   axis([(min(mpl.time)), (max(mpl.time)), min(mpl.range(mpl.r.lte_20)), max(mpl.range(mpl.r.lte_20)), 0 4 0 4]);
    title('Select a region of clear sky.  Select OK on menu when done zooming or to skip.')
  menu('Select a region of clear sky.  Select OK when done zooming or to skip.','OK')
    figure_(prof_fig);
@@ -48,7 +48,7 @@ if length(mina)>=1
          title(['Clear sky for ', datestr(mpl.time(1),1)]);
          v = axis;
          pause(.1);
-         clear_sky_time = (find(serial2Hh(mpl.time)>=v(1)&serial2Hh(mpl.time)<=v(2)));
+         clear_sky_time = (find((mpl.time)>=v(1)&(mpl.time)<=v(2)));
          mpl.r.zoom = find((mpl.range>=v(3))&(mpl.range<=v(4)));
          [pileA, pileB] = trimsift_menu(mpl.range(mpl.r.zoom), mpl.attn_bscat(mpl.r.zoom,clear_sky_time));
          clear_sky_time = clear_sky_time(pileA);
@@ -74,7 +74,7 @@ if length(mina)>=1
       title(['Clear sky for ', datestr(mpl.time(1),1)]);
       v = axis;
       pause(.1);
-      clear_sky_time = (find(serial2Hh(mpl.time)>=v(1)&serial2Hh(mpl.time)<=v(2)));
+      clear_sky_time = (find((mpl.time)>=v(1)&(mpl.time)<=v(2)));
       mpl.r.zoom = find((mpl.range>=v(3))&(mpl.range<=v(4)));
       [pileA, pileB] = trimsift_menu(mpl.range(mpl.r.zoom), mpl.attn_bscat(mpl.r.zoom,clear_sky_time));
       clear_sky_time = clear_sky_time(pileA);
@@ -92,10 +92,10 @@ if length(mina)>=1
    %!!
 
    frac_fig = figure_(1111);
-   imagesc(serial2Hh(mpl.time),mpl.range(mpl.r.lte_20), mpl.attn_bscat(mpl.r.lte_20,:)./(clear_sky(mpl.r.lte_20)*ones(size(mpl.time))));
-   axis('xy'); colormap('jet');
+   imagesc((mpl.time),mpl.range(mpl.r.lte_20), mpl.attn_bscat(mpl.r.lte_20,:)./(clear_sky(mpl.r.lte_20)*ones(size(mpl.time))));
+   axis('xy'); colormap('jet'); dynamicDateTicks;
    title(['normalized profiles: ', datestr(mpl.time(1),0)]); zoom('on');
-   axis([serial2Hh(min(mpl.time)), serial2Hh(max(mpl.time)), min(mpl.range(mpl.r.lte_20)), max(mpl.range(mpl.r.lte_20)), -1 25 -1 25]);
+   axis([(min(mpl.time)), (max(mpl.time)), min(mpl.range(mpl.r.lte_20)), max(mpl.range(mpl.r.lte_20)), -1 25 -1 25]);
    title('Zoom to select the contiguous time range to use for retrievals.  Select OK on menu when done.')
    menu('Zoom to select the contiguous time range to use for retrievals.  Select OK when done.','OK')
 %    pause
@@ -107,7 +107,7 @@ if length(mina)>=1
 
    %Logic could really be improved.  
 
-   mpl.t.zoom = (find(serial2Hh(mpl.time)>=frac_axis(1)&serial2Hh(mpl.time)<=frac_axis(2)));
+   mpl.t.zoom = (find((mpl.time)>=frac_axis(1)&(mpl.time)<=frac_axis(2)));
    mpl.r.zoom = find((mpl.range>=frac_axis(3))&(mpl.range<=frac_axis(4)));
    clean_mpl = mpl.t.zoom;
    [pileA, pileB] = trimsift_menu(mpl.range(mpl.r.zoom), mpl.attn_bscat(mpl.r.zoom,clean_mpl)./(clear_sky(mpl.r.zoom)*ones(size(clean_mpl))));
@@ -119,7 +119,7 @@ if length(mina)>=1
 
    [ainm, mina] = nearest(anet_aod.time, mpl.time);
    %ANET AOD data...
-   lin_interp = interp1(serial2doy(anet_aod.time(ainm)), anet_aod.AOD_500nm(ainm)', serial2doy(mpl.time(non_missing)), 'linear', 'extrap');
+   lin_interp = interp1((anet_aod.time(ainm)), anet_aod.AOD_500nm(ainm)', (mpl.time(non_missing)), 'linear', 'extrap');
 %    nearest_aod(missing) = -9e-9;
    figure_(aod_fig);
    doy = floor(serial2doy(mean(mpl.time)));
@@ -139,7 +139,7 @@ if length(mina)>=1
  figure_(prof_fig)
    mask = nan(size(mpl.attn_bscat(mpl.r.lte_20,:))); mask(:,clean_mpl) = 1;
    pause(0.2);
-   imagesc(serial2Hh(mpl.time),mpl.range(mpl.r.lte_20), mpl.attn_bscat(mpl.r.lte_20,:).*mask);
+   imagesc((mpl.time),mpl.range(mpl.r.lte_20), mpl.attn_bscat(mpl.r.lte_20,:).*mask); dynamicDateTicks;
    axis('xy'); colormap('jet');zoom
    axis([frac_axis, 0, 4, 0, 4]);
    
@@ -161,8 +161,8 @@ if length(mina)>=1
    mpl.cal.mean_attn_bscat(non_missing) = 10.^(mean(real(log10(mpl.attn_bscat(mpl.r.cal,(non_missing))))));
    mpl.cal.C(non_missing) = mpl.cal.mean_attn_bscat(non_missing) ./ (mpl.cal.atten_ray .* exp(-2*mpl.mfr.aod_523(non_missing)));
 
-   figure_(1114); plot(serial2Hh(mpl.time), mpl.cal.C,'.c'); title('lidar constant C');
-   axis([serial2Hh(min(mpl.time)),serial2Hh(max(mpl.time)), 0, max(mpl.cal.C)]);zoom
+   figure_(1114); plot((mpl.time), mpl.cal.C,'.c'); title('lidar constant C'); dynamicDateTicks;
+   axis([(min(mpl.time)),(max(mpl.time)), 0, max(mpl.cal.C)]);zoom
 %  mpl.cal.C(:) = 450; size(mpl.cal.C)
    if sum(mpl.r.lte_15)<length(mpl.r.lte_cal)
       shorter = find(mpl.r.lte_15);
@@ -175,7 +175,10 @@ if length(mina)>=1
 
       Sa = 30;
       Sm = 8*pi/3;
-  
+ OK = menu('Lidar calibration OK?', 'Yes', 'No, adjust');
+ if OK==2
+     keyboard;
+ end
 
    klett_fig = figure_(1115);
 
@@ -217,18 +220,27 @@ if length(mina)>=1
       pause(.1)
    end
 %    close(klett_fig);
-   ext_fig = figure_(1116); imagesc(serial2Hh(mpl.time),mpl.range(shorter), real(mpl.klett.alpha_a(shorter,:))); axis('xy'); colormap('jet');
+   ext_fig = figure_(1116); imagesc(mpl.time,mpl.range(shorter), real(mpl.klett.alpha_a(shorter,:))); dynamicDateTicks;axis('xy'); colormap('jet');
    title(['aerosol extinction: ', datestr(mpl.time(1),1)]); zoom('on'); cb = colorbar; set(get(cb,'title'),'string','1/km')
-   axis([v(1), v(2), 0, max(mpl.range(shorter)) 0 1 -.001 .1])
-   ext2_fig = figure_(1117); imagesc(serial2Hh(mpl.time),mpl.range(shorter), real(log10(mpl.klett.alpha_a(shorter,:)))); axis('xy'); colormap('jet');
-   title(['log_1_0(aerosol extinction): ', datestr(mpl.time(1),1)]); zoom;
+   axis([v(1), v(2), 0, max(mpl.range(shorter)) 0 1 -.001 .1]); 
+   ext2_fig = figure_(1117); imagesc((mpl.time),mpl.range(shorter), real(log10(mpl.klett.alpha_a(shorter,:)))); axis('xy'); colormap('jet');
+   title(['log_1_0(aerosol extinction): ', datestr(mpl.time(1),1)]); zoom;dynamicDateTicks;
    axis([v(1), v(2), 0, max(mpl.range(shorter))]); caxis([-3,-.25])
-   aod_fig = figure_(aod_fig); plot(serial2Hh(mpl.time),mpl.mfr.aod_523, 'g.');title(['aod 532 nm']); 
-   lidarC_fig = figure_(1118); plot(serial2Hh(mpl.time),mpl.cal.C,'r.'); title(['lidar C']);
-   Sa_fig = figure_(1119); plot(serial2Hh(mpl.time),mpl.klett.Sa,'*'); title(['Extinction to Backscatter Ratio']);
+   aod_fig = figure_(aod_fig); plot((mpl.time),mpl.mfr.aod_523, 'g.');title(['aod 532 nm']); dynamicDateTicks;
+   lidarC_fig = figure_(1118); plot((mpl.time),mpl.cal.C,'r.'); title(['lidar C']);dynamicDateTicks;
+   Sa_fig = figure_(1119); plot((mpl.time),mpl.klett.Sa,'*');dynamicDateTicks; title(['Extinction to Backscatter Ratio']);
    %Then output the results to a file
 %    status = write_mpl_ret(mpl,[mpl_ret_pname, fname]);
 end
 mpl.fname = [strrep(mpl.fname, 'pol','kext'),'.mat'];
 save([mpl.pname, mpl.fname], '-struct','mpl')
 return
+
+   ext_fig = figure_(1116); imagesc((mpl.time),mpl.range(mpl.r.lte_cal).*1000, real(mpl.klett.alpha_a(mpl.r.lte_cal,:))); axis('xy'); colormap('jet');
+   title(['aerosol extinction: ', datestr(mpl.time(1),1)]); zoom('on'); cb = colorbar; set(get(cb,'title'),'string','1/km');dynamicDateTicks;
+   ylabel('range (m AGL)')
+
+    ext2_fig = figure_(1117); imagesc((mpl.time),mpl.range(mpl.r.lte_cal).*1000, real(log10(mpl.klett.alpha_a(mpl.r.lte_cal,:)))); axis('xy'); colormap('jet');
+   title(['aerosol extinction: ', datestr(mpl.time(1),1)]); zoom('on'); cb = colorbar; set(get(cb,'title'),'string',{'B_e_x_t';'log(1/km)'});dynamicDateTicks;
+   ylabel('range (m AGL)')
+  

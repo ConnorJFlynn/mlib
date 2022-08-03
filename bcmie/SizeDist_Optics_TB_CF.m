@@ -60,11 +60,9 @@ global df dlogd x_range y_range
 % Oct06/tcb - Change argument structure; Add neph scattering
 % Nov06/tcb - Made more general; added coating
 % Jul13/tcb - Changed angular scat procedure
-% Aug01,2022/cjf - Three changes
-%                - Pulled "if"s out of the for-loops
-%                - Reversed order of for-loops for speed 
-%                - populate with Mie_result(i,:) to avoid flipping Mie_result end-to-end.
-%                Checked results against original code and against https://omlc.org/calc/mie_calc.html
+% Aug01,2022/cjf - pulled "if"s out of the for-loops, also reversed order
+% of for-loops for speed and fixed population of Mie_result to avoid
+% flipping Mie_result end-to-end.
 
 if nargin<1
     help SizeDist_Optics;
