@@ -1,4 +1,4 @@
-function he_dual = proc_sashe_dual_a0(he,nir);
+function he_dual = proc_sashe_dual_a0(he,nir,place);
 % he_dual = proc_he_1s(he, nir);
 % Combine sashe vis and nir a0 by appending nir to vis
 % Process shadowband cycle to produce direct and diffuse components
@@ -8,24 +8,50 @@ function he_dual = proc_sashe_dual_a0(he,nir);
 % tbd v1.0 Augment output for comprehensive and consistent output for both
 % a0 and .00 input files. Default to a0, not raw 
 if ~isavar('he') he = anc_bundle_files(getfullname('*sashevis*','sashevis')); end
-
 % nir = anc_bundle_files(getfullname('*sashenir*','sashenir'));
 if isavar('nir')&&isfield(nir,'vdata')&&isfield(nir.vdata,'wavelength')
-    wl = he.vdata.wavelength;
-    wl = [wl; nir.vdata.wavelength];
-    [vinn, ninv] = nearest(he.time, nir.time);
-    he = anc_sift(he, vinn); nir = anc_sift(nir,ninv);
-    rate = he.vdata.spectra./(ones(size(he.vdata.wavelength))*he.vdata.integration_time); rate = rate';
-    rate = [rate ,(nir.vdata.spectra./(ones(size(nir.vdata.wavelength))*nir.vdata.integration_time))'];
+    wl_mark = 1002;
+    wl = he.vdata.wavelength; Si = wl<wl_mark; IGA = nir.vdata.wavelength>wl_mark;
+    wl = [wl(Si); nir.vdata.wavelength(IGA)];
+    if length(he.time)~=length(nir.time)
+        [vinn, ninv] = nearest(he.time, nir.time);
+        he = anc_sift(he, vinn); nir = anc_sift(nir,ninv);
+    end
+    rate = he.vdata.spectra(Si,:)./(ones(size(he.vdata.wavelength(Si)))*he.vdata.spectrometer_integration_time); rate = rate';
+    rate = [rate ,(nir.vdata.spectra(IGA,:)./(ones(size(nir.vdata.wavelength(IGA)))*nir.vdata.spectrometer_integration_time))'];
 else
     wl = he.vdata.wavelength;
     rate = he.vdata.spectra./(ones(size(he.vdata.wavelength))*he.vdata.integration_time); rate = rate';
 end
-darks_ii = find(he.vdata.tag==3); len = length(darks_ii);
-hemisp_ii = find(he.vdata.tag==4);len = min([len, length(hemisp_ii)]);
-sideA_ii = find(he.vdata.tag==6); len = min([len, length(sideA_ii)]);
-blocked_ii = find(he.vdata.tag==8);len = min([len, length(blocked_ii)]);
-sideB_ii = find(he.vdata.tag==10); len = min([len, length(sideB_ii)]);
+
+if ~isavar('place')||~strfind(upper(place),'LAST')
+    place = 'first';
+end
+op_mode = textscan(he.gatts.op_mode,'%s','delimiter',char([10])); op_mode = op_mode{:};
+ij =find(foundstr(op_mode,'Get Darks'),1,place)
+tag = sscanf(op_mode{ij},'%*s %f');
+darks_ii = find(he.vdata.tag==tag); len = length(darks_ii);
+
+ij =find(foundstr(op_mode,'Get TH'),1,place)
+tag = sscanf(op_mode{ij},'%*s %f');
+hemisp_ii = find(he.vdata.tag==tag); len = length(darks_ii);
+
+ij =find(foundstr(op_mode,'Get SB2'),1,place)
+tag = sscanf(op_mode{ij},'%*s %f');
+sideA_ii = find(he.vdata.tag==tag); len = length(darks_ii);
+
+ij =find(foundstr(op_mode,'Get SB1'),1,place)
+tag = sscanf(op_mode{ij},'%*s %f');
+sideB_ii = find(he.vdata.tag==tag); len = length(darks_ii);
+
+ij =find(foundstr(op_mode,'Get BK'),1,place)
+tag = sscanf(op_mode{ij},'%*s %f');
+blocked_ii = find(he.vdata.tag==tag); len = length(darks_ii);
+
+len = min([len, length(hemisp_ii)]);
+len = min([len, length(sideA_ii)]);
+len = min([len, length(blocked_ii)]);
+len = min([len, length(sideB_ii)]);
 %trim to shortest len
 darks_ii(len+1:end) = []; hemisp_ii(len+1:end) = []; sideA_ii(len+1:end) = [];
 blocked_ii(len+1:end)=[];  sideB_ii(len+1:end) = [];
@@ -54,20 +80,21 @@ for b = len:-1:1
     sb_min(b,:) = abz(max_i(1),:);
     sb_max(b,:) = abz(max_i(3),:);
 end
-% if size(sb_avg,1)>size(sbz,1)
-%     sb_avg(size(sbz,1)+1:end,:)=[];
-% elseif size(sbz,1)>size(sb_avg,1)
-%     sbz(size(sb_avg,1)+1:end,:) = [];
-% end
-
 dirh_raw_old = sb_avg-sbz;
 dirh_raw_new = sb_max-sb_min;
-% dirh_raw_comb =  dirh_raw_old .* (double(good_band')*ones(size(wl))) + ...
-%     dirh_raw_new .* (double(~good_band')*ones(size(wl)));
 difh_raw_new = toth_raw - dirh_raw_new;
 difh_raw_old = toth_raw - dirh_raw_old;
-% difh_raw_comb = toth_raw - dirh_raw_comb;
 
+band_rate = rate(hemisp_ii,:)-sb_max;
+wl_ = he.vdata.wavelength>770 & he.vdata.wavelength<810;
+WL = he.vdata.wavelength(wl_);
+for ii = length(hemisp_ii):-1:1
+    PL = polyfit(WL,band_rate(ii,wl_),2);
+    band_780(ii) = polyval(PL,780);
+    PL = polyfit(WL,difh_raw_new(ii,wl_),2);
+    difh_780(ii) = polyval(PL,780);
+end
+        
 he_dual = anc_sift(he, blocked_ii);
 he_dual.ncdef.vars.time_LST=he_dual.ncdef.vars.time;
 he_dual.vdata.time_LST =he_dual.vdata.time + double(he_dual.vdata.lon./15)./24;
@@ -79,17 +106,29 @@ he_dual.ncdef.dims.wavelength.length = length(wl);
 he_dual.vdata.wavelength = wl;
 he_dual.vatts.wavelength.long_name = strrep(he_dual.vatts.wavelength.long_name, 'VIS ', '');
 
-he_dual.ncdef.vars.integration_time_spectrometer_A = he_dual.ncdef.vars.integration_time;
-he_dual.vdata.integration_time_spectrometer_A = he_dual.vdata.integration_time;
-he_dual.vatts.integration_time_spectrometer_A = he_dual.vatts.integration_time; 
+he_dual.ncdef.vars.integration_time_spectrometer_A = he_dual.ncdef.vars.spectrometer_integration_time;
+he_dual.vdata.integration_time_spectrometer_A = he_dual.vdata.spectrometer_integration_time;
+he_dual.vatts.integration_time_spectrometer_A = he_dual.vatts.spectrometer_integration_time; 
 he_dual.vatts.integration_time_spectrometer_A.long_name = 'Integration time per scan for spectrometer A'; 
-he_dual.vatts.integration_time_spectrometer_A.units = '1/ms'; 
+he_dual.vatts.integration_time_spectrometer_A.units = 'ms'; 
 
 he_dual.ncdef.vars.integration_time_spectrometer_B = he_dual.ncdef.vars.integration_time_spectrometer_A;
-he_dual.vdata.integration_time_spectrometer_B = nir.vdata.integration_time(blocked_ii);
+he_dual.vdata.integration_time_spectrometer_B = nir.vdata.spectrometer_integration_time(blocked_ii);
 he_dual.vatts.integration_time_spectrometer_B = he_dual.vatts.integration_time_spectrometer_A; 
 he_dual.vatts.integration_time_spectrometer_B.long_name = 'Integration time per scan for spectrometer B'; 
-he_dual.vatts.integration_time_spectrometer_B.units = '1/ms'; 
+he_dual.vatts.integration_time_spectrometer_B.units = 'ms'; 
+
+he_dual.ncdef.vars.difh_780nm = he_dual.ncdef.vars.integration_time_spectrometer_A;
+he_dual.vdata.difh_780nm = difh_780;
+he_dual.vatts.difh_780nm = he_dual.vatts.integration_time_spectrometer_A; 
+he_dual.vatts.difh_780nm.long_name = 'Diffuse hemispheric at 780 nm from fit over 770-810nm'; 
+he_dual.vatts.difh_780nm.units = '1/ms'; 
+
+he_dual.ncdef.vars.band_780nm = he_dual.ncdef.vars.integration_time_spectrometer_A;
+he_dual.vdata.band_780nm = band_780;
+he_dual.vatts.band_780nm = he_dual.vatts.integration_time_spectrometer_A; 
+he_dual.vatts.band_780nm.long_name = 'Light behind shadowband at 780 nm from fit over 770-810nm'; 
+he_dual.vatts.band_780nm.units = '1/ms'; 
 
 he_dual.ncdef.vars.dark = he_dual.ncdef.vars.spectra;
 he_dual.vdata.dark = dark';
@@ -139,6 +178,12 @@ he_dual.vatts.sb_max = he_dual.vatts.spectra;
 he_dual.vatts.sb_max.long_name = 'Max shadowband measurement (exposed)'; 
 he_dual.vatts.sb_max.units = '1/ms'; 
 
+he_dual.ncdef.vars.band_rate = he_dual.ncdef.vars.spectra;
+he_dual.vdata.band_rate = band_rate';
+he_dual.vatts.band_rate = he_dual.vatts.spectra; 
+he_dual.vatts.band_rate.long_name = 'Sky light blocked by shadow band'; 
+he_dual.vatts.band_rate.units = '1/ms'; 
+
 he_dual.ncdef.vars.dirh_raw_mfr = he_dual.ncdef.vars.spectra;
 he_dual.vdata.dirh_raw_mfr = dirh_raw_old';
 he_dual.vatts.dirh_raw_mfr = he_dual.vatts.spectra; 
@@ -163,17 +208,17 @@ he_dual.vatts.difh_raw_fsb = he_dual.vatts.spectra;
 he_dual.vatts.difh_raw_fsb.long_name = 'Diffuse hemisp., raw: th_raw - dirh_raw_fsb'; 
 he_dual.vatts.difh_raw_fsb.units = '1/ms'; 
 
-rfields = {'spectra','tag','band_az_raw','band_azimuth', 'inner_band_angle','inner_band_angle_raw', 'inner_band_scattering_angle'};
+rfields = {'spectra','tag','band_az_raw','band_azimuth', 'inner_band_angle','inner_band_angle_raw'};
 he_dual.ncdef.vars = rmfield(he_dual.ncdef.vars, rfields );
 he_dual.vdata = rmfield(he_dual.vdata, rfields);
 he_dual.vatts = rmfield(he_dual.vatts, rfields);
 
-rfields = {'outer_band_angle_raw', 'outer_band_scattering_angle','integration_time', 'shutter_state','number_of_scans'};
+rfields = {'outer_band_angle_raw','spectrometer_integration_time', 'shutter_state','number_of_scans'};
 he_dual.ncdef.vars = rmfield(he_dual.ncdef.vars, rfields );
 he_dual.vdata = rmfield(he_dual.vdata, rfields);
 he_dual.vatts = rmfield(he_dual.vatts, rfields);
 
-rfields = {'outer_band_angle', 'clock_ticks','bench_temperature'};
+rfields = {'outer_band_angle', 'spectrometer_clock_ticks','avantes_bench_temperature'};
 he_dual.ncdef.vars = rmfield(he_dual.ncdef.vars, rfields );
 he_dual.vdata = rmfield(he_dual.vdata, rfields);
 he_dual.vatts = rmfield(he_dual.vatts, rfields);
