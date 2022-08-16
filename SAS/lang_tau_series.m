@@ -1,11 +1,21 @@
 function [lang_legs, ttau] = lang_tau_series(ttau)
 % compose a time series of tau from multiple potential sources for use in
-% tau-weighted langley retreival for SASabz
+% tau-weighted langley retrieval for SASabz
+% written by Connor Flynn mostly in 2022
+% 2022-08-15: 1.6 micron AOD shows notable steps dependent on whether actual
+% measurements exist at the time or are inferred. 
+% Will attempt to improve this by interpolating 1.6 micron to all times.
+% Also eliminate legs with insufficient points to comprise a valid Langley
+% And ?
 
-% Each data source
 % Make contiguous list of all reported tau, one tau per row with time and airmass
 % Filter NaNs and missings out.  Sort by time.
 % Attach a source tag
+% Then create a regular matrix with one measurement per WL per time,
+% interpolating and extrapolating as necessary. 
+% Consider creating "weight" matrix with 1 for measurements, 0.5 for
+% interpolated values, and possibly other weights depending on MADS or RMS
+
 lang_legs.mt = []; lang_legs = rmfield(lang_legs, 'mt');
 if ~isavar('ttau')
     ttau.time = [];
@@ -33,6 +43,14 @@ if ~isavar('ttau')
             ttau.nm = [ttau.nm; wl.*ones(size(cim1.time))];
             ttau.srctag = [ttau.srctag; src.*ones(size(cim1.time))];
             ttau.aod = [ttau.aod; cim1.(aods{f})];
+            if isfield(cim1,'Site_Latitude_Degrees_'), 
+                ttau.Lat = unique(cim1.Site_Latitude_Degrees_);
+                ttau.Lat = ttau.Lat(1);
+            end
+            if isfield(cim1,'Site_Longitude_Degrees_'), 
+                ttau.Lon = unique(cim1.Site_Longitude_Degrees_);
+                ttau.Lon = ttau.Lon(1);
+            end
         end
         cimfile = getfullname('*.*','anet_aod_v3');
     end
@@ -57,6 +75,14 @@ if ~isavar('ttau')
             %good = qs<2; % To accept suspect, uncomment this line
             tmp_aod = mfr.vdata.(flds{qc_ii(qc)-1})'; tmp_aod(~good) = NaN;
             ttau.aod = [ttau.aod; tmp_aod];
+            if isfield(mfr.vdata,'lat'),
+                ttau.Lat = unique(mfr.vdata.lat);
+                ttau.Lat = ttau.Lat(1);
+            end
+            if isfield(mfr.vdata,'lon'),
+                ttau.Lat = unique(mfr.vdata.lon);
+                ttau.Lon = ttau.Lon(1);
+            end
         end
         mfr_files = getfullname('*aod1mich*','aod1mich');
     end
@@ -80,11 +106,24 @@ else
     src_str = ttau.src_str;
 end
 % ttau.time_LST = ttau.time - 6.5/24;
+[sza, saz, ~, ~, ~, sel, sun_am] = sunae(ttau.Lat, ttau.Lon, ttau.time);
 noon = 12;
 src_color = colororder;src_color;
 day = floor(ttau.time_LST);
 dates = unique(floor(ttau.time_LST));
 
+% This is just a quasi-continuous series of 1.6 micron AOD since leaving it
+% out or substituting an alternative has negative consequences on the 1.6
+% um Langley
+
+LW.time = ttau.time; 
+wl_1p6 = ttau.nm > 1400;
+LW.aod = interp1(ttau.time(wl_1p6), ttau.aod(wl_1p6), ttau.time,'linear');
+bad = isnan(LW.aod); 
+gtime = LW.time(~bad); gaod = LW.aod(~bad);
+[gtime, ij] = unique(gtime); gaod = gaod(ij);
+LW.aod(bad) =interp1(gtime, gaod, LW.time(bad), 'nearest','extrap');
+ttau.aod_1p6 = LW.aod; clear LW
 
 dd = 1;
 wl_out = [300:20:1740];
@@ -92,8 +131,14 @@ AM_leg.wl = wl_out;
 PM_leg.wl = wl_out;
 mad_factor = 2.5;
 
+% while dd <= length(dates)
+% % trim dates with insufficient number of points and airmass range 
+% % Identify all unique wavelengths at which valid AODs are reported
+% % Interpolate these over all output time spacings.
+% end
+
 while dd <= length(dates)
-    fig22 = figure_(22);
+    fig22 = figure_(22); set(fig22,'visible','off')
     AM_str = ['AM_',datestr(dates(dd),'yyyymmdd')];
     PM_str = ['PM_',datestr(dates(dd),'yyyymmdd')];
     this_day = day==dates(dd);
@@ -125,19 +170,25 @@ while dd <= length(dates)
             this_am.aod = [this_am.aod; src(s_i).aod];
             this_am.nm = [this_am.nm; src(s_i).nm];
             this_am.src = [this_am.src ; srcs(s_i).*ones(size(src(s_i).aod))];
-            figure_(22); plot(src(s_i).nm, src(s_i).aod,'o', 'MarkerSize',4,'MarkerEdgeColor',src_color(srcs(s_i),:)); logx; logy; hold('on');
+            figure_(22); plot(src(s_i).nm, src(s_i).aod,'o', 'MarkerSize',4,'MarkerEdgeColor',src_color(srcs(s_i),:)); logx; logy; hold('on'); 
+            pause(.025)
         end
         % Fit best AOD and plot in black dots every 20 nm for this am and time.
         % Save best fit AOD
         if max(this_am.nm) < 1200
-            sub_ = this_am.nm>600 & this_am.nm<1000;
-            P = polyfit(log(1e-3.*this_am.nm(sub_)),log(this_am.aod(sub_)),1); tau_1p6 = exp(polyval(P,1.6));
-           [aod_fit, good_wl_] = rfit_aod_basis([this_am.nm; 1600], [this_am.aod; 1.5.*tau_1p6], wl_out, mad_factor);
-        else
-            [aod_fit, good_wl_] = rfit_aod_basis(this_am.nm, this_am.aod, wl_out, mad_factor);
+            this_am.aod = [this_am.aod; mean(ttau.aod_1p6(these_m & s_ & wl_))];
+            this_am.nm = [this_am.nm; 1640];
+            this_am.src = [this_am.src ; srcs(1)];
+
+%             sub_ = this_am.nm>600 & this_am.nm<1000;
+%             P = polyfit(log(1e-3.*this_am.nm(sub_)),log(this_am.aod(sub_)),1); tau_1p6 = exp(polyval(P,1.6));
+%            [aod_fit, good_wl_] = rfit_aod_basis([this_am.nm; 1600], [this_am.aod; 1.5.*tau_1p6], wl_out, mad_factor);
+%         else
+%             [aod_fit, good_wl_] = rfit_aod_basis(this_am.nm, this_am.aod, wl_out, mad_factor);
         end
-        figure_(22);plot(wl_out, aod_fit,'k--');
-        lg = legend([src(:).str,'fit']); set(lg,'interp','none');pause(.1)
+        [aod_fit, good_wl_] = rfit_aod_basis(this_am.nm, this_am.aod, wl_out, mad_factor);
+        figure_(22);plot(wl_out, aod_fit,'k--');pause(.025)
+        lg = legend([src(:).str,'fit']); set(lg,'interp','none');pause(.01)
         AM_leg.time_LST = [AM_leg.time_LST; this_am.time_LST];
         AM_leg.aod_fit = [AM_leg.aod_fit; aod_fit];
         AM_leg.airmass = [AM_leg.airmass; mean(ttau.airmass(these_m))];
@@ -145,30 +196,32 @@ while dd <= length(dates)
         AM_leg.src = unique([AM_leg.src; this_am.src]);
         this_i = find(these_m, 1,'last')+1;
     end % of AM leg
-    if ~isfield(lang_legs,AM_str)
+    AM_range = max(AM_leg.airmass)-min(AM_leg.airmass);
+    if ~isfield(lang_legs,AM_str)&&isavar('AM_leg')&&length(AM_leg.airmass)>10&&(AM_range>3)&&(min(AM_leg.airmass)<3.5)&&(max(AM_leg.airmass)>4.5)
         lang_legs.(AM_str)=AM_leg;
     end
     % By this time, we should have points for AM Langley if conditions permit
     if length(AM_leg.airmass)>3 && (max(AM_leg.airmass)-min(AM_leg.airmass))>3
-        figure_(24);
+        figure_(24); set(gcf,'visible','off')
         xx(1) = subplot(2,1,1);
-        plot(AM_leg.airmass, exp(-AM_leg.airmass.*AM_leg.aod_fit(:,11)),'-o');
+        plot(AM_leg.airmass, exp(-AM_leg.airmass.*AM_leg.aod_fit(:,11)),'-o');logy;
         xl = xlim; xlim([-0.25, xl(2)])
         title([datestr(mean(AM_leg.time_LST)-6.5./24,'yyyy-mm-dd'), ', AM Leg']);
         ylabel('Tr')
         xx(2) = subplot(2,1,2);
-        plot(AM_leg.aod_fit(:,11).*AM_leg.airmass, exp(-AM_leg.airmass.*AM_leg.aod_fit(:,11)),'-o');
+        plot(AM_leg.aod_fit(:,11).*AM_leg.airmass, exp(-AM_leg.airmass.*AM_leg.aod_fit(:,11)),'-o');logy;
         xl = xlim; xlim([0, xl(2)])
         xlabel('airmass*aod');
         ylabel('Tr');
         linkaxes(xx,'y');
-        pause(1)
+        pause(0.01)
     end
 %     this_i = find(these_m, 1,'last')+1;
-    figure_(22);
+    
     % Start PM leg
     this_i = find(this_day & (serial2Hh(ttau.time_LST)>(noon+.5)),1,'first');
     while  ~isempty(this_i)&&(this_i < find(this_day,1,'last'))%         
+        figure_(22); set(gcf,'visible','off')
         these_m = day==dates(dd) & (serial2Hh(ttau.time_LST) > (noon+.5)) & abs(ttau.airmass-ttau.airmass(this_i))<.1;
         srcs = unique(ttau.srctag(these_m)); srcs_str = [sprintf('%s, ',src_str{srcs(1:end-1)}),sprintf('%s',src_str{srcs(end)})];
         % Loop over all unique sources, taking mean of each source by wl
@@ -191,19 +244,25 @@ while dd <= length(dates)
             this_am.aod = [this_am.aod; src(s_i).aod];
             this_am.nm = [this_am.nm; src(s_i).nm];
             this_am.src = [this_am.src ; srcs(s_i).*ones(size(src(s_i).aod))];
-            figure_(22);plot(src(s_i).nm, src(s_i).aod,'o', 'MarkerSize',4,'MarkerEdgeColor',src_color(srcs(s_i),:)); logx; logy; hold('on');
+            figure_(22);plot(src(s_i).nm, src(s_i).aod,'o', 'MarkerSize',4,'MarkerEdgeColor',src_color(srcs(s_i),:));set(gcf,'visible','off');
+            logx; logy; hold('on');
+             pause(.025);
         end
         % Fit best AOD and plot in black dots every 20 nm for this am and time.
         % Save best fit AOD
         if max(this_am.nm) < 1200
-            sub_ = this_am.nm>600 & this_am.nm<1000;
-            P = polyfit(log(1e-3.*this_am.nm(sub_)),log(this_am.aod(sub_)),1); tau_1p6 = exp(polyval(P,1.6));
-           [aod_fit, good_wl_] = rfit_aod_basis([this_am.nm; 1600], [this_am.aod; mean(1.5.*[tau_1p6])], wl_out, mad_factor);
-        else
-            [aod_fit, good_wl_] = rfit_aod_basis(this_am.nm, this_am.aod, wl_out, mad_factor);
+                        this_am.aod = [this_am.aod; mean(ttau.aod_1p6(these_m & s_ & wl_))];
+            this_am.nm = [this_am.nm; 1640];
+            this_am.src = [this_am.src ; srcs(1)];
+%             sub_ = this_am.nm>600 & this_am.nm<1000;
+%             P = polyfit(log(1e-3.*this_am.nm(sub_)),log(this_am.aod(sub_)),1); tau_1p6 = exp(polyval(P,1.6));
+%            [aod_fit, good_wl_] = rfit_aod_basis([this_am.nm; 1600], [this_am.aod; mean(1.5.*[tau_1p6])], wl_out, mad_factor);
+%         else
+%             [aod_fit, good_wl_] = rfit_aod_basis(this_am.nm, this_am.aod, wl_out, mad_factor);
         end
-        figure_(22);plot(wl_out, aod_fit, 'r--');pause(.1)
-        lg = legend([src(:).str,'fit']); set(lg,'interp','none');pause(.1)
+        [aod_fit, good_wl_] = rfit_aod_basis(this_am.nm, this_am.aod, wl_out, mad_factor);
+        figure_(22);plot(wl_out, aod_fit, 'r--');pause(.025); set(fig22,'visible','on')
+        lg = legend([src(:).str,'fit']); set(lg,'interp','none');pause(.01)
         PM_leg.time_LST = [PM_leg.time_LST; this_am.time_LST];
         PM_leg.aod_fit = [PM_leg.aod_fit; aod_fit];
         PM_leg.airmass = [PM_leg.airmass; mean(ttau.airmass(these_m))];
@@ -211,11 +270,12 @@ while dd <= length(dates)
         PM_leg.src = unique([PM_leg.src; this_am.src]);
         this_i = find(these_m, 1,'last')+1;
     end % of PM leg
-    if ~isfield(lang_legs,PM_str)
+    PM_range = max(PM_leg.airmass)-min(PM_leg.airmass);
+    if ~isfield(lang_legs,PM_str)&&length(PM_leg.airmass)>10&&(PM_range>3)&&(min(PM_leg.airmass)<3.5)&&(max(PM_leg.airmass)>4.5)
         lang_legs.(PM_str)=PM_leg;
     end
     if length(PM_leg.airmass)>3 && (max(PM_leg.airmass)-min(PM_leg.airmass))>3
-        figure_(24);
+        figure_(24); set(gcf,'visible','on')
         xx(1) = subplot(2,1,1);
         plot(PM_leg.airmass, exp(-PM_leg.airmass.*PM_leg.aod_fit(:,11)),'-o');
         xl = xlim; xlim([-0.25, xl(2)])
@@ -227,7 +287,7 @@ while dd <= length(dates)
         xlabel('airmass*tau');
         ylabel('Tr');
         linkaxes(xx,'y');
-        pause(1)
+        pause(.01)
     end
     dd = dd +1;
 end
