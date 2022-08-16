@@ -15,6 +15,7 @@ bounds = [135,150,170,195,220,260,335,510, 705, 1380, 1760, 2550, 3615]';
 % Compute Dp (I've tried both an arithmetic mean and a geometric mean (below)
 Dp = gmean([bounds(1:end-1), bounds(2:end)]')';
 % Compute dlogDp, log base 10
+
 dlogDp = log10(bounds(2:end)./bounds(1:end-1)); % log10 is correct
 % SD is in concentration, divide by dlogDp to get dNdlogDp
 dNdlogDp = SD ./ (dlogDp * ones(size(pops.time)));
