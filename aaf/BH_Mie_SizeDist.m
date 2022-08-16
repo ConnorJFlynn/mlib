@@ -28,7 +28,7 @@ npnts=length(Dp);
 %     ExtXS_byDiam(i) = GSA_Qext;
 %     AbsXS_byDiam(i) = GSA_Qabs;
 %     ScaXS_byDiam(i) = GSA_Qsca;
-    result(i,:)=Mie(complex(RIreal,RIimag),1.*Dp(i)/wvl);    %C. Mätzler code;
+    result(i,:)=Mie(complex(RIreal,RIimag),pi.*Dp(i)/wvl);    %C. Mätzler code;
 %   Checked against https://omlc.org/calc/mie_calc.html
 %     ExtXS_byDiam(i) = result(i,4);                          % These can all be assigned later out of the loop
 %     AbsXS_byDiam(i) = result(i,6);

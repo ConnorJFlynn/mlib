@@ -46,15 +46,15 @@ for t = fan_t
     ok = dNdlogDp(:,t)>=0; ok(1) = false;
     dNdlogDp(~ok,t) = 0; ok = dNdlogDp(:,t)>=0;
     if any(ok)
-        wl = 355;
+        wl = 300:5:800;
         for w = 1:length(wl)
-            Boptics=BH_Mie_SizeDist(wl(w),fan.Dp,dNdlogDp(:,t),fan.dlogDp,1.52,.001);
+            Boptics=BH_Mie_SizeDist_FM_CF(wl(w),fan.Dp,dNdlogDp(:,t),fan.dlogDp,1.52,.001);
             ext_BH(w) = Boptics(1);
-            retval = SizeDist_Optics(1.52+.001i, fan.Dp, dNdlogDp(:,t), wl(w), 'normalized',false,'nobackscat',true);
+            retval = SizeDist_Optics_TB_CF(1.52+.001i, fan.Dp, dNdlogDp(:,t), wl(w), 'normalized',false,'nobackscat',true);
 %             retval = SizeDist_Optics(1.52, 200, 1.25, wl(w), 'normalized',false,'nobackscat',true);
             ext(w) = retval.extinction;
         end
-        figure; plot(wl, ext,'r-'); ylabel('ext'); xlabel('wl [nm]')
+        figure; plot(wl, ext,'rx-',wl, ext_BH,'ko'); ylabel('ext [1/Mm]'); xlabel('wl [nm]')
         figure; plot(wl, ext_BH,'k-'); ylabel('ext'); xlabel('wl [nm]')
         ext532_by_Mm(t) = retval.extinction;
         retval = SizeDist_Optics(1.52, Dp(ok), dNdlogDp(ok,t),355, 'normalized',true,'nobackscat',true);
@@ -62,12 +62,7 @@ for t = fan_t
     end
     t
 end
-wl = 300:10:800;
-for wi = length(wl):-1:1
-retval = SizeDist_Optics(mp, x_range, df, wl(wi), 'normalized',false,'nobackscat',true)
-ext_sd(wi) = retval.extinction;
-end
-figure; plot(wl, ext_sd,'r-x'); legend('ext SD')
+
 
 
 % OK, hae reproduced wl trend for BH_Mie_SizeDist_FM and SizeDist_Optics
