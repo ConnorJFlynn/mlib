@@ -5,6 +5,7 @@ function [Vo,tau,Vo_, tau_, good] = dbl_lang(airmass,V,stdev_mult,Ntimes,steps,s
 % required: airmass, V
 % optional: stdev_mult, default=2.5.  Larger value is less stringent
 % optional: steps, default=1, number of outliers to remove per iteration.
+% optional: Ntimes, default = 10, minimum number of distinct times for a valid Langley
 % Larger is faster but less robust
 % show = 0, don't show any plots
 % show = 1, show all plots
@@ -17,13 +18,16 @@ function [Vo,tau,Vo_, tau_, good] = dbl_lang(airmass,V,stdev_mult,Ntimes,steps,s
 good = true(size(airmass));
 % good_ = good;
 goods = sum(good);
-if ~exist('stdev_mult','var')
+if ~isavar('stdev_mult')||isempty(stdev_mult)
    stdev_mult=2.5;
 end
-if ~exist('steps','var')
+if ~isavar('steps')||isempty(steps)
    steps=1;
 end
-if ~exist('show','var')||(show<1)
+if ~isavar('Ntimes')||isempty(Ntimes)
+   Ntimes=10;
+end
+if ~isavar('show')||(show<1)
    show = 0;
 end
 done = false;
