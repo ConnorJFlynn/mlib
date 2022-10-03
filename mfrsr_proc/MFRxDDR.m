@@ -1,6 +1,6 @@
 function M1 = MFRxDDR(C1, E13)
 % Combines two MFRSR streams, in particular meshing DDR to favor the higher
-% of the two sources in a weighted in the square of the mean deviationfrom unity 
+% of the two sources weighted in the square of the mean deviation from unity 
 % Maybe rename to meshMFRSR or MFRSRmesh?
 
 if ~isavar('C1')
