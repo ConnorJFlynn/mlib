@@ -2,15 +2,9 @@ function [resp_stem, resp_dir] = gen_sas_resp_file(header, col_hedr, fmt,dat , t
 % [resp_stem, resp_dir] = gen_sas_resp_file(header, col_hedr, fmt,dat , time, tint, fstem, resp_dir)
 % Modified for consistency with existing SASZe resp files, except for addition of the word "cal" after fstem
 % CJF: 2022-05-26, somehow lost track of sas format resp file and produced
-% a  mishmash of sws name and sasze content.  Trying to recover a
-% consistent format for both now.
-%%
-if iscell(col_hedr); col_hedr = col_hedr{:}; end
-if any(dat(1,:)>500&dat(1,:)<600)
-    det_str = '.si.';
-else
-    det_str = '.ir.';
-end
+% a  mishmash of sws name and sasze content. Trying to recover a consistent format for both now.
+% CJF: 2022-09-11: Works, tested wtih radcal_Ze2_Hou_Oriel_20220909
+
 %%
 i = 0;done = false;
 while ~done
@@ -40,7 +34,7 @@ for s = 1:length(header)
     fprintf(fid,'%s \n', header{s});
 %     sprintf('%s \n', header{s});
 end
-fprintf(fid,'%%s \n', col_hedr);
+fprintf(fid,'%s \n', col_hedr);
 % out_dat = [1:length(dat(1,:)); dat];
 
 fprintf(fid, fmt,dat);
