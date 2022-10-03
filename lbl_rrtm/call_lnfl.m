@@ -23,7 +23,7 @@ if ~isavar('lnfl_tape5')||~isfile(lnfl_tape5)
     lnfl_tape5 = getfullname('*TAPE5*','lnfl_tape5');
 end
 [~,tape5,ext]= fileparts(lnfl_tape5); 
-tape5 = [tape5, ext];
+% tape5 = [tape5, ext];
 [tape5, tag] = strtok(tape5,'.');
 if ~isempty(tag)
     tag = tag(2:end);
@@ -38,8 +38,9 @@ tape3 = [lnfl_path, 'TAPE3'];
 while isafile(tape3)
     v = v +1; tape3 = [lnfl_path, 'TAPE3','.',num2str(v)];
 end
-movefile([lnfl_path, 'TAPE3'],tape3)
-
+if isafile([lnfl_path, 'TAPE3'])&&~isafile(tape3)
+   movefile([lnfl_path, 'TAPE3'],tape3)
+end
 copyfile(lnfl_tape5,[lnfl_path,'TAPE5']);
 tic; status = system(lnfl_exe.fname)
 toc
