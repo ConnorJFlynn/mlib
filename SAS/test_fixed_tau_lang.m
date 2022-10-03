@@ -15,7 +15,8 @@ if ~isavar('nir')
     nir = anc_bundle_files(getfullname('sgpsashe*.a0.*', 'sashenir'));
 end
 if ~isavar('He')
-    He = proc_sashe_dual_a0(vis, nir);
+    He1 = proc_sashe_dual_a0(vis, nir);
+    He = anc_cat(He1, proc_sashe_dual_a0(vis,nir,'last'));
 end
 % Orient time vector if necessary
 % He.time = He.time';
@@ -24,11 +25,12 @@ end
 He.vdata.airmass(He.vdata.airmass<1) = NaN; He.vdata.airmass(He.vdata.airmass>50) = NaN;
 % Load sgpmfrsrmesh.mat to get best-estimate DDR
 % mfr = load('C:\Users\Connor Flynn\OneDrive - University of Oklahoma\Desktop\xdata\ARM\adc\archive\sgp\sgpmfrsrmesh.mat');
-if isafile(which('sgpmfrsrmesh.mat'))
-    M1 = load('C:\Users\Connor Flynn\OneDrive - University of Oklahoma\Desktop\xdata\ARM\adc\archive\sgp\sgpmfrsrmesh.mat');
-else
+
+% if isafile(which('sgpmfrsrmesh.mat'))
+%     M1 = load('sgpmfrsrmesh.mat');
+% else
     M1 = MFRxDDR;
-end
+% end
 %% 
 
 He_fix = fix_sas_ddr(He, M1);
@@ -45,7 +47,7 @@ end
 if isfield(Lang_Legs,'lang_legs')
     Lang_Legs = Lang_Legs.lang_legs;
 end
-Legs = fieldnames(Lang_Legs );
+Legs = fieldnames(Lang_Legs ); figure_(25);
 for L = length(Legs):-1:1
     LLeg = Lang_Legs.(Legs{L});
     if numel(LLeg.src)>0 && length(LLeg.airmass)>5 && (max(LLeg.airmass)-min(LLeg.airmass))>3 && min(LLeg.airmass)<3
@@ -56,9 +58,23 @@ for L = length(Legs):-1:1
         % figure; plot(time_LST, aod_filter_fit, '-'); dynamicDateTicks
         % figure; plot(He.time(hina), He.dirh_fix(hina,nm_pix(3)),'k-'); dynamicDateTicks
         for sf = 1:length(nm_pix)
+            V = He_fix.vdata.airmass(hinL)'; tau = aod_filt_fit(Linh,sf); noNaN = ~isnan(V)&~isnan(tau);
+            [P(sf,:)] = polyfit(tau(noNaN).*He_fix.vdata.airmass(hinL(noNaN))', ...
+                real(log(V(noNaN).*He_fix.vdata.airmass(hinL(noNaN)))),1);
+
+
             [P(sf,:)] = polyfit(aod_filt_fit(Linh,sf).*He_fix.vdata.airmass(hinL)', ...
                 real(log(He_fix.vdata.dirh_ffixed(nm_pix(sf),hinL).*He_fix.vdata.airmass(hinL))),1);
-            LLeg.ro(sf) = exp(P(sf,2));            
+            LLeg.ro(sf) = exp(P(sf,2));   
+
+            subplot(2,1,1);
+            plot(He_fix.vdata.airmass(hinL)', ...
+                real(log(He_fix.vdata.dirh_ffixed(nm_pix(sf),hinL)./cosd(He_fix.vdata.solar_zenith(hinL)))),'rx'); logy
+            plot(2,1,2);
+            plot(aod_filt_fit(Linh,sf).*He_fix.vdata.airmass(hinL)', ...
+                real(log(He_fix.vdata.dirh_ffixed(nm_pix(sf),hinL)./cosd(He_fix.vdata.solar_zenith(hinL)))),'rx'); logy
+
+
         end
         Lang_Legs.(Legs{L}).nm = nm;
         Lang_Legs.(Legs{L}).ro = LLeg.ro;
@@ -70,5 +86,5 @@ end
 disp('Done!')
 toc
 %% 
-
+end
 

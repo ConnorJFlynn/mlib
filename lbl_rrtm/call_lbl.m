@@ -8,6 +8,7 @@ function [tape12_fullname,tag,spc] = call_lbl(lbl_tape5)
 % Moves TAPE12 to ['TAPE12.' tag] 
 
 lbl_path = getpname('lbl');
+cd(lbl_path);
 if isafile('lbl_exe.mat')
     lbl_exe = load('lbl_exe.mat');
 else
@@ -41,9 +42,10 @@ if v>1
     movefile([lbl_path, 'TAPE12'],tape12)
 end
 copyfile(lbl_tape5,[lbl_path,'TAPE5']);
-tic; cd(lbl_path); status = system(lbl_exe.fname); cd(userpath)
+tic;  status = system(lbl_exe.fname);
 toc
 tape12_fullname = [lbl_out, 'TAPE12','.',tag];
+cd(userpath)
 try
 movefile([lbl_path, 'TAPE12'],[lbl_out, 'TAPE12','.',tag])
 catch 

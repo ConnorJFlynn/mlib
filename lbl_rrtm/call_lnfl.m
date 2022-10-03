@@ -1,6 +1,6 @@
-function [tape3_fullname,tag] = call_lnfl(lnfl_tape5)
+function [tape3_fullname,tag] = call_lnfl(lnfl_tape5, tag)
 % [tape3_fullname, tag] = call_lnfl(lnfl_tape5,tag)
-% Accepts or queries for lnfl_tape5.
+% Accepts or queries for lnfl_tape5 used as input for LNFL
 % if isavar(tag), appends tag to supplied/selected lnfl_tape5
 % if LNFL tape5 exists, deletes. if LNFL tape3 exists, renames with .v
 % Copies lnfl_tape5 to lnfl_path/TAPE5

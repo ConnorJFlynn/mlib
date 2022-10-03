@@ -1,7 +1,7 @@
 function [resp_stem, resp_dir] = gen_sasze_resp_file(in_cal,header, time, tint, resp_dir)
 % gen_sasze_resp_file(in_cal,header,vis_cal.time, vis_cal.t_int_ms(vt),vis.pname);
 %%
-
+error('Defunct version, use gen_sas_resp_file instead')
 if any(in_cal(1,:)>500&in_cal(1,:)<600)
     det_str = '.si.';
 else
@@ -18,6 +18,7 @@ while ~done
 end
 SAS_unit_i = findstr(upper(header{i}),upper('SAS_unit:'));
 SAS_unit = lower(header{i}(SAS_unit_i+9:end));
+if double(SAS_unit(1))==32 SAS_unit = SAS_unit(2:end); end
 db = '';
 resp_stem = [SAS_unit,'.resp_func.',datestr(time,'yyyymmdd_0000'),det_str,num2str(tint),'ms',db,'.csv'];
 if strcmp(resp_stem(1),'.')

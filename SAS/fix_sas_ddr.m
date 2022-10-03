@@ -12,7 +12,10 @@ if isfield(he,'wl')
     pixel = interp1(he.wl, [1:length(he.wl)],[415,500,615,673,870],'nearest'); %this pixel is near the maximum solar brightness
 elseif isfield(he,'vdata')&&isfield(he.vdata,'wavelength')
     wl = he.vdata.wavelength;
-    pixel = interp1(he.vdata.wavelength, [1:length(he.vdata.wavelength)],[415,500,615,673,870],'nearest'); %this pixel is near the maximum solar brightness
+    pixel = interp1(he.vdata.wavelength, [1:length(he.vdata.wavelength)],[415,500,615,673,870],'nearest'); %this pixel is near the maximum solar brightness    
+elseif isfield(he,'vdata')&&isfield(he.vdata,'wavelength_vis')
+    wl = he.vdata.wavelength_vis;
+    pixel = interp1(he.vdata.wavelength_vis, [1:length(he.vdata.wavelength_vis)],[415,500,615,673,870],'nearest'); %this pixel is near the maximum solar brightness
 end
 dirh = he.vdata.dirh_raw_fsb(pixel,:); difh = he.vdata.difh_raw_fsb(pixel,:);
 

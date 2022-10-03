@@ -155,6 +155,14 @@ if fid>0
            cimel.(['Exact_wavelength_',num2str(X)]) = txt{1}; txt(1) = [];
        end
    end
+   % Remove empty fields
+   fields = fieldnames(cimel);
+   for fld = 1:length(fields)
+      field = fields{fld};
+      if isnumeric(cimel.(field))&&all(cimel.(field)<=0)
+         cimel = rmfield(cimel,field);
+      end
+   end
 end
 return;
 

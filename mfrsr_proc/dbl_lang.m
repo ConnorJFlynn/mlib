@@ -1,14 +1,16 @@
 function [Vo,tau,Vo_, tau_, good] = dbl_lang(airmass,V,stdev_mult,Ntimes,steps,show);
 % [Vo,tau,Vo_, tau_, good] = dbl_lang(airmass,V,stdev_mult,Ntimes,steps,show);
-% Sequenctial application of standard and unweighted langley
-% with outlier rejection via Schmid maxabs
+% Sequential application of standard and unweighted langley with outlier rejection via Schmid maxabs
+% Usable for refined Langley by multiplying V by exp(tau_g.*m)
+% Usable for tau-langley by multiplying airmass by tau
 % required: airmass, V
 % optional: stdev_mult, default=2.5.  Larger value is less stringent
 % optional: steps, default=1, number of outliers to remove per iteration.
+% optional: Ntimes, default = 10, minimum number of distinct times for a valid Langley
 % Larger is faster but less robust
 % show = 0, don't show any plots
-% show = 1, show all plots
-% show = 2, show only last plot.
+% show = 1, show only last plot
+% show = 2, show all plots, i.e. "really" show.
 % output: Vo, tau TOA and tau from Langley
 % output: Vo_, tau_: TOA and tau from unweighted Langley
 %
@@ -17,13 +19,16 @@ function [Vo,tau,Vo_, tau_, good] = dbl_lang(airmass,V,stdev_mult,Ntimes,steps,s
 good = true(size(airmass));
 % good_ = good;
 goods = sum(good);
-if ~exist('stdev_mult','var')
+if ~isavar('stdev_mult')||isempty(stdev_mult)
    stdev_mult=2.5;
 end
-if ~exist('steps','var')
+if ~isavar('steps')||isempty(steps)
    steps=1;
 end
-if ~exist('show','var')||(show<1)
+if ~isavar('Ntimes')||isempty(Ntimes)
+   Ntimes=10;
+end
+if ~isavar('show')||(show<1)
    show = 0;
 end
 done = false;
@@ -56,13 +61,14 @@ while ~done
    tau_ = -y_int;
    mad_ = max(abs(dev_(good)));
    
-   time_test = Ntimes > sum(good);
+   time_test = Ntimes > sum(good); time_test = ~isempty(time_test)&&time_test;
    val = max(abs(dev(good)))/sdev;
-   test = val<stdev_mult;
+   test = (val<stdev_mult)||(sdev<1e-12); test = ~isempty(test)&&test;
    val_ = max(abs(dev_(good)))/sdev_;
-   test_ = val_<stdev_mult;
+   test_ = (val_<stdev_mult)||(sdev_<1e-12);test_ = ~isempty(test_)&&test_;
+
    done = (test && test_)||time_test;
-   if show==1
+   if show==2 % show ALL plots
       scatter(ax(1),airmass(good), V(good), 25,abs(dev(good))/sdev);colorbar;
       logy(ax(1));
       %    semilogy(airmass(good), V(good),'.');

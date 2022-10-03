@@ -1,10 +1,13 @@
-function M1 = MFRxDDR(C1, E13);
+function M1 = MFRxDDR(C1, E13)
+% Combines two MFRSR streams, in particular meshing DDR to favor the higher
+% of the two sources weighted in the square of the mean deviation from unity 
+% Maybe rename to meshMFRSR or MFRSRmesh?
 
 if ~isavar('C1')
-   C1 = anc_bundle_files;
+   C1 = anc_bundle_files(getfullname('sgpmfrsr*.b1.*', 'mfrsrC1'));
 end
 if ~isavar('E13')
-   E13 = anc_bundle_files;
+   E13 = anc_bundle_files(getfullname('sgpmfrsr*.b1.*', 'mfrsrE13'));
 end
 
 [cine, einc] = nearest(C1.time, E13.time);
@@ -14,9 +17,9 @@ end
 ddrd = C1.vdata.direct_diffuse_ratio_filter1./E13.vdata.direct_diffuse_ratio_filter1;
 ddrd = ddrd + C1.vdata.direct_diffuse_ratio_filter2./E13.vdata.direct_diffuse_ratio_filter2;
 ddrd = ddrd + C1.vdata.direct_diffuse_ratio_filter3./E13.vdata.direct_diffuse_ratio_filter3;
-ddrd = ddrd + C1.vdata.direct_diffuse_ratio_filter2./E13.vdata.direct_diffuse_ratio_filter4;
-ddrd = ddrd + C1.vdata.direct_diffuse_ratio_filter2./E13.vdata.direct_diffuse_ratio_filter5;
-ddrd == ddrd./5; % Use mean of all five DDR ratios
+ddrd = ddrd + C1.vdata.direct_diffuse_ratio_filter4./E13.vdata.direct_diffuse_ratio_filter4;
+ddrd = ddrd + C1.vdata.direct_diffuse_ratio_filter5./E13.vdata.direct_diffuse_ratio_filter5;
+ddrd = ddrd./5; % Use mean of all five DDR ratios
 
 bad = C1.vdata.direct_diffuse_ratio_filter1 < 0 | E13.vdata.direct_diffuse_ratio_filter1 < 0;
 ddrd(bad) = NaN;
@@ -30,6 +33,8 @@ bad = C1.vdata.direct_diffuse_ratio_filter5 < 0 | E13.vdata.direct_diffuse_ratio
 ddrd(bad) = NaN;
 
 %Weight by the square of the ratio, so high values are favored.
+% Replace values in C1 with weighted average from both with weighting
+% favoring the higher of the two
 C1.vdata.direct_diffuse_ratio_filter1 = (C1.vdata.direct_diffuse_ratio_filter1 .* ddrd.^2 + E13.vdata.direct_diffuse_ratio_filter1 .* (1./ddrd).^2)./(ddrd.^2 + ddrd.^-2);
 C1.vdata.direct_diffuse_ratio_filter2 = (C1.vdata.direct_diffuse_ratio_filter2 .* ddrd.^2 + E13.vdata.direct_diffuse_ratio_filter2 .* (1./ddrd).^2)./(ddrd.^2 + ddrd.^-2);
 C1.vdata.direct_diffuse_ratio_filter3 = (C1.vdata.direct_diffuse_ratio_filter3 .* ddrd.^2 + E13.vdata.direct_diffuse_ratio_filter3 .* (1./ddrd).^2)./(ddrd.^2 + ddrd.^-2);
@@ -45,7 +50,10 @@ end
 
 M1 = anc_mesh(C1, C1x,'time'); M1.time;
 M1 = anc_mesh(M1, E13x, 'time');
-newout = [M1.fname,'.mat'];
+[pname, fname, ext] = fileparts(M1.fname);  pname = strrep([pname, filesep], [filesep filesep], filesep); 
+fname = strrep(fname, 'C1','mesh');
+%sgpmfrsrmesh.mat
+newout = [pname, fname,'.mat']; 
 save(newout,'-struct','M1');
 
 end

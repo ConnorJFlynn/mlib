@@ -11,28 +11,26 @@ function toms = get_oz_at_latlon_jh(lat,lon,toms)
 % The toms.dims changes are less clear to me.  Lines 47 onward are guesses.
 
 if ~exist('toms','var')
-   toms.fname = getfullname('*.cdf','ozone');
-   toms = ancload(toms.fname);
+   toms = anc_bundle_files(getfullname('*.cdf','ozone'));
 end
 miss = toms.vdata.ozone <0;   %JH
 toms.vdata.ozone(miss) = NaN;   % JH
-% Maybe restrict based on lat to avoid anti-podal
-% require abs(toms.vars.lat.data-lat)<10
 good_lats = abs(toms.vdata.lat-lat)<10;  %JH
 good_lat = toms.vdata.lat(good_lats);    % JH
-dist = geodist(good_lat*ones(size(toms.vdata.lon'))*pi/180,ones(size(good_lat))*toms.vdata.lon'*pi/180,lat*pi/180, lon*pi/180)./1000;  %JH
-% max_dist = max(max(dist));
-% neg_dist = dist<0;
-% dist(neg_dist) = 2*max_dist + dist(neg_dist);
+dist = geodisth(good_lat*ones(size(toms.vdata.lon'))*pi/180,ones(size(good_lat))*toms.vdata.lon'*pi/180,lat*pi/180, lon*pi/180)./1000;  %JH
 [dis,ind] = sort(dist(:));
 [subs.I,subs.J] = ind2sub(size(dist),ind(1:500));
-dist_inds = sub2ind(size(dist),subs.I(1:10), subs.J(1:10));
+% dist_inds = sub2ind(size(dist),subs.I(1:100), subs.J(1:100));
 for t = length(toms.time):-1:1
-    oz_inds = sub2ind(size(toms.vdata.ozone(good_lats,:,:)),subs.I(1:10), subs.J(1:10), t.*ones(size(subs.J(1:10))));  %JH
+    oz_inds = sub2ind(size(toms.vdata.ozone(good_lats,:,:)),subs.I(1:100), subs.J(1:100), t.*ones(size(subs.J(1:100))));  %JH
     oz_du = toms.vdata.ozone(oz_inds);  %JH
-    dis_ = dis(1:10);
+    dis_ = dis(1:100);
+    if any(~isnan(oz_du))
     toms.oz_weight(t) = trapz(dis_(~isnan(oz_du)),oz_du(~isnan(oz_du)) .* gaussian(dis_(~isnan(oz_du)), 0, 100))...
         ./trapz(dis_(~isnan(oz_du)),gaussian(dis_(~isnan(oz_du)), 0, 100));
+    else
+       toms.oz_weight(t) = NaN;
+    end
 end
 
 %% Adjust this to comprise an interpolation over time for the good ozone values
@@ -44,18 +42,17 @@ end
 %%
 
 toms.vdata.ozone = Du;    % JH
-% toms.vdata.ozone.dims = {'time'};  % JH.  Was: toms.vars.ozone.dims
-% NaNs = isnan(toms.vars.ozone.data);
-% toms.vars.ozone.data(NaNs) = interp1(toms.time(~NaNs), toms.vars.ozone.data(~NaNs), toms.time(NaNs), 'linear','extrap');
+toms.vdata.ozone.dims = {'time'};  % JH.  Was: toms.vars.ozone.dims
+NaNs = isnan(toms.vars.ozone.data);
+toms.vars.ozone.data(NaNs) = interp1(toms.time(~NaNs), toms.vars.ozone.data(~NaNs), toms.time(NaNs), 'linear','extrap');
 toms.vdata.lat = single(lat);   % JH
-% toms.ncdef.dims.lat = {''};  % JH: Was toms.vars.lat.dims. now is toms.ncdef.dims.lat ???
+toms.ncdef.dims.lat = {''};  % JH: Was toms.vars.lat.dims. now is toms.ncdef.dims.lat ???
 toms.vdata.lon = single(lon);   % JH
-% toms.ncdef.dims.lon = {''};j   % JH: was toms.vars.lon.dims.  Now toms.ncdef.dims.lon???
-% toms.dims = rmfield(toms.dims,'lat');   %JH removed  
-% toms.dims = rmfield(toms.dims,'lon');   %JH removed
+toms.ncdef.dims.lon = {''};j   % JH: was toms.vars.lon.dims.  Now toms.ncdef.dims.lon???
+toms.dims = rmfield(toms.dims,'lat');   %JH removed  
+toms.dims = rmfield(toms.dims,'lon');   %JH removed
 toms.vdata = rmfield(toms.vdata, 'ai');   % JH
 
-% JH: Converted from vars to vdata system. This will remove fields from data structure.  Desired??
 if isfield(toms.vdata, 'reflectivity')
 toms.vdata = rmfield(toms.vdata, 'reflectivity');
 end
@@ -63,9 +60,11 @@ if isfield(toms.vdata, 'radiative_cloud_fraction');
    toms.vdata = rmfield(toms.vdata, 'radiative_cloud_fraction');
 end
 toms = rmfield(toms, 'oz_weight');
-toms.vdata = rmfield(toms.vdata,'date');  % JH
-% toms.dims = rmfield(toms.dims, 'string_length');
-toms.fname = [toms.fname, '.nc'];
+toms.vdata = rmfield(toms.vdata,'date');  % JH toms.dims = rmfield(toms.dims, 'string_length');
+% toms.fname = [toms.fname, '.nc'];
+anc_check(toms)
+
+return
 
 
 
