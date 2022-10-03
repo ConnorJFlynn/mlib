@@ -1,6 +1,6 @@
 function ants = timehtcurtain2fltlvl(mpl, pops)
 if ~isavar('mpl')||isempty(mpl)
-    mpl = anc_load(getfullname('*mpl*kext*.mat','kext'));
+    mpl = load(getfullname('*mpl*kext*.mat','kext'));
 end
 % alpha_a is transpose so size(dim1) == length(mpl.time) for interp1
 ext_curtain = interp1(mpl.time, mpl.klett.alpha_a', pops.time, 'linear')';

@@ -14,7 +14,7 @@ tic
 for t = length(pops.time):-1:1
     ok = dNdlogDp(:,t)>=0; ok(1) = false;
     if any(ok)
-        retval = SizeDist_Optics(1.52, Dp(ok), dNdlogDp(ok,t), 532, 'normalized',false,'nobackscat',true);
+        retval = SizeDist_Optics_TB_CF(1.52, Dp(ok), dNdlogDp(ok,t), 532, 'normalized',false,'nobackscat',true);
         ext_532(t) = retval.extinction;
         retval = SizeDist_Optics(1.52, Dp(ok), dNdlogDp(ok,t), 355, 'normalized',false,'nobackscat',true);
         ext_355(t) = retval.extinction;
@@ -35,7 +35,7 @@ saveas(gcf, [pname, fname, '.png']);saveas(gcf, [pname, fname, '.fig']);
 % 
 % mplext_on_fltpath = timehtcurtain2rawpopsextfltlvl(mpl, pops);
 ASD.time = pops.time;
-ASD.Alt_mAGL = pops.vdata.alt;
+ASD.Alt_m_AGL = pops.vdata.alt;
 ASD.dP = Dp;
 ASD.dlogDp = dlogDp;
 ASD.dNdlogDp = dNdlogDp;
