@@ -454,8 +454,10 @@ while ~isempty(dirbeam)
       pause(.25); close(9);
       %       end
    end
-   figure; scatter(langs.time_UT, langs.Vo, 8,langs.nm); title(dirbeam.fname); dynamicDateTicks
-   save([langs.pname, langs.fname, '_Vos.mat'],'-struct','langs');
+   [~, ~, langs.AU, ~, ~, ~, ~] = sunae(0, 0, langs.time_UT);
+   figure; scatter(langs.time_UT, langs.Vo.*(langs.AU.^2), 8,langs.nm); title(dirbeam.fname); dynamicDateTicks
+   
+
    dirbeam = load_dirbeam;
 end
 
