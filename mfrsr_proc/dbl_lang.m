@@ -1,5 +1,5 @@
-function [Vo,tau,Vo_, tau_, good] = dbl_lang(airmass,V,stdev_mult,Ntimes,steps,show);
-% [Vo,tau,Vo_, tau_, good] = dbl_lang(airmass,V,stdev_mult,Ntimes,steps,show);
+function [Vo,tau,Vo_, tau_, good] = dbl_lang(airmass,V,stdev_mult,Ntimes,steps,show, title_str)
+% [Vo,tau,Vo_, tau_, good] = dbl_lang(airmass,V,stdev_mult,Ntimes,steps,show, title_str);
 % Sequential application of standard and unweighted langley with outlier rejection via Schmid maxabs
 % Usable for refined Langley by multiplying V by exp(tau_g.*m)
 % Usable for tau-langley by multiplying airmass by tau
@@ -31,7 +31,10 @@ end
 if ~isavar('show')||(show<1)
    show = 0;
 end
-done = false;
+if ~isavar('title_str')
+   title_str = [];
+end
+done = length(airmass)<Ntimes;
 logV = real(log(V));
 if show>0
    fig = figure(1004);
@@ -44,6 +47,7 @@ if show>0
 %    fig_pos = [22   357   560   420];
 %    set(fig,'position',fig_pos);
 end
+Vo = []; tau = []; Vo_=[]; tau_=[]; 
 while ~done
    goods = sum(good);
    [P] = polyfit(airmass(good)',logV(good)',1);
@@ -61,11 +65,14 @@ while ~done
    tau_ = -y_int;
    mad_ = max(abs(dev_(good)));
    
-   time_test = Ntimes > sum(good); time_test = ~isempty(time_test)&&time_test;
+   time_test = Ntimes > sum(good); 
+   time_test = ~isempty(time_test)&&time_test;
    val = max(abs(dev(good)))/sdev;
-   test = (val<stdev_mult)||(sdev<1e-12); test = ~isempty(test)&&test;
+   test = (val<stdev_mult)||(sdev<1e-12); 
+   test = ~isempty(test)&&test;
    val_ = max(abs(dev_(good)))/sdev_;
-   test_ = (val_<stdev_mult)||(sdev_<1e-12);test_ = ~isempty(test_)&&test_;
+   test_ = (val_<stdev_mult)||(sdev_<1e-12);
+   test_ = ~isempty(test_)&&test_;
 
    done = (test && test_)||time_test;
    if show==2 % show ALL plots
@@ -119,11 +126,13 @@ if show>0
    scatter(airmass(good), V(good), 25,abs(dev(good))/sdev);colorbar;
    logy;
    %    semilogy(airmass(good), V(good),'.');
-   title(['goods=',num2str(goods),...
-      ' std=',sprintf('%0.3g',sdev),...
-      ' val=',sprintf('%0.3g',val),...
-      ' Vo=',sprintf('%0.3g',Vo),...
-      ' tau=',sprintf('%0.3g',tau)]);
+   if isempty(title_str)
+   title(['goods=',num2str(goods),' std=',sprintf('%0.3g',sdev),' val=',sprintf('%0.3g',val),...
+      ' Vo=',sprintf('%0.3g',Vo), ' tau=',sprintf('%0.3g',tau)]);
+   else
+      title({title_str;['goods=',num2str(goods),' std=',sprintf('%0.3g',sdev),' val=',sprintf('%0.3g',val),...
+      ' Vo=',sprintf('%0.3g',Vo), ' tau=',sprintf('%0.3g',tau)]});
+   end
    % semilogy(airmass(good), V(good), 'g.',airmass(~good), V(~good), 'rx', airmass, exp(polyval(P, airmass)),'b');
    hold('on');
    plot( airmass(good), exp(polyval(P, airmass(good))),'r')

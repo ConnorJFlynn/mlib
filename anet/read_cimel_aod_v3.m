@@ -159,7 +159,7 @@ if fid>0
    fields = fieldnames(cimel);
    for fld = 1:length(fields)
       field = fields{fld};
-      if isnumeric(cimel.(field))&&all(cimel.(field)<=0)
+      if isnumeric(cimel.(field))&&all(cimel.(field)<=-998)
          cimel = rmfield(cimel,field);
       end
    end
@@ -183,6 +183,9 @@ newname = strrep(newname,']','_');
 newname = strrep(newname,'/','_');
 if newname(1) == '_'
    newname(1) = ['underbar__'];
+end
+if newname(end) == '_'
+   newname(end) = [];
 end
 
 return

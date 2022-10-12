@@ -55,10 +55,10 @@ if ~isempty(mfr_i)
 end
 
 %%
-figure; plot(ts_.time, [ts_.Io_1;ts_.Io_2;ts_.Io_3;ts_.Io_4;ts_.Io_5], '-o') 
+figure; plot(ts_.time, [ts_.Io_1./ts_.Io_1(1);ts_.Io_2./ts_.Io_2(1);ts_.Io_3./ts_.Io_3(1);ts_.Io_4./ts_.Io_4(1);ts_.Io_5./ts_.Io_5(1)], '.') 
 legend('Filter 1','Filter 2','Filter 3','Filter 4','Filter 5');
 dynamicDateTicks
-title(['Io values for ',site], 'interp','none');
+title(['Existing Io values for ',site], 'interp','none');
 head_id_hex = dec2hex(unique(ts_.head_id))
   
 return
