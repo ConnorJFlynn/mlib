@@ -1,6 +1,6 @@
 function IQM = rVos_from_lang_Vos(langs, HW, plots);
 % IQM = rVos_from_lang_Vos(langs,HW,plot);
-% Provided with time series of Vo and Vo_uw values, this
+% Provided with time series of Co and Co_uw values, this
 % function identifies robust Vo values within +/- HW days applies an interquartile filter, 
 % and then a polyfit centered on the point  to yield the smoothed
 % Vo centered on the given time. Also applies AU correction unless tag==anet
@@ -11,15 +11,15 @@ end
 
 if ~isavar('HW');
    % Define the HWidth Langley samples to use.
-   HW = 14;
+   HW = 21;
 end
-if isfield(langs,'tag') 
-   if ~foundstr(langs.tag,'anet')
+%ugly logic. shouldn't be in here, should be up one level at least.
+if isfield(langs,'fname') 
+   if ~foundstr(langs.fname,'_ARM_')&&~(foundstr(langs.fname,'sashe')&&foundstr(langs.fname, 'aod'))
       langs.Co = langs.Co.*(langs.AU.^2);
-      langs.Co_uwU = langs.Co_uw.*(langs.AU.^2);
+      langs.Co_uw = langs.Co_uw.*(langs.AU.^2);
    end
 end
-
 nms = unique(langs.nm);
 IQM.fname = langs.fname;
 IQM.pname = langs.pname;

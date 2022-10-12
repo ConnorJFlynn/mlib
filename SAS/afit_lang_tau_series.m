@@ -179,7 +179,7 @@ while dd <= length(dates)
    AM_leg.oam = []; AM_leg.pres_atm = []; AM_leg.aod_fit = []; AM_leg.time_UT = []; AM_leg.time_LST = []; AM_leg.nm = []; AM_leg.tag = [];
    PM_leg.oam = []; PM_leg.pres_atm = []; PM_leg.aod_fit = []; PM_leg.time_UT = []; PM_leg.time_LST = []; PM_leg.nm = []; PM_leg.tag = [];
    %% AM leg
-   while ~isempty(this_i) && this_i < length(day) && serial2Hh(ttau2.time_LST(this_i')') < (noon-.5) && this_i < find(this_day,1,'last')%
+   while ~isempty(this_i) && this_i < length(day) && serial2Hh(ttau2.time_LST(this_i)) < (noon-.5) && this_i < find(this_day,1,'last')%
       % Find "these_m" within +/- 0.1 airmass
       these_m = day==dates(dd) & (serial2Hh(ttau2.time_LST')' < (noon-.5)) & abs(ttau2.oam-ttau2.oam(this_i))<.2;
       srcs = unique(ttau2.src(these_m)); %srcs_str = [sprintf('%s, ',src_str{srcs(1:end-1)}),sprintf('%s',src_str{srcs(end)})];
@@ -212,7 +212,7 @@ while dd <= length(dates)
       if max(this_am.nm) < 1200
          this_am.nm = [this_am.nm; 1640]; %try excluding 615 nm from fit due to ozone
          this_am.aod = [this_am.aod; mean(ttau2.aod_1p6(these_m & s_ & wl_))];
-         this_am.src = [this_am.src ; srcs(1)];
+         this_am.tag = [this_am.tag ; srcs(1)];
       end
       nm_615 = find(this_am.nm>610 & this_am.nm<620);
       this_am.nm(nm_615) = [];this_am.aod(nm_615) = [];
@@ -236,7 +236,7 @@ while dd <= length(dates)
 
    % Start PM leg
 
-   this_i = find(this_day & (serial2Hh(ttau2.time_LST')'>(noon+.5)),1,'first');
+   this_i = find(this_day & (serial2Hh(ttau2.time_LST)>(noon+.5)),1,'first');
    %    this_j = find(this_day & (serial2Hh(ttau2.time_LST')'>(noon+.5)),1,'last');
    while  ~isempty(this_i) && this_i < length(day)&& (this_i < find(this_day,1,'last'))%
       %         figure_(22); set(gcf,'visible','off')
@@ -366,12 +366,7 @@ for tg = 1:length(tags)
    else
       disp('empty time_UT');
    end
-   %    if foundstr(langs2.fname, 'mfr')||foundstr(langs2.fname, 'sashe')
-   %       langs2.Co_AU = langs2.Co.*(langs.AU.^2);
-   %       langs2.Co_AU = langs2.Co; %I think these are all derived from dirt, so no need for AU correction
-   %    else
    langs2.Co_AU = langs2.Co;
-   %    end
    langs2.tag = dbeam.tag;
    Vos2.(dbeam.tag) = langs2;
    rVos2.(dbeam.tag) = rVos_from_lang_Vos(Vos2.(dbeam.tag), 21,1);
@@ -425,7 +420,7 @@ ttau.srctag = [];
 
 src = 0;
 
-cimfile = getfullname('*.*','anet_aod_v3');
+cimfile = getfullname('*.*','anet_aod_v3','Select Aeronet file with AODs');
 [pname, ~]= fileparts(cimfile);
 pname = [pname, filesep]; pname = strrep(pname, [filesep, filesep], filesep);
 while ~isempty(cimfile)&&isafile(cimfile)
@@ -461,7 +456,7 @@ while ~isempty(cimfile)&&isafile(cimfile)
    cimfile = getfullname('*.*','anet_aod_v3');
 end
 
-mfr_files = getfullname('*aod1mich*','aod1mich');
+mfr_files = getfullname('*aod1mich*','aod1mich','Select ARM file with AODs');
 while ~isempty(mfr_files)
 
    src = src + 1;
@@ -689,90 +684,6 @@ end
 
 end
 
-function [dirbeams, langs, Vos, rVos] = calc_Vos_from_dirbeam(dirbeam, lang_legs)
-
-while ~isempty(dirbeam)
-   langs.pname = dirbeam.pname;
-   langs.fname = dirbeam.fname;
-   langs.nm = [];
-   langs.time_UT = []; langs.time_LST = [];
-   langs.ngood = [];
-   langs.min_oam = [];
-   langs.max_oam = [];
-   langs.Co = [];
-   langs.Co_uw = [];
-   leg_name = fieldnames(lang_legs);
-   for L = 1:length(leg_name)
-      leg = lang_legs.(leg_name{L});
-      %          wl_x = interp1(leg.wl, [1:length(leg.wl)],[1020,1700],'nearest');
-      title_str = leg_name{L}; disp(title_str);
-      %        figure_(9); title(title_str);
-      for wl_ii = length(dirbeam.wls):-1:1
-         nm = dirbeam.wls(wl_ii);
-         L_ = (dirbeam.wl==nm)&(dirbeam.time>=leg.time_UT(1))&(dirbeam.time<=leg.time_UT(end));
-         if sum(L_)>4
-            WL.nm = nm; WL.AU = mean(dirbeam.AU(L_));WL.pres_atm = mean(leg.pres_atm);
-            WL.time = dirbeam.time(L_); WL.time_LST = dirbeam.time_LST(L_); WL.dirn = dirbeam.dirn(L_);
-            WL.oam = dirbeam.oam(L_);
-
-            %Interpolate leg.aod_fit (in log-log space) to match wl of filter
-            % Probably also interpolate in time to match times of mfr "minl" but in this case it is 1:1
-            % Also, interpolate atm_pres_hPa from leg to wl, scale rayOD
-            WL.RayOD = rayleigh_ht(nm./1000);
-            aod_fit = exp(interp1(log(leg.wl), log(leg.aod_fit'), log(nm),'linear'))';
-            WL.aod = interp1(leg.time_UT, aod_fit, WL.time','linear')';
-            WL.iT_g = exp(WL.RayOD.*WL.pres_atm.*WL.oam); % Inverse gas transmittance (so multiply by instead of divide)
-            %                try
-            if ~isempty(WL.oam)&&~isempty(WL.aod)&&~isempty(WL.iT_g)&&~isempty(WL.dirn)
-               [Co,~,Co_, ~, good] = dbl_lang(WL.oam.*WL.aod,WL.iT_g.*WL.dirn,2.25,[],1,0);
-               aod_lang = -log(WL.dirn./mean([Co, Co_]))./WL.oam - WL.RayOD.*WL.pres_atm;
-               %             figure_(9); plot(WL.time(good), aod_lang(good),'.'); legend(num2str(nm));dynamicDateTicks; hold('on'); title(title_str);
-               if ~isempty(Co)&&~isempty(Co_)&&sum(good)>=10 && ...
-                     (((max(WL.oam(good))./min(WL.oam(good)))>=2.75)||...
-                     ((max(WL.oam(good))-min(WL.oam(good)))>2.75))
-                  langs.nm(end+1) = nm;
-                  langs.time_UT(end+1) = mean(WL.time(good)) ;
-                  langs.time_LST(end+1) = mean(WL.time_LST(good)) ;
-                  langs.ngood(end+1) = sum(good);
-                  langs.min_oam(end+1) = min(WL.oam(good));
-                  langs.max_oam(end+1) = max(WL.oam(good));
-                  langs.pres_atm = WL.pres_atm;
-                  langs.Co(end+1) = Co;
-                  langs.Co_uw(end+1) = Co_;
-               end
-            end
-            %                catch
-            %                   warning('Try, catch tripped.  Possible issue with polyfit within dbl_lang')
-            %                end
-         end
-      end
-      %       pause(.125); close(9);
-      %       end
-   end
-   if ~isempty(langs.time_UT)
-      [~, ~, langs.AU, ~, ~, ~, ~] = sunae(0, 0, langs.time_UT);
-   else
-      disp('empty time_UT');
-   end
-   if foundstr(langs.fname, 'mfr')||foundstr(langs.fname, 'sashe')
-      langs.Co_AU = langs.Co.*(langs.AU.^2);
-   else
-      langs.Co_AU = langs.Co;
-   end
-   langs.tag = dirbeam.tag;
-   save([langs.pname, langs.fname, '_Vo.mat'],'-struct','langs');
-   Vos.(dirbeam.tag) = langs;
-   rVos.(dirbeam.tag) = rVos_from_lang_Vos(Vos.(dirbeam.tag), 21,1);
-   dirbeams.(dirbeam.tag) = dirbeam;
-   dirbeam = load_dirbeam;
-end
-pname = langs.pname; pname(end)= [];
-pname = fileparts(pname); [pname, fname] = fileparts(pname);
-pname = [pname, filesep, fname, filesep];
-save([pname, upper(fname), '_rVos.mat'],'-struct','rVos');
-save([pname, upper(fname), '_DirBeams.mat'],'-struct','dirbeams');
-end
-
 
 function dirbeam = load_dirbeam(dirbeam_files)
 
@@ -831,6 +742,21 @@ if ~isempty(dirbeam_files)
          WL_nm = infile.vdata.wavelength_nir(wl_i);
          for ww = 1:length(WL)
             dirn = infile.vdata.direct_normal_nir(wl_i(ww),:);
+            dirbeam.time = [dirbeam.time, infile.time(dirn>0)];
+            dirbeam.wl = [dirbeam.wl, zeros(size(dirn(dirn>0)))+WL_nm(ww)];
+            dirbeam.dirn = [dirbeam.dirn, dirn(dirn>0)];
+            dirbeam.oam = [dirbeam.oam, oam(dirn>0)]; dirbeam.AU = [dirbeam.AU, AU(dirn>0)];
+         end
+      elseif isfield(infile.vdata,'direct_normal_transmittance') %it is sashe aod file
+         if min(infile.vdata.wavelength) < 500
+            WL = [340,355,368,387,408,415,440,500,532,615,650,673,762,870,910,975];
+         else
+             WL = [976,1020,1030,1225,1550,1625,1637];
+         end
+         wl_i = interp1(infile.vdata.wavelength, [1:length(infile.vdata.wavelength)],WL,'nearest');
+         WL_nm = infile.vdata.wavelength(wl_i);
+         for ww = 1:length(WL)
+            dirn = infile.vdata.direct_normal_transmittance(wl_i(ww),:);
             dirbeam.time = [dirbeam.time, infile.time(dirn>0)];
             dirbeam.wl = [dirbeam.wl, zeros(size(dirn(dirn>0)))+WL_nm(ww)];
             dirbeam.dirn = [dirbeam.dirn, dirn(dirn>0)];
@@ -896,6 +822,7 @@ if ~isempty(dirbeam_files)
          wl = sscanf(field,'AOD_%f');
          dirbeam.wl = [dirbeam.wl,zeros(size(dirn(dirn>0)))+wl];
          dirbeam.dirn = [dirbeam.dirn, exp(-dirn(dirn>0).*infile.Optical_Air_Mass(dirn>0)')];
+         % isn't this really "dirt"?
          dirbeam.oam = [dirbeam.oam, infile.Optical_Air_Mass(dirn>0)'];
          dirbeam.AU = [dirbeam.AU, AU(dirn>0)];
       end
@@ -915,7 +842,7 @@ if ~isempty(dirbeam_files)
    dirbeam.oam = dirbeam.oam(ij);
    dirbeam.AU = dirbeam.AU(ij);
    % Assign tag
-   if foundstr(dirbeam.fname,'C1.c1')
+   if foundstr(dirbeam.fname,'C1.c1')&&foundstr(dirbeam.fname, 'mfrsr')
       dirbeam.tag = 'mfrC1';
    elseif foundstr(dirbeam.fname, 'M1.c1')&&foundstr(dirbeam.fname, 'mfrsr')
       dirbeam.tag = 'mfrM1';
@@ -940,6 +867,97 @@ if ~isempty(dirbeam_files)
    end
 end
 end
+
+function [dirbeams, langs, Vos, rVos] = calc_Vos_from_dirbeam(dirbeam, lang_legs)
+
+while ~isempty(dirbeam)
+   langs.pname = dirbeam.pname;
+   langs.fname = dirbeam.fname;
+   langs.nm = [];
+   langs.time_UT = []; langs.time_LST = [];
+   langs.ngood = [];
+   langs.min_oam = [];
+   langs.max_oam = [];
+   langs.Co = [];
+   langs.Co_uw = [];
+   leg_name = fieldnames(lang_legs);
+   for L = 1:length(leg_name)
+      leg = lang_legs.(leg_name{L});
+      %          wl_x = interp1(leg.wl, [1:length(leg.wl)],[1020,1700],'nearest');
+      title_str = leg_name{L}; disp(title_str);
+      %        figure_(9); title(title_str);
+      for wl_ii = length(dirbeam.wls):-1:1
+         nm = dirbeam.wls(wl_ii);
+         L_ = (dirbeam.wl==nm)&(dirbeam.time>=leg.time_UT(1))&(dirbeam.time<=leg.time_UT(end));
+         if sum(L_)>4
+            WL.nm = nm; WL.AU = mean(dirbeam.AU(L_));WL.pres_atm = mean(leg.pres_atm);
+            WL.time = dirbeam.time(L_); WL.time_LST = dirbeam.time_LST(L_); WL.dirn = dirbeam.dirn(L_);
+            WL.oam = dirbeam.oam(L_);
+
+            %Interpolate leg.aod_fit (in log-log space) to match wl of filter
+            % Probably also interpolate in time to match times of mfr "minl" but in this case it is 1:1
+            % Also, interpolate atm_pres_hPa from leg to wl, scale rayOD
+            WL.RayOD = rayleigh_ht(nm./1000);
+            aod_fit = exp(interp1(log(leg.wl), log(leg.aod_fit'), log(nm),'linear'))';
+            WL.aod = interp1(leg.time_UT, aod_fit, WL.time','linear')';
+            WL.iT_g = exp(WL.RayOD.*WL.pres_atm.*WL.oam); % Inverse gas transmittance (so multiply by instead of divide)
+            %                try
+            if ~isempty(WL.oam)&&~isempty(WL.aod)&&~isempty(WL.iT_g)&&~isempty(WL.dirn)
+               [Co,~,Co_, ~, good] = dbl_lang(WL.oam.*WL.aod,WL.iT_g.*WL.dirn,2.25,[],1,0);
+               aod_lang = -log(WL.dirn./mean([Co, Co_]))./WL.oam - WL.RayOD.*WL.pres_atm;
+               %             figure_(9); plot(WL.time(good), aod_lang(good),'.'); legend(num2str(nm));dynamicDateTicks; hold('on'); title(title_str);
+               if ~isempty(Co)&&~isempty(Co_)&&sum(good)>=10 && ...
+                     (((max(WL.oam(good))./min(WL.oam(good)))>=2.75)||...
+                     ((max(WL.oam(good))-min(WL.oam(good)))>2.75))
+                  langs.nm(end+1) = nm;
+                  langs.time_UT(end+1) = mean(WL.time(good)) ;
+                  langs.time_LST(end+1) = mean(WL.time_LST(good)) ;
+                  langs.ngood(end+1) = sum(good);
+                  langs.min_oam(end+1) = min(WL.oam(good));
+                  langs.max_oam(end+1) = max(WL.oam(good));
+                  langs.pres_atm = WL.pres_atm;
+                  langs.Co(end+1) = Co;
+                  langs.Co_uw(end+1) = Co_;
+               end
+            end
+            %                catch
+            %                   warning('Try, catch tripped.  Possible issue with polyfit within dbl_lang')
+            %                end
+         end
+      end
+      %       pause(.125); close(9);
+      %       end
+   end
+   if ~isempty(langs.time_UT)
+      [~, ~, langs.AU, ~, ~, ~, ~] = sunae(0, 0, langs.time_UT);
+   else
+      disp('empty time_UT');
+   end
+   %The following lines attempt to address the fact that anet and sashe*aod direct beam is 
+   % transmittance derived from the AODs rather than direct normal irradiance.
+   % Transmittance already has AU correction built in so set Co_AU = Co.
+   if foundstr(langs.fname, 'mfr')||(foundstr(langs.fname, 'sashe')&&~foundstr(langs.fname,'aod'))
+      langs.Co_AU = langs.Co.*(langs.AU.^2);
+   elseif (foundstr(langs.fname, 'sashe')&&foundstr(langs.fname,'aod'))
+      langs.Co_AU = langs.Co;
+   else
+      langs.Co_AU = langs.Co;
+   end
+   langs.tag = dirbeam.tag;
+   save([langs.pname, langs.fname, '_Vo.mat'],'-struct','langs');
+   Vos.(dirbeam.tag) = langs;
+   rVos.(dirbeam.tag) = rVos_from_lang_Vos(Vos.(dirbeam.tag), 21,1);
+   dirbeams.(dirbeam.tag) = dirbeam;
+   dirbeam = load_dirbeam;
+end
+pname = langs.pname; pname(end)= [];
+pname = fileparts(pname); [pname, fname] = fileparts(pname);
+pname = [pname, filesep, fname, filesep];
+save([pname, upper(fname), '_rVos.mat'],'-struct','rVos');
+save([pname, upper(fname), '_DirBeams.mat'],'-struct','dirbeams');
+end
+
+
 
 function [ttau2,dirbeams] = calc_ttau2_dbeams(ttau, dirbeams, rVos)
 
@@ -975,8 +993,13 @@ for t = 1:length(tags)
       wl_ = dirbeam.wl==dirbeam.wls(nm_i);
       dirbeam.Vo_AU(nm_i,wl_) = interp1(Vo.time_UT, Vo.Vo_AU(nm_i,:),dirbeam.time(wl_),'nearest');
    end
+   % I think this line was introduced to handle ANET values that are derived from TOD
+   % and thus represent direct transmitance, so don't require AU correction
+   % But it might also be useful for SASHe files that have direct_trans also
    if ~isfield(dirbeam,'dirt') && isfield(dirbeam,'dirn') && isfield(dirbeam, 'AU');
       dirbeam.dirt = (dirbeam.dirn.*dirbeam.AU.^2)./dirbeam.Vo_AU;
+   else
+      dirbeam.dirt = dirbeam.dirt./dirbeam.Vo_AU;
    end
    dirbeam.oam(dirbeam.oam<0|dirbeam.oam>10) = NaN;
    dirbeam.tod = -log(dirbeam.dirt)./dirbeam.oam;
