@@ -15,6 +15,9 @@ function [Vo,tau,Vo_, tau_, good] = dbl_lang(airmass,V,stdev_mult,Ntimes,steps,s
 % output: Vo_, tau_: TOA and tau from unweighted Langley
 %
 % Need a graceful exit for failure
+% 2022-10-14, CJF: handled several failure modes relating to Vo, dev, val not being
+% assigned unless there were enough good values, and also caught instances of there
+% being no good values and so those related fields being missing.
 
 good = true(size(airmass));
 % good_ = good;
@@ -35,7 +38,7 @@ if ~isavar('title_str')
    title_str = [];
 end
 done = length(airmass)<Ntimes;
-logV = real(log(V));
+logV = real(log(V)); 
 if show>0
    fig = figure(1004);
    ax(1) = subplot(2,1,1);title('temp');
@@ -47,31 +50,35 @@ if show>0
 %    fig_pos = [22   357   560   420];
 %    set(fig,'position',fig_pos);
 end
-Vo = []; tau = []; Vo_=[]; tau_=[]; 
+Vo = NaN; tau = NaN; Vo_=NaN; tau_=NaN; 
+dev = NaN(size(airmass)); sdev = NaN; mad = NaN;
+dev_ = NaN(size(airmass)); sdev_ = NaN; mad_ = NaN;
+val = NaN; val_ = NaN; P = NaN; P_ = NaN;
 while ~done
    goods = sum(good);
-   [P] = polyfit(airmass(good)',logV(good)',1);
-   dev(good) =  (logV(good) - polyval(P, airmass(good)));
-   sdev = std(dev(good));
-   tau = -P(1);
-   Vo = exp(polyval(P,0));
-   mad = max(abs(dev(good)));
-   
-   [P_] = polyfit(1./airmass(good), real(logV(good))./airmass(good), 1);
-   dev_(good) =  (real(logV(good))./airmass(good) - polyval(P_, 1./airmass(good)));
-   sdev_ = std(dev_(good));
-   Vo_ = exp(P_(1));
-   y_int = polyval(P_, 0);
-   tau_ = -y_int;
-   mad_ = max(abs(dev_(good)));
-   
+   if goods>Ntimes
+      [P] = polyfit(airmass(good)',logV(good)',1);
+      dev(good) =  (logV(good) - polyval(P, airmass(good)));
+      sdev = std(dev(good));
+      tau = -P(1);
+      Vo = exp(polyval(P,0));
+      mad = max(abs(dev(good)));
+
+      [P_] = polyfit(1./airmass(good), real(logV(good))./airmass(good), 1);
+      dev_(good) =  (real(logV(good))./airmass(good) - polyval(P_, 1./airmass(good)));
+      sdev_ = std(dev_(good));
+      Vo_ = exp(P_(1));
+      y_int = polyval(P_, 0);
+      tau_ = -y_int;
+      mad_ = max(abs(dev_(good)));
+   end
    time_test = Ntimes > sum(good); 
    time_test = ~isempty(time_test)&&time_test;
    val = max(abs(dev(good)))/sdev;
-   test = (val<stdev_mult)||(sdev<1e-12); 
+   test = ~isempty(val)&&(val<stdev_mult)||(sdev<1e-12); 
    test = ~isempty(test)&&test;
    val_ = max(abs(dev_(good)))/sdev_;
-   test_ = (val_<stdev_mult)||(sdev_<1e-12);
+   test_ = ~isempty(val_)&&(val_<stdev_mult)||(sdev_<1e-12);
    test_ = ~isempty(test_)&&test_;
 
    done = (test && test_)||time_test;
@@ -114,16 +121,15 @@ while ~done
          goods = sum(good);
          mad = max(abs(dev(good)));
       end
-      %       good = good & good_;
-      %       good_(good) = abs(dev_(good))<mad_;
-      %       good(good) = good(good)&abs(dev(good))<mad;
-      %       good = good & good_;
-      %       goods = sum(good);
    end
 end
 if show>0
    ax(1) = subplot(2,1,1);
-   scatter(airmass(good), V(good), 25,abs(dev(good))/sdev);colorbar;
+   if ~any(isnan(dev))&&~isnan(sdev)
+      scatter(airmass(good), V(good), 25,abs(dev(good))/sdev);colorbar;
+   else
+      plot(airmass(good), V(good), 'o');
+   end
    logy;
    %    semilogy(airmass(good), V(good),'.');
    if isempty(title_str)
@@ -139,7 +145,11 @@ if show>0
    hold('off');
    
    ax(2) = subplot(2,1,2);
-   scatter(1./airmass(good), real(logV(good))./airmass(good), 36,abs(dev_(good))./sdev_);colorbar;
+   if ~any(isnan(dev_))&&~isnan(sdev_)
+      scatter(1./airmass(good), real(logV(good))./airmass(good), 36,abs(dev_(good))./sdev_);colorbar;
+   else
+      plot(1./airmass(good), real(logV(good))./airmass(good), 'o');colorbar;
+   end
    %    plot(1./airmass(good), real(logV(good))./airmass(good),'.');
    
    title(['goods=',num2str(goods),...

@@ -71,7 +71,7 @@ function [ttau, lang_legs, dirbeams, rVos, ttau2, llegs2, rVos2, dbeams] = afit_
 
 
 if ~isavar('ttau')
-   [ttau, src_str] = get_ttau;
+   ttau = get_ttau;
 end
 
 if ~isavar('lang_legs')
@@ -80,7 +80,7 @@ if ~isavar('lang_legs')
    % % Identify all unique wavelengths at which valid AODs are reported
    % % Interpolate these over all output time spacings.
    % end
-   lang_legs = build_lang_legs(ttau, src_str);
+   lang_legs = build_lang_legs(ttau);
 end
 
 % leg_names = fieldnames(lang_legs);
@@ -301,8 +301,9 @@ end
 
 
 tags = fieldnames(dirbeams);
-for tg = 1:length(tags)
-   tag = tags{tg};
+for tg = length(tags):-1:1
+   tag = tags{tg}
+   pause(.5)
    dbeam = dirbeams.(tag);
 
    langs2.pname = dbeam.pname;
@@ -316,11 +317,9 @@ for tg = 1:length(tags)
    langs2.Co_uw = [];
    leg_name = fieldnames(llegs2);
    for L = 1:length(leg_name)
-      L
+      disp(num2str(length(leg_name)-L))
       leg = llegs2.(leg_name{L});
       %       wl_x = interp1(leg.wl, [1:length(leg.wl)],[1020,1700],'nearest');
-
-
       title_str = leg_name{L}; disp(title_str);
       %        figure_(9); title(title_str);
       for wl_ii = length(dbeam.wls):-1:1
@@ -341,14 +340,14 @@ for tg = 1:length(tags)
             WL.aod = interp1(leg.time_UT, aod_fit, WL.time','linear')';
             WL.iT_g = exp(WL.RayOD.*WL.pres_atm.*WL.oam); % Inverse gas transmittance (so multiply by instead of divide)
             if ~isempty(WL.oam)&&~isempty(WL.aod)&&~isempty(WL.iT_g)&&~isempty(WL.dirt)
-               [Co,~,Co_, ~, good] = dbl_lang(WL.oam.*WL.aod,WL.iT_g.*WL.dirt,2.25,[],1,0);
-               if ~isempty(Co)
-                  aod_lang = -log(WL.dirt./mean([Co, Co_]))./WL.oam - WL.RayOD.*WL.pres_atm;
+               [Co,~,Co_, ~, good] = dbl_lang(WL.oam.*WL.aod,WL.iT_g.*WL.dirt,2.25,[],1,1);
+               if ~isempty(Co) && ~isempty(good) && any(good)
+%                   aod_lang = -log(WL.dirt./mean([Co, Co_]))./WL.oam - WL.RayOD.*WL.pres_atm;
                   %             figure_(9); plot(WL.time(good), aod_lang(good),'.'); legend(num2str(nm));dynamicDateTicks; hold('on'); title(title_str);
-                  if sum(good)>=10 && ((max(WL.oam(good))./min(WL.oam(good)))>=2.75)||((max(WL.oam(good))-min(WL.oam(good)))>2.75)
+                  if (sum(good)>=10) && ((max(WL.oam(good))./min(WL.oam(good)))>=2.75)||((max(WL.oam(good))-min(WL.oam(good)))>2.75)
                      langs2.nm(end+1) = nm;
                      langs2.time_UT(end+1) = mean(WL.time(good)) ;
-                     langs2.time_LST(end+1) = mean(WL.time_LST(good)) ;
+                     langs2.time_LST(end+1) = mean(WL.time_LST(good));
                      langs2.ngood(end+1) = sum(good);
                      langs2.min_oam(end+1) = min(WL.oam(good));
                      langs2.max_oam(end+1) = max(WL.oam(good));
@@ -361,7 +360,7 @@ for tg = 1:length(tags)
          end
       end
    end
-   if ~isempty(langs.time_UT)
+   if ~isempty(langs2.time_UT)
       [~, ~, langs2.AU, ~, ~, ~, ~] = sunae(0, 0, langs2.time_UT);
    else
       disp('empty time_UT');
@@ -530,8 +529,8 @@ ttau.aod_1p6 = LW.aod_1p6; clear LW
 %   save(['C:\Users\Connor Flynn\OneDrive - University of Oklahoma\Desktop\xdata\ARM\adc\mentor\aodfit_be\sgp\SGP_TTAU_20180801_20190731_2.mat'],'-struct','ttau')
 
 end
-function lang_legs = build_lang_legs(ttau, src_str)
-
+function lang_legs = build_lang_legs(ttau)
+src_str = ttau.src_str;
 wl_out = [300:20:1740];
 AM_leg.wl = wl_out;
 PM_leg.wl = wl_out;
