@@ -21,7 +21,7 @@ AD = abs(val - Y);
 MAD = mean(AD(good>0));
 new_good = (AD < (M.*MAD));
 if any(good ~= new_good)
-   good = rpoly_mad(X,Y,N,M,new_good);
+   good = rpoly_bisect_mad(X,Y,N,M,new_good);
 end
 % compute a best line fit
 % compute the mean absolute deviation from this best line
