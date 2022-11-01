@@ -13,7 +13,7 @@ if (length(wl)==length(L)) && (iscolumn(wl)&&iscolumn(L) || iscolumn(wl)&&isrow(
 eta(1) = LB_eta_1(wl,L); % Curvature over 1 to 1.1
 
 eta(2) = LB_eta_2(wl,L); % Derivative at 1.2
-eta(3) = LB_eta_2(wl,L); % Derivative at 1.5
+eta(3) = LB_eta_3(wl,L); % Derivative at 1.5
 eta(4) = LB_eta_4(wl,L); % Ratio of L1p23/L1p237
 
 eta(5) = LB_eta_5(wl,L); % Mean over 1.235 to 1.27
@@ -45,9 +45,10 @@ end
 function eta =LB_eta_1(wl,L) %Curvature between 1 and 1.1 microns
 L1 = interp1(wl, L, 1,'linear'); 
 L = L./L1; % May need to multiply L1 by the appropriate ones vector
-WL_ = wl>=1 & wl<=1.1;
+ab = [1000:1100]./1000;
+WL_ = wl>=ab(1) & wl<=ab(end);
 [wl_ab] = find(WL_);
-[P,S] = polyfit(wl(WL_), L(WL_),1); 
+[P,S] = polyfit(wl([wl_ab(1), wl_ab(end)]), L([wl_ab(1), wl_ab(end)]),1); 
 lin = polyval(P,wl(wl_ab(1):wl_ab(end)),S);
 eta = sum(L(WL_)-lin);
 end
@@ -62,8 +63,8 @@ end
 
 function eta = LB_eta_3(wl,L) %derivative at 1.5
 L1 = L./ interp1(wl,L, 1, 'linear');
-WL_= wl>=1 & wl<=1.5;
-P = polyfit(wl(WL_), L1(WL_), 1); 
+WL_= wl>=1.49 & wl<=1.51;
+P = polyfit(wl(WL_), L1(WL_), 2); 
 D = polyder(P); 
 eta = polyval(D,1.5); 
 end
@@ -77,30 +78,30 @@ function eta = LB_eta_5(wl,L) % Mean from 1245 and 1270 um
 L = L./max(L);
 ab = [1235:1270]./1000;
 wl_ab = interp1(wl, [1:length(wl)],ab, 'nearest'); 
-LB_eta_5_ = mean(L(wl_ab(1):wl_ab(end)));
+% LB_eta_5_ = mean(L(wl_ab(1):wl_ab(end)));
 % Option 2:
 eta = mean(interp1(wl, L, ab,'linear'));
-disp('Compare option 1 and 2, eta(5)');
+% disp('Compare option 1 and 2, eta(5)');
 end
 
 function eta = LB_eta_6(wl,L) % Mean from 1565 and 1640 um
 L = L./max(L);
 ab = [1565:1640]./1000;
 wl_ab = interp1(wl, [1:length(wl)],ab, 'nearest'); 
-LB_eta_6_ = mean(L(wl_ab(1):wl_ab(end)));
+% LB_eta_6_ = mean(L(wl_ab(1):wl_ab(end)));
 % Option 2:
 eta = mean(interp1(wl, L, ab,'linear'));
-disp('Compare option 1 and 2');
+% disp('Compare option 1 and 2');
 end
 
 function eta = LB_eta_7(wl,L) % Mean from 1000 and 1050 um
 L = L./max(L);
 ab = [1000:1050]./1000;
 wl_ab = interp1(wl, [1:length(wl)],ab, 'nearest'); 
-LB_eta_7_ = mean(L(wl_ab(1):wl_ab(end)));
+% LB_eta_7_ = mean(L(wl_ab(1):wl_ab(end)));
 % Option 2:
 eta = mean(interp1(wl, L, ab,'linear'));
-disp('Compare option 1 and 2');
+% disp('Compare option 1 and 2');
 end
 
 function eta = LB_eta_8(wl,L) %Curvature between 1.49 and 1.6 microns
@@ -108,29 +109,31 @@ L1 = interp1(wl, L, 1,'linear');
 L = L./L1; % May need to multiply L1 by the appropriate ones vector
 WL_ = wl>=1.49 & wl<=1.6;
 [wl_ab] = find(WL_);
-[P,S] = polyfit(wl(WL_), L(WL_),1); 
+[P,S] = polyfit(wl([wl_ab(1) wl_ab(end)]), L([wl_ab(1) wl_ab(end)]),1); 
 lin = polyval(P,wl(wl_ab),S);
 eta = sum(L(WL_)-lin);
 end
 
 function eta = LB_eta_9(wl,L) %Slope of derivative from 1 to 1.08
-ab = [1,1.08]
+ab = [1,1.08];
 L1 = interp1(wl, L, 1,'linear'); 
 L = L./L1; % May need to multiply L1 by the appropriate ones vector
 WL_ = wl>=ab(1) & wl<=ab(2);
-[P] = polyfit(wl(WL_), L(WL_),1); 
-D = polyder(P);
-eta = (polyval(D,ab(2))-polyval(D,ab(1)))./(ab(2)-ab(1));
+D = diff2(L(WL_));
+[P] = polyfit(wl(WL_), D,1); 
+eta = polyder(P);
+
 end
 
 function eta = LB_eta_10(wl,L) %Slope of derivative from 1.2 to 1.31
-ab = [1.2,1.31]
+ab = [1.2,1.31];
 L1 = interp1(wl, L, 1,'linear'); 
 L = L./L1; % May need to multiply L1 by the appropriate ones vector
 WL_ = wl>=ab(1) & wl<=ab(2);
-[P] = polyfit(wl(WL_), L(WL_),1); 
-D = polyder(P);
-eta = (polyval(D,ab(2))-polyval(D,ab(1)))./(ab(2)-ab(1));
+D = diff2(L(WL_));
+[P] = polyfit(wl(WL_), D,1); 
+eta = polyder(P);
+
 end
 
 function eta = LB_eta_11(wl,L) % slope  from .53 to .61
