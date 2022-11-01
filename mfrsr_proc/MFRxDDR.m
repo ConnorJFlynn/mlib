@@ -9,7 +9,7 @@ end
 if ~isavar('E13')
    E13 = anc_bundle_files(getfullname('sgpmfrsr*.b1.*', 'mfrsrE13'));
 end
-
+% Replace this logic with creating the unique union of the times
 [cine, einc] = nearest(C1.time, E13.time);
 [C1, C1x] = anc_sift(C1, cine);C1x.time;
 [E13,E13x] = anc_sift(E13, einc);E13x.time;
