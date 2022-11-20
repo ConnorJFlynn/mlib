@@ -31,7 +31,7 @@ if ~exist('mpl_inarg','var')
 else
    mpl_inarg = populate_mpl_inarg(mpl_inarg);
 end
-
+mpl_inarg = flip_toggle(mpl_inarg);
 %prepare output directories
 in_dir = mpl_inarg.in_dir;
 out_dir = mpl_inarg.out_dir;
@@ -90,7 +90,6 @@ for m = 1:length(in_files)
       for mm = 1:mpl_inarg.Nrecs:length(anc_mplpol_.time)
          disp(['netcdf record: ',num2str(mm),' of ',num2str(length(anc_mplpol_.time))]);
          anc_mplpol = anc_loadpart(anc_mplpol_,mm,mpl_inarg.Nrecs);
-
          try
             if exist('anc_mplpol_tail','var')
             anc_mplpol = anc_cat(anc_mplpol_tail,anc_mplpol);
@@ -100,6 +99,7 @@ for m = 1:length(in_files)
             fclose(fid_bad);
          end
          if ~isempty(anc_mplpol)
+            %all corrections are applied inside this function call
             [polavg_new,tail_ind] = proc_mplpolfsb1_5(anc_mplpol,mpl_inarg);
             anc_mplpol_tail = anc_sift(anc_mplpol,[tail_ind:length(anc_mplpol.time)]);
             if exist('polavg','var')&&length(polavg.time)>1
@@ -116,7 +116,7 @@ for m = 1:length(in_files)
                %                plot_pol_lin_bs(polavg,mpl_inarg);
                polavg = plot_pola_log_bs(polavg,mpl_inarg);
                if isfield(polavg,'inarg')
-                  mpl_inarg = polavg.inarg; mpl_inarg.manual_limits = false;
+                  mpl_inarg = polavg.inarg; mpl_inarg.manual_plot_settings = false;
                   polavg = rmfield(polavg,'inarg');
                end
                if isfield(mpl_inarg,'assess_ray')&&mpl_inarg.assess_ray
@@ -147,7 +147,7 @@ while length(polavg.time>1)
       polavg = plot_pola_log_bs(polavg,mpl_inarg);
 %       plot_pol_lin_bs(polavg,mpl_inarg);
       if isfield(polavg,'inarg')
-         mpl_inarg = polavg.inarg; mpl_inarg.manual_limits = false;
+         mpl_inarg = polavg.inarg; mpl_inarg.manual_plot_settings = false;
          polavg = rmfield(polavg,'inarg');
       end
       if isfield(mpl_inarg,'assess_ray')&&mpl_inarg.assess_ray
@@ -191,7 +191,7 @@ end
    
    mpl_inarg.Nsecs = 300;
    mpl_inarg.Nrecs = 10000;
-   mpl_inarg.manual_limits = true;
+   mpl_inarg.manual_plot_settings = true;
    if isfield(anc_.vatts,'afterpulse_correction_height')
       mpl_inarg.ap_in_file = true;
    end
@@ -213,14 +213,14 @@ end
    mpl_inarg.cop_snr =3;% larger numbers eliminate data
    mpl_inarg.ldr_snr = 2;% larger numbers eliminate data
    mpl_inarg.ldr_error_limit = .2; %smaller numbers eliminate data
-   fig = 1; 
+   fig = 54; 
    while isgraphics(fig)
       fig = fig+1;
    end
    mpl_inarg.fig = fig;
    mpl_inarg.vis = 'on';
    mpl_inarg.cv_log_bs = [2.5,5.5];
-   mpl_inarg.cv_dpr = [-2,0];
+   mpl_inarg.cv_dpr = [-2.5,0];
 
    mpl_inarg.plot_ranges = [15,10,5,2];
 return

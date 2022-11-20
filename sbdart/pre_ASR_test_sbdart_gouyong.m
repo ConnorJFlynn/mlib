@@ -2,7 +2,7 @@
 
 %SBDART input values:
 % Clear all components:
-in_pth = 'C:\MinGW\bin\';
+in_pth = getpath('sbdart.exe','Select path to SBDART executable.')
 clear sbd out qry
 
 %%
@@ -27,7 +27,7 @@ qry.CORINT='.true.';
 qry.PHI=[0,180];
 UZEN =[0:5:90]; 
 qry.UZEN = fliplr(180-setxor(UZEN,qry.SZA));
-[out] = qry_sbdart(qry,in_pth);
+[out] = qry_sbdart(qry);
 
 %ALM
 clear qry
@@ -56,6 +56,39 @@ qry.UZEN = fliplr(180-setxor(UZEN,qry.SZA));
 tic
 % qry.UZEN = qry.SZA;
 [out] = qry_sbdart(qry,in_pth);
+
+%zenith radiance only
+clear qry
+qry.iout=21;
+qry.NF=3;
+qry.idatm=2;
+qry.isat=0;
+qry.wlinf=0.440;
+qry.wlsup=0.440;
+qry.IAER=3;
+
+qry.RHAER=0.8;
+qry.wlbaer= .440;
+qry.SAZA=180;
+
+qry.NSTR=20;
+qry.CORINT='.true.';
+% qry.zout = [0,0];
+qry.PHI=[0];
+qry.SZA=30;
+tau = [.1:.02:1]
+SZA = [0:80];
+for t = length(tau):-1:1
+   for z = length(SZA):-1:1
+      qry.SZA = SZA(z);
+      qry.TBAER=tau(t);
+      qry.VZEN =[qry.SZA];
+      pause(.05);
+      [out] = qry_sbdart(qry);
+      zrad(t,z) = out.rads;
+   end
+   disp(tau(t))
+end
 
 qry.SZA=60;
 qry.IOUT = 1; % WL,FFV,TOPDN,TOPUP,TOPDIR,BOTDN,BOTUP,BOTDIR

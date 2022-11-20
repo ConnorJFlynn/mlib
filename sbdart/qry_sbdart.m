@@ -8,7 +8,7 @@ function [out] = qry_sbdart(in_args,outs,how);
 % if ~exist('in_path','var')|~exist(in_path,'dir')
 %     in_path = getdir;
 % end
-in_path = getpath('sbdart.exe','Select path to SBDART executable.')
+in_path = getpath('sbdart.exe','Select path to SBDART executable.');
 if ~isavar('outs')||isempty('outs')
     outs = 'outs.dat';
 end
@@ -46,7 +46,7 @@ fprintf(fid,'%s \n',y);
 fclose(fid);
 ret = pwd;
 cd(in_path);
-system(['sbdart.exe ',how, outs]);
+system([[in_path,'sbdart.exe '],how, outs]);
 % system(['bash -c /cygdrive/c/mlib/sbdart/sbdart_exe.exe > out.dat']);
 cd(ret);
 q = 1; iout = [];
@@ -62,7 +62,12 @@ if exist(fout,'file')
     if iout == 10
         out = textscan(fid,'%f %f %f %f %f %f %f %f ', 'headerlines',3);
     elseif iout == 21 %PPL or ALM
-        line_1 = fgetl(fid); A = textscan(line_1,'%f'); A = A{1}; out.wl = mean(A(1:2));
+       line_1 = [];
+       while isempty(line_1)
+        line_1 = fgetl(fid);
+       end
+
+        A = textscan(line_1,'%f'); A = A{1}; out.wl = mean(A(1:2));
         line_2 = fgetl(fid); B = textscan(line_2,'%f'); B = B{:}; nphi = B(1); nzen=B(2);
         out.phi = [];
         for i = 1:ceil(nphi./10)
@@ -95,18 +100,22 @@ if exist(fout,'file')
             out.degs = out.phi;
         end
         [out.degs, ij] = unique(out.degs); out.rads = out.rads(ij);
-
-        figure;
-        if nzen>nphi
-            plot(out.degs(out.degs<qry.SZA), out.rads(out.degs<qry.SZA),'-',out.degs(out.degs>qry.SZA), out.rads(out.degs>qry.SZA),'-');
-            xlabel('degrees'); ylabel('radiance');yl = ylim; hold('on'); plot([qry.SZA, qry.SZA], yl,'k--');
-            title(['SBART PPL Sky Scan ', sprintf('SZA = %g',qry.SZA)]); hold('off')
-        else
-            plot(out.degs(out.degs<=180), out.rads(out.degs<=180),'-');
-            xlabel('degrees'); ylabel('radiance');
-            title(['SBART ALM Sky Scan ', sprintf('SZA = %g',qry.SZA)]);
+        if nzen>1 || nphi > 1
+           figure;
+           if nzen>nphi
+              plot(out.degs(out.degs<qry.SZA), out.rads(out.degs<qry.SZA),'-',out.degs(out.degs>qry.SZA), out.rads(out.degs>qry.SZA),'-');
+              xlabel('degrees'); ylabel('radiance');yl = ylim; hold('on'); plot([qry.SZA, qry.SZA], yl,'k--');
+              title(['SBART PPL Sky Scan ', sprintf('SZA = %g',qry.SZA)]); hold('off')
+           else
+              plot(out.degs(out.degs<=180), out.rads(out.degs<=180),'-');
+              xlabel('degrees'); ylabel('radiance');
+              title(['SBART ALM Sky Scan ', sprintf('SZA = %g',qry.SZA)]);
+           end
         end
+    else
+       out = fprintf(fid,'%s');
     end
+
     fclose(fid);
     delete(fout);
 end

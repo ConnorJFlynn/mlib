@@ -63,14 +63,16 @@ if isfield(anc.vdata, 'overlap_correction')
    % analytic functions representing optical overlap corrections.  
    % Seems to do well at very shortest range, but can miss the slope at the
    % top 
-%    fitted_olc = analytic_ol_uc(mplpol.range(ol_range), 1./mplpol.r.ol_corr(ol_range));
-%    
-%    if ~isgraphics(41)
-%       figure_(41); plot(mplpol.range(ol_range), 1./mplpol.r.ol_corr(ol_range),'o',...
-%          mplpol.range(ol_range), fitted_olc,'k-' ); 
-%    legend('Overlap'); xlabel('range [km]');
-%     title({['Overlap corrections for ',ds_];[datestr(anc.time(1),'yyyy-mm-dd')]});
-%    end
+   fitted_olc = analytic_ol_uc(mplpol.range(ol_range), 1./mplpol.r.ol_corr(ol_range));
+   
+   if ~isgraphics(41)
+      figure_(41); plot(mplpol.range(ol_range), 1./mplpol.r.ol_corr(ol_range),'o',...
+         mplpol.range(ol_range), fitted_olc,'k-' );
+      legend('Overlap', 'fit'); xlabel('range [km]');
+      title({['Overlap corrections for ',ds_];[datestr(anc.time(1),'yyyy-mm-dd')]});
+   end
+% We could replace the original OL value with the fitted value here with:
+% mplpol.r.ol_corr(ol_range) = 1./fitted_olc; 
 
 end
 if isfield(anc.vdata ,'afterpulse_correction_height');  
