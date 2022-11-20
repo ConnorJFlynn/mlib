@@ -340,7 +340,7 @@ for tg = length(tags):-1:1
             WL.aod = interp1(leg.time_UT, aod_fit, WL.time','linear')';
             WL.iT_g = exp(WL.RayOD.*WL.pres_atm.*WL.oam); % Inverse gas transmittance (so multiply by instead of divide)
             if ~isempty(WL.oam)&&~isempty(WL.aod)&&~isempty(WL.iT_g)&&~isempty(WL.dirt)
-               [Co,~,Co_, ~, good] = dbl_lang(WL.oam.*WL.aod,WL.iT_g.*WL.dirt,2.25,[],1,1);
+               [Co,~,Co_, ~, good] = dbl_lang(WL.oam.*WL.aod,WL.iT_g.*WL.dirt,2.25,[],1,0);
                if ~isempty(Co) && ~isempty(good) && any(good)
 %                   aod_lang = -log(WL.dirt./mean([Co, Co_]))./WL.oam - WL.RayOD.*WL.pres_atm;
                   %             figure_(9); plot(WL.time(good), aod_lang(good),'.'); legend(num2str(nm));dynamicDateTicks; hold('on'); title(title_str);
