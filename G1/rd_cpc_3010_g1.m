@@ -1,7 +1,7 @@
 function [cpcf_grid, cpcf] = rd_cpc_3010_g1(ins);
 % [cpcf_grid, cpcf] = rd_cpc_3010_g1(ins);
 % Works for ACME V
-if ~exist('ins','var') || ~exist(ins,'file')
+if ~isavar('ins') || ~isafile(ins)
     ins = getfullname_('*.3010.txt','aaf_cpcf');
 end
 [cpcf.pname,cpcf.fname,ext] = fileparts(ins);
@@ -15,7 +15,7 @@ end
 cpcf_mat = [matdir, cpcf.fname(1:10), 'cpcf.mat'];
 cpcf_grid_mat = [matdir, cpcf.fname(1:10), 'cpcf_grid.mat'];
 
-if exist(cpcf_mat,'file')&&exist(cpcf_grid_mat,'file')
+if isafile(cpcf_mat)&&isafile(cpcf_grid_mat)
     cpcf = load(cpcf_mat);
     cpcf_grid = load(cpcf_grid_mat);
 else
