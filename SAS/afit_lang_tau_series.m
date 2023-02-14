@@ -152,7 +152,7 @@ end
 % At this point, we have generated rVos and recalibrated provided dirbeams
 % Now, compute new best fit, new langs, new Vo2 and rVo2s
 if ~isavar('tags') tags = []; end
-[ttau2, dirbeams] = calc_ttau2_dbeams(ttau, dirbeams, rVos);
+[ttau2, dirbeams2] = calc_ttau2_dbeams(ttau, dirbeams, rVos);
 
 % Then compose ttau2 into lang_legs2 with corresponding fitted-aod
 
@@ -300,11 +300,11 @@ while dd <= length(dates)
 end
 
 
-tags = fieldnames(dirbeams);
+tags = fieldnames(dirbeams2);
 for tg = length(tags):-1:1
    tag = tags{tg}
    pause(.5)
-   dbeam = dirbeams.(tag);
+   dbeam = dirbeams2.(tag);
 
    langs2.pname = dbeam.pname;
    langs2.fname = dbeam.fname;
@@ -790,7 +790,6 @@ if ~isempty(dirbeam_files)
       if isfield(infile.vdata,'direct_normal_narrowband_filter7')
          for f = 7
             dirn = infile.vdata.(['direct_normal_narrowband_filter',num2str(f)]);
-
             dirbeam.time = [dirbeam.time, infile.time(dirn>0)];
             if isfield(infile.gatts,'filter1_CWL_measured')
                wl = sscanf(infile.gatts.(['filter',num2str(f),'_CWL_measured']), '%f');
@@ -825,7 +824,6 @@ if ~isempty(dirbeam_files)
          dirbeam.oam = [dirbeam.oam, infile.Optical_Air_Mass(dirn>0)'];
          dirbeam.AU = [dirbeam.AU, AU(dirn>0)];
       end
-
    end
    [dirbeam.time, ij] = sort(dirbeam.time);
    if isfield(infile,'Site_Longitude_Degrees')
@@ -841,13 +839,13 @@ if ~isempty(dirbeam_files)
    dirbeam.oam = dirbeam.oam(ij);
    dirbeam.AU = dirbeam.AU(ij);
    % Assign tag
-   if foundstr(dirbeam.fname,'C1.c1')&&foundstr(dirbeam.fname, 'mfrsr')
+   if (foundstr(dirbeam.fname,'C1.c1')||foundstr(dirbeam.fname,'C1.b1'))&&foundstr(dirbeam.fname, 'mfrsr')
       dirbeam.tag = 'mfrC1';
    elseif foundstr(dirbeam.fname, 'M1.c1')&&foundstr(dirbeam.fname, 'mfrsr')
       dirbeam.tag = 'mfrM1';
    elseif foundstr(dirbeam.fname, 'M1.b1')&&foundstr(dirbeam.fname, 'mfrsr')
       dirbeam.tag = 'mfrM1b1';
-   elseif foundstr(dirbeam.fname, 'E13.c1')
+   elseif (foundstr(dirbeam.fname, 'mfrsr')&&(foundstr(dirbeam.fname, 'E13.c1'))||foundstr(dirbeam.fname, 'E13.b1'))
       dirbeam.tag = 'mfrE13';
    elseif foundstr(dirbeam.fname, 'nimfr') && foundstr(dirbeam.fname, '.b1')
       dirbeam.tag = 'nimfrb1';

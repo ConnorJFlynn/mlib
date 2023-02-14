@@ -41,7 +41,7 @@ logx; logy;
 % The function "anc_bundle_files" reads one or more ARM netcdf files and 
 % concatenates or 'bundles' them together into a single structure
 % psap3w = ARM_display_beta;
-aeth = anc_bundle_files(getfullname('anxaosae*.nc','aeth')); % aeth = ARM_display_beta;
+aeth = anc_bundle_files(getfullname('*aosae*.nc','aeth')); % aeth = ARM_display_beta;
 ae_data = aeth.vdata;
 ae_data.time = aeth.time;
 ae_meta.vars = aeth.vatts;
@@ -129,17 +129,11 @@ legend('Ba AE33 30s','Ba AE33 1m','Ba AE33 2m','Ba AA33 3m')
 Wein_C = 1.57; % Weingartner multiple scattering correction parameter C
 Wein_C = 1.39; % C consistent with lab testing at TROPOS in Leipzig.
 % Wein_C = 1.77; % Weingartner multiple scattering correction parameter C
-
-% Despite the suggestion from Gunnar that we use zeta 0.025
- % a zeta_leak factor of 0.05 below seems to better reproduce the
- % Aethalometer reported values. 
- % The statement above _may_ have been true before, but not as of May 13, 2020
- % The zeta factor of 0.025
+ % suggestion from Gunnar that we use zeta 0.025
  % results in a strong match between McGee reported BC values (smoothed to
  % 60s) and my 1m comparable value computed from raw intensities with
- % Wein_C = 1.39 and zeta correction applied. (line 152 below)
-
-zeta_leak = 0.05; zeta_leak = 0.025;
+ % Wein_C = 1.39 and zeta correction applied. 
+zeta_leak = 0.025; 
 Bab_1_1m= Bab_1_raw_1m./(Wein_C.*(1-zeta_leak)); Bab_2_1m = Bab_2_raw_1m./(Wein_C.*(1-zeta_leak));
 
 figure; plot(aeth.time, Bab_1_raw_1m(2,:), '-x', psap1s.time, psap1s.vdata.Ba_B_raw,'kx-'); dynamicDateTicks
