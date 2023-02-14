@@ -2,7 +2,7 @@ function proc_dt_test
 zenir = rd_SAS_raw(getfullname('*sasze*nir*.csv'));
 zevis = rd_SAS_raw(getfullname('*sasze*vis*.csv'));
 % This is for SGP.  
-vlo = 5; vhi = 30;
+vlo = 5; vhi = 25;
 dark_ = zevis.Shutter_open_TF==0; 
 dark_(1:end-1) = dark_(1:end-1)&dark_(2:end); dark_(2:end) = dark_(1:end-1)&dark_(2:end);
 dark_lo = dark_ & zevis.t_int_ms==vlo; 
