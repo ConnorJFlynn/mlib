@@ -16,13 +16,13 @@ function dif_cross = pcasp_mie_cs(d,n_ref,wl,num_ang)
 %      8800, 9700, 9875]';
 % bnl_diam_um = 1e-3*[102, 114, 125, 152, 199, 220, 240, 269, 350, 450, 596, 799,1361, 2013]';
     
-if ~exist('n_ref','var')
+if ~isavar('n_ref')
     n_ref = 1.59; % Complex index of refraction, in this case purely real
 end
-if ~exist('wl','var')
+if ~isavar('wl')
     wl = .6328;
 end
-if ~exist('num_ang','var')
+if ~isavar('num_ang')
 num_ang = [181];
 end
 n = 1;
