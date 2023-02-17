@@ -2,7 +2,11 @@ README for getARMfiles utility:
 
 This Matlab utility allows a user to query the ARM Archive for available files from a specified datastream between supplied start and end dates, and to collect and save these files to a local system.
 
-Syntax: files = getARMFiles(mask, str_date, end_data, savedir)
+Installation: Unzip the contents of getARMfiles.zip into a directory within your Matlab path, or into any other directory and then either add that directory to your Matlab path or "cd" to that directory for use.  
+
+From the Matlab command line, type: >> getARMfiles('') to populate your ARMtoken unique to your ARM user name.
+
+Syntax: files = getARMfiles(mask, str_date, end_data, savedir)
 mask: user-provided string in the form of sssDDDDDDFFF.dd 
 	"sss" is the three-leter site designation, e.g., "sgp"
 	"DDDDDD" is the datastream stem, eg: "ceil"
