@@ -1,0 +1,31 @@
+README for getARMfiles utility:
+
+This Matlab utility allows a user to query the ARM Archive for available files from a specified datastream between supplied start and end dates, and to collect and save these files to a local system.
+
+Syntax: files = getARMFiles(mask, str_date, end_data, savedir)
+mask: user-provided string in the form of sssDDDDDDFFF.dd 
+	"sss" is the three-leter site designation, e.g., "sgp"
+	"DDDDDD" is the datastream stem, eg: "ceil"
+	"FFF" is the facility and number, eg: "C1", "E13", "M1", etc.
+	"dd" is the data level, eg "a1", "b1", "c1", etc.
+str_date: user-provided start date in the form of "yyyy-mm-dd"
+end_date: user-provided end date in the form of "yyyy-mm-dd"
+savedir: user-provided local path where files should be saved
+files: list of files retrieved from ARMlive RESTful web services
+
+This utility is designed for either interactive or programmatic use, such that it will operate "hands-off" if all arguments are provided, but will prompt the user for interaction if critical elements are missing.
+
+Functional dependencies:
+setARMusertoken: interactively obtains and saves usertoken for a given ARM User
+getARMusertoken: automatically obtains saved user token from setARMusertoken
+
+Has been tested for 2022a on Window 10 and Matlab On-Line running a variant of Linux
+This software is offered without warranty or guarantee.
+Feel free to contact:
+Connor J Flynn
+University of Oklahoma
+Connor.J.Flynn@ou.edu
+
+
+
+
