@@ -19,8 +19,9 @@ elseif isfield(he,'vdata')&&isfield(he.vdata,'wavelength_vis') % then it is sash
     wl = he.vdata.wavelength_vis;
     pixel = interp1(he.vdata.wavelength_vis, [1:length(he.vdata.wavelength_vis)],[415,500,615,673,870],'nearest'); %this pixel is near the maximum solar brightness
 end
-dirh = he.vdata.dirh_raw_fsb(pixel,:); difh = he.vdata.difh_raw_fsb(pixel,:); % I think this means that I need to process data that has been recently ingested with the new banding logic.
 
+dirh = [he.vdata.direct_horizontal_415nm;he.vdata.direct_horizontal_500nm; he.vdata.direct_horizontal_615nm; he.vdata.direct_horizontal_673nm; he.vdata.direct_horizontal_870nm];
+difh = [he.vdata.diffuse_hemisp_415nm;he.vdata.diffuse_hemisp_500nm; he.vdata.diffuse_hemisp_615nm; he.vdata.diffuse_hemisp_673nm; he.vdata.diffuse_hemisp_870nm];
 sun_ = dirh(2,:)>0 & (dirh(2,:)./(dirh(2,:)+difh(2,:))) > .15; 
 sun = double(sun_); sun(~sun_) = NaN; %Used to mask non-sun elements in plot
 
@@ -33,21 +34,29 @@ sun = double(sun_); sun(~sun_) = NaN; %Used to mask non-sun elements in plot
 % ff = (mu./Dd + 1)./(mu./Dd_prime +1); 
 % dn = dn_prime./ff; dirh = dirh_prime./ff; dif = dif_prime - dirh.(1-ff)
 
-k = mfr.vdata.direct_diffuse_ratio_filter1./mfr.vdata.airmass; % This assumes mfrsr is truth.
-k = interp1(mfr.time, k, he.time, 'linear');                   % interpolates to sashe times
-k(~sun_) = NaN;
-ff = (k(sun_).*(difh(1,sun_)./dirh(1,sun_))-1)./(k(sun_)+1);   % Computes fraction under-represented.
-% ff = (k.*(difh./dirh)-1)./(k+1); 
+mu = 1./he.vdata.cosine_solar_zenith_angle; mu = ones([5,1])*mu;
+dn_prime = [he.vdata.direct_normal_415nm;he.vdata.direct_normal_500nm;he.vdata.direct_normal_615nm];
+dn_prime = [dn_prime; he.vdata.direct_normal_673nm;he.vdata.direct_normal_870nm];
+dirh_prime = [he.vdata.direct_horizontal_415nm;he.vdata.direct_horizontal_500nm;he.vdata.direct_horizontal_615nm];
+dirh_prime = [dirh_prime;he.vdata.direct_horizontal_673nm;he.vdata.direct_horizontal_870nm];
+dif_prime = [he.vdata.diffuse_hemisp_415nm;he.vdata.diffuse_hemisp_500nm;he.vdata.diffuse_hemisp_615nm];
+dif_prime = [dif_prime;he.vdata.diffuse_hemisp_673nm;he.vdata.diffuse_hemisp_870nm];
+Dd_prime = [he.vdata.direct_normal_415nm./he.vdata.diffuse_hemisp_415nm;he.vdata.direct_normal_500nm./he.vdata.diffuse_hemisp_500nm];
+Dd_prime = [Dd_prime;he.vdata.direct_normal_615nm./he.vdata.diffuse_hemisp_615nm;he.vdata.direct_normal_673nm./he.vdata.diffuse_hemisp_673nm];
+Dd_prime = [Dd_prime;he.vdata.direct_normal_870nm./he.vdata.diffuse_hemisp_870nm];
+Dd = interp1(mfr.time, [mfr.vdata.direct_diffuse_ratio_filter1;mfr.vdata.direct_diffuse_ratio_filter2;...
+mfr.vdata.direct_diffuse_ratio_filter3;mfr.vdata.direct_diffuse_ratio_filter4;mfr.vdata.direct_diffuse_ratio_filter5]', he.time,'linear')';
+ff = (mu./Dd + 1)./(mu./Dd_prime +1); 
+ff(:, he.vdata.airmass<1 | he.vdata.airmass>6) = NaN;
+dn = dn_prime./ff; dirh = dirh_prime./ff; dif = dif_prime - dirh.*(1-ff);
+bad  = dn<0 | dirh<0 | dif < 0 | ff < 0| ff>1 | dn./dif>40; ff(bad) = NaN;
+dn = dn_prime./ff; dirh = dirh_prime./ff; dif = dif_prime - dirh.*(1-ff);
+he.vdata.direct_horizontal_415nm = dirh(1,:);he.vdata.direct_normal_415nm = dn(1,:); he.vdata.diffuse_hemisp_415nm = dif(1,:);
+he.vdata.direct_horizontal_500nm = dirh(2,:);he.vdata.direct_normal_500nm = dn(2,:); he.vdata.diffuse_hemisp_500nm = dif(2,:);
+he.vdata.direct_horizontal_615nm = dirh(3,:);he.vdata.direct_normal_615nm = dn(3,:); he.vdata.diffuse_hemisp_615nm = dif(3,:);
+he.vdata.direct_horizontal_673nm = dirh(4,:);he.vdata.direct_normal_673nm = dn(4,:); he.vdata.diffuse_hemisp_673nm = dif(4,:);
+he.vdata.direct_horizontal_870nm = dirh(5,:);he.vdata.direct_normal_870nm = dn(5,:); he.vdata.diffuse_hemisp_870nm = dif(5,:);
 
-k = mfr.vdata.direct_diffuse_ratio_filter2./mfr.vdata.airmass;
-k = interp1(mfr.time, k, he.time, 'linear');
-k(~sun_) = NaN;
-ff(2,:) = (k(sun_).*(difh(2,sun_)./dirh(2, sun_))-1)./(k(sun_)+1);
-
-k = mfr.vdata.direct_diffuse_ratio_filter3./mfr.vdata.airmass;
-k = interp1(mfr.time, k, he.time, 'linear');
-k(~sun_) = NaN;
-ff(3,:) = (k(sun_).*(difh(3, sun_)./dirh(3, sun_))-1)./(k(sun_)+1);
 
 % Used average ff and confirmed graphically that it looks good for pixel
 % dirh_new = dirh(sun_,:) .*(1+ mean(ff,2)*ones(size(pixel)));
@@ -57,72 +66,48 @@ ff(3,:) = (k(sun_).*(difh(3, sun_)./dirh(3, sun_))-1)./(k(sun_)+1);
 
 % physically, ff >= 0 (statistically allow >= -0.1 )and also >= difh/dirh ratio % why this second part?
 % dirh = he.vdata.dirh_raw_fsb(:,pixel); difh = he.vdata.difh_raw_fsb(:,pixel);
-ff = mean(ff,1); ff(ff<-0.1) = NaN;
-baddifdir = (he.vdata.difh_raw_fsb(pixel,sun_)./he.vdata.dirh_raw_fsb(pixel,sun_))<= (ones(size(pixel'))*ff); 
-baddifdir=any(baddifdir,1);
-ff(baddifdir) = NaN;
+% ff = mean(ff,1); ff(ff<-0.1) = NaN;
+% baddifdir = (difh(:,sun_)./dirh(:,sun_))<= (ones([5,1])*ff); 
+% baddifdir=any(baddifdir,1);
+% ff(baddifdir) = NaN;
 % Intend to create new field ff in he, and output re-scaled direct and
 % diffuse and DNDR components in place.  
 
-he.ncdef.vars.shading_error = he.ncdef.vars.airmass;
-he.vdata.shading_error = zeros(size(he.vdata.airmass));
-he.vdata.shading_error(sun_) = ff;
-he.vatts.shading_error = he.vatts.airmass; 
-he.vatts.shading_error.long_name = 'Shading error as a fraction of direct component misplaced'; 
-he.vatts.integration_time.units = '1'; 
-
-he.ncdef.vars.dirh_ffixed = he.ncdef.vars.dirh_raw_fsb;
-he.vdata.dirh_ffixed = he.vdata.dirh_raw_fsb;
-he.vdata.dirh_ffixed(:,sun_) = he.vdata.dirh_raw_fsb(:,sun_) .*(1+ ones(size(he.vdata.wavelength))*ff);
-he.vatts.dirh_ffixed = he.vatts.dirh_raw_fsb; 
-he.vatts.dirh_ffixed.long_name = 'Direct horiz., FSB max-min method, fixed to MFRSR DDR'; 
-he.vatts.dirh_ffixed.units = '1/ms'; 
-
-he.ncdef.vars.difh_ffixed = he.ncdef.vars.difh_raw_fsb;
-% he_fix.difh_fix(sun_,:) = he.difh_raw_new(sun_,:) - he.dirh_raw_new(sun_,:).*(mean(ff,2)*ones(size(wl)));
-he.vdata.difh_ffixed = he.vdata.difh_raw_fsb;
-he.vdata.difh_ffixed(:,sun_) = he.vdata.difh_raw_fsb(:,sun_) - ...
-    he.vdata.dirh_raw_fsb(:,sun_).*(ones(size(he.vdata.wavelength))*ff); 
-he.vatts.difh_ffixed.long_name = 'Diffuse hemisp., FSB max-min method, fixed to MFRSR DDR'; 
-he.vatts.difh_ffixed.units = '1/ms'; 
- 
-he.ncdef.vars.DNDR_raw = he.ncdef.vars.difh_raw_fsb;
-he.vdata.DNDR_raw = (ones(size(he.vdata.wavelength))*he.vdata.airmass).* he.vdata.dirh_raw_fsb./he.vdata.difh_raw_fsb;
-he.vatts.DNDR_raw = he.vatts.difh_raw_fsb; 
-he.vatts.DNDR_raw.long_name = 'Direct Normal to Diffuse Hemis Ratio: dirn/difh_raw'; 
-he.vatts.DNDR_raw.units = '1'; 
-
-he.ncdef.vars.DNDR_ffixed = he.ncdef.vars.difh_ffixed;
-he.vdata.DNDR_ffixed = (ones(size(he.vdata.wavelength))*he.vdata.airmass).* he.vdata.dirh_ffixed./he.vdata.difh_ffixed;
-he.vatts.DNDR_ffixed = he.vatts.difh_raw_fsb; 
-he.vatts.DNDR_ffixed.long_name = 'Direct Normal to Diffuse Hemisp Ratio: dirn_ffixed/difh_ffixed'; 
-he.vatts.DNDR_ffixed.units = '1'; 
-
-
-% DNDR_orig = he.dirh_raw_new./he.difh_raw_new;
-% DNDR_orig = DNDR_orig.*(am*ones(size(wl)));
+% he.ncdef.vars.shading_error = he.ncdef.vars.airmass;
+% he.vdata.shading_error = zeros(size(he.vdata.airmass));
+% he.vdata.shading_error(sun_) = ff;
+% he.vatts.shading_error = he.vatts.airmass; 
+% he.vatts.shading_error.long_name = 'Shading error as a fraction of direct component misplaced'; 
+% he.vatts.integration_time.units = '1'; 
 % 
-% he_fix.DNDR_fix = he_fix.dirh_fix./he_fix.difh_fix;
-% he_fix.DNDR_fix(sun_,:) = he_fix.DNDR_fix(sun_,:).*(am(sun_)*ones(size(wl)));
+% he.ncdef.vars.dirh_ffixed = he.ncdef.vars.dirh_raw_fsb;
+% he.vdata.dirh_ffixed = he.vdata.dirh_raw_fsb;
+% he.vdata.dirh_ffixed(:,sun_) = he.vdata.dirh_raw_fsb(:,sun_) .*(1+ ones(size(he.vdata.wavelength))*ff);
+% he.vatts.dirh_ffixed = he.vatts.dirh_raw_fsb; 
+% he.vatts.dirh_ffixed.long_name = 'Direct horiz., FSB max-min method, fixed to MFRSR DDR'; 
+% he.vatts.dirh_ffixed.units = '1/ms'; 
+% 
+% he.ncdef.vars.difh_ffixed = he.ncdef.vars.difh_raw_fsb;
+% % he_fix.difh_fix(sun_,:) = he.difh_raw_new(sun_,:) - he.dirh_raw_new(sun_,:).*(mean(ff,2)*ones(size(wl)));
+% he.vdata.difh_ffixed = he.vdata.difh_raw_fsb;
+% he.vdata.difh_ffixed(:,sun_) = he.vdata.difh_raw_fsb(:,sun_) - ...
+%     he.vdata.dirh_raw_fsb(:,sun_).*(ones(size(he.vdata.wavelength))*ff); 
+% he.vatts.difh_ffixed.long_name = 'Diffuse hemisp., FSB max-min method, fixed to MFRSR DDR'; 
+% he.vatts.difh_ffixed.units = '1/ms'; 
+%  
+% he.ncdef.vars.DNDR_raw = he.ncdef.vars.difh_raw_fsb;
+% he.vdata.DNDR_raw = (ones(size(he.vdata.wavelength))*he.vdata.airmass).* he.vdata.dirh_raw_fsb./he.vdata.difh_raw_fsb;
+% he.vatts.DNDR_raw = he.vatts.difh_raw_fsb; 
+% he.vatts.DNDR_raw.long_name = 'Direct Normal to Diffuse Hemis Ratio: dirn/difh_raw'; 
+% he.vatts.DNDR_raw.units = '1'; 
+% 
+% he.ncdef.vars.DNDR_ffixed = he.ncdef.vars.difh_ffixed;
+% he.vdata.DNDR_ffixed = (ones(size(he.vdata.wavelength))*he.vdata.airmass).* he.vdata.dirh_ffixed./he.vdata.difh_ffixed;
+% he.vatts.DNDR_ffixed = he.vatts.difh_raw_fsb; 
+% he.vatts.DNDR_ffixed.long_name = 'Direct Normal to Diffuse Hemisp Ratio: dirn_ffixed/difh_ffixed'; 
+% he.vatts.DNDR_ffixed.units = '1'; 
 
-figure; 
-ax(1) = subplot(2,1,1); 
-plot(he.time, he.vdata.DNDR_raw(pixel(1),:), 'k.', he.time(sun_), he.vdata.DNDR_ffixed(pixel(1),sun_),'.',mfr.time, mfr.vdata.direct_diffuse_ratio_filter1, '-');
-dynamicDateTicks; legend('orig ddr','fixed ddr','mfr ddr');
-ax(2) = subplot(2,1,2);
-plot(he.time, he.vdata.dirh_raw_fsb(pixel(1),:), 'k.', he.time(sun_), he.vdata.dirh_ffixed(pixel(1), sun_),'.',mfr.time, 380.*mfr.vdata.direct_horizontal_narrowband_filter1, '-');
- legend('orig dirh','fixed dirh','mfr dirh'); 
- dynamicDateTicks; logy;linkaxes(ax,'x'); 
- if isavar('v')
-     axis(ax(1),v)
- end
-
-% figure; plot(he_fix.time(sun_), he_fix.difh_fix(sun_,pixel(2)),'-o');
-% figure; plot(he_fix.time(sun_), he_fix.difh_fix(sun_,pixel(1)).*am,'-'); dynamicDateTicks; xlim(v(1:2))    
-% figure; plot(he_fix.time(sun_), ff,'r-' ); xlim(v(1:2)); dynamicDateTicks;
 
 
-% Decide whether and how to flag or mask unacceptable f (flag f<0 and
-% f>=dif/dirh 
 
 end

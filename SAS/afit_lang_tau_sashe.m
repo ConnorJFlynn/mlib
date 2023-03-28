@@ -1,4 +1,4 @@
-function [ttau, lang_legs, dirbeams, rVos, ttau2, llegs2, rVos2, dbeams] = afit_lang_tau_series(ttau, lang_legs, rVos)
+function [ttau, lang_legs, dirbeams, rVos, ttau2, llegs2, rVos2, dbeams] = afit_lang_tau_sashe(ttau, lang_legs, rVos)
 % [lang_legs, ttau, rVos, dirbeams, ttau2] = afit_lang_tau_series(ttau, lang_legs, rVos)
 % v0.9 beta; Connor Flynn 2022-10-11, working to clean up, esp dbeam(s)
 % Almost there.  TOD and AOD not computed properly from Vos, but very close.
@@ -32,7 +32,7 @@ function [ttau, lang_legs, dirbeams, rVos, ttau2, llegs2, rVos2, dbeams] = afit_
 % screen.
 
 % Clean up SASHe: Use MFRSR DDR to address SASHe banding issues and yield presumably
-% calibratable direct beam. Attempt to calibrate with tau-lang using afit above.
+% calibratible direct beam. Attempt to calibrate with tau-lang using afit above.
 % Assess SASHe AODs vs afit.  If poor fit, then consider directly scaling SASHe to
 % aod-fit at 3 points, zenith and horizon, interpolating between.
 
@@ -107,7 +107,7 @@ if ~isavar('rVos')  % We need to load dirbeam(s), execute tau-langley to generat
    % load dirbeam streams
    % One lang_leg at a time, run tau_lang for each filter/wl
    dirbeam = load_dirbeam;
-  [dirbeams, langs, ~, rVos] = calc_Vos_from_dirbeam(dirbeam, lang_legs);
+  [Vos, rVos, lang_legs] = calc_Vos_for_dirbeam_from_ttau(dirbeam, lang_legs, ttau);
   elseif isempty(rVos) % An empty Vo has been passed in signaling we should load presaved
    Vo = getfullname('*Vo.mat','Vo','Select a Vo mat file');
    while ~isempty(Vo)
@@ -149,10 +149,24 @@ if ~isavar('rVos')  % We need to load dirbeam(s), execute tau-langley to generat
    end
    % Vo has been passed in.  If empty, then we need to load Vos.
 end
+% Save the rVo file
+% Side-step to editor window, load C1, E13, and He files
+
+% This is complicated.  We have used ttau from anet and mfrsraod to obtain tod and used 
+% aod_fit within lang_legs to infer gaod and therefor tod_fit and Tr
+% Then apply Tr to sashe dirn to obtain Vo values and rVo.
+% This opens the door to infer SASHe dirt from dirn/Vo, and thus SASHe tod and aod by
+% subtracting gaod. We could then map this SASHe AOD to Anet AOD (which implicitly
+% adopts anet cloud-screen) to generate a regression against anet.
+
+% We could also 
+
+
+% (in ttau) and aod_fit (in lang_legs and related it to ttau)
 % At this point, we have generated rVos and recalibrated provided dirbeams
 % Now, compute new best fit, new langs, new Vo2 and rVo2s
 if ~isavar('tags') tags = []; end
-[ttau2, dirbeams2] = calc_ttau2_dbeams(ttau, dirbeams, rVos);
+[ttau2, dirbeams2] = calc_ttau2_dbeams(ttau, dirbeam, rVos);
 
 % Then compose ttau2 into lang_legs2 with corresponding fitted-aod
 
@@ -368,7 +382,7 @@ for tg = length(tags):-1:1
    langs2.Co_AU = langs2.Co;
    langs2.tag = dbeam.tag;
    Vos2.(dbeam.tag) = langs2;
-   rVos2.(dbeam.tag) = rVos_from_lang_Vos(Vos2.(dbeam.tag), 30,1);
+   rVos2.(dbeam.tag) = rVos_from_lang_Vos(Vos2.(dbeam.tag), 21,1);
    % So now interpolate these daily rVos2s to the native times of their respective
    % dbeam, and compute dirt and tod
    dbeam.Vo_AU =interp1(rVos2.(dbeam.tag).time_UT, rVos2.(dbeam.tag).Vo_AU',dbeam.time, 'nearest')';
@@ -414,7 +428,7 @@ ttau.time_LST = [];
 ttau.airmass = [];
 ttau.pres_atm = [];
 ttau.nm = [];
-ttau.aod = [];
+ttau.aod = [];ttau.tod = [];
 ttau.srctag = [];
 
 src = 0;
@@ -433,6 +447,9 @@ while ~isempty(cimfile)&&isafile(cimfile)
    aods = fields(cim);
    aod_ = foundstr(aods, 'AOD_')&foundstr(aods, 'nm_AOD');
    aods = aods(aod_);
+   tods = fields(cim);
+   tod_ = foundstr(tods, 'AOD_')&foundstr(tods, 'nm_Total');
+   tods = tods(tod_);
    for f = 1:length(aods)
       good = cim.(aods{f})>0 ;
       wl = sscanf(aods{f},'AOD_%f');
@@ -443,6 +460,7 @@ while ~isempty(cimfile)&&isafile(cimfile)
       ttau.nm = [ttau.nm; wl.*ones(size(cim.time(good)))];
       ttau.srctag = [ttau.srctag; src.*ones(size(cim.time(good)))];
       ttau.aod = [ttau.aod; cim.(aods{f})(good)];
+      ttau.tod = [ttau.tod; cim.(tods{f})(good)];      
       if isfield(cim,'Site_Latitude_Degrees')
          ttau.Lat = unique(cim.Site_Latitude_Degrees);
          ttau.Lat = ttau.Lat(1);
@@ -468,6 +486,8 @@ while ~isempty(mfr_files)
    flds = fields(mfr.vdata);
    qc_aod_ = foundstr(flds, 'qc_aerosol_optical_depth');
    qc_ii = find(qc_aod_);
+   tod = flds(foundstr(flds,'total_optical_depth')); tod = tod(~foundstr(tod,'qc_'));
+
    for qc = 1:sum(qc_aod_)
       wl = sscanf(mfr.gatts.(['filter',num2str(qc),'_CWL_measured']),'%f');
       ttau.time = [ttau.time; mfr.time'];
@@ -477,9 +497,10 @@ while ~isempty(mfr_files)
       ttau.srctag = [ttau.srctag; src.*ones([length(mfr.time),1])];
       qs = anc_qc_impacts(mfr.vdata.(flds{qc_ii(qc)}), mfr.vatts.(flds{qc_ii(qc)}));
       good = qs==0; sus = qs == 1;
-      good = qs<2; % To accept suspect, uncomment this line
+%      good = qs<2; % To accept suspect, uncomment this line
       tmp_aod = mfr.vdata.(flds{qc_ii(qc)-1})'; tmp_aod(~good) = NaN;
-      ttau.aod = [ttau.aod; tmp_aod];
+      tmp_tod = mfr.vdata.(tod{qc})'; tmp_tod(~good) = NaN;
+      ttau.aod = [ttau.aod; tmp_aod];ttau.tod = [ttau.tod; tmp_tod];
       if isfield(mfr.vdata,'lat')
          ttau.Lat = unique(mfr.vdata.lat);
          ttau.Lat = ttau.Lat(1);
@@ -497,9 +518,10 @@ ttau.pres_atm = ttau.pres_atm(ij)./1013.25; % Units of atm
 ttau.nm = ttau.nm(ij);
 ttau.srctag = ttau.srctag(ij);
 ttau.aod = ttau.aod(ij);
-bad = ttau.time<0 | ttau.airmass<0 | ttau.aod <0| isnan(ttau.time)|isnan(ttau.airmass)|isnan(ttau.aod);
+ttau.tod = ttau.tod(ij);
+bad = ttau.time<0 | ttau.airmass<0 | ttau.aod <0| isnan(ttau.time)|isnan(ttau.airmass)|isnan(ttau.aod)|isnan(ttau.tod);
 ttau.time(bad) = [];ttau.airmass(bad) = []; ttau.pres_atm(bad) = [];
-ttau.nm(bad) = [];ttau.srctag(bad) = []; ttau.aod(bad) = [];
+ttau.nm(bad) = [];ttau.srctag(bad) = []; ttau.aod(bad) = []; ttau.tod(bad) = [];
 ttau.time_LST = ttau.time + double(ttau.Lon/15)./24;
 ttau.src_str = src_str;
 
@@ -551,7 +573,7 @@ while dd <= length(dates)
    %     fig22 = figure_(22); set(fig22,'visible','off')
    AM_str = ['AM_',datestr(dates(dd),'yyyymmdd')];
    PM_str = ['PM_',datestr(dates(dd),'yyyymmdd')];
-   this_day = day==dates(dd)&ttau.airmass<6&ttau.airmass>1.5;
+   this_day = day==dates(dd)&ttau.airmass<6&ttau.airmass>.9;
    this_i = find(this_day,1);
    %     src_str{unique(ttau.srctag(this_day))}
    AM_leg.airmass = []; AM_leg.pres_atm = []; AM_leg.aod_fit = []; AM_leg.time_UT = []; AM_leg.time_LST = []; AM_leg.nm = []; AM_leg.src = [];
@@ -675,7 +697,7 @@ while dd <= length(dates)
    if ~isfield(lang_legs,PM_str)&&length(PM_leg.airmass)>10&&(PM_range>3)&&(min(PM_leg.airmass)<3.5)&&(max(PM_leg.airmass)>4.5)
       lang_legs.(PM_str)=PM_leg;
    end
-   length(dates) - dd
+   disp(length(dates) - dd)
    dd = dd +1;
 end
 % Save lang_legs...
@@ -815,14 +837,14 @@ if ~isempty(dirbeam_files)
       [~, ~, AU, ~, ~, ~, ~] = sunae(0, 0, time');
       for fld = 1:length(fields)
          field = fields{fld};
-         dirn = infile.(field)';
-         dirbeam.time =[dirbeam.time, infile.time(dirn>0)'];
+         tod = infile.(field)';
+         dirbeam.time =[dirbeam.time, infile.time(tod>0)'];
          wl = sscanf(field,'AOD_%f');
-         dirbeam.wl = [dirbeam.wl,zeros(size(dirn(dirn>0)))+wl];
-         dirbeam.dirn = [dirbeam.dirn, exp(-dirn(dirn>0).*infile.Optical_Air_Mass(dirn>0)')];
+         dirbeam.wl = [dirbeam.wl,zeros(size(tod(tod>0)))+wl];
+         dirbeam.dirn = [dirbeam.dirn, exp(-tod(tod>0).*infile.Optical_Air_Mass(tod>0)')];
          % isn't this really "dirt"?
-         dirbeam.oam = [dirbeam.oam, infile.Optical_Air_Mass(dirn>0)'];
-         dirbeam.AU = [dirbeam.AU, AU(dirn>0)];
+         dirbeam.oam = [dirbeam.oam, infile.Optical_Air_Mass(tod>0)'];
+         dirbeam.AU = [dirbeam.AU, AU(tod>0)];
       end
    end
    [dirbeam.time, ij] = sort(dirbeam.time);
@@ -865,93 +887,160 @@ if ~isempty(dirbeam_files)
 end
 end
 
-function [dirbeams, langs, Vos, rVos] = calc_Vos_from_dirbeam(dirbeam, lang_legs)
-
+function [Vos, rVos, lang_legs] = calc_Vos_for_dirbeam_from_ttau(dirbeam, lang_legs, ttau)
+% This is a hack making use of the fact that we're currently only after values for He
+beam.wls = []; beam.time_LST = []; beam.tod_fit = []; beam.gaod = [];
 while ~isempty(dirbeam)
-   langs.pname = dirbeam.pname;
-   langs.fname = dirbeam.fname;
-   langs.nm = [];
-   langs.time_UT = []; langs.time_LST = [];
-   langs.ngood = [];
-   langs.min_oam = [];
-   langs.max_oam = [];
-   langs.Co = [];
-   langs.Co_uw = [];
    leg_name = fieldnames(lang_legs);
    for L = 1:length(leg_name)
       leg = lang_legs.(leg_name{L});
-      %          wl_x = interp1(leg.wl, [1:length(leg.wl)],[1020,1700],'nearest');
-      title_str = leg_name{L}; disp(title_str);
-      %        figure_(9); title(title_str);
-      for wl_ii = length(dirbeam.wls):-1:1
-         nm = dirbeam.wls(wl_ii);
-         L_ = (dirbeam.wl==nm)&(dirbeam.time>=leg.time_UT(1))&(dirbeam.time<=leg.time_UT(end));
-         if sum(L_)>4
-            WL.nm = nm; WL.AU = mean(dirbeam.AU(L_));WL.pres_atm = mean(leg.pres_atm);
-            WL.time = dirbeam.time(L_); WL.time_LST = dirbeam.time_LST(L_); WL.dirn = dirbeam.dirn(L_);
-            WL.oam = dirbeam.oam(L_);
-
-            %Interpolate leg.aod_fit (in log-log space) to match wl of filter
-            % Probably also interpolate in time to match times of mfr "minl" but in this case it is 1:1
-            % Also, interpolate atm_pres_hPa from leg to wl, scale rayOD
-            WL.RayOD = rayleigh_ht(nm./1000);
-            aod_fit = exp(interp1(log(leg.wl), log(leg.aod_fit'), log(nm),'linear'))';
-            WL.aod = interp1(leg.time_UT, aod_fit, WL.time','linear')';
-            WL.iT_g = exp(WL.RayOD.*WL.pres_atm.*WL.oam); % Inverse gas transmittance (so multiply by instead of divide)
-            %                try
-            if ~isempty(WL.oam)&&~isempty(WL.aod)&&~isempty(WL.iT_g)&&~isempty(WL.dirn)
-               [Co,~,Co_, ~, good] = dbl_lang(WL.oam.*WL.aod,WL.iT_g.*WL.dirn,2.25,[],1,0);
-               aod_lang = -log(WL.dirn./mean([Co, Co_]))./WL.oam - WL.RayOD.*WL.pres_atm;
-               %             figure_(9); plot(WL.time(good), aod_lang(good),'.'); legend(num2str(nm));dynamicDateTicks; hold('on'); title(title_str);
-               if ~isempty(Co)&&~isempty(Co_)&&sum(good)>=10 && ...
-                     (((max(WL.oam(good))./min(WL.oam(good)))>=2.75)||...
-                     ((max(WL.oam(good))-min(WL.oam(good)))>2.75))
-                  langs.nm(end+1) = nm;
-                  langs.time_UT(end+1) = mean(WL.time(good)) ;
-                  langs.time_LST(end+1) = mean(WL.time_LST(good)) ;
-                  langs.ngood(end+1) = sum(good);
-                  langs.min_oam(end+1) = min(WL.oam(good));
-                  langs.max_oam(end+1) = max(WL.oam(good));
-                  langs.pres_atm = WL.pres_atm;
-                  langs.Co(end+1) = Co;
-                  langs.Co_uw(end+1) = Co_;
-               end
-            end
-            %                catch
-            %                   warning('Try, catch tripped.  Possible issue with polyfit within dbl_lang')
-            %                end
-         end
+      try
+         [Vos.time_LST(L), Vos.wls, Vos.Vo(L,:), leg] = this(ttau, leg, dirbeam);
+         lang_legs.(leg_name{L})=leg;
+      catch
+         Vos.time_LST(L) = mean(leg.time_LST);
+         Vos.wls = dirbeam.wls;
+         Vos.Vo(L,:) = NaN(size(dirbeam.wls));
       end
-      %       pause(.125); close(9);
-      %       end
+      if isfield(leg,'beam')&&isfield(leg.beam,'gaod')&&~isempty(leg.beam.time_LST)
+         beam.wls = leg.beam.wls;
+         beam.time_LST = [beam.time_LST;leg.beam.time_LST];
+         beam.tod_fit = [beam.tod_fit; leg.beam.tod_fit];
+         beam.gaod = [beam.gaod; leg.beam.gaod];
+      end
    end
-   if ~isempty(langs.time_UT)
-      [~, ~, langs.AU, ~, ~, ~, ~] = sunae(0, 0, langs.time_UT);
+   Vos.time_LST(find(isNaN(Vos.time_LST))) = interp1(find(~isNaN(Vos.time_LST)), Vos.time_LST(~isNaN(Vos.time_LST)), find(isNaN(Vos.time_LST)),'linear');
+   if ~isempty(Vos.time_LST)
+      [~, ~, Vos.AU, ~, ~, ~, ~] = sunae(0, 0, Vos.time_LST');
    else
       disp('empty time_UT');
    end
-   %The following lines attempt to address the fact that anet and sashe*aod direct beam is 
+
+   %The following lines attempt to address the fact that anet and sashe*aod direct beam is
    % transmittance derived from the AODs rather than direct normal irradiance.
    % Transmittance already has AU correction built in so set Co_AU = Co.
-   if foundstr(langs.fname, 'mfr')||(foundstr(langs.fname, 'sashe')&&~foundstr(langs.fname,'aod'))
-      langs.Co_AU = langs.Co.*(langs.AU.^2);
-   elseif (foundstr(langs.fname, 'sashe')&&foundstr(langs.fname,'aod'))
-      langs.Co_AU = langs.Co;
-   else
-      langs.Co_AU = langs.Co;
+
+   Vos.Vo_AU = Vos.Vo;
+   Vos.time_LST = Vos.time_LST';
+   rVos = rVos_from_Tr_Vos(Vos, 40,2);
+
+
+   for w = length(beam.wls):-1:1
+     bad = isnan(beam.tod_fit(:,w));
+     beam.tod_fit(bad,w) = interp1(beam.time_LST(~bad), beam.tod_fit(~bad,w), beam.time_LST(bad),'linear');
+     bad = isnan(beam.gaod(:,w));
+     beam.gaod(bad,w) = interp1(beam.time_LST(~bad), beam.gaod(~bad,w), beam.time_LST(bad),'linear');
+     bad = isnan(beam.gaod(:,w));
+     beam.gaod(bad,w) = interp1(beam.time_LST(~bad), beam.gaod(~bad,w), beam.time_LST(bad),'nearest','extrap');
    end
-   langs.tag = dirbeam.tag;
-   save([langs.pname, langs.fname, '_Vo.mat'],'-struct','langs');
-   Vos.(dirbeam.tag) = langs;
-   rVos.(dirbeam.tag) = rVos_from_lang_Vos(Vos.(dirbeam.tag), 21,1);
-   dirbeams.(dirbeam.tag) = dirbeam;
-   dirbeam = load_dirbeam;
+
+   He = load(getfullname('sgpsashemfrddr.b1.20220501.mat','sashemfrddr','Select re-balanced SASHe file')); % I think I do need to load this from disk since I've modified these to balance DDR
+   tz = double(floor(He.vdata.lon./15)./24);
+   guey = load('guey');guey = guey.guey;
+   TOA = interp1(guey(:,1), guey(:,3),rVos.nm','linear');
+   [ ~, ~, AU] = sunae(0,0,He.time);
+   dirn(1,:) = He.vdata.direct_normal_415nm; dirn(2,:) = He.vdata.direct_normal_500nm;
+   dirn(3,:) = He.vdata.direct_normal_615nm; dirn(4,:) = He.vdata.direct_normal_673nm; dirn(5,:) = He.vdata.direct_normal_870nm;
+
+
+   dates = [(datenum(2022,5,1)-tz):(datenum(2022,7,31)-tz)];
+   dt_ = rVos.time_LST>=min(dates) & rVos.time_LST<=max(dates);
+   for n = 5:-1:1
+      P_Vo(n,:) = polyfit(rVos.time_LST(dt_), rVos.Vo_AU(n,dt_), 1);
+      rVo(n,:) = polyval(P_Vo(n,:), He.time);
+      Vo_date(n,:) = polyval(P_Vo(n,:), dates)';
+      bad = dirn(n,:) <0; dirn(n,bad) = NaN;
+      Tr(n,:) = (AU.^2 .* dirn(n,:))./rVo(n,:); 
+      dirn_Tr(n,:) = Tr(n,:).*TOA(n)./AU.^2;
+      tod(n,:) = -log(Tr(n,:))./(He.vdata.airmass);
+      gaod(n,:) = interp1(beam.time_LST, beam.gaod(:,n), He.time-tz, 'nearest','extrap');
+   end
+   aod = tod-gaod;
+
+   for dt = 1:length(dates)
+      Vo_day = Vo_date(:,dt);
+      done = false; w = 1;
+      xl_ = He.time>=dates(dt) & He.time<(dates(dt)+1);
+      ang_xl = [3,4]; % Initial default for angstrom range
+      Trx = Tr(w,:); aodx = aod(w,:); 
+      figure_(1); %Date/time series of Vo_date and Vo_day for currently selected filter #
+      yl = ylim; plot(rVos.time_LST, rVos.Vo_AU(w,:),'o',dates, Vo_date(w,:),'-',dates(dt), Vo_day(w),'r*'); dynamicDateTicks; title('rVo time-series'); ylim(yl);
+      figure_(2);yl =ylim;% Time-series of dirn or Tr for all 5 channels for current day centered at noon LST
+      plot([dates(dt),He.time(xl_)], [NaN([5,1]),Tr(:,xl_)], '-',[dates(dt),He.time(xl_)], [NaN,Trx(xl_)], 'k.'); dynamicDateTicks; title('Tr vs time'); ylim(yl);
+      figure_(3); % All AODs vs time_LST
+      yl =ylim; plot([dates(dt),He.time(xl_)], [NaN([5,1]),aod(:,xl_)], '-',[dates(dt),He.time(xl_)], [NaN,aodx(xl_)], 'k.'); dynamicDateTicks; title('aod vs time'); ylim(yl);
+      figure_(4); % Selected AOD vs time_LST
+      yl =ylim; plot([dates(dt),He.time(xl_)], [NaN,aodx(xl_)], 'k.'); dynamicDateTicks; title(['Filter ',num2str(w),' aod vs time']); ylim(yl);
+      figure_(5); % Selected AOD vs airmass
+      yl =ylim; plot([1,He.vdata.airmass(xl_)], [NaN([5,1]),aod(:,xl_)], '-',[1,He.vdata.airmass(xl_)], [NaN,aodx(xl_)], 'k.'); title('aod vs airmass'); ylim(yl);
+      figure_(6); % Angstrom exponent over some range
+      ang_ = xl_& He.vdata.airmass>=ang_xl(1)&He.vdata.airmass<=ang_xl(2);
+      angx = nanmean(aod(:,ang_),2);
+      yl = ylim; plot([415,500,615,673,870],angx,'o-');ylim(yl); logx; if min(angx)>0 logy; end
+
+      while ~done
+         go = menu('Select an option',['Set filter # <',num2str(w),'>'],'+0.1','+0.01','-0.01','-0.1',...
+            ['Set Vo: <',num2str(Vo_day(w)),'>'],'Set angstrom OAM range', ['Done with ',datestr(dates(dt))]);
+         if go==1
+            w = 0;
+            while w==0
+               w = menu('Channel:', '1 = 415 nm','2 = 500 nm', '3 = 615 nm', '4 = 676 nm', '5 = 870 nm');
+            end
+         elseif go==2
+            Vo_day(w) = Vo_day(w) + .1;
+         elseif go==3
+            Vo_day(w) = Vo_day(w) + .01;
+         elseif go==4
+            Vo_day(w) = Vo_day(w) - .01;
+         elseif go==5
+            Vo_day(w) = Vo_day(w) - .1;
+         elseif go==6
+            tmp = input(['New Vo value <',num2str(Vo_day(w)),'> : ']);
+            if ~isempty(tmp)&&tmp>0
+               Vo_day(w) = tmp;
+            end
+         elseif go==7
+            figure_(5); orig_xl = xlim;
+            zoom('on'); ang = menu({'Zoom into airmass range of figure 5 to use for Angstrom';'Hit OK to set new range or Skip'},'OK','Skip');
+            if ang==1
+               ang_xl = xlim;
+            end
+            xlim(orig_xl);
+         elseif go==8
+            done = true;
+         end
+
+         Tr(w,:) = (AU.^2 .* dirn(w,:))./Vo_day(w);
+         dirn_Tr(w,:) = Tr(w,:).*TOA(w)./AU.^2;
+         tod(w,:) = -log(Tr(w,:))./(He.vdata.airmass);
+         aod(w,:) = tod(w,:) - gaod(w,:);
+
+         Trx = Tr(w,:); aodx = aod(w,:);
+         figure_(1); %Date/time series of Vo_date and Vo_day for currently selected filter #
+         yl = ylim; plot(rVos.time_LST, rVos.Vo_AU(w,:),'o',dates, Vo_date(w,:),'-',dates(dt), Vo_day(w),'r*'); dynamicDateTicks; title('rVo time-series'); ylim(yl);
+         figure_(2);yl =ylim;% Time-series of dirn or Tr for all 5 channels for current day centered at noon LST
+         plot([dates(dt),He.time(xl_)], [NaN([5,1]),Tr(:,xl_)], '-',[dates(dt),He.time(xl_)], [NaN,Trx(xl_)], 'k.'); dynamicDateTicks; title('Tr vs time'); ylim(yl);
+         figure_(3); % All AODs vs time_LST
+         yl =ylim; plot([dates(dt),He.time(xl_)], [NaN([5,1]),aod(:,xl_)], '-',[dates(dt),He.time(xl_)], [NaN,aodx(xl_)], 'k.'); dynamicDateTicks; title('aod vs time'); ylim(yl);
+         figure_(4); % Selected AOD vs time_LST
+         yl =ylim; plot([dates(dt),He.time(xl_)], [NaN,aodx(xl_)], 'k.'); dynamicDateTicks; title(['Filter ',num2str(w),' aod vs time']); ylim(yl);
+         figure_(5); % Selected AOD vs airmass
+         yl =ylim; plot([1,He.vdata.airmass(xl_)], [NaN([5,1]),aod(:,xl_)], '-',[1,He.vdata.airmass(xl_)], [NaN,aodx(xl_)], 'k.'); title('aod vs airmass'); ylim(yl);
+         figure_(6); % Angstrom exponent over some range
+         ang_ = xl_& He.vdata.airmass>=ang_xl(1)&He.vdata.airmass<=ang_xl(2);
+         angx = nanmean(aod(:,ang_),2);
+         yl = ylim; plot([415,500,615,673,870],angx,'o-');ylim(yl); logx; if min(angx)>0 logy; end
+
+      end
+   end
+
+   dirbeam = [];
 end
-pname = langs.pname; pname(end)= [];
-pname = fileparts(pname); [pname, fname] = fileparts(pname);
-pname = [pname, filesep, fname, filesep];
-save([pname, upper(fname), '_rVos.mat'],'-struct','rVos');
-save([pname, upper(fname), '_DirBeams.mat'],'-struct','dirbeams');
+% pname = langs.pname; pname(end)= [];
+% pname = fileparts(pname); [pname, fname] = fileparts(pname);
+% pname = [pname, filesep, fname, filesep];
+% save([pname, upper(fname), '_rVos.mat'],'-struct','rVos');
+% save([pname, upper(fname), '_DirBeams.mat'],'-struct','dirbeams');
 end
 
 
@@ -993,6 +1082,7 @@ for t = 1:length(tags)
    % I think this line was introduced to handle ANET values that are derived from TOD
    % and thus represent direct transmitance, so don't require AU correction
    % But it might also be useful for SASHe files that have direct_trans also
+   % Have to read this carefully to notice difference between .AU and .Vo_AU
    if ~isfield(dirbeam,'dirt') && isfield(dirbeam,'dirn') && isfield(dirbeam, 'AU');
       dirbeam.dirt = (dirbeam.dirn.*dirbeam.AU.^2)./dirbeam.Vo_AU;
    else

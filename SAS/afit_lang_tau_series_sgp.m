@@ -412,17 +412,20 @@ if ~isavar('Vo')
          end
          %       pause(.125); close(9);
          %       end
-   end
-   [~, ~, langs.AU, ~, ~, ~, ~] = sunae(0, 0, langs.time_UT);
-    
-   if foundstr(langs.fname, 'mfr')
-      langs.Vo_AU = langs.Vo.*(langs.AU.^2);
-   else
-      langs.Vo_AU = langs.Vo;
-   end
-   save([langs.pname, langs.fname, '_Vo.mat'],'-struct','langs');
-%    figure;
-%    scatter(langs.time_UT, langs.Vo, 8,langs.nm); title(dirbeam.fname); dynamicDateTicks
+      end
+      if ~isempty(langs.time_UT)
+         [~, ~, langs.AU, ~, ~, ~, ~] = sunae(0, 0, langs.time_UT);
+
+         if foundstr(langs.fname, 'mfr')
+            langs.Vo_AU = langs.Vo.*(langs.AU.^2);
+         else
+            langs.Vo_AU = langs.Vo;
+         end
+
+         save([langs.pname, langs.fname, '_Vo.mat'],'-struct','langs');
+      end
+      %    figure;
+      %    scatter(langs.time_UT, langs.Vo, 8,langs.nm); title(dirbeam.fname); dynamicDateTicks
 %    figure;
 %    scatter(langs.time_UT, langs.Vo_uw, 8,langs.nm); title(dirbeam.fname); dynamicDateTicks
 
