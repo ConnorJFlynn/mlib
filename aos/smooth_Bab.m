@@ -59,24 +59,24 @@ end
 
 Bab = interp1(time, Bab', time +(ss/2)./(24*60*60), 'nearest','extrap')';
 
-dt = ss./(24*60*60); % factor of 2 to go from half-width to full-width
-dV_ss = zeros(size(sample_flow));
-abs_ss = zeros(size(sample_flow));
-for tt = (ss):length(sample_flow)-1
-   dt_ = time> time(tt)-dt & time <= time(tt);
-   st = sum(dt_);
-   % Compute volume of air drawn through filter over each window   
-   dV_ss(tt) = trapz(time(dt_)*24*60, sample_flow(dt_))';
-   % Compute absorbance as log of ratio of transmittances   
-   abs_ss(tt) = log(Tr(tt-st+1)./Tr(tt));
-end
-%Compute "length" of air, that is volume/spot_size_area
-% Convert from mm to meters
-dL_ss = 1000.*dV_ss./spot_area;
-% Compute absorption coefficients, aka absorbance per unit length
-% Convert from 1/m to 1/Mm
-Bab = 1e6.*abs_ss./dL_ss;
-Bab = interp1(time, Bab, time +(ss/2)./(24*60*60), 'nearest','extrap');
+% dt = ss./(24*60*60); % factor of 2 to go from half-width to full-width
+% dV_ss = zeros(size(sample_flow));
+% abs_ss = zeros(size(sample_flow));
+% for tt = (ss):length(sample_flow)-1
+%    dt_ = time> time(tt)-dt & time <= time(tt);
+%    st = sum(dt_);
+%    % Compute volume of air drawn through filter over each window   
+%    dV_ss(tt) = trapz(time(dt_)*24*60, sample_flow(dt_))';
+%    % Compute absorbance as log of ratio of transmittances   
+%    abs_ss(tt) = log(Tr(tt-st+1)./Tr(tt));
+% end
+% %Compute "length" of air, that is volume/spot_size_area
+% % Convert from mm to meters
+% dL_ss = 1000.*dV_ss./spot_area;
+% % Compute absorption coefficients, aka absorbance per unit length
+% % Convert from 1/m to 1/Mm
+% Bab = 1e6.*abs_ss./dL_ss;
+% Bab = interp1(time, Bab, time +(ss/2)./(24*60*60), 'nearest','extrap');
 
 % Shift x-axis to account for width of smoothing window
 %    s1 = -0.5./(24*60*60);

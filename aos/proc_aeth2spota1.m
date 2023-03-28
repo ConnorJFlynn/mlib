@@ -47,31 +47,6 @@ ae_data.time = aeth.time;
 ae_meta.vars = aeth.vatts;
 ae_meta.global = aeth.gatts;
 
-% Make figure, prompt user to zoom into region for normalization. 
-figure_(7) ; plot(aeth.time, ae_data.reference_intensity(2,:),'-'); dynamicDateTicks;
-menu('Zoom into a period of time over which to normalize the signals...','OK, done'); xl = xlim;
-
-xl_ = aeth.time>=xl(1) & aeth.time<=xl(2);
-ref = ae_data.reference_intensity; ref(ref<0) = NaN; mean_ref = meannonan(ref(:,xl_)')';
-figure_(7); these = plot(ae_data.time, ref(2,:)./(mean_ref(2)*ones(size(aeth.time))), '-'); 
-% recolor(these,ae_data.wavelength(2));
-dynamicDateTicks; axs(1) = gca; title('Reference'); 
-
-samp2 = aeth.vdata.sample_intensity_spot_2; samp2(samp2<0|isnan(ref)) = NaN; mean_samp2 = meannonan(samp2(:,xl_)')';
-figure_(8); these = plot(aeth.time, samp2(2,:)./(mean_samp2(2)*ones(size(aeth.time))), '-'); 
-% recolor(these,aeth.vdata.wavelength);
-dynamicDateTicks; axs(2) = gca; title('Intensity Spot 2'); 
-
-samp1 = aeth.vdata.sample_intensity_spot_1; samp1(samp1<0|isnan(ref)) = NaN; mean_samp1 = meannonan(samp1(:,xl_)')';
-
-figure_(9); these = plot(aeth.time, samp1(2,:)./(mean_samp1(2)*ones(size(aeth.time))), '-'); 
-% recolor(these,aeth.vdata.wavelength);
-dynamicDateTicks; axs(3) = gca; title('Intensity Spot 1'); 
-
-
-linkaxes(axs,'x');
-% linkexes(axs,'xy');
-
 % According to manual, define ATN0 when bit 1 = 0 and bit 2 = 1
 ii = find( ~bitget(aeth.vdata.instrument_status,1) & bitget(aeth.vdata.instrument_status,2));
 
@@ -81,17 +56,19 @@ Tr_1 = tr_1; Tr_2 = tr_2;
 for aa = ii
     Tr_1(:,aa:end) = tr_1(:,aa:end)./(tr_1(:,aa)*ones(size(aeth.time(aa:end))));
     Tr_2(:,aa:end) = tr_2(:,aa:end)./(tr_2(:,aa)*ones(size(aeth.time(aa:end))));
+    
 end
+ATN_1 = -100.*log(Tr_1);
 
-figure_; these = plot(aeth.time,Tr_1(2,:), '-'); title('Tr spot 1'); dynamicDateTicks;
+figure_; these = plot(aeth.time,Tr_1, '-'); title('Tr spot 1'); dynamicDateTicks;
 axs(4) = gca; % ylim([-.1, 1.1]);
 recolor(these,[aeth.vdata.wavelength ; aeth.vdata.wavelength]); colorbar;
 xl = xlim;
 
 
-figure; plot(aeth.time, ae_data.power_supply_temperature,'-'); dynamicDateTicks
-legend('power supply temperature');
-xlim(xl);
+% figure; plot(aeth.time, ae_data.power_supply_temperature,'-'); dynamicDateTicks
+% legend('power supply temperature');
+% xlim(xl);
 
 % ARM_display_beta;
  % According to Gunnar, we have tape 8050 with an assumed Zeta 0.025
@@ -111,19 +88,16 @@ disp('Be patient, the integral and smoother take a little while');
 
 tic
 [Bab_1_raw_1m, dV1_ss, dL1_ss] = smooth_Bab(aeth.time, aeth.vdata.sample_flow_rate_spot_1, Tr_1,60, spot_area);toc
-tic
-[Bab_1_raw_3m] = smooth_Bab(aeth.time, aeth.vdata.sample_flow_rate_spot_1, Tr_1,180, spot_area);toc
-[Bab_1_raw_2m] = smooth_Bab(aeth.time, aeth.vdata.sample_flow_rate_spot_1, Tr_1,120, spot_area);toc
+% tic
+% [Bab_1_raw_3m] = smooth_Bab(aeth.time, aeth.vdata.sample_flow_rate_spot_1, Tr_1,180, spot_area);toc
+% [Bab_1_raw_2m] = smooth_Bab(aeth.time, aeth.vdata.sample_flow_rate_spot_1, Tr_1,120, spot_area);toc
 [Bab_1_raw_30s] = smooth_Bab(aeth.time, aeth.vdata.sample_flow_rate_spot_1, Tr_1,30, spot_area);toc
 
-figure; plot(aeth.time, Bab_1_raw_30s(2,:), '.',aeth.time, Bab_1_raw_1m(2,:), 'x',...
-    aeth.time, Bab_1_raw_2m(2,:),'o',aeth.time, Bab_1_raw_3m(2,:),'*'); 
+figure; plot(aeth.time, Bab_1_raw_30s(2,:), '.',aeth.time, Bab_1_raw_1m(2,:), 'x'); 
 dynamicDateTicks;zoom('on');
-legend('Ba AE33 30s','Ba AE33 1m','Ba AE33 2m','Ba AA33 3m')
+legend('Ba AE33 30s','Ba AE33 1m')
 
 [Bab_2_raw_1m, dV2_ss, dL2_ss] = smooth_Bab(aeth.time, aeth.vdata.sample_flow_rate_spot_2, Tr_2,60, spot_area);toc
-[Bab_2_raw_5m] = smooth_Bab(aeth.time, aeth.vdata.sample_flow_rate_spot_2, Tr_2,300, spot_area);toc
-[Bab_2_raw_10s] = smooth_Bab(aeth.time, aeth.vdata.sample_flow_rate_spot_2, Tr_2,10, spot_area);toc
 
 
 Wein_C = 1.57; % Weingartner multiple scattering correction parameter C
@@ -135,8 +109,9 @@ Wein_C = 1.39; % C consistent with lab testing at TROPOS in Leipzig.
  % Wein_C = 1.39 and zeta correction applied. 
 zeta_leak = 0.025; 
 Bab_1_1m= Bab_1_raw_1m./(Wein_C.*(1-zeta_leak)); Bab_2_1m = Bab_2_raw_1m./(Wein_C.*(1-zeta_leak));
-
+psap1s = anc_load;
 figure; plot(aeth.time, Bab_1_raw_1m(2,:), '-x', psap1s.time, psap1s.vdata.Ba_B_raw,'kx-'); dynamicDateTicks
+figure; plot(aeth.time, Bab_1_1m(2,:), '-x', psap1s.time, psap1s.vdata.Ba_B_raw,'kx-'); dynamicDateTicks
 %The values for B2_raw and B1_raw are from the raw file reported by AE33
 B2_raw = aeth.vdata.equivalent_black_carbon_spot_2_uncorrected;
 B1_raw = aeth.vdata.equivalent_black_carbon_spot_1_uncorrected;
@@ -171,8 +146,8 @@ aeth_1m.ATN1 = interp1(aeth.time, ATN1',aeth_1m.time,'nearest')';
 aeth_1m.ATN2 = interp1(aeth.time, ATN2',aeth_1m.time,'nearest')';
 aeth_1m.K = (aeth_1m.B1_cjf-aeth_1m.B2_cjf)./(aeth_1m.B1_cjf.*aeth_1m.ATN2-aeth_1m.B2_cjf.*aeth_1m.ATN1);
 aeth_1m.K = downsample(K',60)';
-aeth_1m.Ba_1 = downsample(Bab_1',60)';
-aeth_1m.Ba_2 = downsample(Bab_2',60)';
+aeth_1m.Ba_1 = downsample(Bab_1_1m',60)';
+aeth_1m.Ba_2 = downsample(Bab_2_1m',60)';
 
 %The following samples are "downsampled" to a 5-minute grid
 aeth_5m.time = downsample(aeth.time,300);
@@ -185,8 +160,8 @@ aeth_5m.ATN1 = interp1(aeth.time, ATN1',aeth_5m.time,'nearest')';
 aeth_5m.ATN2 = interp1(aeth.time, ATN2',aeth_5m.time,'nearest')';
 aeth_5m.K = (aeth_5m.B1_cjf-aeth_5m.B2_cjf)./(aeth_5m.B1_cjf.*aeth_5m.ATN2-aeth_5m.B2_cjf.*aeth_5m.ATN1);
 aeth_5m.K = downsample(K',300)';
-aeth_5m.Ba_1 = downsample(Bab_1',300)';
-aeth_5m.Ba_2 = downsample(Bab_2',300)';
+aeth_5m.Ba_1 = downsample(Bab_1_1m',300)';
+aeth_5m.Ba_2 = downsample(Bab_2_1m',300)';
 
 %Compare the 5-minute averages of my computed BC values (which used a
 %60-degree sliding window in Transmittance) with a straight 5-minute
@@ -211,3 +186,23 @@ dynamicDateTicks;
 
 
 return
+
+xl_ = aeth.time>=xl(1)&aeth.time<xl(2);
+ae = anc_sift(aeth, xl_);
+
+figure; plot(ae.time, ae.vdata.equivalent_black_carbon_spot_1_uncorrected(1,:),'o',ae.time, ae.vdata.equivalent_black_carbon(1,:),'x'); dynamicDateTicks
+
+
+
+% ae1m is downsampled aeth to 1 min.
+ATN1 = 1100.*(log(Tr_1(1,:))); figure; plot(aeth.time, ATN1,'.'); legend('ATN1')
+ k1 = aeth.vdata.loading_correction_factor(1,:);
+ k_1m = interp1(aeth.time, k1, ae1m.time,'linear');
+ ATN1_1m = interp1(aeth.time, ATN1, ae1m.time,'linear');
+ BC1_raw =  ae1m.vdata.equivalent_black_carbon_spot_1_uncorrected(1,:);
+BC1 = BC1_raw./(1-k_1m.*ATN1_1m);
+%Now compare BC1 to equivalent_black_carbon(1,:);
+figure; plot(ae1m.time, BC1,'x',ae1m.time, ae1m.vdata.equivalent_black_carbon(1,:),'o');
+title('Check of eBC with infile k');
+legend('BC from k','BC from file')
+
