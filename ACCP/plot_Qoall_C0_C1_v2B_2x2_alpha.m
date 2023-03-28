@@ -289,7 +289,7 @@ bar([1:length(lay)],...
         'barwidth',1,'edgecolor','k','facealpha',.3); ylim([0,1]);
 set(gca,'position',[0.0808    0.5508    0.865    0.38]);
 set(gca,'xtick',[1:length(lay)]);set(gca, 'ytick',[0:.2:1]);
-set(gca,'XTickLabel',xtt); set(sq(1),'xaxislocation','top');
+set(gca,'XTickLabel',xt); set(sq(1),'xaxislocation','top');
 set(gca,'XTickLabelRot',0); set(gca,'FontSize',10);
 title (['Layer-resolved GVs, NAD, NAN: ', srfc{sfc}]);
 yl = ylabel({'(NADBC0+NADLC1)/2';'(NADBC0+NADLC0)/2'}); set(yl,'rotation',90); 
@@ -305,7 +305,7 @@ bar([1:length(lay)],...
         'barwidth',1,'edgecolor','k','facealpha',.3); ylim([0,1]);
 set(gca,'position',[0.0780    0.1214    0.865    0.38]);
 set(gca,'xtick',[1:length(lay)]);set(gca, 'ytick',[0:.2:1]);
-set(gca,'XTickLabel',xttx);
+set(gca,'XTickLabel',xtx);
 set(gca,'XTickLabelRot',30); set(gca,'FontSize',10);
 set(sq(2),'yaxislocation','left');
 yl = ylabel({'NANLC0';'(NANLC0+NANLC1)/2'}); set(yl,'rotation',90);

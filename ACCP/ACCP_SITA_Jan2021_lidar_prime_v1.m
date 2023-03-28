@@ -70,8 +70,8 @@ vi = vi';
 qnan = isNaN(QIS); len = length(QIS(~qnan));
 qnan = isNaN(RMS); len = length(RMS(~qnan));
 % Not really used.  Mainly just informative...
-% [Qall, Qgrp] = compute_Qall(QIS); % No objective weighting applied, only mean over objective-specified cases
-% [meanRMSE, Rgrp] = compute_Qall(RMS);
+[Qall, Qgrp] = compute_Qall(QIS); % No objective weighting applied, only mean over objective-specified cases
+[meanRMSE, Rgrp] = compute_Qall(RMS);
 % [meanMER, Mgrp] = compute_Qall(MER);
 
 %These are objective-weighted output, with and without adjustments.
