@@ -11,8 +11,8 @@ P_bar(1) = tan((ang_1 + ang_2)./2);
 % Don't take mean of intercepts, take intercept using mean slope with mean X and Y
 P_bar(2) = mean(Y) - P_bar(1).*mean(X);
 
-P_bar = (P + 1./P_)./2;
-P_bar(2) = (P(2) - P_(2)./P_(1))./2;
+% P_bar = (P + 1./P_)./2;
+% P_bar(2) = (P(2) - P_(2)./P_(1))./2;
 
 stats = fit_stat(X,Y,P_bar,S);
 
