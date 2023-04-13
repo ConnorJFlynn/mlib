@@ -922,7 +922,7 @@ while ~isempty(dirbeam)
 
    Vos.Vo_AU = Vos.Vo;
    Vos.time_LST = Vos.time_LST';
-   rVos = rVos_from_Tr_Vos(Vos, 40,2);
+   rVos = rVos_from_Tr_Vos(Vos, 50,2);
 
 
    for w = length(beam.wls):-1:1
@@ -934,7 +934,9 @@ while ~isempty(dirbeam)
      beam.gaod(bad,w) = interp1(beam.time_LST(~bad), beam.gaod(~bad,w), beam.time_LST(bad),'nearest','extrap');
    end
 
-   He = load(getfullname('sgpsashemfrddr.b1.20220501.mat','sashemfrddr','Select re-balanced SASHe file')); % I think I do need to load this from disk since I've modified these to balance DDR
+
+   He_fname = getfullname('sgpsashemfrddr.b1.20220501.mat','sashemfrddr','Select re-balanced SASHe file');
+   He = load(He_fname); % I think I do need to load this from disk since I've modified these to balance DDR
    tz = double(floor(He.vdata.lon./15)./24);
    guey = load('guey');guey = guey.guey;
    TOA = interp1(guey(:,1), guey(:,3),rVos.nm','linear');
@@ -960,9 +962,9 @@ while ~isempty(dirbeam)
    for dt = 1:length(dates)
       Vo_day = Vo_date(:,dt);
       done = false; w = 1;
-      xl_ = He.time>=dates(dt) & He.time<(dates(dt)+1);
+      xl_ = He.time>=dates(dt) & He.time<(dates(dt)+1); tl_ = ttau.time>=dates(dt)&ttau.time<(dates(dt)+1);wl_ = abs(ttau.nm - beam.wls(w))<5;
       ang_xl = [3,4]; % Initial default for angstrom range
-      Trx = Tr(w,:); aodx = aod(w,:); 
+      Trx = Tr(w,:); aodx = aod(w,:); taux = ttau.aod(tl_&wl_);
       figure_(1); %Date/time series of Vo_date and Vo_day for currently selected filter #
       yl = ylim; plot(rVos.time_LST, rVos.Vo_AU(w,:),'o',dates, Vo_date(w,:),'-',dates(dt), Vo_day(w),'r*'); dynamicDateTicks; title('rVo time-series'); ylim(yl);
       figure_(2);yl =ylim;% Time-series of dirn or Tr for all 5 channels for current day centered at noon LST
@@ -970,68 +972,71 @@ while ~isempty(dirbeam)
       figure_(3); % All AODs vs time_LST
       yl =ylim; plot([dates(dt),He.time(xl_)], [NaN([5,1]),aod(:,xl_)], '-',[dates(dt),He.time(xl_)], [NaN,aodx(xl_)], 'k.'); dynamicDateTicks; title('aod vs time'); ylim(yl);
       figure_(4); % Selected AOD vs time_LST
-      yl =ylim; plot([dates(dt),He.time(xl_)], [NaN,aodx(xl_)], 'k.'); dynamicDateTicks; title(['Filter ',num2str(w),' aod vs time']); ylim(yl);
+      yl =ylim; plot([dates(dt),He.time(xl_)], [NaN,aodx(xl_)], 'k.', ttau.time(tl_&wl_), taux,'r.'); dynamicDateTicks; title(['Filter ',num2str(w),' aod vs time']); ylim(yl);
       figure_(5); % Selected AOD vs airmass
       yl =ylim; plot([1,He.vdata.airmass(xl_)], [NaN([5,1]),aod(:,xl_)], '-',[1,He.vdata.airmass(xl_)], [NaN,aodx(xl_)], 'k.'); title('aod vs airmass'); ylim(yl);
       figure_(6); % Angstrom exponent over some range
       ang_ = xl_& He.vdata.airmass>=ang_xl(1)&He.vdata.airmass<=ang_xl(2);
       angx = nanmean(aod(:,ang_),2);
-      yl = ylim; plot([415,500,615,673,870],angx,'o-');ylim(yl); logx; if min(angx)>0 logy; end
-
-      while ~done
-         go = menu('Select an option',['Set filter # <',num2str(w),'>'],'+0.1','+0.01','-0.01','-0.1',...
-            ['Set Vo: <',num2str(Vo_day(w)),'>'],'Set angstrom OAM range', ['Done with ',datestr(dates(dt))]);
-         if go==1
-            w = 0;
-            while w==0
-               w = menu('Channel:', '1 = 415 nm','2 = 500 nm', '3 = 615 nm', '4 = 676 nm', '5 = 870 nm');
-            end
-         elseif go==2
-            Vo_day(w) = Vo_day(w) + .1;
-         elseif go==3
-            Vo_day(w) = Vo_day(w) + .01;
-         elseif go==4
-            Vo_day(w) = Vo_day(w) - .01;
-         elseif go==5
-            Vo_day(w) = Vo_day(w) - .1;
-         elseif go==6
-            tmp = input(['New Vo value <',num2str(Vo_day(w)),'> : ']);
-            if ~isempty(tmp)&&tmp>0
-               Vo_day(w) = tmp;
-            end
-         elseif go==7
-            figure_(5); orig_xl = xlim;
-            zoom('on'); ang = menu({'Zoom into airmass range of figure 5 to use for Angstrom';'Hit OK to set new range or Skip'},'OK','Skip');
-            if ang==1
-               ang_xl = xlim;
-            end
-            xlim(orig_xl);
-         elseif go==8
-            done = true;
-         end
-
-         Tr(w,:) = (AU.^2 .* dirn(w,:))./Vo_day(w);
-         dirn_Tr(w,:) = Tr(w,:).*TOA(w)./AU.^2;
-         tod(w,:) = -log(Tr(w,:))./(He.vdata.airmass);
-         aod(w,:) = tod(w,:) - gaod(w,:);
-
-         Trx = Tr(w,:); aodx = aod(w,:);
-         figure_(1); %Date/time series of Vo_date and Vo_day for currently selected filter #
-         yl = ylim; plot(rVos.time_LST, rVos.Vo_AU(w,:),'o',dates, Vo_date(w,:),'-',dates(dt), Vo_day(w),'r*'); dynamicDateTicks; title('rVo time-series'); ylim(yl);
-         figure_(2);yl =ylim;% Time-series of dirn or Tr for all 5 channels for current day centered at noon LST
-         plot([dates(dt),He.time(xl_)], [NaN([5,1]),Tr(:,xl_)], '-',[dates(dt),He.time(xl_)], [NaN,Trx(xl_)], 'k.'); dynamicDateTicks; title('Tr vs time'); ylim(yl);
-         figure_(3); % All AODs vs time_LST
-         yl =ylim; plot([dates(dt),He.time(xl_)], [NaN([5,1]),aod(:,xl_)], '-',[dates(dt),He.time(xl_)], [NaN,aodx(xl_)], 'k.'); dynamicDateTicks; title('aod vs time'); ylim(yl);
-         figure_(4); % Selected AOD vs time_LST
-         yl =ylim; plot([dates(dt),He.time(xl_)], [NaN,aodx(xl_)], 'k.'); dynamicDateTicks; title(['Filter ',num2str(w),' aod vs time']); ylim(yl);
-         figure_(5); % Selected AOD vs airmass
-         yl =ylim; plot([1,He.vdata.airmass(xl_)], [NaN([5,1]),aod(:,xl_)], '-',[1,He.vdata.airmass(xl_)], [NaN,aodx(xl_)], 'k.'); title('aod vs airmass'); ylim(yl);
-         figure_(6); % Angstrom exponent over some range
-         ang_ = xl_& He.vdata.airmass>=ang_xl(1)&He.vdata.airmass<=ang_xl(2);
-         angx = nanmean(aod(:,ang_),2);
-         yl = ylim; plot([415,500,615,673,870],angx,'o-');ylim(yl); logx; if min(angx)>0 logy; end
-
-      end
+      tl_ = ttau.time>=dates(dt) & ttau.time<(dates(dt)+1);Pang = polyfit(log(ttau.nm(tl_)), log(ttau.aod(tl_)), 1);
+      yl = ylim; plot([415,500,615,673,870],angx,'o-', sort(ttau.nm(tl_)), exp(polyval(Pang, log(sort(ttau.nm(tl_))))), 'k--');
+      ylim(yl); logx; if min(angx)>0 logy; end;
+      
+%       figure; plot(ttau.nm(tl_), ttau.aod(tl_), 'k.', unique(ttau.nm(tl_)), exp(polyval(Pang, log(unique(ttau.nm(tl_))))), 'k--'); logy; logx;
+%       while ~done
+%          go = menu('Select an option',['Set filter # <',num2str(w),'>'],'+0.1','+0.01','-0.01','-0.1',...
+%             ['Set Vo: <',num2str(Vo_day(w)),'>'],'Set angstrom OAM range', ['Done with ',datestr(dates(dt))]);
+%          if go==1
+%             w = 0;
+%             while w==0
+%                w = menu('Channel:', '1 = 415 nm','2 = 500 nm', '3 = 615 nm', '4 = 676 nm', '5 = 870 nm');
+%             end
+%          elseif go==2
+%             Vo_day(w) = Vo_day(w) + .1;
+%          elseif go==3
+%             Vo_day(w) = Vo_day(w) + .01;
+%          elseif go==4
+%             Vo_day(w) = Vo_day(w) - .01;
+%          elseif go==5
+%             Vo_day(w) = Vo_day(w) - .1;
+%          elseif go==6
+%             tmp = input(['New Vo value <',num2str(Vo_day(w)),'> : ']);
+%             if ~isempty(tmp)&&tmp>0
+%                Vo_day(w) = tmp;
+%             end
+%          elseif go==7
+%             figure_(5); orig_xl = xlim;
+%             zoom('on'); ang = menu({'Zoom into airmass range of figure 5 to use for Angstrom';'Hit OK to set new range or Skip'},'OK','Skip');
+%             if ang==1
+%                ang_xl = xlim;
+%             end
+%             xlim(orig_xl);
+%          elseif go==8
+%             done = true;
+%          end
+% 
+%          Tr(w,:) = (AU.^2 .* dirn(w,:))./Vo_day(w);
+%          dirn_Tr(w,:) = Tr(w,:).*TOA(w)./AU.^2;
+%          tod(w,:) = -log(Tr(w,:))./(He.vdata.airmass);
+%          aod(w,:) = tod(w,:) - gaod(w,:);
+% 
+%          Trx = Tr(w,:); aodx = aod(w,:);
+%          figure_(1); %Date/time series of Vo_date and Vo_day for currently selected filter #
+%          yl = ylim; plot(rVos.time_LST, rVos.Vo_AU(w,:),'o',dates, Vo_date(w,:),'-',dates(dt), Vo_day(w),'r*'); dynamicDateTicks; title('rVo time-series'); ylim(yl);
+%          figure_(2);yl =ylim;% Time-series of dirn or Tr for all 5 channels for current day centered at noon LST
+%          plot([dates(dt),He.time(xl_)], [NaN([5,1]),Tr(:,xl_)], '-',[dates(dt),He.time(xl_)], [NaN,Trx(xl_)], 'k.'); dynamicDateTicks; title('Tr vs time'); ylim(yl);
+%          figure_(3); % All AODs vs time_LST
+%          yl =ylim; plot([dates(dt),He.time(xl_)], [NaN([5,1]),aod(:,xl_)], '-',[dates(dt),He.time(xl_)], [NaN,aodx(xl_)], 'k.'); dynamicDateTicks; title('aod vs time'); ylim(yl);
+%          figure_(4); % Selected AOD vs time_LST
+%          yl =ylim; plot([dates(dt),He.time(xl_)], [NaN,aodx(xl_)], 'k.'); dynamicDateTicks; title(['Filter ',num2str(w),' aod vs time']); ylim(yl);
+%          figure_(5); % Selected AOD vs airmass
+%          yl =ylim; plot([1,He.vdata.airmass(xl_)], [NaN([5,1]),aod(:,xl_)], '-',[1,He.vdata.airmass(xl_)], [NaN,aodx(xl_)], 'k.'); title('aod vs airmass'); ylim(yl);
+%          figure_(6); % Angstrom exponent over some range
+%          ang_ = xl_& He.vdata.airmass>=ang_xl(1)&He.vdata.airmass<=ang_xl(2);
+%          angx = nanmean(aod(:,ang_),2);
+%          yl = ylim; plot([415,500,615,673,870],angx,'o-');ylim(yl); logx; if min(angx)>0 logy; end
+% 
+%       end
    end
 
    dirbeam = [];
