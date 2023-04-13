@@ -368,7 +368,7 @@ for tg = length(tags):-1:1
    langs2.Co_AU = langs2.Co;
    langs2.tag = dbeam.tag;
    Vos2.(dbeam.tag) = langs2;
-   rVos2.(dbeam.tag) = rVos_from_lang_Vos(Vos2.(dbeam.tag), 30,1);
+   rVos2.(dbeam.tag) = rVos_from_lang_Vos(Vos2.(dbeam.tag), 60,1);
    % So now interpolate these daily rVos2s to the native times of their respective
    % dbeam, and compute dirt and tod
    dbeam.Vo_AU =interp1(rVos2.(dbeam.tag).time_UT, rVos2.(dbeam.tag).Vo_AU',dbeam.time, 'nearest')';
@@ -720,7 +720,7 @@ if ~isempty(dirbeam_files)
    end
    dirbeam.pname = pname; dirbeam.fname = fname;
    dirbeam.time = []; dirbeam.wl = []; dirbeam.dirn = []; dirbeam.oam = []; dirbeam.AU = [];
-   if isfield(infile,'vdata')
+   if isfield(infile,'vdata')&&isfield(infile.vdata,'lat')
       [~, ~, ~, ~, ~, ~, oam] = sunae(infile.vdata.lat, infile.vdata.lon, infile.time);
       infile = anc_sift(infile, oam>0 & oam<=10);
       [~, ~, AU, ~, ~, ~, oam] = sunae(infile.vdata.lat, infile.vdata.lon, infile.time);
@@ -830,6 +830,8 @@ if ~isempty(dirbeam_files)
       tz = double(infile.Site_Longitude_Degrees(1)/15)./24;
    elseif isfield(infile.vdata, 'lon')
       tz = double(infile.vdata.lon/15)./24;
+   elseif isfield(infile,'lon')
+      tz = double(infile.lon/15)./24;
    end
    tz = floor(24.*tz)./24;
    dirbeam.time_LST = dirbeam.time + tz;
@@ -862,7 +864,11 @@ if ~isempty(dirbeam_files)
    else
       dirbeam.tag = 'anon';
    end
-end
+end 
+%dirbeam = dirbeam_sas_patch(infile)
+ if isavar('pname');
+    dirbeam.pname = pname; dirbeam.fname = fname;
+ end
 end
 
 function [dirbeams, langs, Vos, rVos] = calc_Vos_from_dirbeam(dirbeam, lang_legs)
@@ -886,7 +892,7 @@ while ~isempty(dirbeam)
       for wl_ii = length(dirbeam.wls):-1:1
          nm = dirbeam.wls(wl_ii);
          L_ = (dirbeam.wl==nm)&(dirbeam.time>=leg.time_UT(1))&(dirbeam.time<=leg.time_UT(end));
-         if sum(L_)>4
+         if sum(L_)>4 && length(L_)==length(dirbeam.AU)&&length(L_)==length(dirbeam.dirn)
             WL.nm = nm; WL.AU = mean(dirbeam.AU(L_));WL.pres_atm = mean(leg.pres_atm);
             WL.time = dirbeam.time(L_); WL.time_LST = dirbeam.time_LST(L_); WL.dirn = dirbeam.dirn(L_);
             WL.oam = dirbeam.oam(L_);
@@ -1090,15 +1096,16 @@ sub_1p6.time(nans) = []; sub_1p6.aod(nans) = [];
 %     [sub_1p6.time, ij] = unique(sub_1p6.time); sub_1u.aod = sub_1p6.aod(ij);
 % So sub_1u and sub_1p6 should be free of duplicate times and contain averaged values
 % of aod in place of dup times.
-
-LW.time = ttau2.time;
-LW.aod_1p6 = interp1(sub_1p6.time, sub_1p6.aod, ttau2.time,'linear');
-LW.aod_1u = interp1(sub_1u.time, sub_1u.aod, ttau2.time,'linear');
-bad = isnan(LW.aod_1p6) | isnan(LW.aod_1u) |(LW.aod_1p6./LW.aod_1u > .95);
-gtime = LW.time(~bad); gaod = LW.aod_1p6(~bad);
-[gtime, ij] = unique(gtime); gaod = gaod(ij);
-LW.aod_1p6(bad) =interp1(gtime, gaod, LW.time(bad), 'nearest','extrap');
-ttau2.aod_1p6 = LW.aod_1p6; clear LW
+if length(sub_1p6.time)>1
+   LW.time = ttau2.time;
+   LW.aod_1p6 = interp1(sub_1p6.time, sub_1p6.aod, ttau2.time,'linear');
+   LW.aod_1u = interp1(sub_1u.time, sub_1u.aod, ttau2.time,'linear');
+   bad = isnan(LW.aod_1p6) | isnan(LW.aod_1u) |(LW.aod_1p6./LW.aod_1u > .95);
+   gtime = LW.time(~bad); gaod = LW.aod_1p6(~bad);
+   [gtime, ij] = unique(gtime); gaod = gaod(ij);
+   LW.aod_1p6(bad) =interp1(gtime, gaod, LW.time(bad), 'nearest','extrap');
+   ttau2.aod_1p6 = LW.aod_1p6; clear LW
+end
 
 
 end
