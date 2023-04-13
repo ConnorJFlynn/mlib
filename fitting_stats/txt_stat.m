@@ -1,5 +1,5 @@
 %Compute basic stats on a curve fit
-function stats = fit_stat(x,y,P,S,mu)
+function [gt,txt, stats] = txt_stat(x,y,P,S,mu)
 % Returns a number of statistics from the supplied N-order polynomial
 % stats = fit_stat(x,y,P,S,Mu);
 %
@@ -12,11 +12,15 @@ function stats = fit_stat(x,y,P,S,mu)
 % gt = gtext(txt);
 %
 if ~exist('Mu','var')
-y_hat = polyval(P,x);
+   y_hat = polyval(P,x);
+   y_int = polyval(P,0);
 else
    y_hat = polyval(P, x, S, mu);
+   y_int = polyval(P,0,S,mu);
 end
 r = y-y_hat;
+stats.slope = P(1);
+stats.y_int  = y_int;
 stats.N = length(x);
 stats.df = S.df;
 stats.x_bar = mean(x);
@@ -32,6 +36,15 @@ stats.R_sqrd = stats.SSR./stats.SST;
 stats.adj_R_sqrd = 1 - ((stats.SSE./stats.SST)*(length(x)-1)/S.df);
 stats.RMSE = sqrt(stats.SSE/S.df);
 
+txt = {
+['slope = ',sprintf('%1.3g',stats.slope)], ...    
+['Y_i_n_t = ', sprintf('%0.02g',stats.y_int)],...
+['bias (y-x) =  ',sprintf('%1.1g',stats.bias)], ...      
+    ['RMSE = ',sprintf('%1.3f',stats.RMSE)],...
+    ['N = ', num2str(stats.N)]};
+display('Select figure to add stats')
+gt = gtext(txt); 
+set(gt, 'Units','norm', 'interp','tex', 'position',[.1,.9], 'BackgroundColor','w');
 
 
 % SSE = stats.SSE;
