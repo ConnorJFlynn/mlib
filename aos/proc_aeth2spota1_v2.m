@@ -36,14 +36,14 @@ spec_attn.AE33.P = polyfit(log(spec_attn.AE33.nm./1000), log(spec_attn.AE33.sigm
 
 % 
 % 
-figure; 
-plot(spec_attn.AE31.nm, spec_attn.AE31.sigma, 'bo-', ...
-   spec_attn.EC.nm, spec_attn.EC.sigma, 'ro-', ...
-   spec_attn.AE33.nm, spec_attn.AE33.sigma, 'ko-');
-lg = legend('AE 31','EC','AE 33');set(lg,'interp','none');
-xlabel('wavelength [nm]');
-ylabel('sigma')
-logx; logy;
+% figure; 
+% plot(spec_attn.AE31.nm, spec_attn.AE31.sigma, 'bo-', ...
+%    spec_attn.EC.nm, spec_attn.EC.sigma, 'ro-', ...
+%    spec_attn.AE33.nm, spec_attn.AE33.sigma, 'ko-');
+% lg = legend('AE 31','EC','AE 33');set(lg,'interp','none');
+% xlabel('wavelength [nm]');
+% ylabel('sigma')
+% logx; logy;
 
 % The function "anc_bundle_files" reads one or more ARM netcdf files and 
 % concatenates or 'bundles' them together into a single structure
@@ -71,6 +71,9 @@ figure_(17); these = plot(aeth.time,Tr_1, '-'); title('Tr spot 1'); dynamicDateT
 axs(4) = gca; % ylim([-.1, 1.1]);
 recolor(these,[aeth.vdata.wavelength ; aeth.vdata.wavelength]); colorbar;
 xl = xlim;
+figure_(18); these = plot(aeth.time,ATN_1, '-'); title('ATN spot 1'); dynamicDateTicks;
+axs(5) = gca; % ylim([-.1, 1.1]);
+recolor(these,[aeth.vdata.wavelength ; aeth.vdata.wavelength]); colorbar;
 
 % figure; plot(aeth.time, ae_data.power_supply_temperature,'-'); dynamicDateTicks
 % legend('power supply temperature');
@@ -120,6 +123,7 @@ legend('mine BC raw','McGee BC raw');
 figure; plot(aeth.time, BC(2,:), 'x',smooth(aeth.time,60), smooth(aeth.vdata.equivalent_black_carbon(2,:),60),'o'); dynamicDateTicks; zoom('on');
 legend('mine BC','McGee BC smoothed');
 % OK, not only does the BC correct for loading, but also my BC and McGee BC agree
+% Hmm...  Not so well at EPC.  Was it better at HOU? Pretty good on 3/30/2021 and 09/24/2022
 % Now, convert back to Bap
 
 Bap = (BC./1e3).*(spec_attn.AE33.sigma' * ones([1,length(aeth.time)]));
@@ -127,9 +131,16 @@ aop = anc_bundle_files;
 figure; plot(aop.time, [aop.vdata.Ba_B_combined;aop.vdata.Ba_G_combined;aop.vdata.Ba_R_combined],'o') ;dynamicDateTicks
 figure; plot(aeth.time, Bap([2,3 5],:), 'x'); dynamicDateTicks;
 
+xl_sub = xlim; sub_ = aeth.time>=xl_sub(1)&aeth.time<xl_sub(2);
+xl_sup = xlim; sup_ = aeth.time>=xl_sup(1)&aeth.time<xl_sup(2);
+
+figure; plot(aeth.vdata.wavelength, mean(Bap(:,sub_),2),'-o', aeth.vdata.wavelength, mean(Bap(:,sup_),2),'-x')  ; logx; logy;
+
+sub_der = polyder(polyfit(log(aeth.vdata.wavelength), log(mean(Bap(:,sub_),2)),1));
+sup_der = polyder(polyfit(log(aeth.vdata.wavelength), log(mean(Bap(:,sup_),2)),1));
 
 [oine, eino] = nearest(aop.time, aeth.time);
-figure; plot(aop.vdata.Ba_B_combined(oine).*((Bap(2,eino)>0)&(aop.vdata.Ba_B_combined(oine)>0)), .4714.*Bap(2,eino).*((Bap(2,eino)>0)&(aop.vdata.Ba_B_combined(oine)>0)), 'bo'); axis('square');
+figure; plot(aop.vdata.Ba_B_combined(oine).*((Bap(2,eino)>0)&(aop.vdata.Ba_B_combined(oine)>0)), Bap(2,eino).*((Bap(2,eino)>0)&(aop.vdata.Ba_B_combined(oine)>0)), 'bo'); axis('square');
 
 return
 
