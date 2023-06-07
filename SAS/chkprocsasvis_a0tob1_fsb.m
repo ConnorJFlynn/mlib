@@ -1,11 +1,11 @@
 function sas = chkprocsas_a0tob1_fsb(a0, b1); 
 
 if ~isavar('a0')
-   a0= anc_load(getfullname('*sashenirhisun*.nc','sasa0')); % a0.gatts.operation_mode
+   a0= anc_load(getfullname('*sashe*hisun*.nc','sasa0')); % a0.gatts.operation_mode
 end
 
 if ~isavar('b1');
-   b1 = anc_load(getfullname(['*sashenir*',datestr(a0.time(1),'yyyymmdd'),'*.nc'],'sasb1'));
+   b1 = anc_load(getfullname(['*sashe*',datestr(a0.time(1),'yyyymmdd'),'*.nc'],'sasb1'));
 end
 
 % a0 = anc_sift(a0, a0.vdata.integration_time==300);
@@ -46,7 +46,7 @@ banding = bands(3,:) > (bands(2,:) - sqrt(bands(2,:)));
 sig = a0.vdata.spectra';
 darks = interp1(a0.time(a0.vdata.tag==tag(1)), sig(a0.vdata.tag==tag(1),:),a0.time,'linear');
 sig  = sig-darks; 
-sig = sig./unique(a0.vdata.integration_time)./(ones(size(sig,1),1)*b1.vdata.responsivity_nir');
+sig = sig./unique(a0.vdata.integration_time)./(ones(size(sig,1),1)*b1.vdata.responsivity_vis');
 TH_raw = interp1(a0.time(a0.vdata.tag==tag(2)), sig(a0.vdata.tag==tag(2),:),a0.time(a0.vdata.tag==tag(4)),'linear');
 SB1 = interp1(a0.time(a0.vdata.tag==tag(3)), sig(a0.vdata.tag==tag(3),:),a0.time(a0.vdata.tag==tag(4)),'linear');
 SB2 = interp1(a0.time(a0.vdata.tag==tag(4)), sig(a0.vdata.tag==tag(4),:),a0.time(a0.vdata.tag==tag(4)),'linear');
@@ -75,21 +75,22 @@ TH = dirh + diff;
 
 % figure; plot(b1.time, b1.vdata.cosine_correction_computed, '.')
 % figure; plot(a0.time(a0.vdata.tag==10), dirh_raw(:,nm_500-1)./difh_raw(:,nm_500-1), '.', a0.time(a0.vdata.tag==10), dirh(nm_500-1,:)./difh(nm_500-1,:),'.'); dynamicDateTicks
-tint = unique(b1.vdata.integration_time_nir); tint = 1;
+tint = unique(b1.vdata.integration_time_vis); tint = 1;
 
-figure_; plot(b1.time, b1.vdata.direct_horizontal_nir(nm_500,:),'r-', a0.time(a0.vdata.tag==tag(4)), dirh(nm_500,:).*tint,'k--')
+figure_; plot(b1.time, b1.vdata.direct_horizontal_vis(nm_500,:),'r-', a0.time(a0.vdata.tag==tag(4)), dirh(nm_500,:).*tint,'k--')
 logy; legend('from b1','from a0'); title('dirh'); dynamicDateTicks
 
-figure_; plot(b1.time, b1.vdata.direct_normal_nir(nm_500,:),'r-', a0.time(a0.vdata.tag==tag(4)), dirn(nm_500,:).*tint,'k--')
+figure_; plot(b1.time, b1.vdata.direct_normal_vis(nm_500,:),'r-', a0.time(a0.vdata.tag==tag(4)), dirn(nm_500,:).*tint,'k--')
 logy; legend('from b1','from a0'); title('dirn'); dynamicDateTicks
 
-figure_; plot(b1.time, b1.vdata.diffuse_hemisp_nir(nm_500,:),'r-', a0.time(a0.vdata.tag==tag(4)), diff(nm_500,:).*tint,'k--')
+figure_; plot(b1.time, b1.vdata.diffuse_hemisp_vis(nm_500,:),'r-', a0.time(a0.vdata.tag==tag(4)), diff(nm_500,:).*tint,'k--')
 logy;  legend('from b1','from a0'); title('diff'); dynamicDateTicks
 
-figure_; plot(b1.time, b1.vdata.direct_normal_nir(nm_500,:)./b1.vdata.diffuse_hemisp_nir(nm_500,:),'r-', a0.time(a0.vdata.tag==tag(4)), dirn(nm_500,:)./diff(nm_500,:),'k--')
+figure_; plot(b1.time, b1.vdata.direct_normal_vis(nm_500,:)./b1.vdata.diffuse_hemisp_vis(nm_500,:),'r-', a0.time(a0.vdata.tag==tag(4)), dirn(nm_500,:)./diff(nm_500,:),'k--')
 logy;
 
-
+a0.gatts.process_version
+b1.gatts.process_version
 
 
 sas.time = a0.time(a0.vdata.tag==10);
