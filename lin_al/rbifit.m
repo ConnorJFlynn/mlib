@@ -27,10 +27,10 @@ new_good = (AD < (M.*MAD))&good;
    else
       figure;
    end
-   plot(X(new_good), Y(new_good), 'k.',X(good), Y(good), 'rx',[0,max(X)], [0,max(X)],'k--',  [0,max(X)], polyval(P_bar,[0,max(X)]),'b-'); 
+   plot(X(new_good), Y(new_good), 'k.',X(good), Y(good), 'r.',[0,max(X)], [0,max(X)],'k--',  [0,max(X)], polyval(P_bar,[0,max(X)]),'b-'); 
  
 if abs(sum(good)-sum(new_good))/sum(good) > (pct./100)
-   plot(X(new_good), Y(new_good), 'k.',X(good), Y(good), 'rx',[0,max(X)], [0,max(X)],'k--',  [0,max(X)], polyval(P_bar,[0,max(X)]),'b-'); 
+   plot(X(new_good), Y(new_good), 'k.',X(good), Y(good), 'r.',[0,max(X)], [0,max(X)],'k--',  [0,max(X)], polyval(P_bar,[0,max(X)]),'b-'); 
    title(['Keep(',num2str(sum(new_good)),'), Remove(',sprintf('%2.1g%%',100.*(sum(good)-sum(new_good))./sum(good)),')'])
    good = rbifit(X,Y,M,pct,new_good,gcf);
 end

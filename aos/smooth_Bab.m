@@ -43,9 +43,9 @@ else
             dV_ss(tt) = trapz(time(dt_)*24*60, sample_flow(dt_))';
         end
         % Compute absorbance as log of ratio of transmittances
-    end
-    for tt = (ss):length(sample_flow)-1
-        st = sum(dt_);
+%     end
+%     for tt = (ss):length(sample_flow)-1
+%         st = sum(dt_);
         % Compute absorbance as log of ratio of transmittances
         abs_ss(:,tt) = log(Tr(:,tt-st+1)./Tr(:,tt));
     end

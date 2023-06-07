@@ -20,3 +20,10 @@ end
 
 end
 
+% infile = getfullname('C:\Users\flyn0011\OneDrive - University of Oklahoma\Desktop\Amazing.csv','ceres');
+
+% 
+% fid = fopen(infile,'r');
+% this = fgetl(fid);
+% AA = textscan(this, '%s','Delimiter',',');AA=AA{:};
+% A = textscan(fid, ['%d %d %d %s %s %f %f %f %f %f %f %f %f %f %f %f %s %f %f %f %f %f %s %f %f %f %s %s %s %s %f %f %f %f %f %f %f' ' %*[^\n]'],'delimiter',',');

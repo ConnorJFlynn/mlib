@@ -26,9 +26,15 @@ end
 AD = abs(val - Y);
 MAD = mean(AD(good));
 new_good = (AD < (M.*MAD));
-if any(good ~= new_good)&&sum(good>N)
+if any(good ~= new_good)&&sum(good)>N
    good = rpoly_mad(X,Y,N,M,new_good);
 end
-
+if nargout >2
+    [P,S,mu] = polyfit(X(good),Y(good),N);
+    val = polyval(P,X,S,mu);
+else
+    P = polyfit(X(good),Y(good),N);
+    val = polyval(P,X);
+end
 
 return
