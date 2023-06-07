@@ -36,14 +36,14 @@ spec_attn.AE33.P = polyfit(log(spec_attn.AE33.nm./1000), log(spec_attn.AE33.sigm
 
 % 
 % 
-figure; 
-plot(spec_attn.AE31.nm, spec_attn.AE31.sigma, 'bo-', ...
-   spec_attn.EC.nm, spec_attn.EC.sigma, 'ro-', ...
-   spec_attn.AE33.nm, spec_attn.AE33.sigma, 'ko-');
-lg = legend('AE 31','EC','AE 33');set(lg,'interp','none');
-xlabel('wavelength [nm]');
-ylabel('sigma')
-logx; logy;
+% figure; 
+% plot(spec_attn.AE31.nm, spec_attn.AE31.sigma, 'bo-', ...
+%    spec_attn.EC.nm, spec_attn.EC.sigma, 'ro-', ...
+%    spec_attn.AE33.nm, spec_attn.AE33.sigma, 'ko-');
+% lg = legend('AE 31','EC','AE 33');set(lg,'interp','none');
+% xlabel('wavelength [nm]');
+% ylabel('sigma')
+% logx; logy;
 
 % The function "anc_bundle_files" reads one or more ARM netcdf files and 
 % concatenates or 'bundles' them together into a single structure
