@@ -11,7 +11,7 @@ infile.sza(~keeps) = [];
 infile.time(~keeps) = [];
 if isfield(infile,'Site_Longitude_Degrees')
    tz = double(infile.Site_Longitude_Degrees(1)/15)./24;
-elseif isfield(infile.vdata, 'lon')
+elseif isfield(infile,'vdata')&&isfield(infile.vdata, 'lon')
    tz = double(infile.vdata.lon/15)./24;
 elseif isfield(infile,'lon')
    tz = double(infile.lon/15)./24;
@@ -20,8 +20,9 @@ tz = floor(24.*tz)./24;
 
 AU = infile.AU;
 oam = infile.oam;
-WL = [340,355,368,387,408,415,440,500,532,615,650,673,762,870,910,975];
-wl_i = interp1(infile.wl, [1:length(infile.wl)],WL,'nearest');
+WL = [340,355,368,387,408,415,440,500,532,615,650,673,762,870,910,940:948,975];
+% WL = unique([WL,infile.wl(1:5:end)']);
+wl_i = unique(interp1(infile.wl, [1:length(infile.wl)],WL,'nearest'));
 WL_nm = infile.wl(wl_i);
 for ww = 1:length(WL)
    dirh = infile.dirh(wl_i(ww),:);
