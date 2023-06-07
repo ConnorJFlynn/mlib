@@ -63,14 +63,14 @@ if isfield(anc.vdata, 'overlap_correction')
    % analytic functions representing optical overlap corrections.  
    % Seems to do well at very shortest range, but can miss the slope at the
    % top 
-   fitted_olc = analytic_ol_uc(mplpol.range(ol_range), 1./mplpol.r.ol_corr(ol_range));
-   
-   if ~isgraphics(41)
-      figure_(41); plot(mplpol.range(ol_range), 1./mplpol.r.ol_corr(ol_range),'o',...
-         mplpol.range(ol_range), fitted_olc,'k-' );
-      legend('Overlap', 'fit'); xlabel('range [km]');
-      title({['Overlap corrections for ',ds_];[datestr(anc.time(1),'yyyy-mm-dd')]});
-   end
+%    fitted_olc = analytic_ol_uc(mplpol.range(ol_range), 1./mplpol.r.ol_corr(ol_range));
+%    
+%    if ~isgraphics(41)
+%       figure_(41); plot(mplpol.range(ol_range), 1./mplpol.r.ol_corr(ol_range),'o',...
+%          mplpol.range(ol_range), fitted_olc,'k-' );
+%       legend('Overlap', 'fit'); xlabel('range [km]');
+%       title({['Overlap corrections for ',ds_];[datestr(anc.time(1),'yyyy-mm-dd')]});
+%    end
 % We could replace the original OL value with the fitted value here with:
 % mplpol.r.ol_corr(ol_range) = 1./fitted_olc; 
 
@@ -90,8 +90,14 @@ if isfield(anc.vdata,'afterpulse_correction_co_pol')
    mplpol.ap.crosspol = anc.vdata.afterpulse_correction_cross_pol;
    ap_fit.cop = fit_ap(mplpol.ap.range, mplpol.ap.copol);
    ap_fit.crx = fit_ap(mplpol.ap.range, mplpol.ap.crosspol);
-    mplpol.r.ap_copol = ap_fit.cop.ap_fit;
-    mplpol.r.ap_crosspol = ap_fit.crx.ap_fit;
+   mplpol.r.ap_copol = ap_fit.cop.ap_fit;
+   mplpol.r.ap_crosspol = ap_fit.crx.ap_fit;
+   if length(ap_fit.cop.range)<length(mplpol.range)
+      mplpol.r.ap_copol = interp1(ap_fit.cop.range, ap_fit.cop.ap_fit, mplpol.range,'nearest','extrap');
+      mplpol.r.ap_crosspol = interp1(ap_fit.crx.range, ap_fit.crx.ap_fit, mplpol.range,'nearest','extrap');
+      mplpol.r.ap_copol(isnan(mplpol.r.ap_copol)) = min(mplpol.r.ap_copol(~isnan(mplpol.r.ap_copol)));
+      mplpol.r.ap_crosspol(isnan(mplpol.r.ap_crosspol)) = min(mplpol.r.ap_crosspol(~isnan(mplpol.r.ap_crosspol)));
+   end
 %    ind = interp1(mod(mplpol.range,max_alt), [1:length(mplpol.range)],ap_fit.cop.range,'nearest');
 %    mplpol.r.ap_copol = ap_fit.cop.ap_fit(ind);
 %    mplpol.r.ap_crosspol = ap_fit.crx.ap_fit(ind);   
@@ -123,6 +129,7 @@ if isfield(anc.vdata,'afterpulse_correction_co_pol')
    if isNaN(crs_ap_bg)
        crs_ap_bg = meannonan(mplpol.r.ap_crosspol(mplpol.range<0));
    end
+
 if ~isgraphics(42)
    figure_(42); plot(ap_fit.cop.range,ap_fit.cop.ap_fit,'-o',... 
        ap_fit.crx.range,ap_fit.crx.ap_fit,'-x'); legend('ap cop','ap crx');
