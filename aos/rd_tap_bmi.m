@@ -1,7 +1,7 @@
 function [tap, raw] = rd_tap_bmi(infile);
 
 if ~exist('infile','var')
-   infile = getfullname('TAP_*.dat','tap_bmi','Select tap BMI data file.');
+   infile = getfullname('TAP_*.csv','tap_bmi','Select tap BMI data file.');
 end
 if exist(infile,'file')
    %   Detailed explanation goes here
@@ -14,7 +14,7 @@ done = false;
 while ~done
    this = fgetl(fid);
    
-   if feof(fid)||(~isempty(strfind(this,'Date(yymmdd)'))&&~isempty(strfind(this,'LPF')))
+   if feof(fid)||(~isempty(strfind(this,'Date'))&&~isempty(strfind(this,'LPF')))
       done = true;
    end
 end
@@ -23,6 +23,10 @@ raw.pname = [raw.pname, filesep]; raw.fname = [raw.fname, ext];
 
 % Date(yymmdd)	Time(24hr)	Active Spot	Ref Spot	LPF	AvgTime	Red Abs Coef	Green Abs Coef	Blue Abs Coef	Sample Flow(L/min)	Heater Set Point	Sample Air Temp(C)	Case Temp(C)	Red Ratio	Green Ratio	Blue Ratio	Dark	Red	Green	Blue	Dark Ref	Red Ref	Green Ref	Blue Ref
 %180221	10:47:18	1	1	0	1	12.968828	21.268709	22.783773	2.037000	35.100000	34.820000	34.920000	0.962117	1.001941	1.000484	-153.249756	758250.562256	539300.312256	555738.874756	-142.361053	788106.361053	538255.486053	555470.173553
+
+% Date ,time,Active Spot,Ref Spot,LPF,AvgTime,Red Abs Coef,Green Abs Coef,Blue Abs Coef,Sample Flow(L/min),Heater Set Point,Sample Air Temp (C),Case Temp (C),Red Ratio,Green Ratio,Blue Ratio,Dark,Red,Green,Blue,Dark Ref,Red Ref,Green Ref,Blue Ref
+% 8/2/2022,6:35:17,1,1,1,60,2.307285,2.878729,4.041642,1.76,40,40,40,0.809463,0.805173,0.749166,-45.044975,639901.517,637587.2422,99115.09144,-108.774038,790656.3706,792023.2023,132335.8297
+
 
 fmt_str = '%s %s '; % Date(yymmdd)	Time(24hr)
 % 	180221	10:47:18
