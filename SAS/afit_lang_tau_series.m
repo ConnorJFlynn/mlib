@@ -828,7 +828,7 @@ if ~isempty(dirbeam_files)
    [dirbeam.time, ij] = sort(dirbeam.time);
    if isfield(infile,'Site_Longitude_Degrees')
       tz = double(infile.Site_Longitude_Degrees(1)/15)./24;
-   elseif isfield(infile.vdata, 'lon')
+   elseif isfield(infile,'vdata')&&isfield(infile.vdata, 'lon')
       tz = double(infile.vdata.lon/15)./24;
    elseif isfield(infile,'lon')
       tz = double(infile.lon/15)./24;
@@ -866,9 +866,8 @@ if ~isempty(dirbeam_files)
    end
 end 
 %dirbeam = dirbeam_sas_patch(infile)
- if isavar('pname');
-    dirbeam.pname = pname; dirbeam.fname = fname;
- end
+%dirbeam.pname = pname; dirbeam.fname = fname;
+
 end
 
 function [dirbeams, langs, Vos, rVos] = calc_Vos_from_dirbeam(dirbeam, lang_legs)
