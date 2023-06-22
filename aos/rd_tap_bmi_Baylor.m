@@ -1,10 +1,10 @@
-function [tap, raw] = rd_tap_bmi_Baylor(infile);
+function raw = rd_tap_bmi_Baylor(infile);
 
 if ~exist('infile','var')
    infile = getfullname('TAP_*.csv','tap_bmi','Select tap BMI data file.');
 end
 if exist(infile,'file')
-   %   Detailed explanation goes here
+
    fid = fopen(infile);
 else
    disp('No valid file selected.')
@@ -106,7 +106,5 @@ bad_times = [false; (diff_secs<.5) | ((diff_secs>1.5)&(diff_secs<3))]|isNaN(raw.
 raw.time(bad_times) = interp1(time_ii(~bad_times), raw.time(~bad_times), time_ii(bad_times),'linear','extrap');
 [tim, IA] = unique(raw.time); 
 raw.time = interp1(IA, tim, [1:length(raw.time)],'linear','extrap')';
-tap = proc_tap_bmi(raw,[],60);
-save([infile,'.mat'],'-struct','tap');
 
 return

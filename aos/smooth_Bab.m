@@ -24,7 +24,9 @@ if all(size(sample_flow)==size(Tr))
         dt_ = time> time(tt)-dt & time <= time(tt);
         st = sum(dt_);
         % Compute volume of air drawn through filter over each window
-        dV_ss(tt) = trapz(time(dt_)*24*60, sample_flow(dt_))';
+        if st>2 
+            dV_ss(tt) = trapz(time(dt_)*24*60, sample_flow(dt_))';
+        end
         % Compute absorbance as log of ratio of transmittances
         abs_ss(tt) = log(Tr(tt-st+1)./Tr(tt));
     end

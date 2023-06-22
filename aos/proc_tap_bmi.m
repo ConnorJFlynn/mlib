@@ -1,13 +1,13 @@
 function tap = proc_tap_bmi(raw,spot_area, ss)
 if ~isavar('raw')||isempty(raw)
-   raw = rd_tap_bmi;
+   raw = rd_tap_bmi_Baylor;
 end
 if ~isavar('spot_area')||isempty(spot_area)
    spot_area = 30.721; % mm^2 Default spot size for E70 filter
 end
 
 if ~isavar('ss')||isempty(ss)
-   ss = 30;
+   ss = 60;
 end
    
 
@@ -31,36 +31,19 @@ end
 % tap.sample_flow = raw.sample_flow;
 
 tic; 
-disp('Computing flow sm');
-
+disp('Computing flow sm'); % This minimizes digitization noise 
 dt = ss./(24*60*60); % dt is full-width so sliding polyfit is over +/- dt/2
-% tap.flow_sm = sliding_polyfit(tap.time, tap.sample_flow, dt);
 tap.flow_sm = smooth(raw.sample_flow, 30);
-
 
 % figure; plot(tap.time, smooth(tap.sample_flow,30),'.',tap.time, tap.flow_sm,'-');
 % dynamicDateTicks; legend('sample flow raw','smoothed');
 
-disp(toc);tic;disp('Computing Ba B sm')
-[tap.Ba_B_sm] = Bap_ss(tap.time, tap.flow_sm, tap.Tr_B,ss,spot_area );
-disp(toc);tic;disp('Computing Ba G sm')
-[tap.Ba_G_sm] = Bap_ss(tap.time, tap.flow_sm, tap.Tr_G,ss,spot_area );
-disp(toc);tic;disp('Computing Ba R sm')
-[tap.Ba_R_sm] = Bap_ss(tap.time, tap.flow_sm, tap.Tr_R,ss,spot_area );
-disp(toc);disp('Done computing absorption coefs (no filter-loading correction)')
-
-% disp(toc);tic; disp('Computing smoothed transmittances')
-% tap.trans_B_sm = sliding_polyfit(tap.time, tap.Tr_B,dt./2);
-% tap.trans_G_sm = sliding_polyfit(tap.time, tap.Tr_G,dt./2);
-% tap.trans_R_sm = sliding_polyfit(tap.time, tap.Tr_R,dt./2);
-% 
-% % ss is half width
 % disp(toc);tic;disp('Computing Ba B sm')
-% [tap.Ba_B_sm] = smooth_Bab(tap.time, tap.flow_sm, tap.trans_B_sm,ss,spot_area );
+[tap.Ba_B_sm] = Bap_ss(tap.time, tap.flow_sm, tap.Tr_B,ss,spot_area );
 % disp(toc);tic;disp('Computing Ba G sm')
-% [tap.Ba_G_sm] = smooth_Bab(tap.time, tap.flow_sm, tap.trans_G_sm,ss,spot_area );
+[tap.Ba_G_sm] = Bap_ss(tap.time, tap.flow_sm, tap.Tr_G,ss,spot_area );
 % disp(toc);tic;disp('Computing Ba R sm')
-% [tap.Ba_R_sm] = smooth_Bab(tap.time, tap.flow_sm, tap.trans_R_sm,ss,spot_area );
+[tap.Ba_R_sm] = Bap_ss(tap.time, tap.flow_sm, tap.Tr_R,ss,spot_area );
 % disp(toc);disp('Done computing absorption coefs (no filter-loading correction)')
 
 % tap = load(getfullname('*.mat','tap_bmi'));
