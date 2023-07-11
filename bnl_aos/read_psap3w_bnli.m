@@ -144,7 +144,9 @@ C = textscan(fid, format_str);
            mf2p0 = textscan(char(psapi.I_str(mf_p+2)),'%d %*s %*s %*s %*s %s','delimiter',',');
            if mf0p0{1}==21 && mf0p3{1}==22 && mf2p0{1}==23
                [~,tmp] = strtok(mf0p0{2},'='); tmp = tmp{1};
-               mfp(1) = sscanf(tmp(2:end),'%f');
+               if ~isempty(tmp(2:end))
+                  mfp(1) = sscanf([tmp(2:end), ' '],'%f');
+               end
                [~,tmp] = strtok(mf0p3{2},'=');tmp = tmp{1};
                mfp(2) = sscanf(tmp(2:end),'%f');
                [~,tmp] = strtok(mf2p0{2},'=');tmp = tmp{1};

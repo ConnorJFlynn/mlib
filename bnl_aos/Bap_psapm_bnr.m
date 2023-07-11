@@ -1,12 +1,11 @@
-function psapr = Bap_psap3w_bnlr(ins)
-% psapr = Bap_psap3w_bnlr(ins)
-% Update date of old function processing BNL "r" and " " packets to reproduce PSAP Bap values with S&S smoothing applied.
-% We read the "r" packets to compute Tr from raw data at highest digital and temporal resolution, 
-% but we renormalize these Tr values against transmittances in the " " packets which report the front-panel values. 
-% Removing all detrending and smoothing of darks and reference values as this was
-% introducing artificial features and offers neglible noise reduction when used with
-% S&S processing.
-
+function psapr = Bap_psapm_bnl(ins)
+% psapr = Bap_psapm_bnl(ins)
+% Manual processing BNL "r" and "3w" packets to reproduce PSAP Bap values,
+% except with S&S smoothing applied.
+% We read the "r" packets to compute Tr from raw data at highest digital and
+% temporal resolution, but we renormalize these Tr values against transmittances 
+% in the " " packets which report the front-panel values. 
+% Manually/graphically identify beginning and end of filter changes
 if ~exist('ins','var') || ~exist(ins,'file')
     ins = getfullname_('*psap3wr*.tsv','bnl_psap');
 end
@@ -46,11 +45,11 @@ psap3w = read_psap3w_bnl(strrep(strrep(ins,'psap3wr','psap3w'),'PSAP3wR_','PSAP3
 % Subtract darks
 %
 %%
-psapr.dark_ref_sm = smooth(psapr.dark_ref,120,'moving');
-psapr.dark_sig_sm = smooth(psapr.dark_sig,120,'moving');
-psapr.red_ref_sm = smooth((psapr.red_ref-psapr.dark_ref_sm)./psapr.red_adc_cnt,120,'moving');
-psapr.grn_ref_sm = smooth((psapr.grn_ref-psapr.dark_ref_sm)./psapr.grn_adc_cnt,120,'moving');
-psapr.blu_ref_sm = smooth((psapr.blu_ref-psapr.dark_ref_sm)./psapr.blu_adc_cnt,120,'moving');
+psapr.dark_ref_sm = psapr.dark_ref;
+psapr.dark_sig_sm = psapr.dark_sig;
+psapr.red_ref_sm = (psapr.red_ref-psapr.dark_ref_sm)./psapr.red_adc_cnt;
+psapr.grn_ref_sm = (psapr.grn_ref-psapr.dark_ref_sm)./psapr.grn_adc_cnt;
+psapr.blu_ref_sm = (psapr.blu_ref-psapr.dark_ref_sm)./psapr.blu_adc_cnt;
 
 psapr.red_sig_detrend = (psapr.red_sig-psapr.dark_sig_sm)./psapr.red_adc_cnt./psapr.red_ref_sm;
 psapr.grn_sig_detrend = (psapr.grn_sig-psapr.dark_sig_sm)./psapr.grn_adc_cnt./psapr.grn_ref_sm;
@@ -59,16 +58,21 @@ psapr.blu_sig_detrend = (psapr.blu_sig-psapr.dark_sig_sm)./psapr.blu_adc_cnt./ps
 psapr.Tr_B = psapr.blu_sig_detrend.*psap3w.Tr_blu(1)./psapr.blu_sig_detrend(1);
 psapr.Tr_G = psapr.grn_sig_detrend.*psap3w.Tr_grn(1)./psapr.grn_sig_detrend(1);
 psapr.Tr_R = psapr.red_sig_detrend.*psap3w.Tr_red(1)./psapr.red_sig_detrend(1);
-figure_(8); ss(1) = subplot(2,1,1); plot([1:length(psap3w.time)], [psap3w.Tr_blu, psap3w.Tr_grn, psap3w.Tr_red],'.');
-ss(2) = subplot(2,1,2); plot([1:length(psapr.time)], [psapr.Tr_B, psapr.Tr_G, psapr.Tr_R],'.'); linkaxes(ss,'xy')
+figure_(8); ss(1) = subplot(2,1,1); plot(psap3w.time, [psap3w.Tr_blu, psap3w.Tr_grn, psap3w.Tr_red],'.');
+ss(2) = subplot(2,1,2); plot(psapr.time, [psapr.Tr_B, psapr.Tr_G, psapr.Tr_R],'.'); linkaxes(ss,'x')
 % Want to identify filter changes and renormalize based on psap3w.Tr_* 
 mini = 1;
 while ~isempty(mini)
    % Look for front panel Tr readings  <=1 and >.99.
-   newf_i = mini - 1 + find(psap3w.Tr_red(mini:end)>.996&psap3w.Tr_red(mini:end)<=1 & ...
-      psap3w.Tr_grn(mini:end)>.996&psap3w.Tr_grn(mini:end)<=1 & ...
-      psap3w.Tr_blu(mini:end)>.996&psap3w.Tr_blu(mini:end)<=1, 1,'first');
-% If found, then identify the last good value from the old filter as the earliest min
+   ok = menu('Zoom in to isolate a single filter-change event','OK');
+   xl = xlim;
+   xl_ij = interp1(psap3w.time, [1:length(psap3w.time)], xl, 'nearest');
+   newf_i = xl_ij(1) - 1 + find(psap3w.Tr_red(xl_ij(1):xl_ij(2))>.996&psap3w.Tr_red(xl_ij(1):xl_ij(2))<=1 & ...
+      psap3w.Tr_grn(xl_ij(1):xl_ij(2))>.996&psap3w.Tr_grn(xl_ij(1):xl_ij(2))<=1 & ...
+      psap3w.Tr_blu(xl_ij(1):xl_ij(2))>.996&psap3w.Tr_blu(xl_ij(1):xl_ij(2))<=1, 1,'first');
+% If found, then identify the last good value from the old filter manually by shifting figure
+
+%as the earliest min
 % of all three filter colors, and find the last time after the filter change started
 % when at least one color Tr is unchanged from the initial value.
 
@@ -76,33 +80,59 @@ while ~isempty(mini)
 % match up perfectly.  To simplify things, we'll just mask out +/- 2 minujtes
 
    if ~isempty(newf_i)
-      mask_i = max([1, newf_i-240]); mask_j = min([newf_i+240,length(psapr.time)]);
-      psapr.Tr_B(mask_i:mask_j-1) = NaN; psapr.Tr_G(mask_i:mask_j-1) = NaN; psapr.Tr_R(mask_i:mask_j-1) = NaN;
-      psapr.Tr_B(mask_j:end) = psapr.Tr_B(mask_j:end)./psapr.Tr_B(mask_j);
-      psapr.Tr_G(mask_j:end) = psapr.Tr_G(mask_j:end)./psapr.Tr_G(mask_j);
-      psapr.Tr_R(mask_j:end) = psapr.Tr_R(mask_j:end)./psapr.Tr_R(mask_j);
+      ok = menu('Put last valid value of filter at the left-hand x limit','OK');
+      xl = xlim; xlr_i = interp1(psapr.time, [1:length(psapr.time)],xl(1),'nearest');
+      ok = menu('Put first good value of new filter at left-hand x limit','OK');
+      xl = xlim; xlr_j = interp1(psapr.time, [1:length(psapr.time)],xl(1),'nearest');
+      psapr.Tr_B(xlr_i:xlr_j-1) = NaN; psapr.Tr_G(xlr_i:xlr_j-1) = NaN; psapr.Tr_R(xlr_i:xlr_j-1) = NaN;
+      psapr.Tr_B(xlr_j:end) = psapr.Tr_B(xlr_j:end)./psapr.Tr_B(xlr_j);
+      psapr.Tr_G(xlr_j:end) = psapr.Tr_G(xlr_j:end)./psapr.Tr_G(xlr_j);
+      psapr.Tr_R(xlr_j:end) = psapr.Tr_R(xlr_j:end)./psapr.Tr_R(xlr_j);
       figure_(97); plot(psapr.time, [psapr.Tr_B, psapr.Tr_G, psapr.Tr_R],'.'); dynamicDateTicks
-      mini = newf_i+240;
+      mini = xlr_j;
    else
-      mini = mask_j;
+      mini = newf_i;
    end
-   
+   ok = menu('continue or quit?','continue','quit');
+   if ok == 2
+      mini = [];
+   end
 end
 
+psapr.Ba_B_raw = Bap_ss(psapr.time, psapr.flow_lpm, psapr.Tr_B, 60);
+psapr.Ba_G_raw = Bap_ss(psapr.time, psapr.flow_lpm, psapr.Tr_G, 60);
+psapr.Ba_R_raw = Bap_ss(psapr.time, psapr.flow_lpm, psapr.Tr_R, 60);
 
+psapr.Ba_B_wbo = psapr.Ba_B_raw.*(WeissBondOgren(psapr.Tr_B));
+psapr.Ba_G_wbo = psapr.Ba_G_raw.*(WeissBondOgren(psapr.Tr_G));
+psapr.Ba_R_wbo = psapr.Ba_R_raw.*(WeissBondOgren(psapr.Tr_R));
+
+psapr.AAE_BG = ang_exp(464, 529, psapr.Ba_B_wbo, psapr.Ba_G_wbo);
+psapr.AAE_BR = ang_exp(464, 648, psapr.Ba_B_wbo, psapr.Ba_R_wbo);
+psapr.AAE_GR = ang_exp(529,648, psapr.Ba_G_wbo, psapr.Ba_R_wbo);
+
+figure; sx(1) = subplot(2,1,1); 
+plot(psapr.time, [psapr.Ba_B_wbo, psapr.Ba_G_wbo, psapr.Ba_R_wbo],'o'); dynamicDateTicks
+sx(2) = subplot(2,1,2);
+plot(psapr.time, [psapr.AAE_BG, psapr.AAE_BR, psapr.AAE_GR],'.'); dynamicDateTicks
+linkaxes(sx,'x');
+legend('Ba B','Ba G', 'Ba R')
+
+
+
+open WBOF_noscat.m
+
+
+figure; plot(psapr.time, [psapr.Ba_B, psapr.Ba_G, psapr.Ba_R],'.');
 
 %%
-figure; plot(serial2doy(psapr.time), max(psap3w.Tr_red(psap3w.Tr_red<=1)).*psapr.red_sig_detrend./max(psapr.red_sig_detrend),'r.', ...
-    serial2doy(psapr.time), max(psap3w.Tr_grn(psap3w.Tr_grn<=1)).*psapr.grn_sig_detrend./max(psapr.grn_sig_detrend),'g.', ...
-    serial2doy(psapr.time), max(psap3w.Tr_blu(psap3w.Tr_blu<=1)).*psapr.blu_sig_detrend./max(psapr.blu_sig_detrend),'b.')
+figure; plot(serial2doy(psapr.time), psapr.Tr_R,'r.', ...
+    serial2doy(psapr.time), psapr.Tr_G,'g.', ...
+    serial2doy(psapr.time), psapr.Tr_B,'b.')
 %%
-psapr.red_sig_detrend = max(psap3w.Tr_red(psap3w.Tr_red<=1)).*psapr.red_sig_detrend./max(psapr.red_sig_detrend);
-psapr.grn_sig_detrend = max(psap3w.Tr_grn(psap3w.Tr_grn<=1)).*psapr.grn_sig_detrend./max(psapr.grn_sig_detrend);
-psapr.blu_sig_detrend = max(psap3w.Tr_blu(psap3w.Tr_blu<=1)).*psapr.blu_sig_detrend./max(psapr.blu_sig_detrend);
-
-psapr.red_sig_detrend = smooth(psapr.red_sig_detrend,4);
-psapr.grn_sig_detrend = smooth(psapr.grn_sig_detrend,4);
-psapr.blu_sig_detrend = smooth(psapr.blu_sig_detrend,4);
+psapr.red_sig_detrend = psapr.Tr_R;
+psapr.grn_sig_detrend = psapr.Tr_G;
+psapr.blu_sig_detrend = psapr.Tr_B;
 
 X = 60;
 II = [1:length(psapr.time)-X];
@@ -122,7 +152,7 @@ psapr.B_ap_blu = (psapr.blu_sig_detrend(II)-psapr.blu_sig_detrend(JJ))./col_L_Mm
 psapr.B_ap_grn = (psapr.grn_sig_detrend(II)-psapr.grn_sig_detrend(JJ))./col_L_Mm;
 psapr.B_ap_red = (psapr.red_sig_detrend(II)-psapr.red_sig_detrend(JJ))./col_L_Mm;
 %%
-figure; plot(serial2Hh(psapr.time(X./2:end-X./2-1)), [psapr.B_ap_blu,psapr.B_ap_grn, psapr.B_ap_red],'.')
+figure; plot(serial2doy(psapr.time(X./2:end-X./2-1)), [psapr.B_ap_blu,psapr.B_ap_grn, psapr.B_ap_red],'.')
 
 %%
 B = 1.317;
