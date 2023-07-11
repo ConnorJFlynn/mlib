@@ -11,6 +11,7 @@ if ~isavar('ss')||isempty(ss)
 end
    
 
+
 tap.time = raw.time;
 tap.Ba_R_raw = raw.Ba_R_bmi; 
 tap.Ba_G_raw = raw.Ba_G_bmi;
