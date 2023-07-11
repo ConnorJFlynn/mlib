@@ -6,11 +6,11 @@
 %%
 ang = [0:.1:3];
 Bs_B_Dry_1um_Neph3W_1  = (1.165 - (0.046 * ang));
-Bs_B_Dry_10um_Neph3W_1 = (1.365 - (0.156 * ang));
 Bs_G_Dry_1um_Neph3W_1    = (1.152 - (0.044 * ang));
 Bs_R_Dry_1um_Neph3W_1    = (1.12 - (0.035 * ang));
-    Bs_G_Dry_10um_Neph3W_1    =(1.337 - (0.138 * ang));
-    Bs_R_Dry_10um_Neph3W_1    = (1.297 - (0.113 * ang));
+Bs_B_Dry_10um_Neph3W_1 = (1.365 - (0.156 * ang));
+Bs_G_Dry_10um_Neph3W_1    =(1.337 - (0.138 * ang));
+Bs_R_Dry_10um_Neph3W_1    = (1.297 - (0.113 * ang));
 figure; 
 sb(1) = subplot(3,1,1); 
 plot(aGBlrh, [Bs_R_Dry_1um_Neph3W_1], '.r-',aGBlrh, [Bs_R_Dry_10um_Neph3W_1],'or-');
@@ -30,7 +30,7 @@ linkaxes(sb,'x')
 
 
 % For 1 um dry
-if good angsstrom:
+if good angstrom:
     Bs_B_Dry_1um_Neph3W_1    = Bs_B_Dry_1um_Neph3W_1 * (1.165 - (0.046 * aGBlrh));
     Bs_G_Dry_1um_Neph3W_1    = Bs_G_Dry_1um_Neph3W_1 * (1.152 - (0.044 * aRBlrh));    
     Bs_R_Dry_1um_Neph3W_1    = Bs_R_Dry_1um_Neph3W_1 * (1.12 - (0.035 * aRGlrh));
