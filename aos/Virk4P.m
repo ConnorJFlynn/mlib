@@ -5,10 +5,10 @@ function [Ba_1, Ba_2, Ba_3, Z1, Z2, Z3] = Virk4P(Tr,Ba_raw, Be, Bs, ssa, N)
 % 2010 where N: 1=Blue(467nm), 2=Green(530nm), 3=Red(660nm), 4=wavelength averaged
 % N may be specified as a single number (applying to all five correction parameters)
 % or as a 5-element vector specified each individually
-% Returns Ba_V: the Virkkula-corrected value
-%           ii_: the number of iterations for convergence
-%           k0, k1, h0, h1, s: fitting parameters used
-%           ssa: the converged single-scattering albedo 
+% Returns Ba_1: Virkkula-corrected with Sca, (not sure which is which actually)
+%         Ba_2: Virkkula-corrected with Ext (not sure which is which actually)
+%         Ba_3: Virkkula-corrected with SSA? Doesn't appear to converge
+%         
 
 % Note: the wavelengths listed above are from Virkkula 2010.  Our
 % wavelengths are actually 464, 529, and 648 nm based on Sedlacek
