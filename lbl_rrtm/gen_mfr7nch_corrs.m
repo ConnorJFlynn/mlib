@@ -24,7 +24,7 @@ else
    save([mfr_lbl_path, 'mfr_ch7.mat'],'-struct','mfr_lbl_ch7');
 end
 
-mfr_files = getfullname('*mfr*7nch*.nc','mfr7');
+mfr_files = getfullname('*mfr*7nch*.nc','mfr7'); % this is  now and empty directory...
 if ischar(mfr_files) mfr_files = {mfr_files}; end
 for m = length(mfr_files):-1:1
    mfr_ = anc_loadcoords(mfr_files{m});
