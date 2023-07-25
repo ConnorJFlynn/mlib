@@ -1,7 +1,7 @@
 %Compute basic stats on a curve fit
 function stats = fit_stat(x,y,P,S,mu)
 % Returns a number of statistics from the supplied N-order polynomial
-% stats = fit_stat(x,y,P,S,Mu);
+% stats = fit_stat(x,y,P,S,mu);
 %
 % txt = {['N = ', num2str(stats.N)],...
 %     ['bias (y-x) =  ',sprintf('%1.1g',bias)], ...
@@ -11,7 +11,7 @@ function stats = fit_stat(x,y,P,S,mu)
 %     ['RMSE = ',sprintf('%1.3f',stats.RMSE)]};
 % gt = gtext(txt);
 %
-if ~exist('Mu','var')
+if ~isavar('mu')
 y_hat = polyval(P,x);
 else
    y_hat = polyval(P, x, S, mu);
