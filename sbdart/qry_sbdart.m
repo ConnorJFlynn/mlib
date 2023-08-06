@@ -8,7 +8,7 @@ function [out] = qry_sbdart(in_args,outs,how);
 % if ~exist('in_path','var')|~exist(in_path,'dir')
 %     in_path = getdir;
 % end
-in_path = getpath('sbdart.exe','Select path to SBDART executable.');
+in_path = getpath('sbdart.exe','sbdart.mat','Select path to SBDART executable.');
 if ~isavar('outs')||isempty('outs')
     outs = 'outs.dat';
 end
