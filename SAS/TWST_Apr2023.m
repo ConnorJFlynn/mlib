@@ -1,6 +1,6 @@
 % SGP SASZe & TWST clash on 2023-04-15
 % Based on comment from Steve Jones, the Ze shows poor agreement with TWST and CSPHOT
-% I have looked carefully at netccdf files and do not see any error (wrong cal file,
+% I have looked carefully at Ze netccdf files and do not see any error (wrong cal file,
 % incorrect processing) to account for the difference.  
 
 % load nir, nirb, and nir_a1
