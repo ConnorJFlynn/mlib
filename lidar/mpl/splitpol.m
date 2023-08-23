@@ -27,6 +27,7 @@ for h = 1:length(hk);
         
     end
 end
+before.dtc = polavg.dtc;
 before.statics = polavg.statics;
 before.range = polavg.range;
 before.r = polavg.r;

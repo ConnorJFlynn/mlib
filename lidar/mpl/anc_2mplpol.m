@@ -1,6 +1,8 @@
 function mplpol = anc_2mplpol(anc);
 % mplpol = anc_2mplpol
 % Converts ARM netcdf MPL file to lidar-specific "mplpol" struct
+% 2023-08-15, cjf: Added support for weighted average of linear and
+% quadratic deadtime correction using lin_frac
 mplpol.time = anc.time;
 mplpol.range = anc.vdata.range;
 try
@@ -151,11 +153,20 @@ if isfield(anc.vdata, 'deadtime_correction')
    X_ = mplpol.dtc.MHz;
    logY_ = log10(mplpol.dtc.correction);
    
-   [P_,S_,mu_] = polyfit(X_(end-2:end),logY_(end-2:end),2);
-   high_end = [max(mplpol.dtc.MHz),maxd];
+  
+   high_end = [max(mplpol.dtc.MHz),maxd];high_end = [max(mplpol.dtc.MHz),31];
    high_ends = linspace(high_end(1),high_end(2),10);
-   high_dtc = 10.^polyval(P_,high_ends,S_,mu_);
-   
+   % Introduce potential for weighting linear and quadratic fits
+   [P_1,S_1,mu_1] = polyfit(X_(end-1:end),logY_(end-1:end),1);
+   [P_2,S_2,mu_2] = polyfit(X_(end-2:end),logY_(end-2:end),2);
+   high_dtc_1 = polyval(P_1,high_ends,S_1,mu_1);
+   high_dtc_2 = polyval(P_2,high_ends,S_2,mu_2);   
+   if ~isfield(mplpol.dtc,'lin_frac')
+      mplpol.dtc.lin_frac = 1;
+   end
+   mplpol.dtc.lin_frac = max([min([mplpol.dtc.lin_frac,1]),0]); % set lin_frac to 0<=lin_frac<=1
+   high_dtc = 10.^(high_dtc_1 .* mplpol.dtc.lin_frac + high_dtc_2 .*(1-mplpol.dtc.lin_frac));
+
    % append fitted value to table  
    mplpol.dtc.MHz = [mplpol.dtc.MHz;high_ends'];
    [mplpol.dtc.MHz,ij] = unique(mplpol.dtc.MHz);

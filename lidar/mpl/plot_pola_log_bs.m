@@ -70,7 +70,7 @@ else
    ranges = [15,5,2];
 end
 % end
-vis = 'on';
+% vis = 'on';
 %%
 [pstr,fname,ext] = fileparts(polavg.statics.fname); fname = [fname, ext];
 in_dir = [pstr,filesep]; [~,ds] = fileparts(fname);  [ds_,ds] = strtok(ds,'.');ds_ = [ds_,'.',strtok(ds,'.')];
