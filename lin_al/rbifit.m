@@ -1,5 +1,5 @@
 function [good, P_bar] = rbifit(X,Y,M,pct,good,fig);
-%good = rbifit(X,Y,M,pct,good);
+%good = rbifit(X,Y,M,pct,good,fig);
 % compute a best line bifit
 % compute the mean absolute deviation from this best line
 % re-compute best line fit excluding points with absolute deviation
