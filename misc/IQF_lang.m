@@ -1,5 +1,5 @@
 function [Io_new] = IQF_lang(t,Io, W);
-%[good] = IQF_lang(t,Io, W);
+%[Io_new] = IQF_lang(t,Io, W);
 % Applies an interquartile filter to a time series of values over a window of width W days
 % Follows the IQ with a gaussian filter of width W
 full_range = [1:length(t)];

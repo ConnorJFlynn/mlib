@@ -37,6 +37,7 @@ new_AOD = anc_sift(houmfr, ~bad_aod);
 houmfr = new_AOD;
 
 [nino, oinn] =nearest(new_AOD.time, old_AOD.time);
+% rbifit(X,Y,M,pct,good,fig);
 [good, P_bar] = rbifit(new_AOD.vdata.aerosol_optical_depth_filter5(nino),old_AOD.vdata.aerosol_optical_depth_filter5(oinn),3,0, []);
 xlabel('New AOD');ylabel('Old AOD');
 title('New and Old AOD 870 nm')

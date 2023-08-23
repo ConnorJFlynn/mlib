@@ -9,18 +9,26 @@ clear sbd out qry
 %PPL
 clear qry
 % from Gouyong
-qry.iout=21;
+qry.iout=6;
 qry.NF=3;
 qry.idatm=2;
-qry.isat=16;
-% qry.wlinf=0.615;
-% qry.wlsup=0.615;
-% qry.wlinc=.001;
-qry.IAER=3;
-qry.TBAER=0.3;
+% qry.isat=-2;
+qry.WLINF =  0.675;  
+qry.WLSUP =  0.675;  
+% qry.WLINC =  0.001;
+qry.ISAT = 0;
+qry.iaer=5;
+qry.isalb=6;
+qry.wbaer = .95;
+qry.gbaer = 0.7;
+qry.IAER=5; % User supplied spectral dependence
+qry.wlbaer = [0.44, 0.675, 0.87, 1.02];
+qry.qbaer = [0.566709, 0.30555, 0.20587, 0.158665];
+qry.wbaer = [0.9087, 0.8866, 0.8635, 0.8477];
+qry.gbaer = [0.746985, 0.653263, 0.600973, 0.57403];
 qry.RHAER=0.8;
 qry.SAZA=180;
-qry.SZA=45;
+qry.SZA=17;
 qry.NSTR=20;
 qry.CORINT='.true.';
 % qry.zout = [0,0];
@@ -32,20 +40,27 @@ qry.UZEN = fliplr(180-setxor(UZEN,qry.SZA));
 %ALM
 clear qry
 % from Gouyong
-qry.iout=21;
+qry.iout=6;
 qry.NF=3;
 qry.idatm=2;
-% qry.wlinf=0.615;
-% qry.wlsup=0.615;
-qry.isat=16;
+% qry.isat=-2;
+qry.WLINF =  0.675;  
+qry.WLSUP =  0.675;  
+% qry.WLINC =  0.001;
+qry.ISAT = 0;
 % qry.wlinc=.001;
-qry.ISALB=4;
+qry.ISALB=6;
 % qry.ZCLOUD=1;
-qry.IAER=3;
-qry.TBAER=0.3;
+qry.IAER=5; % supply wlbaer, tbaer, wbaer and gbaer
+qry.wlbaer = [0.44, 0.675, 0.87, 1.02];
+qry.qbaer = [0.566709, 0.30555, 0.20587, 0.158665];
+qry.wbaer = [0.9087, 0.8866, 0.8635, 0.8477];
+qry.gbaer = [0.746985, 0.653263, 0.600973, 0.57403];
+qry.abaer = 1.48;
+% qry.TBAER=0.3;
 qry.RHAER=0.8;
 qry.SAZA=180;
-qry.SZA=75;
+qry.SZA=47.8;
 qry.NSTR=20;
 qry.CORINT='.true.';
 % qry.zout = [0,0];
@@ -53,9 +68,9 @@ qry.CORINT='.true.';
 qry.PHI=[5:10:355];
 UZEN =[]; 
 qry.UZEN = fliplr(180-setxor(UZEN,qry.SZA));
-tic
+% tic
 % qry.UZEN = qry.SZA;
-[out] = qry_sbdart(qry,in_pth);
+[out] = qry_sbdart(qry,gcf);
 
 %zenith radiance only
 clear qry
@@ -76,7 +91,7 @@ qry.CORINT='.true.';
 % qry.zout = [0,0];
 qry.PHI=[0];
 qry.SZA=30;
-tau = [.1:.02:1]
+tau = [.1:.02:1];
 SZA = [0:80];
 for t = length(tau):-1:1
    for z = length(SZA):-1:1

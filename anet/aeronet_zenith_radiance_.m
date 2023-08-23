@@ -1,4 +1,4 @@
-function aip = aeronet_zenith_radiance(infile)
+function aip = aeronet_zenith_radiance_(infile)
 % aip = aeronet_zenith_radiance(infile)
 % Reads AERONET PPL file to yield SA vs SKY_RAD and interpolates to ZEN_RAD
 
@@ -30,16 +30,17 @@ aip.sky_rad = sky_rad(:,ii);
 % Desire radiance units W/(m^2 um sr)
 aip.sky_rad = aip.sky_rad * 10;
 aip.sky_rad_units = 'W/(m^2 um sr)';
+% Figure out how to hand duplicate SA values...
+[SA, ij] = unique(aip.SA);
 for t = length(aip.time):-1:1
-aip.zen_rad(t) = interp1(aip.SA, aip.sky_rad(t,:), aip.SolarZenithAngle_degrees_(t),'linear');
+aip.zen_rad(t) = interp1(aip.SA(ij), aip.sky_rad(t,ij), aip.Solar_Zenith_Angle_Degrees_(t),'linear');
 end
 
 for w = 1:length(aip.wave_rounded)
-    nm = aip.wave_rounded(w)*1000;
+    nm = aip.wave_rounded(w);
     aip.(['zen_rad_',sprintf('%d',nm),'_nm']) = NaN(size(aip.time));
     aip.(['zen_rad_',sprintf('%d',nm),'_nm'])(aip.waves_rounded==aip.wave_rounded(w)) =aip.zen_rad(aip.waves_rounded==aip.wave_rounded(w));
-    aip.(['zen_rad_',sprintf('%d',nm),'_nm'])(aip.(['zen_rad_',sprintf('%d',nm),'_nm'])<0) = NaN;
-    
+    aip.(['zen_rad_',sprintf('%d',nm),'_nm'])(aip.(['zen_rad_',sprintf('%d',nm),'_nm'])<0) = NaN;    
 end
 
 % figure; plot(serial2doys(aip.time), [aip.zen_rad_440_nm, aip.zen_rad_500_nm, ...

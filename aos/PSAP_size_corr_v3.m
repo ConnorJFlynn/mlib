@@ -58,7 +58,9 @@ filt_Tr = 1- filt_eff;
 % filt1_passed = filt_Tr;
 % filt_2_trapped = filt_Tr.*filt_eff;
 cmd_i = 0;
+
 clear mie_total mie_cut psap_total psap_cut
+
 for CMD = 300:-1:90
    cmd_i = cmd_i + 1;
    gsd = 1.75;
@@ -80,12 +82,14 @@ for CMD = 300:-1:90
    psap_filt1(cmd_i) = trapz((diam(ij)), (filt_eff(ij).*qabs(ij).*df(ij).^2) ); 
    psap_filt2(cmd_i) = trapz((diam(ij)), (filt_Tr(ij).*filt_eff(ij).*qabs(ij).*df(ij).^2) ); 
 end
-   figure; scatter((psap_filt1-psap_filt2)./psap_total, mie_total./psap_total,48,[300:-1:90],'filled')
- title(['Pallfex E70 correction, MERVs']);
+
+   figure_(2); scatter((psap_filt1-psap_filt2)./psap_total, mie_total./psap_total,48,[300:-1:90], 'filled')
+ title(['Pallfex E70 correction, MERV15']);
  xlabel('Psap Bap(cut)./Psap Bap(total) (larger==>>)');
- ylabel({'Correction Factor =';'Mie Bap(total)./PSAP Bap(total)'})
+ ylabel('Mie Bap(total)./PSAP Bap(total) ')
+
  % legend([num2str(cut),' nm cut'])
 %  figure; plot(me, psap,'o-');
-
+v = axis; 
 
 return

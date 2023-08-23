@@ -49,7 +49,7 @@ stay = (Be>0)&(Ba_raw>0)&(ssa>0)&(ssa<=1.1)&(Tr<=1)&(Tr>=0.5);
 % stay_ = (Be>0)&(Ba_raw>0)&(ssa>0)&(ssa<=1.1)&(Tr<=1)&(Tr>=0.5);
 ii = 1;
 ii_(stay) = ii;
-ssa(stay) = (Be(stay)-Ba_raw(stay)) ./ Be(stay);
+ssa(stay) = (Be(stay)-Ba_raw(stay)) ./ Be(stay); ssa(stay(ssa(stay)<0)) = 0;
 
 Ba_V(stay) = (k0 + k1 .* (h0+ h1.*ssa(stay)) .* log(Tr(stay))).*Ba_raw(stay) - s.*Be(stay).*ssa(stay);
 
@@ -59,7 +59,7 @@ Ba_V(stay) = (k0 + k1 .* (h0+ h1.*ssa(stay)) .* log(Tr(stay))).*Ba_raw(stay) - s
 stay(stay) = abs(ssa(stay)- (Be(stay).*ssa(stay))./(Be(stay).*ssa(stay)+Ba_V(stay))) >0.001;
 % disp('Check to see if stay and stay_ are equivalent.  Should be!')
 stays = sum(stay);
-while ii<20 && stays>0
+while ii<30 && stays>0
    ii = ii+ 1;
    ii_(stay) = ii;
    ssa(stay) = (Be(stay) -Ba_V(stay)) ./ Be(stay);

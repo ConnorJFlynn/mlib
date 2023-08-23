@@ -205,7 +205,7 @@ end
       mpl_inarg.ol_corr_in_file = true;
    end
    mpl_inarg.replace_ol = false;
-   mpl_inarg.assess_ray = false;
+   mpl_inarg.assess_ray = true;
    mpl_inarg.dtc = eval(['@dtc_',mpl_inarg.tla,'_']); %accept and return MHz
    mpl_inarg.ap = eval(['@ap_',mpl_inarg.tla,'_']); %accept range, return .cop, .crs
    mpl_inarg.ol_corr = eval(['@ol_',mpl_inarg.tla,'_']); % accept range, return ol_corr
