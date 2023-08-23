@@ -10,6 +10,7 @@ function [polavg,ind] = proc_mplpolfsraw_5(mplpol,inarg)
 
 % 2008/05/21 fixed ldr_snr computations
 % Adding functional stubs back in
+% 2023/08/15 Adding dtc to polavg
 
 if ~exist('mplpol','var')||isempty(mplpol)
    mplpol = rd_Sigma;
@@ -48,6 +49,7 @@ ind = 1 + cycles*(Nsamples);
 polavg.range = mplpol.range;
 polavg.r = mplpol.r;
 polavg.statics = mplpol.statics;
+polavg.dtc = mplpol.dtc;
 hk = fieldnames(mplpol.hk);
 % Average the raw data down a coarser time grid.
 for h = 1:length(hk)
