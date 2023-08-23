@@ -181,7 +181,7 @@ while dd <= length(dates)
    %% AM leg
    while ~isempty(this_i) && this_i < length(day) && serial2Hh(ttau2.time_LST(this_i)) < (noon-.5) && this_i < find(this_day,1,'last')%
       % Find "these_m" within +/- 0.1 airmass
-      these_m = day==dates(dd) & (serial2Hh(ttau2.time_LST')' < (noon-.5)) & abs(ttau2.oam-ttau2.oam(this_i))<.2;
+      these_m = day==dates(dd) & (serial2Hh(ttau2.time_LST')' < (noon-.5)) & abs(ttau2.oam-ttau2.oam(this_i))<.25;
       srcs = unique(ttau2.src(these_m)); %srcs_str = [sprintf('%s, ',src_str{srcs(1:end-1)}),sprintf('%s',src_str{srcs(end)})];
       % Loop over all unique sources, taking mean of each source by wl
       % Plotting each in a different color.
@@ -419,7 +419,7 @@ ttau.srctag = [];
 
 src = 0;
 
-cimfile = getfullname('*.*','anet_aod_v3','Select Aeronet file with AODs');
+cimfile = getfullname('*.*','anet_aod_v3','Select Aeronet file with TOD and AODs');
 [pname, ~]= fileparts(cimfile);
 pname = [pname, filesep]; pname = strrep(pname, [filesep, filesep], filesep);
 while ~isempty(cimfile)&&isafile(cimfile)
@@ -432,6 +432,9 @@ while ~isempty(cimfile)&&isafile(cimfile)
    end
    aods = fields(cim);
    aod_ = foundstr(aods, 'AOD_')&foundstr(aods, 'nm_AOD');
+   % if ~any(aod_)
+   %    aod_ = foundstr(aods, 'AOD_');
+   % end
    aods = aods(aod_);
    for f = 1:length(aods)
       good = cim.(aods{f})>0 ;
