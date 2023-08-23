@@ -7,6 +7,7 @@ function fitted_olc = analytic_ol_uc(rng, olc, pin_R)
 
 % Work below incorporates Stelmaszczyk paper with analytic form
 % for Overlap "Geometric Compression"
+% OCIS codes: 010.3640, 280.0280, 110.6770
 
 %Might be able to use location of maxima observed in OL-corrected Rayleigh
 %to better bracket the basis set.

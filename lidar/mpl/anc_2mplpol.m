@@ -150,8 +150,8 @@ if isfield(anc.vdata, 'deadtime_correction')
    
    X_ = mplpol.dtc.MHz;
    logY_ = log10(mplpol.dtc.correction);
-   
-   [P_,S_,mu_] = polyfit(X_(end-2:end),logY_(end-2:end),2);
+    [P_,S_,mu_] = polyfit(X_(end-1:end),logY_(end-1:end),1);
+   % [P_,S_,mu_] = polyfit(X_(end-2:end),logY_(end-2:end),2);
    high_end = [max(mplpol.dtc.MHz),maxd];
    high_ends = linspace(high_end(1),high_end(2),10);
    high_dtc = 10.^polyval(P_,high_ends,S_,mu_);
