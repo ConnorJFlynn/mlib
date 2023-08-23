@@ -23,8 +23,9 @@ if any(pol.nm>1500) % Then it is NIR
 else
  bad_wl = pol.nm<550 | pol.nm>950;
 end
-Tr(:,bad_wl) = NaN;
-figure; lines = plot([0:20:360],Tr,'-'); colormap('jet'); recolor(lines,pol.nm); title(exp_name)
+Tr(:,bad_wl) = NaN; meanTr = nanmean(Tr);Tr = Tr - ones([size(Tr,1),1])*meanTr;
+figure; lines = plot([0:20:360],Tr,'o'); colormap('jet'); recolor(lines,pol.nm); title(exp_name);
+figure; lines = plot([0:20:360],fliplr(Tr),'o'); colormap('jet'); recolor(lines,flipud(pol.nm)); title(exp_name)
 % figure; lines = plot(pol.nm, Tr','-'); colormap(jej); recolor(lines,[0:20:360]); title(exp_name)
 
 % This block of code removes the dependence of a 360 degree rotation due to
