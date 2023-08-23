@@ -22,9 +22,9 @@ qry.CORINT='.true.';
 % qry.zout = [0,0];
 qry.PHI=[0];
 qry.SZA=30;
-tau = [.1:.01:1];
+tau = [.1:.01:1]; tau = .41;
 airmass = 1:.1:7;
-SZA = [0:82];
+SZA = [0:82]; SZA = [47, 51, 57, 68, 75];
 tic
 for t = length(tau):-1:1
    for z = length(SZA):-1:1
@@ -33,7 +33,7 @@ for t = length(tau):-1:1
       qry.VZEN =[qry.SZA];
       % pause(.01);
       [out] = qry_sbdart(qry);
-      zrad(t,z) = out.rads;
+      zrad(t,z) = out.rads; % (W/m2/um/sr)
    end
    disp(tau(t))
 end
