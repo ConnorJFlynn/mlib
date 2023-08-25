@@ -126,6 +126,8 @@ while ~done
    if ~done
       for s = 1:steps
          good(good) = abs(dev(good))<mad;
+         good_i = find(good); [~, i] = max(airmass(good)); 
+         good(good_i(i)) = false; % Trying to remove undue leverage from endpoint
          goods = sum(good);
          mad_ = max(abs(dev_(good)));
          good(good) = abs(dev_(good))<mad_;
