@@ -1,5 +1,7 @@
 function [ttau, lang_legs, dirbeams, rVos, ttau2, llegs2, rVos2, dbeams] = afit_lang_tau_series(ttau, lang_legs, rVos)
 % [lang_legs, ttau, rVos, dirbeams, ttau2] = afit_lang_tau_series(ttau, lang_legs, rVos)
+% v0.91 beta; probable calibration bug affecting non-anet dbeams.  Observed SASHeMFR
+% and MFRSR at HOU with very similar large biases relative to anet (good)
 % v0.9 beta; Connor Flynn 2022-10-11, working to clean up, esp dbeam(s)
 % Almost there.  TOD and AOD not computed properly from Vos, but very close.
 % ttau: input serialized AOD, often anet.  Accepts both anet and ARM netcdf/mat
@@ -107,8 +109,8 @@ if ~isavar('rVos')  % We need to load dirbeam(s), execute tau-langley to generat
    % load dirbeam streams
    % One lang_leg at a time, run tau_lang for each filter/wl
    dirbeam = load_dirbeam;
-  [dirbeams, langs, ~, rVos] = calc_Vos_from_dirbeam(dirbeam, lang_legs);
-  elseif isempty(rVos) % An empty Vo has been passed in signaling we should load presaved
+   [dirbeams, langs, ~, rVos] = calc_Vos_from_dirbeam_(dirbeam, lang_legs);
+elseif isempty(rVos) % An empty Vo has been passed in signaling we should load presaved
    Vo = getfullname('*Vo.mat','Vo','Select a Vo mat file');
    while ~isempty(Vo)
       % See if the loaded Vo is just one really multiple.
@@ -341,8 +343,11 @@ for tg = length(tags):-1:1
             WL.iT_g = exp(WL.RayOD.*WL.pres_atm.*WL.oam); % Inverse gas transmittance (so multiply by instead of divide)
             if ~isempty(WL.oam)&&~isempty(WL.aod)&&~isempty(WL.iT_g)&&~isempty(WL.dirt)
                [Co,~,Co_, ~, good] = dbl_lang(WL.oam.*WL.aod,WL.iT_g.*WL.dirt,2.25,[],1,0);
-               if ~isempty(Co) && ~isempty(good) && any(good)
-%                   aod_lang = -log(WL.dirt./mean([Co, Co_]))./WL.oam - WL.RayOD.*WL.pres_atm;
+               aod_lang = -log(WL.dirt./mean([Co, Co_]))./WL.oam - WL.RayOD.*WL.pres_atm;
+               ndCo = (abs(Co-Co_) ./ abs(Co+Co_)./2)<1e3;
+               phys_aod = max(aod_lang)<5 & min(aod_lang)>0;
+               if ~isempty(Co) && ~isempty(good) && any(good)&& ndCo && phys_aod
+                  %                   aod_lang = -log(WL.dirt./mean([Co, Co_]))./WL.oam - WL.RayOD.*WL.pres_atm;
                   %             figure_(9); plot(WL.time(good), aod_lang(good),'.'); legend(num2str(nm));dynamicDateTicks; hold('on'); title(title_str);
                   if (sum(good)>=10) && ((max(WL.oam(good))./min(WL.oam(good)))>=2.75)||((max(WL.oam(good))-min(WL.oam(good)))>2.75)
                      langs2.nm(end+1) = nm;
@@ -472,7 +477,8 @@ while ~isempty(mfr_files)
    qc_aod_ = foundstr(flds, 'qc_aerosol_optical_depth');
    qc_ii = find(qc_aod_);
    for qc = 1:sum(qc_aod_)
-      wl = sscanf(mfr.gatts.(['filter',num2str(qc),'_CWL_measured']),'%f');
+      N = sscanf(flds{qc_ii(qc)},'qc_aerosol_optical_depth_filter%d');
+      wl = sscanf(mfr.gatts.(['filter',num2str(N),'_CWL_measured']),'%f');
       ttau.time = [ttau.time; mfr.time'];
       ttau.airmass = [ttau.airmass; mfr.vdata.airmass'];
       ttau.pres_atm = [ttau.pres_atm; zeros(size(mfr.vdata.airmass'))+mfr.vdata.surface_pressure.*10];
@@ -520,8 +526,14 @@ end
 
 LW.time = ttau.time;
 wl_1p6 = ttau.nm > 1400; wl_1u = ttau.nm > 1000 & ttau.nm < 1200;
-LW.aod_1p6 = interp1(ttau.time(wl_1p6), ttau.aod(wl_1p6), ttau.time,'linear');
-LW.aod_1u = interp1(ttau.time(wl_1u), ttau.aod(wl_1u), ttau.time,'linear');
+aod_1p6 = smooth(ttau.aod(wl_1p6));
+[utime, ij] = unique(ttau.time(wl_1p6)); aod_1p6 = aod_1p6(ij);
+LW.aod_1p6 = interp1(utime, aod_1p6, LW.time, 'linear');
+
+aod_1u = smooth(ttau.aod(wl_1u));
+[utime, ij] = unique(ttau.time(wl_1u)); aod_1u = aod_1u(ij);
+LW.aod_1u = interp1(utime, aod_1u, LW.time, 'linear');
+
 bad = isnan(LW.aod_1p6) | isnan(LW.aod_1u) |(LW.aod_1p6./LW.aod_1u > .95);
 gtime = LW.time(~bad); gaod = LW.aod_1p6(~bad);
 [gtime, ij] = unique(gtime); gaod = gaod(ij);
@@ -753,7 +765,7 @@ if ~isempty(dirbeam_files)
          if min(infile.vdata.wavelength) < 500
             WL = [340,355,368,387,408,415,440,500,532,615,650,673,762,870,910,975];
          else
-             WL = [976,1020,1030,1225,1550,1625,1637];
+            WL = [976,1020,1030,1225,1550,1625,1637];
          end
          wl_i = interp1(infile.vdata.wavelength, [1:length(infile.vdata.wavelength)],WL,'nearest');
          WL_nm = infile.vdata.wavelength(wl_i);
@@ -867,7 +879,7 @@ if ~isempty(dirbeam_files)
    else
       dirbeam.tag = 'anon';
    end
-end 
+end
 %dirbeam = dirbeam_sas_patch(infile)
 %dirbeam.pname = pname; dirbeam.fname = fname;
 
@@ -891,45 +903,100 @@ while ~isempty(dirbeam)
       %          wl_x = interp1(leg.wl, [1:length(leg.wl)],[1020,1700],'nearest');
       title_str = leg_name{L}; disp(title_str);
       %        figure_(9); title(title_str);
-      for wl_ii = length(dirbeam.wls):-1:1
-         nm = dirbeam.wls(wl_ii);
-         L_ = (dirbeam.wl==nm)&(dirbeam.time>=leg.time_UT(1))&(dirbeam.time<=leg.time_UT(end));
-         if sum(L_)>4 && length(L_)==length(dirbeam.AU)&&length(L_)==length(dirbeam.dirn)
-            WL.nm = nm; WL.AU = mean(dirbeam.AU(L_));WL.pres_atm = mean(leg.pres_atm);
-            WL.time = dirbeam.time(L_); WL.time_LST = dirbeam.time_LST(L_); WL.dirn = dirbeam.dirn(L_);
-            WL.oam = dirbeam.oam(L_);
+      % The approach below computes independent langleys for each filter. Better is perhaps
+      % to compute for one or two, take the intersection of the resulting "good" airmasses,
+      % and apply to all wavelengths
+      % Something like:        [Co,od,Co_, od_, good1] = dbl_lang(WL.oam.*WL.aod,WL.iT_g.*WL.dirn,2.25,[],1,0);
+      nm_ii = interp1(dirbeam.wls,[1:length(dirbeam.wls)],870,'nearest','extrap'); % Identifies closest wl to 870 nm
+      nm = dirbeam.wls(nm_ii);
+      L_ = (dirbeam.wl==nm)&(dirbeam.time>=leg.time_UT(1))&(dirbeam.time<=leg.time_UT(end));
+      if sum(L_)>4 && length(L_)==length(dirbeam.AU)&&length(L_)==length(dirbeam.dirn)
+         
+         WL.nm = nm; WL.AU = mean(dirbeam.AU(L_));WL.pres_atm = mean(leg.pres_atm);
+         WL.time = dirbeam.time(L_); WL.time_LST = dirbeam.time_LST(L_); WL.dirn = dirbeam.dirn(L_);
+         WL.oam = dirbeam.oam(L_);
+         %Interpolate leg.aod_fit (in log-log space) to match wl of filter
+         % Probably also interpolate in time to match times of mfr "minl" but in this case it is 1:1
+         % Also, interpolate atm_pres_hPa from leg to wl, scale rayOD
+         WL.RayOD = rayleigh_ht(nm./1000);
+         aod_fit = exp(interp1(log(leg.wl), log(leg.aod_fit'), log(nm),'linear'))';
+         WL.aod = interp1(leg.time_UT, aod_fit, WL.time','linear')';
+         WL.iT_g = exp(WL.RayOD.*WL.pres_atm.*WL.oam); % Inverse gas transmittance (so multiply by instead of divide)
 
-            %Interpolate leg.aod_fit (in log-log space) to match wl of filter
-            % Probably also interpolate in time to match times of mfr "minl" but in this case it is 1:1
-            % Also, interpolate atm_pres_hPa from leg to wl, scale rayOD
-            WL.RayOD = rayleigh_ht(nm./1000);
-            aod_fit = exp(interp1(log(leg.wl), log(leg.aod_fit'), log(nm),'linear'))';
-            WL.aod = interp1(leg.time_UT, aod_fit, WL.time','linear')';
-            WL.iT_g = exp(WL.RayOD.*WL.pres_atm.*WL.oam); % Inverse gas transmittance (so multiply by instead of divide)
-            %                try
-            if ~isempty(WL.oam)&&~isempty(WL.aod)&&~isempty(WL.iT_g)&&~isempty(WL.dirn)
-               [Co,~,Co_, ~, good] = dbl_lang(WL.oam.*WL.aod,WL.iT_g.*WL.dirn,2.25,[],1,0);
-               aod_lang = -log(WL.dirn./mean([Co, Co_]))./WL.oam - WL.RayOD.*WL.pres_atm;
-               %             figure_(9); plot(WL.time(good), aod_lang(good),'.'); legend(num2str(nm));dynamicDateTicks; hold('on'); title(title_str);
-               if ~isempty(Co)&&~isempty(Co_)&&sum(good)>=10 && ...
-                     (((max(WL.oam(good))./min(WL.oam(good)))>=2.75)||...
-                     ((max(WL.oam(good))-min(WL.oam(good)))>2.75))
+         if ~isempty(WL.oam)&&~isempty(WL.aod)&&~isempty(WL.iT_g)&&~isempty(WL.dirn)
+            [Co,od,Co_, od_, good] = dbl_lang(WL.oam.*WL.aod,WL.iT_g.*WL.dirn,2.25,[],1,0);
+            aod_lang = -log(WL.dirn./mean([Co, Co_]))./WL.oam - WL.RayOD.*WL.pres_atm;
+            ndCo = (abs(Co-Co_) ./ abs(Co+Co_)./2)<1e3; 
+            phys_aod = max(aod_lang)<5 & min(aod_lang)>1e-4;
+            %             figure_(9); plot(WL.time(good), aod_lang(good),'.'); legend(num2str(nm));dynamicDateTicks; hold('on'); title(title_str);
+            if ~isempty(Co)&&~isempty(Co_)&&sum(good)>=10 && ...
+                  (((max(WL.oam(good))./min(WL.oam(good)))>=2.75)||...
+                  ((max(WL.oam(good))-min(WL.oam(good)))>2.75)) && ndCo && phys_aod && Co>0 && Co_>0
+               for wl_ii = length(dirbeam.wls):-1:1
+                  nm = dirbeam.wls(wl_ii);
                   langs.nm(end+1) = nm;
+                  WL.RayOD = rayleigh_ht(nm./1000);
+                  aod_fit = exp(interp1(log(leg.wl), log(leg.aod_fit'), log(nm),'linear'))';
+                  WL.aod = interp1(leg.time_UT, aod_fit, WL.time','linear')';
+                  WL.iT_g = exp(WL.RayOD.*WL.pres_atm.*WL.oam); % Inverse gas transmittance (so multiply by instead of div
                   langs.time_UT(end+1) = mean(WL.time(good)) ;
                   langs.time_LST(end+1) = mean(WL.time_LST(good)) ;
                   langs.ngood(end+1) = sum(good);
                   langs.min_oam(end+1) = min(WL.oam(good));
                   langs.max_oam(end+1) = max(WL.oam(good));
                   langs.pres_atm = WL.pres_atm;
-                  langs.Co(end+1) = Co;
-                  langs.Co_uw(end+1) = Co_;
+                  langs.Co(end+1) = lang(WL.oam(good).*WL.aod(good),WL.iT_g(good).*WL.dirn(good));
+                  langs.Co_uw(end+1) = lang_uw(WL.oam(good).*WL.aod(good),WL.iT_g(good).*WL.dirn(good));
                end
             end
-            %                catch
-            %                   warning('Try, catch tripped.  Possible issue with polyfit within dbl_lang')
-            %                end
          end
       end
+
+
+
+      % for wl_ii = length(dirbeam.wls):-1:1
+      %    nm = dirbeam.wls(wl_ii);
+      %    L_ = (dirbeam.wl==nm)&(dirbeam.time>=leg.time_UT(1))&(dirbeam.time<=leg.time_UT(end));
+      %    if sum(L_)>4 && length(L_)==length(dirbeam.AU)&&length(L_)==length(dirbeam.dirn)
+      %       WL.nm = nm; WL.AU = mean(dirbeam.AU(L_));WL.pres_atm = mean(leg.pres_atm);
+      %       WL.time = dirbeam.time(L_); WL.time_LST = dirbeam.time_LST(L_); WL.dirn = dirbeam.dirn(L_);
+      %       WL.oam = dirbeam.oam(L_);
+      % 
+      %       %Interpolate leg.aod_fit (in log-log space) to match wl of filter
+      %       % Probably also interpolate in time to match times of mfr "minl" but in this case it is 1:1
+      %       % Also, interpolate atm_pres_hPa from leg to wl, scale rayOD
+      %       WL.RayOD = rayleigh_ht(nm./1000);
+      %       aod_fit = exp(interp1(log(leg.wl), log(leg.aod_fit'), log(nm),'linear'))';
+      %       WL.aod = interp1(leg.time_UT, aod_fit, WL.time','linear')';
+      %       WL.iT_g = exp(WL.RayOD.*WL.pres_atm.*WL.oam); % Inverse gas transmittance (so multiply by instead of divide)
+      %       %                try
+      %       if ~isempty(WL.oam)&&~isempty(WL.aod)&&~isempty(WL.iT_g)&&~isempty(WL.dirn)
+      %          [Co,od,Co_, od_, good] = dbl_lang(WL.oam.*WL.aod,WL.iT_g.*WL.dirn,2.25,[],1,0);
+      %          aod_lang = -log(WL.dirn./mean([Co, Co_]))./WL.oam - WL.RayOD.*WL.pres_atm;
+      %          ndCo = (abs(Co-Co_) ./ abs(Co+Co_)./2)<1e3; 
+      %          phys_aod = max(aod_lang)<5 & min(aod_lang)>0;
+      %          %             figure_(9); plot(WL.time(good), aod_lang(good),'.'); legend(num2str(nm));dynamicDateTicks; hold('on'); title(title_str);
+      %          if ~isempty(Co)&&~isempty(Co_)&&sum(good)>=10 && ...
+      %                (((max(WL.oam(good))./min(WL.oam(good)))>=2.75)||...
+      %                ((max(WL.oam(good))-min(WL.oam(good)))>2.75))&&ndCo&&phys_aod&&Co>0&&Co_>1e-4
+      %             langs.nm(end+1) = nm;
+      %             langs.time_UT(end+1) = mean(WL.time(good)) ;
+      %             langs.time_LST(end+1) = mean(WL.time_LST(good)) ;
+      %             langs.ngood(end+1) = sum(good);
+      %             langs.min_oam(end+1) = min(WL.oam(good));
+      %             langs.max_oam(end+1) = max(WL.oam(good));
+      %             langs.pres_atm = WL.pres_atm;
+      %             langs.Co(end+1) = Co;
+      %             langs.Co_uw(end+1) = Co_;
+      %          end
+      %       end
+      %       %                catch
+      %       %                   warning('Try, catch tripped.  Possible issue with polyfit within dbl_lang')
+      %       %                end
+      %    end
+      % end
+
+
       %       pause(.125); close(9);
       %       end
    end
@@ -962,6 +1029,99 @@ save([pname, upper(fname), '_rVos.mat'],'-struct','rVos');
 save([pname, upper(fname), '_DirBeams.mat'],'-struct','dirbeams');
 end
 
+function [dirbeams, langs, Vos, rVos] = calc_Vos_from_dirbeam_(dirbeam, lang_legs)
+%Evaluating two approaches:
+% 1) calc_Vos_from_dirbeam_ Independent dlb Langley for each wavelength
+% 2) dbl_lang for 1 (or two?) wavelengths then apply identified "good" airmass screen
+% to all wavelengths equally
+
+while ~isempty(dirbeam)
+   langs.pname = dirbeam.pname;
+   langs.fname = dirbeam.fname;
+   langs.nm = [];
+   langs.time_UT = []; langs.time_LST = [];
+   langs.ngood = [];
+   langs.min_oam = [];
+   langs.max_oam = [];
+   langs.Co = [];
+   langs.Co_uw = [];
+   leg_name = fieldnames(lang_legs);
+   for L = 1:length(leg_name)
+      leg = lang_legs.(leg_name{L});
+      %          wl_x = interp1(leg.wl, [1:length(leg.wl)],[1020,1700],'nearest');
+      title_str = leg_name{L}; disp(title_str);
+      %        figure_(9); title(title_str);
+      % The approach below computes independent langleys for each filter. Better is perhaps
+      % to compute for one or two, take the intersection of the resulting "good" airmasses,
+      % and apply to all wavelengths
+      % Something like:        [Co,od,Co_, od_, good1] = dbl_lang(WL.oam.*WL.aod,WL.iT_g.*WL.dirn,2.25,[],1,0);
+
+
+      for wl_ii = length(dirbeam.wls):-1:1
+         nm = dirbeam.wls(wl_ii);
+         L_ = (dirbeam.wl==nm)&(dirbeam.time>=leg.time_UT(1))&(dirbeam.time<=leg.time_UT(end));
+         if sum(L_)>4 && length(L_)==length(dirbeam.AU)&&length(L_)==length(dirbeam.dirn)
+            WL.nm = nm; WL.AU = mean(dirbeam.AU(L_));WL.pres_atm = mean(leg.pres_atm);
+            WL.time = dirbeam.time(L_); WL.time_LST = dirbeam.time_LST(L_); WL.dirn = dirbeam.dirn(L_);
+            WL.oam = dirbeam.oam(L_);
+
+            WL.RayOD = rayleigh_ht(nm./1000);
+            aod_fit = exp(interp1(log(leg.wl), log(leg.aod_fit'), log(nm),'linear'))';
+            WL.aod = interp1(leg.time_UT, aod_fit, WL.time','linear')';
+            WL.iT_g = exp(WL.RayOD.*WL.pres_atm.*WL.oam); % Inverse gas transmittance (so multiply by instead of divide)
+            %                try
+            if ~isempty(WL.oam)&&~isempty(WL.aod)&&~isempty(WL.iT_g)&&~isempty(WL.dirn)
+               [Co,od,Co_, od_, good] = dbl_lang(WL.oam.*WL.aod,WL.iT_g.*WL.dirn,2.25,[],1,0);
+               aod_lang = -log(WL.dirn./mean([Co, Co_]))./WL.oam - WL.RayOD.*WL.pres_atm;
+               ndCo = (abs(Co-Co_) ./ abs(Co+Co_)./2)<1e3; 
+               phys_aod = max(aod_lang)<5 & min(aod_lang)>0;
+               %             figure_(9); plot(WL.time(good), aod_lang(good),'.'); legend(num2str(nm));dynamicDateTicks; hold('on'); title(title_str);
+               if ~isempty(Co)&&~isempty(Co_)&&sum(good)>=10 && ...
+                     (((max(WL.oam(good))./min(WL.oam(good)))>=2.25)||...
+                     ((max(WL.oam(good))-min(WL.oam(good)))>2.25)) && ndCo && phys_aod && Co>0 && Co_>1e-4
+                  langs.nm(end+1) = nm;
+                  langs.time_UT(end+1) = mean(WL.time(good)) ;
+                  langs.time_LST(end+1) = mean(WL.time_LST(good)) ;
+                  langs.ngood(end+1) = sum(good);
+                  langs.min_oam(end+1) = min(WL.oam(good));
+                  langs.max_oam(end+1) = max(WL.oam(good));
+                  langs.pres_atm = WL.pres_atm;
+                  langs.Co(end+1) = Co;
+                  langs.Co_uw(end+1) = Co_;
+               end
+            end
+         end
+      end
+
+   end
+   if ~isempty(langs.time_UT)
+      [~, ~, langs.AU, ~, ~, ~, ~] = sunae(0, 0, langs.time_UT);
+   else
+      disp('empty time_UT');
+   end
+   %The following lines attempt to address the fact that anet and sashe*aod direct beam is 
+   % transmittance derived from the AODs rather than direct normal irradiance.
+   % Transmittance already has AU correction built in so set Co_AU = Co.
+   if foundstr(langs.fname, 'mfr')||(foundstr(langs.fname, 'sashe')&&~foundstr(langs.fname,'aod'))
+      langs.Co_AU = langs.Co.*(langs.AU.^2);
+   elseif (foundstr(langs.fname, 'sashe')&&foundstr(langs.fname,'aod'))
+      langs.Co_AU = langs.Co;
+   else
+      langs.Co_AU = langs.Co;
+   end
+   langs.tag = dirbeam.tag;
+   save([langs.pname, langs.fname, '_Vo.mat'],'-struct','langs');
+   Vos.(dirbeam.tag) = langs;
+   rVos.(dirbeam.tag) = rVos_from_lang_Vos(Vos.(dirbeam.tag), 21,1);
+   dirbeams.(dirbeam.tag) = dirbeam;
+   dirbeam = load_dirbeam;
+end
+pname = langs.pname; pname(end)= [];
+pname = fileparts(pname); [pname, fname] = fileparts(pname);
+pname = [pname, filesep, fname, filesep];
+save([pname, upper(fname), '_rVos.mat'],'-struct','rVos');
+save([pname, upper(fname), '_DirBeams.mat'],'-struct','dirbeams');
+end
 
 
 function [ttau2,dirbeams] = calc_ttau2_dbeams(ttau, dirbeams, rVos)
