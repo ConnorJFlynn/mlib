@@ -9,7 +9,7 @@ function aod_be_plots_kassianov
 % lang_legs: lang_legs.cim_mfr7.mat
 % dirbeams: dirbeams.cim_mfr7_sas.mat (most direct SAS AOD data)
 % 
-outp = ['C:\Users\flyn0011\OneDrive - University of Oklahoma\Desktop\xdata\ARM\adc\mentor\aodfit_be\hou\'];
+outp = ['C:\Users\Connor Flynn\OneDrive - University of Oklahoma\Desktop\xdata\ARM\adc\mentor\aodfit_be\hou\'];
 ttau = load(getfullname([outp,'ttau.*.mat']));
 lang_legs = load(getfullname([outp,'lang_legs.*.mat']));
 dirbeams = load(getfullname([outp,'dirbeams.*.mat']));
@@ -44,20 +44,27 @@ wl_a_500 = wl_a_500(ainm); wl_m_500 = wl_m_500(mina);
 figure; plot(anet.time_LST(wl_a_500), anet.aod(wl_a_500),'o',mfr.time_LST(wl_m_500), mfr.aod(wl_m_500),'x');
 dynamicDateTicks
 
+[good, P_bar] = rbifit(anet.aod(wl_a_500), mfr.aod(wl_m_500),3,0);
 D = den2plot(anet.aod(wl_a_500), mfr.aod(wl_m_500));
-figure; scatter(anet.aod(wl_a_500), mfr.aod(wl_m_500),4,D,'filled'); xl = xlim; xlim([0,xl(2)]); ylim(xlim); axis('square')
-[good, P_bar] = rbifit(anet.aod(wl_a_500), mfr.aod(wl_m_500),3,0, []);
-xlabel('Aeronet AOD');ylabel('MFRSR AOD');
-title('Aeronet and ARM AOD 500 um')
+figure; scatter(anet.aod(wl_a_500), mfr.aod(wl_m_500),4,log10(D),'filled'); 
+ xl = xlim; yl = ylim; xlim([0,floor(10.*min([xl(2),yl(2)]))./10]);
+ ylim(xlim);  axis('square'); xl = xlim;
+ hold('on'); plot(xl, xl, 'k--', xl, polyval(P_bar,xl),'b-'); 
+ [gt,txt, stats] = txt_stat(anet.aod(wl_a_500(good)), mfr.aod(wl_m_500(good)),P_bar); 
+ set(gt, 'color','b')
+ hold('off')
+ xlabel('Aeronet AOD');ylabel('MFRSR AOD');
+title('Aeronet and ARM AOD 500 um'); 
+
+
+figure; scatter(anet.aod(wl_a_500), mfr.aod(wl_m_500),4,log10(D),'filled'); xl = xlim; xlim([0,xl(2)]); ylim(xlim); axis('square')
+
+
+
  xlim([0,.45]); ylim(xlim); axis('square')
 [gt,txt, stats] = txt_stat(anet.aod(wl_a_500(good)), mfr.aod(wl_m_500(good)),P_bar);
 hold('on'); plot(anet.aod(wl_a_500(~good)), mfr.aod(wl_m_500(~good)),'k.'); hold('off');
 
-figure; scatter(X,Y,4,D);colormap(comp_map_w_jet)
-
-figure; densityplot([0;anet.aod(wl_a_500)], [0;mfr.aod(wl_m_500)],'nbins',[100,100]);
-cmap = wrgbk; cmap(1,:) = 1; colormap(cmap)
-colormap(comp_map_w_jet)
 xlabel('Aeronet AOD');ylabel('MFRSR AOD');
 title('Aeronet and MFRSR AOD 500 um')
  ylim(xlim); axis('square')
