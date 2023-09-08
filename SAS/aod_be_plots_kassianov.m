@@ -19,6 +19,7 @@ dbeams = load(getfullname([outp,'dbeams.*.mat']));
 src = 1;
 anet.wls = unique(ttau.nm(ttau.srctag==src));
 anet.wl = ttau.nm(ttau.srctag==src);
+anet.time = ttau.time(ttau.srctag==src);
 anet.time_LST = ttau.time_LST(ttau.srctag==src);
 anet.oam = ttau.airmass(ttau.srctag==src);
 anet.aod = ttau.aod(ttau.srctag==src);
@@ -28,6 +29,7 @@ src = 2;
 mfr.wls = unique(ttau.nm(ttau.srctag==src));
 mfr.wl = ttau.nm(ttau.srctag==src);
 mfr.time_LST = ttau.time_LST(ttau.srctag==src);
+mfr.time = ttau.time(ttau.srctag==src);
 mfr.oam = ttau.airmass(ttau.srctag==src);
 mfr.aod = ttau.aod(ttau.srctag==src);
 mfr.aod_1p6 = ttau.aod_1p6(ttau.srctag==src);
@@ -39,13 +41,19 @@ figure; plot(anet.time_LST(anet.wl==1640), anet.aod(anet.wl==1640),'o',...
 dynamicDateTicks; legend('anet','a 1p6','mfr', 'm 1p6')
 
 wl_a_500 = find(anet.wl==500);wl_m_500 = find(mfr.wl>500&mfr.wl<600);
-[ainm, mina] = nearest(anet.time_LST(wl_a_500), mfr.time_LST(wl_m_500));
+[ainm, mina] = nearest(anet.time(wl_a_500), mfr.time(wl_m_500));
 wl_a_500 = wl_a_500(ainm); wl_m_500 = wl_m_500(mina);
-figure; plot(anet.time_LST(wl_a_500), anet.aod(wl_a_500),'o',mfr.time_LST(wl_m_500), mfr.aod(wl_m_500),'x');
+
+figure; plot(anet.time(wl_a_500), anet.aod(wl_a_500),'o',mfr.time(wl_m_500), mfr.aod(wl_m_500),'x');
 dynamicDateTicks
 
 D = den2plot(anet.aod(wl_a_500), mfr.aod(wl_m_500));
-figure; scatter(anet.aod(wl_a_500), mfr.aod(wl_m_500),4,D,'filled'); xl = xlim; xlim([0,xl(2)]); ylim(xlim); axis('square')
+figure; scatter(anet.aod(wl_a_500), mfr.aod(wl_m_500),4,D,'filled'); colormap(comp_map_w_jet)
+xl = xlim; xlim([0,xl(2)]); ylim(xlim); axis('square');
+figure; scatter(anet.aod(wl_a_500), mfr.aod(wl_m_500),4,log10(D),'filled'); colormap(comp_map_w_jet)
+xl = xlim; xlim([0,xl(2)]); ylim(xlim); axis('square')
+
+
 [good, P_bar] = rbifit(anet.aod(wl_a_500), mfr.aod(wl_m_500),3,0, []);
 xlabel('Aeronet AOD');ylabel('MFRSR AOD');
 title('Aeronet and ARM AOD 500 um')
