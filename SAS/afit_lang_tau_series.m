@@ -166,7 +166,9 @@ mad_factor = 3;
 noon = 12;
 src_str = ttau2.srcs;
 day = floor(ttau2.time_LST);
+day_ = floor(ttau.time_LST);
 dates = unique(floor(ttau2.time_LST));
+dates_ = unique(floor(ttau.time_LST));
 
 % Then llegs2 from ttau2
 llegs2.mt = []; llegs2 = rmfield(llegs2, 'mt');
@@ -184,7 +186,9 @@ while dd <= length(dates)
    while ~isempty(this_i) && this_i < length(day) && serial2Hh(ttau2.time_LST(this_i)) < (noon-.5) && this_i < find(this_day,1,'last')%
       % Find "these_m" within +/- 0.1 airmass
       these_m = day==dates(dd) & (serial2Hh(ttau2.time_LST')' < (noon-.5)) & abs(ttau2.oam-ttau2.oam(this_i))<.25;
+      these_m_ = day_==dates_(dd) & (serial2Hh(ttau.time_LST) < (noon-.5)) & abs(ttau.airmass-ttau2.oam(this_i))<.25;
       srcs = unique(ttau2.src(these_m)); %srcs_str = [sprintf('%s, ',src_str{srcs(1:end-1)}),sprintf('%s',src_str{srcs(end)})];
+      srcs_ = unique(ttau.srctag(these_m_));
       % Loop over all unique sources, taking mean of each source by wl
       % Plotting each in a different color.
       clear this_am src
@@ -197,10 +201,12 @@ while dd <= length(dates)
       for s_i = 1:length(srcs) % check that srcs is the right orientation
          src(s_i).str = src_str(srcs(s_i));
          s_ = ttau2.src==srcs(s_i);
+         s1_ = ttau.srctag==srcs(s_i);
          wls = unique(ttau2.nm(these_m & s_));
          src(s_i).nm = wls;
          for wl_i = 1:length(wls)
             wl_ = ttau2.nm == wls(wl_i);
+            wl1_ = ttau.nm == wls(wl_i);
             src(s_i).tod(wl_i,1) = mean(ttau2.tod(these_m & s_ & wl_));
             src(s_i).aod(wl_i,1) = mean(ttau2.aod(these_m & s_ & wl_));
          end
@@ -213,7 +219,11 @@ while dd <= length(dates)
       % rfit best AOD and plot in black dots every 20 nm for this am and time.
       if max(this_am.nm) < 1200
          this_am.nm = [this_am.nm; 1640]; %try excluding 615 nm from fit due to ozone
-         this_am.aod = [this_am.aod; mean(ttau2.aod_1p6(these_m & s_ & wl_))];
+         if isfield(ttau2, 'aod_1p6')
+            this_am.aod = [this_am.aod; mean(ttau2.aod_1p6(these_m & s_ & wl_))];
+         else
+            this_am.aod = [this_am.aod; mean(ttau.aod_1p6(these_m_ & s1_ & wl1_))];
+         end
          this_am.tag = [this_am.tag ; srcs(1)];
       end
       nm_615 = find(this_am.nm>610 & this_am.nm<620);
@@ -256,10 +266,12 @@ while dd <= length(dates)
       for s_i = 1:length(srcs) % check that srcs is the right orientation
          src(s_i).str = src_str(srcs(s_i));
          s_ = ttau2.src==srcs(s_i);
+         s1_ = ttau.srctag==srcs(s_i);
          wls = unique(ttau2.nm(these_m & s_));
          src(s_i).nm = wls;
          for wl_i = 1:length(wls)
             wl_ = ttau2.nm == wls(wl_i);
+            wl1_ = ttau.nm == wls(wl_i);
             src(s_i).aod(wl_i,1) = mean(ttau2.aod(these_m & s_ & wl_));
             src(s_i).tod(wl_i,1) = mean(ttau2.tod(these_m & s_ & wl_));
          end
@@ -273,7 +285,11 @@ while dd <= length(dates)
       % Fit best AOD and plot in black dots every 20 nm for this am and time.
       % Save best fit AOD
       if max(this_am.nm) < 1200
-         this_am.aod = [this_am.aod; mean(ttau2.aod_1p6(these_m & s_ & wl_))];
+         if isfield(ttau2, 'aod_1p6')
+            this_am.aod = [this_am.aod; mean(ttau2.aod_1p6(these_m & s_ & wl_))];
+         else
+            this_am.aod = [this_am.aod; mean(ttau.aod_1p6(these_m_ & s1_ & wl1_))];
+         end
          this_am.nm = [this_am.nm; 1640];
          this_am.tag = [this_am.tag ; srcs(1)];
       end
