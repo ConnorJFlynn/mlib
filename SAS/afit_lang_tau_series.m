@@ -525,7 +525,7 @@ ttau.aod = ttau.aod(ij);
 bad = ttau.time<0 | ttau.airmass<0 | ttau.aod <0| isnan(ttau.time)|isnan(ttau.airmass)|isnan(ttau.aod);
 ttau.time(bad) = [];ttau.airmass(bad) = []; ttau.pres_atm(bad) = [];
 ttau.nm(bad) = [];ttau.srctag(bad) = []; ttau.aod(bad) = [];
-ttau.time_LST = ttau.time + double(ttau.Lon/15)./24;
+ttau.time_LST = ttau.time + double(ttau.Lon./15)./24;
 ttau.src_str = src_str;
 
 
