@@ -12,7 +12,7 @@ end
 if isfield(he,'wl') % Then it is not a netcdf file
     wl = he.wl;
     pixel = interp1(he.wl, [1:length(he.wl)],[415,500,615,673,870],'nearest'); %this pixel is near the maximum solar brightness
-elseif isfield(he,'vdata')&&isfield(he.vdata,'wavelength') % then it is (probably) sashemfr.b1
+elseif isfield(he,'vdata')&&isfield(he.vdata,'wavelength') % then it is (probably) sashemfr.b1 or aod?
     wl = he.vdata.wavelength;
     pixel = interp1(he.vdata.wavelength, [1:length(he.vdata.wavelength)],[415,500,615,673,870],'nearest'); %this pixel is near the maximum solar brightness    
 elseif isfield(he,'vdata')&&isfield(he.vdata,'wavelength_vis') % then it is sashevis file.
@@ -20,9 +20,14 @@ elseif isfield(he,'vdata')&&isfield(he.vdata,'wavelength_vis') % then it is sash
     pixel = interp1(he.vdata.wavelength_vis, [1:length(he.vdata.wavelength_vis)],[415,500,615,673,870],'nearest'); %this pixel is near the maximum solar brightness
 end
 
-dirh = [he.vdata.direct_horizontal_415nm;he.vdata.direct_horizontal_500nm; he.vdata.direct_horizontal_615nm; he.vdata.direct_horizontal_673nm; he.vdata.direct_horizontal_870nm];
-difh = [he.vdata.diffuse_hemisp_415nm;he.vdata.diffuse_hemisp_500nm; he.vdata.diffuse_hemisp_615nm; he.vdata.diffuse_hemisp_673nm; he.vdata.diffuse_hemisp_870nm];
-sun_ = dirh(2,:)>0 & (dirh(2,:)./(dirh(2,:)+difh(2,:))) > .15; 
+if isfield(he.vdata, 'direct_horizontal_415nm')
+   dirh = [he.vdata.direct_horizontal_415nm;he.vdata.direct_horizontal_500nm; he.vdata.direct_horizontal_615nm; he.vdata.direct_horizontal_673nm; he.vdata.direct_horizontal_870nm];
+   difh = [he.vdata.diffuse_hemisp_415nm;he.vdata.diffuse_hemisp_500nm; he.vdata.diffuse_hemisp_615nm; he.vdata.diffuse_hemisp_673nm; he.vdata.diffuse_hemisp_870nm];
+else
+   dirh = he.vdata.direct_normal_transmittance.*(ones(size(he.vdata.wavelength))*he.vdata.cosine_correction);
+   difh = [he.vdata.diffuse_transmittance];
+end
+sun_ = dirh(2,:)>0 & (dirh(2,:)./(dirh(2,:)+difh(2,:))) > .15;
 sun = double(sun_); sun(~sun_) = NaN; %Used to mask non-sun elements in plot
 
 % ff is that fraction by which the direct component is under-represented

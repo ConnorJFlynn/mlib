@@ -186,9 +186,9 @@ while dd <= length(dates)
    while ~isempty(this_i) && this_i < length(day) && serial2Hh(ttau2.time_LST(this_i)) < (noon-.5) && this_i < find(this_day,1,'last')%
       % Find "these_m" within +/- 0.1 airmass
       these_m = day==dates(dd) & (serial2Hh(ttau2.time_LST')' < (noon-.5)) & abs(ttau2.oam-ttau2.oam(this_i))<.25;
-      these_m_ = day_==dates_(dd) & (serial2Hh(ttau.time_LST) < (noon-.5)) & abs(ttau.airmass-ttau2.oam(this_i))<.25;
+      % these_m_ = day_==dates_(dd) & (serial2Hh(ttau.time_LST) < (noon-.5)) & abs(ttau.airmass-ttau2.oam(this_i))<.25;
       srcs = unique(ttau2.src(these_m)); %srcs_str = [sprintf('%s, ',src_str{srcs(1:end-1)}),sprintf('%s',src_str{srcs(end)})];
-      srcs_ = unique(ttau.srctag(these_m_));
+      % srcs_ = unique(ttau.srctag(these_m_));
       % Loop over all unique sources, taking mean of each source by wl
       % Plotting each in a different color.
       clear this_am src
