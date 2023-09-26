@@ -5,6 +5,11 @@ function [good, P_bar] = rbifit(X,Y,M,pct,good,fig);
 % re-compute best line fit excluding points with absolute deviation
 % greater than 6 MAD.
 % Iterate until no points removed?
+if (isrow(X)&&iscolumn(Y))||(isrow(Y)&&iscolumn(X))
+   % flip Y? Is there any benefit to havein both row to both column?
+   Y = Y';
+end
+
 if ~isavar('good')||isempty(good)
    good = true(size(X));
    good = ~isnan(X)&~isnan(Y);
