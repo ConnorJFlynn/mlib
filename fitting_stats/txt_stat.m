@@ -10,6 +10,11 @@ function [gt,txt, stats] = txt_stat(x,y,P,S,mu)
 %     ['RMSE = ',sprintf('%1.3f',stats.RMSE)]};
 % gt = gtext(txt);
 %
+warning('off','MATLAB:handle_graphics:Text:LargeStringLengthException');
+if (isrow(x)&&iscolumn(y))||(isrow(y)&&iscolumn(x))
+   % flip Y? Is there any benefit to havein both row to both column?
+   y = y';
+end
 if ~isavar('S')
    [~,S] = polyfit(x,y,length(P)-1);
 end
@@ -48,7 +53,7 @@ txt = {
     ['N = ', num2str(stats.N)]};
 display('Select figure to add stats')
 gt = gtext(txt); 
-set(gt, 'Units','norm', 'interp','tex', 'position',[.1,.9], 'BackgroundColor','w');
+% set(gt, 'Units','norm', 'interp','tex', 'position',[.1,.9], 'BackgroundColor','w');
 
 
 % SSE = stats.SSE;
