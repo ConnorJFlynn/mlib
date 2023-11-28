@@ -1,4 +1,5 @@
 function D = den2plot(X,Y,d)
+
 if isrowvector(X)
    X = X';
 end 
@@ -41,6 +42,7 @@ if ~isavar('d')
 end
  % Dd = sum(ds<d,1);
  D = sum(dds<d,2);
+
 % figure; 
 % sb(1) = subplot(2,1,1); scatter(X,Y,4,D);
 % sb(2) = subplot(2,1,2); scatter(X,Y,4,Dd);
