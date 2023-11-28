@@ -12,13 +12,13 @@ function ARM_aod_ddr_plots_Kassianov_shared % Current situation with HOU compari
 
 cim = rd_anetaod_v3;
 if foundstr(cim.site,'High')
-   mfr = load('D:\aodfit_be\pvc\pvcmfrsraod1michM1.c1.ddr_filt.20120709_20130404.mat');
-   sasv = load('D:\aodfit_be\pvc\pvcsashevisaodM1.c1.ddr_filt.20120629_20130621.mat');
-   sasn = load('D:\aodfit_be\pvc\pvcsasheniraodM1.c1.ddr_filt.20120629_20130614.mat');
+   mfr = load('D:\aodfit_be\pvc\pvcmfrsraodM1.c1.filt.mat');
+   sasv = load('D:\aodfit_be\pvc\pvcsashevisaodM1.c1.filt.mat');
+   sasn = load('D:\aodfit_be\pvc\pvcsasheniraodM1.c1.filt.mat');
    ddr_corr = load('D:\aodfit_be\pvc\pvc_ddrcorr_v3.mat');
 elseif foundstr(cim.site,'Jolla')
-   mfr = load('D:\epc\epcmfrsr7nchM1.b1.ddr_filt.20230505_20230923.mat');
-   sasv = load('D:\epc\epcsashevisaodM1.c1.ddr_filt.20230113_20230810.mat');
+   mfr = load('D:\epc\epcmfrsr7nchM1.b1.filtered.mat');
+   sasv = load('D:\epc\epcsashevisaodM1.c1.filt.mat');
    sasn = load('D:\epc\epcsasheniraodM1.c1.ddr_filt.20230113_20230810.mat');
    ddr_corr = load(['D:\epc\epc_ddrcorr_v3.mat']);
    ddr_nir_corr = load(['D:\epc\epcnir_ddrcorr_v3.mat']);
@@ -27,17 +27,19 @@ else
    sasv = load('D:\aodfit_be\hou\housashevisaodM1.c1.ddr_filt.20210921_20221001.mat');
    sasn = load('D:\aodfit_be\hou\housasheniraodM1.c1.ddr_filt.20210921_20221001.mat');
    ddr_corr = load('D:\aodfit_be\hou\hou_ddrcorr_v3.mat');
+   ddr_nir_corr = load(['D:\aodfit_be\hou\hounir_ddrcorr_v3.mat']);
 end
-vers = 'v3'; % Correct computation of ddr_corr
-ddr_corr_epc = load(['D:\epc\epc_ddrcorr_v3.mat']);
-ddr_corr_hou = load('D:\aodfit_be\hou\hou_ddrcorr_v3.mat');
-ddr_corr_hou.fac_epc = interp1(ddr_corr_epc.ddr,ddr_corr_epc.fac, ddr_corr_hou.ddr,'linear','extrap');
-ddr_corr.ddr = ddr_corr_hou.ddr;
+vers = 'v3';
+% ddr_corr_epc = load(['D:\epc\epc_ddrcorr_v3.mat']);
+% ddr_corr_hou = load('D:\aodfit_be\hou\hou_ddrcorr_v3.mat');
+% ddr_corr_hou.fac_epc = interp1(ddr_corr_epc.ddr,ddr_corr_epc.fac, ddr_corr_hou.ddr,'linear','extrap');
+% ddr_corr.ddr = ddr_corr_hou.ddr;
 % ddr_corr.fac = mean([ddr_corr_hou.fac;ddr_corr_hou.fac_epc]);
-% vers = 'v4'; % Composed as mean to test statistics
+% vers = 'v4'; % Averaged
 % sasv = cat_sasvis_wl;
 % sasn = cat_sasnir_wl;
-% vers = 'v5'; % Uses ddr_corr from one site for another, eg ddr_corr from EPC applied to HOU
+%  vers = 'v5'; % Using corr from one site for another, eg EPC ddr_corr for HOU
+% ddr_nir_corr = load(['D:\epc\epc_nirddrcorr_v3.mat']);
 
 % sasv = anc_sift(sasv, ~any(sasv.vdata.aerosol_optical_depth<=0)&...
 %    all(anc_qc_impacts(sasv.vdata.qc_aerosol_optical_depth, sasv.vatts.qc_aerosol_optical_depth)<2));
@@ -46,7 +48,7 @@ ddr_corr.ddr = ddr_corr_hou.ddr;
 
 %These will be overwritten by lines 42-43 with an intersecting subset
 % but we may want to SAS and MFR comparisons even without matching aeronet
-[mins, sinm] = nearest(mfr.time, sasv.time);
+
 [minns, sinnm] = nearest(mfr.time, sasn.time); % for sasnir
 
 [cinm, minc] = nearest(cim.time, mfr.time); 
@@ -54,15 +56,13 @@ fig_path = [fileparts(cim.pname), filesep,'figs',filesep];
 if ~isadir(fig_path)
    mkdir(fig_path)
 end
-mfr = anc_sift(mfr, minc); [cinm, minc] = nearest(cim.time, mfr.time);
 [cins, sinc] = nearest(cim.time, sasv.time);
-[cinns, sinnc] = nearest(cim.time, sasn.time); % for sasnir
-[mins, sinm] = nearest(mfr.time, sasv.time);
+[cinns, sinnc] = nearest(cim.time, sasn.time);
 [minns, sinnm] = nearest(mfr.time, sasn.time); % for sasnir
 % Plot sas vs cim and mfrsr to see if there are periods we should exclude as below
 % figure; scatter(sas.vdata.aerosol_optical_depth(4,sinc), cim.AOD_500nm_AOD(cins),6,serial2doys(sas.time(sinc)));
-figure; scatter(cim.AOD_500nm_AOD(cins),sasv.vdata.aerosol_optical_depth(4,sinc), 6,serial2doys(sasv.time(sinc)));
-xlabel('Aeronet 500 nm AOD'); ylabel('SASHe 500 nm AOD'); xlim([0,1]); ylim([0,1]);
+% figure; scatter(cim.AOD_500nm_AOD(cins),sasv.vdata.aerosol_optical_depth(4,sinc), 6,serial2doys(sasv.time(sinc)));
+% xlabel('Aeronet 500 nm AOD'); ylabel('SASHe 500 nm AOD'); xlim([0,1]); ylim([0,1]);
 % figure; scatter(sasn.vdata.aerosol_optical_depth(3,sinnc), cim.AOD_1640nm_AOD(cinns),6,serial2doys(sasn.time(sinnc)));
 % xlabel('Aeronet 1640 nm AOD'); ylabel('SASHe 1640 nm AOD'); xlim([0,.3]); ylim([0,.3]);
 if foundstr(cim.site,'Port')   
@@ -86,184 +86,68 @@ end
 
 % Time series for Aug 30, 380, 500, 1020, 1640.
 
-
-% Cimel and MFRSR
-if isfield(mfr.vdata, 'aerosol_optical_depth_filter2')
-   X = cim.AOD_500nm_AOD(cinm);
-   Y = mfr.vdata.aerosol_optical_depth_filter2(minc);
-   x_str = 'Aeronet AOD'; y_str = 'MFRSR AOD'; nm_str = '500 nm';
-   plot_aod(X,Y,x_str, y_str, site_str, nm_str,fig_path);
-
-   X = cim.AOD_675nm_AOD(cinm);
-   Y = mfr.vdata.aerosol_optical_depth_filter4(minc);
-   x_str = 'Aeronet AOD'; y_str = 'MFRSR AOD'; nm_str = '675 nm';
-   plot_aod(X,Y,x_str, y_str, site_str, nm_str,fig_path);
-
-   X = cim.AOD_870nm_AOD(cinm);
-   Y = mfr.vdata.aerosol_optical_depth_filter5(minc);
-   x_str = 'Aeronet AOD'; y_str = 'MFRSR AOD'; nm_str = '870 nm';
-   plot_aod(X,Y,x_str, y_str, site_str, nm_str,fig_path);
-
-   if isfield(mfr.vdata, 'aerosol_optical_depth_filter7')
-      X = cim.AOD_1640nm_AOD(cinm);
-      Y = mfr.vdata.aerosol_optical_depth_filter7(minc);
-      x_str = 'Aeronet AOD'; y_str = 'MFRSR AOD'; nm_str = '1p6 um';
-      plot_aod(X,Y,x_str, y_str, site_str, nm_str,fig_path);
-   end
-end
-% Cimel and SASvis and SASnir
-X = cim.AOD_380nm_AOD(cins);
-Y = sasv.vdata.aerosol_optical_depth(1,sinc);
-x_str = 'Aeronet AOD'; y_str = 'SASHe AOD'; nm_str =  '380 nm';
-plot_aod(X,Y,x_str, y_str, site_str, nm_str,fig_path);
-
-X = cim.AOD_440nm_AOD(cins);
-Y = sasv.vdata.aerosol_optical_depth(3,sinc);
-x_str = 'Aeronet AOD'; y_str = 'SASHe AOD'; nm_str = '440 nm';
-plot_aod(X,Y,x_str, y_str, site_str, nm_str,fig_path);
-
-X = cim.AOD_500nm_AOD(cins);
-Y = sasv.vdata.aerosol_optical_depth(4,sinc);
-x_str = 'Aeronet AOD'; y_str = 'SASHe AOD'; nm_str = '500 nm';
-plot_aod(X,Y,x_str, y_str, site_str, nm_str,fig_path);
-
-X = cim.AOD_675nm_AOD(cins);
-Y = sasv.vdata.aerosol_optical_depth(6,sinc);
-x_str = 'Aeronet AOD'; y_str = 'SASHe AOD'; nm_str = '675 nm';
-plot_aod(X,Y,x_str, y_str, site_str, nm_str,fig_path);
-
-X = cim.AOD_870nm_AOD(cins);
-Y = sasv.vdata.aerosol_optical_depth(7,sinc);
-x_str = 'Aeronet AOD'; y_str = 'SASHe AOD'; nm_str = '870 nm';
-plot_aod(X,Y,x_str, y_str, site_str, nm_str,fig_path);
-
-% sasn compared to cim
-Y = sasn.vdata.aerosol_optical_depth(1,sinnc);
-X = cim.AOD_1020nm_AOD(cinns)+cim.AOD_1020nm_WaterVapor(cinns);
-y_str = 'SASHe OD - Rayleigh'; x_str = 'Aeronet AOD + H2O'; nm_str = '1020 nm';
-plot_aod(X,Y,x_str, y_str, site_str, nm_str,fig_path);
-
-Y = sasn.vdata.aerosol_optical_depth(3,sinnc);
-X = cim.AOD_1640nm_AOD(cinns)+cim.AOD_1640nm_CH4(cinns)+cim.AOD_1640nm_CO2(cinns)+cim.AOD_1640nm_WaterVapor(cinns);
-y_str = 'SASHe OD -Rayleigh'; x_str = 'Aeronet AOD + CH4 + CO2 + H2O'; nm_str = '1640 nm';
-plot_aod(X,Y,x_str, y_str, site_str, nm_str,fig_path);
-
-% MFRSR and SASvis 
-if isfield(mfr.vdata, 'aerosol_optical_depth_filter2')
-X = mfr.vdata.aerosol_optical_depth_filter1(mins);
-Y = sasv.vdata.aerosol_optical_depth(2,sinm);
-x_str = 'MFRSR AOD'; y_str = 'SASHe AOD'; nm_str = '415 nm';
-plot_aod(X,Y,x_str, y_str, site_str, nm_str,fig_path);
-
-X = mfr.vdata.aerosol_optical_depth_filter2(mins);
-Y = sasv.vdata.aerosol_optical_depth(4,sinm);
-x_str = 'MFRSR AOD'; y_str = 'SASHe AOD'; nm_str = '500 nm';
-plot_aod(X,Y,x_str, y_str, site_str, nm_str,fig_path);
-
-X = mfr.vdata.aerosol_optical_depth_filter3(mins);
-Y = sasv.vdata.aerosol_optical_depth(5,sinm);
-x_str = 'MFRSR AOD'; y_str = 'SASHe AOD'; nm_str = '615 nm';
-plot_aod(X,Y,x_str, y_str, site_str, nm_str,fig_path);
-
-X = mfr.vdata.aerosol_optical_depth_filter4(mins);
-Y = sasv.vdata.aerosol_optical_depth(6,sinm);
-x_str = 'MFRSR AOD'; y_str = 'SASHe AOD'; nm_str = '673 nm';
-plot_aod(X,Y,x_str, y_str, site_str, nm_str,fig_path);
-
-X = mfr.vdata.aerosol_optical_depth_filter5(mins);
-Y = sasv.vdata.aerosol_optical_depth(7,sinm);
-x_str = 'MFRSR AOD'; y_str = 'SASHe AOD'; nm_str = '870 nm';
-plot_aod(X,Y,x_str, y_str, site_str, nm_str,fig_path);
-
+[minns, sinnm] =nearest(mfr.time, sasn.time);
+figure; plot(mfr.time(minns), mfr.vdata.direct_diffuse_ratio_filter5(minns),'.');dynamicDateTicks
+% Potentially zoom in to select a subset of the deployment
+[minns, sinnm] =nearest(mfr.time, sasn.time);
+xl = xlim; xl_ = mfr.time(minns)>xl(1) & mfr.time(minns)<xl(2);
+mfr = anc_sift(mfr, minns(xl_)); sasn = anc_sift(sasn, sinnm(xl_));
+ok = anc_qc_impacts(mfr.vdata.qc_aerosol_optical_depth_filter1,mfr.vatts.qc_aerosol_optical_depth_filter1)<2;
+ok = anc_qc_impacts(mfr.vdata.qc_aerosol_optical_depth_filter7,mfr.vatts.qc_aerosol_optical_depth_filter7)<2;
+% mfr = anc_sift(mfr, ok); sasn = anc_sift(sasn,ok);
 % sasn compared to mfr7
 if isfield(mfr.vdata,'aerosol_optical_depth_filter7')
-   Y = sasn.vdata.aerosol_optical_depth(2,sinnm);
-   X = mfr.vdata.aerosol_optical_depth_filter7(minns)+mfr.vdata.co2_optical_depth_filter7(minns)+...
-      +mfr.vdata.ch4_optical_depth_filter7(minns)+mfr.vdata.h2o_optical_depth_filter7(minns);
-   y_str = 'SASHe AOD'; x_str = 'MFRSR AOD'; nm_str = '1625 nm';
+   if size(sasn.vdata.aerosol_optical_depth,1)>3
+     Y = sasn.vdata.aerosol_optical_depth(5,:);
+   else
+      Y = sasn.vdata.aerosol_optical_depth(2,:);
+   end
+   X = mfr.vdata.aerosol_optical_depth_filter7+mfr.vdata.co2_optical_depth_filter7+...
+      +mfr.vdata.ch4_optical_depth_filter7+mfr.vdata.h2o_optical_depth_filter7;
+   y_str = 'SASHe AOD'; x_str = 'MFRSR AOD'; nm_str = [vers, ' 1625 nm'];
    plot_aod(X,Y,x_str, y_str, site_str, nm_str,fig_path);
 end
-end
 
-% ddr_corr = load('D:\aodfit_be\ddr_corr_fit.mat');
-
-X = mfr.vdata.direct_diffuse_ratio_filter1(mins);
-Y = sasv.vdata.direct_normal_transmittance(2,sinm)./sasv.vdata.diffuse_transmittance(2,sinm);
-Y = max([Y; zeros(size(Y))]);
-yf = interp1(ddr_corr.ddr, ddr_corr.fac, Y,'linear','extrap');
-Y = Y.*(yf);
-x_str = 'MFRSR DDR'; y_str = 'SASHe DDR'; nm_str = [vers,' 415 nm'];
-plot_ddr(X,Y,x_str, y_str, site_str, nm_str, fig_path);
-
-X = mfr.vdata.direct_diffuse_ratio_filter2(mins); 
-Y = sasv.vdata.direct_normal_transmittance(4,sinm)./sasv.vdata.diffuse_transmittance(4,sinm);
-Y = max([Y; zeros(size(Y))]);
-yf = interp1(ddr_corr.ddr, ddr_corr.fac, Y,'linear','extrap');
-Y = Y.*(yf);
-x_str = 'MFRSR DDR'; y_str = 'SASHe DDR'; nm_str = [vers,' 500 nm'];
-plot_ddr(X,Y,x_str, y_str, site_str, nm_str, fig_path);
-
-X = mfr.vdata.direct_diffuse_ratio_filter3(mins); 
-Y = sasv.vdata.direct_normal_transmittance(5,sinm)./sasv.vdata.diffuse_transmittance(5,sinm);
-Y = max([Y; zeros(size(Y))]);
-yf = interp1(ddr_corr.ddr, ddr_corr.fac, Y,'linear','extrap');
-Y = Y.*(yf);
-x_str = 'MFRSR DDR'; y_str = 'SASHe DDR'; nm_str = [vers,' 615 nm'];
-plot_ddr(X,Y,x_str, y_str, site_str, nm_str, fig_path);
-
-X = mfr.vdata.direct_diffuse_ratio_filter4(mins); 
-Y = sasv.vdata.direct_normal_transmittance(6,sinm)./sasv.vdata.diffuse_transmittance(6,sinm);
-Y = max([Y; zeros(size(Y))]);
-yf = interp1(ddr_corr.ddr, ddr_corr.fac, Y,'linear','extrap');
-Y = Y.*(yf);
-x_str = 'MFRSR DDR'; y_str = 'SASHe DDR'; nm_str = [vers,' 675 nm'];
-plot_ddr(X,Y,x_str, y_str, site_str, nm_str, fig_path);
-
-X = mfr.vdata.direct_diffuse_ratio_filter5(mins); 
-Y = sasv.vdata.direct_normal_transmittance(7,sinm)./sasv.vdata.diffuse_transmittance(7,sinm);
-Y = max([Y; zeros(size(Y))]);
-yf = interp1(ddr_corr.ddr, ddr_corr.fac, Y,'linear','extrap');
-Y = Y.*(yf);
-x_str = 'MFRSR DDR'; y_str = 'SASHe DDR'; nm_str = [vers,' 870 nm'];
-plot_ddr(X,Y,x_str, y_str, site_str, nm_str, fig_path);
-
-
-% Put plots of diffuse hemispheric below here...
-
-
-   X = mfr.vdata.diffuse_hemisp_narrowband_filter1;
-   Z = sas.vdata.wavelength;
-   Y = sas.vdata.diffuse_transmittance(2,:).*sas.vdata.solar_spectrum(1);
-   keep = X>0 & Y>0 & ...
-      sas.vdata.direct_normal_transmittance(2,:)>0 & sas.vdata.diffuse_transmittance(2,:)>0 & ...
-      mfr.vdata.direct_normal_narrowband_filter1>0 & mfr.vdata.diffuse_hemisp_narrowband_filter1>0;
+if isfield(mfr.vdata, 'direct_diffuse_ratio_filter7')
+   X = mfr.vdata.direct_diffuse_ratio_filter7;
+   Z = sasn.vdata.wavelength;
+   if size(sasn.vdata.aerosol_optical_depth,1)>3
+      Y = sasn.vdata.direct_normal_transmittance(5,:)./sasn.vdata.diffuse_transmittance(5,:);
+      keep = X>0 & Y>0 & ...
+         sasn.vdata.direct_normal_transmittance(5,:)>0 & sasn.vdata.diffuse_transmittance(5,:)>0 & ...
+         mfr.vdata.direct_normal_narrowband_filter7>0 & mfr.vdata.diffuse_hemisp_narrowband_filter7>0;
+   else
+      Y = sasn.vdata.direct_normal_transmittance(2,:)./sasn.vdata.diffuse_transmittance(2,:);
+      keep = X>0 & Y>0 & ...
+         sasn.vdata.direct_normal_transmittance(2,:)>0 & sasn.vdata.diffuse_transmittance(2,:)>0 & ...
+         mfr.vdata.direct_normal_narrowband_filter7>0 & mfr.vdata.diffuse_hemisp_narrowband_filter7>0;      
+   end
    X = X(keep); Y = Y(keep);
    Y = max([Y; zeros(size(Y))]);
-   yf = interp1(ddr_corr.ddr, ddr_corr.fac, Y,'linear','extrap');
+   yf = interp1(ddr_nir_corr.ddr, ddr_nir_corr.fac, Y,'linear','extrap');
+   Y = Y.*yf;
+   x_str = 'MFRSR DDR'; y_str = 'SASHe DDR'; nm_str = [' 1625 nm'];
+   plot_ddr(X,Y,x_str, y_str, site_str, nm_str, fig_path);
+end
+
+if isfield(mfr.vdata, 'diffuse_hemisp_narrowband_filter7')
+   X = mfr.vdata.diffuse_hemisp_narrowband_filter7;
+   Z = sasn.vdata.wavelength;
+   Y = sasn.vdata.diffuse_transmittance(5,:).*sasn.vdata.solar_spectrum(6);
+   keep = X>0 & Y>0 & ...
+      sasn.vdata.direct_normal_transmittance(5,:)>0 & sasn.vdata.diffuse_transmittance(5,:)>0 & ...
+      mfr.vdata.direct_normal_narrowband_filter7>0 & mfr.vdata.diffuse_hemisp_narrowband_filter7>0;
+   X = X(keep); Y = Y(keep);
+   Y = max([Y; zeros(size(Y))]);
+   yf = interp1(ddr_nir_corr.ddr, ddr_nir_corr.fac, Y,'linear','extrap');
    Y = Y./yf;
-   x_str = 'MFRSR dif'; y_str = 'SASHe dif'; nm_str = [vers, ' 415 nm'];
+   x_str = 'MFRSR dif'; y_str = 'SASHe dif'; nm_str = [vers, ' 1625 nm'];
    plot_difh(X,Y,x_str, y_str, site_str, nm_str, fig_path);
-
-% Plots of diffuse hemispheric above here...
-
-% X = cim.AOD_500nm_AOD(cinm);
-% Y = mfr.vdata.aerosol_optical_depth_filter2(minc);
-% y_str = 'MFRSR AOD'; x_str = 'Aeronet AOD'; nm_str = '500 nm';
-% plot_aod(X,Y,x_str, y_str, site_str, nm_str,fig_path);
-% 
-% Y = mfr.vdata.aerosol_optical_depth_filter4(minc);
-% X = cim.AOD_675nm_AOD(cinm);
-% y_str = 'MFRSR AOD'; x_str = 'Aeronet AOD'; nm_str = '675 nm';
-% plot_aod(X,Y,x_str, y_str, site_str, nm_str,fig_path);
-% 
-% Y = mfr.vdata.aerosol_optical_depth_filter5(minc);
-% X = cim.AOD_870nm_AOD(cinm);
-% y_str = 'MFRSR AOD'; x_str = 'Aeronet AOD'; nm_str = '870 nm';
-% plot_aod(X,Y,x_str, y_str, site_str, nm_str,fig_path);
+end
 
 
 function plot_aod(X,Y,x_str, y_str, site_str, nm_str, pname);
-try  % The try/catch construct is to catch incidents where den2plot crashes from too many points
+try
       t_str = ['Optical Depths at ',nm_str];
       % Evaluate from here...
       if size(X,1)==size(Y,2); Y = Y'; end
@@ -289,7 +173,6 @@ catch
    plot_aod(X(1:2:end),Y(1:2:end),x_str, y_str, site_str, nm_str, pname);
 end
 return
-
 
 function plot_ddr(X,Y,x_str, y_str, site_str, nm_str, pname);
 try
