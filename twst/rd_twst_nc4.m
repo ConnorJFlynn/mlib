@@ -16,6 +16,10 @@ if length(in_file)>1
    twst.zenrad_A = tmp(:,ind);
    tmp = [twst.zenrad_B, twst2.zenrad_B];
    twst.zenrad_B = tmp(:,ind);
+   tmp = [twst.raw_A, twst2.raw_A];
+   twst.raw_A = tmp(:,ind);
+   tmp = [twst.raw_B, twst2.raw_B];
+   twst.raw_B = tmp(:,ind);
    clear twst2
 end
 
