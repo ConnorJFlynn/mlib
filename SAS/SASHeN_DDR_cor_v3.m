@@ -7,11 +7,15 @@ function blah % DDR linearity for SASHe with collocated MFRSR
 % mfr = load(['D:\aodfit_be\pvc\pvcmfrsraod1michM1.c1.ddr_filt.20120709_20130404.mat']);
 % sas = load(['D:\aodfit_be\pvc\pvcsashevisaodM1.c1.ddr_filt.20120629_20130621.mat']);
 % 
-mfr = load(['D:\aodfit_be\hou\houmfrsr7nchM1.b1.ddr_filt.20210915_20221001.mat']);
-sas = load(['D:\aodfit_be\hou\housashevisaodM1.c1.ddr_filt.20210921_20221001.mat']);
+% mfr = load(['D:\aodfit_be\hou\houmfrsr7nchM1.b1.ddr_filt.20210915_20221001.mat']);
+% sas = load(['D:\aodfit_be\hou\housashevisaodM1.c1.ddr_filt.20210921_20221001.mat']);
 
-% mfr = load(['D:\aodfit_be\epc\epcmfrsr7nchM1.b1.ddr_filt.20230505_20230923.mat']);
-% sas = load(['D:\aodfit_be\epc\epcsashevisaodM1.c1.ddr_filt.20230113_20230810.mat']);
+mfr = load(['D:\epc\epcmfrsr7nchM1.b1.ddr_filt.20230505_20230923.mat']);
+sas = load(['D:\epc\epcsasheniraodM1.c1.ddr_filt.20230113_20230810']);
+% sas = load(['D:\epc\epcsasheniraodM1.c1.ddr_filt.Feb10_14.mat']);
+
+% mfr = load(['D:\aodfit_be\hou\houmfrsr7nchaod1michM1.c1.ddr_filt.20210915_20221001.mat']);
+% sas = load(['D:\aodfit_be\hou\housasheniraodM1.c1.ddr_filt.20210921_20221001.mat']);
 
 [outpath,fname] = fileparts(mfr.fname); outpath = [fileparts(outpath),filesep];
 if foundstr(fname,'epc')
@@ -26,7 +30,7 @@ ver = 'v3';
 disp(length(mfr.time))
 figure; plot(mfr.time, [mfr.vdata.direct_diffuse_ratio_filter1;mfr.vdata.direct_diffuse_ratio_filter2;...
    mfr.vdata.direct_diffuse_ratio_filter3;mfr.vdata.direct_diffuse_ratio_filter4;...
-   mfr.vdata.direct_diffuse_ratio_filter5],'.');legend('415','500','615','675','870'); dynamicDateTicks;
+   mfr.vdata.direct_diffuse_ratio_filter5;mfr.vdata.direct_diffuse_ratio_filter7],'.');legend('415','500','615','675','870','1625'); dynamicDateTicks;
 title([upper(tla),' MFRSR DDR']);
 % if isfield(mfr.vdata,'direct_diffuse_ratio_filter7');
 %    hold('on');
@@ -36,7 +40,7 @@ title([upper(tla),' MFRSR DDR']);
 % end
 
 ddr = sas.vdata.direct_normal_transmittance./sas.vdata.diffuse_transmittance;
-figure; plot(sas.time, ddr([2,4:7],:), '.'); dynamicDateTicks
+figure; plot(sas.time, ddr, '.'); dynamicDateTicks
 title([upper(tla),' SASHe DDR']);
 linkexes;
 ok = menu('Hit ok when done zooming','OK')
@@ -65,11 +69,7 @@ sas_ddr = sas.vdata.direct_normal_transmittance./sas.vdata.diffuse_transmittance
 
 % figure; plot(mfr.vdata.direct_diffuse_ratio_filter2, sas_ddr(4,:),'.'); legend('filter 2')
 
-good1 = rpoly_bisect_mad(mfr.vdata.direct_diffuse_ratio_filter1, sas_ddr(2,:),2,6);
-good2 = rpoly_bisect_mad(mfr.vdata.direct_diffuse_ratio_filter2, sas_ddr(4,:),2,6);
-good3 = rpoly_bisect_mad(mfr.vdata.direct_diffuse_ratio_filter3, sas_ddr(5,:),2,6);
-good4 = rpoly_bisect_mad(mfr.vdata.direct_diffuse_ratio_filter4, sas_ddr(6,:),2,6);
-good5 = rpoly_bisect_mad(mfr.vdata.direct_diffuse_ratio_filter5, sas_ddr(7,:),2,4.5);
+good7 = rpoly_bisect_mad(mfr.vdata.direct_diffuse_ratio_filter7, sas_ddr(6,:),2,4.5);
 
 % figure; plot(...
 %    mfr.vdata.direct_diffuse_ratio_filter5(good5), sas_ddr(7,good5),'.',...
@@ -103,40 +103,28 @@ good5 = rpoly_bisect_mad(mfr.vdata.direct_diffuse_ratio_filter5, sas_ddr(7,:),2,
 
 
 figure; plot(...
-   sas_ddr(7,good5), 1./mfr.vdata.direct_diffuse_ratio_filter5(good5)./sas_ddr(7,good5),'.',...
-   sas_ddr(6,good4), 1./mfr.vdata.direct_diffuse_ratio_filter4(good4)./sas_ddr(6,good4),'.',...
-   sas_ddr(5,good3), 1./mfr.vdata.direct_diffuse_ratio_filter3(good3)./sas_ddr(5,good3),'.',...
-   sas_ddr(4,good2), 1./mfr.vdata.direct_diffuse_ratio_filter2(good2)./sas_ddr(4,good2),'.',...
-   sas_ddr(2,good1), 1./mfr.vdata.direct_diffuse_ratio_filter1(good1)./sas_ddr(2,good1),'.');
-legend('filter 5','filter 4','filter 3','filter 2','filter 1');
-ylabel('SASHe/MFRSR DDR ratio');
+   sas_ddr(6,good7), mfr.vdata.direct_diffuse_ratio_filter7(good7)./sas_ddr(6,good7),'.');
+legend('filter 7');
+ylabel('MFRSR/SASHe DDR corr factor');
 xlabel('Raw SASHe DDR')
-% title({[upper(tla),' MFRSR and SASHE DDR Correction Factor'];'Multiply SASHe DDR by correction factor'});
-title([upper(tla),' SASHE Diffuse Correction Factor']);
+title({[upper(tla),' MFRSR and SASHE DDR Correction Factor'];'Multiply SASHe DDR by correction factor'});
 logy
 liny
 v = axis;
 
-X = [sas_ddr(7,good5),sas_ddr(6,good4),sas_ddr(5,good3),sas_ddr(4,good2),sas_ddr(2,good1)];
-Y = [mfr.vdata.direct_diffuse_ratio_filter5(good5)./sas_ddr(7,good5), ...
-   mfr.vdata.direct_diffuse_ratio_filter4(good4)./sas_ddr(6,good4), ...
-   mfr.vdata.direct_diffuse_ratio_filter3(good3)./sas_ddr(5,good3), ...
-   mfr.vdata.direct_diffuse_ratio_filter2(good2)./sas_ddr(4,good2), ...
-   mfr.vdata.direct_diffuse_ratio_filter1(good1)./sas_ddr(2,good1)];
-figure; plot(X,1./Y,'.');
-ylabel('SASHe/MFRSR DDR ratio');
+X = [sas_ddr(6,good7)];
+Y = [mfr.vdata.direct_diffuse_ratio_filter7(good7)./sas_ddr(6,good7)];
+figure; plot(X,Y,'.');
+ylabel('MFRSR/SASHe DDR corr factor');
 xlabel('Raw SASHe DDR')
-% title({[upper(tla),' MFRSR and SASHE DDR Correction Factor'];'Multiply SASHe DDR by correction factor'});
-title([upper(tla),' SASHE Diffuse Correction Factor']);
+title({[upper(tla),' MFRSR and SASHE DDR Correction Factor'];'Multiply SASHe DDR by correction factor'});
 axis(v)
 
-X(Y<=0)= []; Y(Y<=0) = [];
-D_XY = ptdens(X,1./Y,16./sqrt(length(X)));
-figure; scatter(X,1./Y,6,log10(D_XY));
-ylabel('MFRSR/SASHe DDR ratio');ylabel('SASHe/MFRSR DDR ratio');
+D_XY = ptdens(X,Y, 32./sqrt(length(X)));
+figure; scatter(X,Y,6,log10(D_XY));
+ylabel('MFRSR/SASHe DDR corr factor');
 xlabel('Raw SASHe DDR')
-% title({[upper(tla),' MFRSR and SASHE DDR Correction Factor'];'Multiply SASHe DDR by correction factor'});
-title([upper(tla),' SASHE Diffuse Correction Factor']);
+title({[upper(tla),' MFRSR and SASHE DDR Correction Factor'];'Multiply SASHe DDR by correction factor'});
 axis(v); 
 colormap(comp_map_w_jet);
 maxes = max(xlim); maxes = ceil(maxes .* .7);
@@ -146,15 +134,17 @@ for UB = 1:maxes
    X_(UB) = (LB + UB)./2;
    Y_(UB) = mean(Y(BB));
 end
-[gd,P_] = rpoly_mad(X_(2:30), 1./Y_(2:30), 2,6);
-figure; plot(X_, 1./Y_, 'ro',X_, polyval(P_, X_), 'k--','LineWidth',3)
+nil = X_==0 | Y_==0 | isnan(X_)|isnan(Y_); 
+X_(nil) = []; Y_(nil)=[];
+[gd,P_] = rpoly_mad(X_(2:end), Y_(2:end), 2,6);
+figure; plot(X_, Y_, 'ro',X_, polyval(P_, X_), 'k--','LineWidth',3)
 
 % ddr_corr = [X_, polyval(P_, X_)];
 
 ddr_corr.tla_ver = [tla,' ' ver];
 ddr_corr.ddr = X_; ddr_corr.fac = polyval(P_, X_); 
 ddr_corr.note = 'Multiply raw ddr by fac, or divide diffuse_hemisp by fac';
-save([outpath, tla, '_ddrcorr_',ver,'.mat'],'-struct','ddr_corr')
+save([outpath, tla, 'nir_ddrcorr_',ver,'.mat'],'-struct','ddr_corr')
 
 
 end
