@@ -77,7 +77,9 @@ end
 % fout = [in_path, 'outs.dat'];
 % if exist(fout,'file')
 %    fid = fopen(fout,'r');
-   if iout == 6 % sky scan with radiances
+   if iout == 1
+      out = textscan(w,'%f %f %f %f %f %f %f %f ', 'headerlines',3);
+   elseif iout == 6 % sky scan with radiances
          out = plot_iout6(in_args,w,fig);
    elseif iout == 10
       out = textscan(fid,'%f %f %f %f %f %f %f %f ', 'headerlines',3);
@@ -172,7 +174,7 @@ end
       %    end
       % end
    else
-      out = fprintf(fid,'%s');
+      out = fprintf(fid,'%s',w);
    end
    % 
    % fclose(fid);

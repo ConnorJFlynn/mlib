@@ -39,7 +39,11 @@ if ~isfield(input,'ABAER')
    end
 end
 out.aod = ang_coef(input.QBAER(1), input.ABAER, input.WLBAER(1), out.wl);
-out.ssa = polyval(polyfit(input.WLBAER, input.WBAER, 1),out.wl);
+if length(input.WLBAER)>1 & length(input.WBAER)>1
+   out.ssa = polyval(polyfit(input.WLBAER, input.WBAER, 1),out.wl);
+else
+   out.ssa = input.WBAER;
+end
 if nphi < nuzen % then it is PPL?
    zen = (180 - uzen);
    PHI = [zeros(size(zen))+phi(1); zeros(size(zen))+phi(2)];
@@ -67,7 +71,7 @@ if nphi < nuzen % then it is PPL?
          [sprintf('Wavelength = %1.0f nm,',1e3.*out.wl), sprintf(' AOD = %1.2f',out.aod), sprintf(', SSA = %1.2f',out.ssa)]})
    end
 
-else % then is is ALM?
+elseif nuzen>nphi % then is is ALM?
    zen = (180 - uzen);
    PHI = [phi(phi>=180)-360;phi(phi<180)];
    rad = [uurs(phi>=180),uurs(phi<180)]';
@@ -84,6 +88,15 @@ else % then is is ALM?
    out.SA = SA;
    out.rad = rad;
 
+elseif nuzen==1
+   zen = (180 - uzen);
+   PHI = [phi(phi>=180)-360;phi(phi<180)];
+   rad = [uurs(phi>=180),uurs(phi<180)]';
+   SA = scat_ang_degs(out.SZA, 0, zen.*ones(size(PHI)),PHI);
+   out.zen = zen;
+   out.PHI = PHI;
+   out.SA = SA;
+   out.rad = rad;
 end
 
 end

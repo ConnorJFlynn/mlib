@@ -1,7 +1,7 @@
 function [zen] = run_sbdart_zrads
 % [zen] = run_sbdart_zrads1
 % Returns look-up tables for zenith radiance vs SZA and airmass at 415 nm.
-% Need to check was surface albeda and ssa is being used
+% Need to check whether surface albeda and ssa are being used
 %zenith radiance only
 
 qry.iout=21;

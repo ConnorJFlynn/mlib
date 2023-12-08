@@ -14,7 +14,7 @@ function zrad_csphot_sasze(fig)
 % Stitch VIS and NIR
 % Test with both Ze and TWST
 % Explore MFRSR-like retrieval, require good duration of stable AOD plus low
-% diffuse-based cloud fraction
+% diffuse-based cloud fractionrun_sbdart_zrads
 % Incorporate imager based cloud fraction or radflux clearsky
 % Implement with case statement blocks for different combos.
 % Divide SBDART zenith radiance by ESR, thus reporting unitless/normalized zenith
