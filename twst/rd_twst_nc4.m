@@ -6,9 +6,10 @@ end
 if ~iscell(in_file) && isafile(in_file)
    in_file = {in_file};
 end
+try
 twst = twst4_to_struct(in_file{1});
 if length(in_file)>1
-   twst2 = rd_twst_nc4(in_file(2:end));
+   twst2 = rd_twst_nc4(in_file(2:end)); disp(length(twst.time))
    [twst.time, ind] = unique([twst.time, twst2.time]);
    tmp = [twst.epoch, twst2.epoch];
    twst.epoch = tmp(ind);
@@ -21,7 +22,21 @@ if length(in_file)>1
    tmp = [twst.raw_B, twst2.raw_B];
    twst.raw_B = tmp(:,ind);
    clear twst2
+% else
+%    [pname, fname, ext] = fileparts(in_file); 
+%    pname = [pname, filesep]; pname = strrep(pname, [filesep filesep], filesep);
+%    n_str = []; n = 1;
+%    while isafile([pname, fname, n_str,'.mat'])
+%       n = n+1;
+%       n_str = ['_',num2str(n)];
+%    end
+   % save([pname, fname,n_str,'.mat'],'-struct', 'twst' )
 end
-
-
+catch
+   sprintf('Bad? %s',in_file{1})
+   in_file(1) = [];
+   if length(in_file)>1
+      twst = rd_twst_nc4(in_file);
+   end
+end
 end
