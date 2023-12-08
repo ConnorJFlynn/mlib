@@ -482,8 +482,8 @@ while isafile([ACCP_pngs,png_out])
     png_out = ['Qadj[reduced].Land.',n_str,'.png'];
 end
 saveas(gcf,[ACCP_pngs,png_out]);
-%     set(cf,'visib',true);
-%     saveas(cf,[ACCP_pngs,strrep(png_out,'.png','.fig')]);
+    % set(gcf,'visib',true);
+    saveas(gcf,[ACCP_pngs,strrep(png_out,'.png','.fig')]);
 close(gcf);
 
 ppt_add_slide_no_title(pptname, [ACCP_pngs,png_out]);
@@ -570,8 +570,11 @@ while isafile([ACCP_pngs,png_out])
     png_out = ['Qadj[reduced].OCEN.',n_str,'.png'];
 end
 saveas(gcf,[ACCP_pngs,png_out]);
-%     set(cf,'visib',true);
-%     saveas(cf,[ACCP_pngs,strrep(png_out,'.png','.fig')]);
+% fig_out = ['Qadj[reduced].OCEN.',n_str,'.fig'];
+% saveas(gcf,[ACCP_pngs,fig_out]);
+
+    % set(cf,'visib',true);
+    saveas(gcf,[ACCP_pngs,strrep(png_out,'.png','.fig')]);
 close(gcf);
 
 ppt_add_slide_no_title(pptname, [ACCP_pngs,png_out]);

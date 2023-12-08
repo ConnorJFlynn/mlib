@@ -26,7 +26,7 @@ for plt = 1:4
 end
 
 QISadj = NaN(size(QIS));
-for gr = 1:6
+for gr = 1:size(QISadj,2)
     for typ = 1:62
         for sfc = 1:2
             for res = 1:5
