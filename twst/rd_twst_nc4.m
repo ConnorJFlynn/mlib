@@ -13,6 +13,8 @@ if length(in_file)>1
    [twst.time, ind] = unique([twst.time, twst2.time]);
    tmp = [twst.epoch, twst2.epoch];
    twst.epoch = tmp(ind);
+   tmp = [twst.cod, twst2.cod];
+   twst.cod = tmp(ind);
    tmp = [twst.zenrad_A, twst2.zenrad_A];
    twst.zenrad_A = tmp(:,ind);
    tmp = [twst.zenrad_B, twst2.zenrad_B];

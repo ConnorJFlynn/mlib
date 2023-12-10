@@ -38,11 +38,20 @@ if ~isfield(input,'ABAER')
       input.ABAER = 1;
    end
 end
-out.aod = ang_coef(input.QBAER(1), input.ABAER, input.WLBAER(1), out.wl);
+if isfield(input,'QBAER')
+   tau = input.QBAER;
+elseif isfield(input,'TBAER')
+   tau = input.TBAER;
+end
+out.aod = ang_coef(tau(1), input.ABAER, input.WLBAER(1), out.wl);
 if length(input.WLBAER)>1 & length(input.WBAER)>1
    out.ssa = polyval(polyfit(input.WLBAER, input.WBAER, 1),out.wl);
 else
-   out.ssa = input.WBAER;
+   if isfield(input,'WBAER')
+      out.ssa = input.WBAER;
+   else
+      out.ssa = .95;
+   end
 end
 if nphi < nuzen % then it is PPL?
    zen = (180 - uzen);

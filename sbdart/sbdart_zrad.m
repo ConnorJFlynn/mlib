@@ -1,10 +1,9 @@
-function sbdart_zrad_ppl
-% small picture
-% read aip "all" 
-% model sbdart skyscans ppl and alm to validate modeled radiances
-% which implies also reading alm and ppl aeronet files and plotting measured and
-% modeled radiances together. See how differences compare to aeronet reported errors.
-% Modeled PPL by design also returns zenith radiance.  
+function sbdart_zrad
+% Based on sbdart_zrad_ppl
+% Goal is to validate modeled radiances, esp understanding the difference between
+% iout=6, iout=21, and the associated filter functions.
+% To model the zen radiance accurately we need AOD, SZA, SSA, SFA
+% We restrict to the UV for our retrieval to avoid SFA dependence.
 
 % Having troubles getting units to match up cleanly.
 % Will try comparing iout = 6 and iout = 21.  Seems like 6 should be correct

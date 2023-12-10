@@ -9,9 +9,11 @@ end
 ncid = netcdf.open(in_file);
 Grp = netcdf.inqGrps(ncid);
 % Grp(1) level 0 data
-% netcdf.inqGrpName(Grp(1));
+% netcdf.inqGrpName(Grp(2));
 lv0_id = Grp(1); % level_0
-
+lv1_id = Grp(2); % level_1 
+cod_id = netcdf.inqVarID(lv1_id,'cod');
+twst.cod = netcdf.getVar(lv1_id,cod_id)';
 netcdf.inqVarID(lv0_id,'wavelength_vis');
 lev0_grps = netcdf.inqGrps(Grp(1));
 netcdf.inqGrpName(lev0_grps(2)) ; % sky

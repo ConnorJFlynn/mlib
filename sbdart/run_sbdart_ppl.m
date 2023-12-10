@@ -19,7 +19,8 @@ function ppl  = run_sbdart_ppl(qry)
 %PPL
 % from Gouyong
 qry = qry_ppl(qry);
-ppl = qry_sbdart(qry);
+% qry.IOUT=21;
+ppl = qry_sbdart(qry,figure_(qry.IOUT));
 [~, uiz] =  unique(ppl.zen);
 ppl.zrad = interp1(ppl.zen(uiz), ppl.rad(uiz), 0,'linear','extrap');
 
