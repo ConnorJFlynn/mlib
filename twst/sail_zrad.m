@@ -1,5 +1,5 @@
-function  AGU2023_poster_prep % AGU 2023 poster preps
-plots_ppt
+function  sail_zrad % AGU 2023 poster preps
+% plots_ppt
 
 % Need matched time series of AOD BE and MFRSR b1 or AOD for DDR.
 % Find compute drad

@@ -38,7 +38,7 @@ end
 pname = getdir('twst_mats');
 mats = dirlist_to_filelist( dir([pname,'*twst*.mat']), pname);
 twst = load(mats{1});
-wl_ = interp1(twst.wl_A,[1:length(twst.wl_A)],[415,440],'nearest')';
+wl_ = interp1(twst.wl_A,[1:length(twst.wl_A)],[415,440,500,615,673,870],'nearest')';
 wl_415_ = twst.wl_A>412 & twst.wl_A<418;
 clear tws tws_
 tws.time = twst.time; 
@@ -55,7 +55,7 @@ for m = 2:length(mats)
    tmp = [tws.zrad_415avg,tws_.zrad_415avg]; tws.zrad_415avg = tmp(ij);
    disp(length(tws.time))
 end
-save('D:\AGU_prep\tws_uv.mat','-struct','tws')
+save('D:\AGU_prep\tws_wls.mat','-struct','tws')
 
 % Modify for SASZe 
 pname = getdir('SASZE');

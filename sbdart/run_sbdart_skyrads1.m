@@ -1,10 +1,8 @@
-function [zen] = run_sbdart_zrads
-% [zen] = run_sbdart_zrads1
-% Returns look-up tables for zenith radiance vs SZA and airmass at 415 nm.
-% Need to check whether surface albeda and ssa are being used
-%zenith radiance only
-% Maybe had a serious error in computing zenith radiance.  
-% Attempting to correct it with uzen=180
+function [zen] = run_sbdart_skyrads1
+% [zen] = run_sbdart_skyrads1
+% Returns look-up tables for PPL radiance vs SA and tau at 415 nm.
+% Looking for a trough or plateau in radiance as a function of tau
+
 
 warning('Careful with this function.  Might be in flux.  Connor 2023-12-13 AGU');
 qry.iout=6;
@@ -25,11 +23,10 @@ qry.CORINT='.true.';
 % qry.zout = [0,0];
 qry.PHI=[0];
 qry.SZA=30;
-tau = [.01:.01:1]; % tau = .41;
+tau = [0:.01:1]; % tau = .41;
 airmass = 1:.1:7;
-SZA = [82:-1:0]; % SZA = [47, 51, 57, 68, 75];
-
-qry.UZEN = [0:5:90];
+SZA = [80:-10:0]; % SZA = [47, 51, 57, 68, 75];
+qry.UZEN = [0:3:90];
 
 qry.UZEN = fliplr(180-setxor(qry.UZEN,qry.SZA));
 qry.PHI=[0,180];
@@ -42,10 +39,12 @@ for z = length(SZA):-1:1
       qry.TBAER=tau(t);
       % pause(.01);
       [out] = qry_sbdart(qry);
-      % zrad(t,z) = out.rad; % (W/m2/um/sr)
+      zrad(t,:) = out.rad; % (W/m2/um/sr)
    end
    toc
-   disp(tau(t))
+   figure_(5); imagesc([0:3:180],tau(2:end), 100.*abs(diff(zrad))./zrad(2:end,:)); axis('xy');
+   xlabel('Elevation [deg]'); ylabel('AOD'); caxis([0,2]); xlim([10,170])
+   title(['SZA = ',num2str(qry.SZA)]);
 end
 
 
