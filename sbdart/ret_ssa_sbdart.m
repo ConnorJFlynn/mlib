@@ -1,5 +1,5 @@
-function [ssa, zrad] = ret_ssa_sbdart(wl, aod, sza, ddr, sfa, g)
-%function [ssa,zrad] = ret_ssa_sbdart(wl, aod, sza, ddr, sfa, g)
+function [ssa, zrad] = ret_ssa_sbdart(wl, aod, sza, ddr, sfa, g,pbar)
+%function [ssa,zrad] = ret_ssa_sbdart(wl, aod, sza, ddr, sfa, g,pbar)
 % Iteratively calls SBDART to converge on an SSA consistent with AOD and DDR
 % aod,sza, ddr are required
 % wl, sfa, and g will be assumed as .415 (415 nm), .05, and .7
@@ -22,6 +22,11 @@ if ~isavar('g')||isempty(g);
    g = .7;
 end
 
+if ~isavar('pbar')||isempty(pbar)
+   qry.pbar = 1013;
+else
+   qry.pbar = pbar;
+end
  % aod = .15; ddr = 3.121; sza = 51.86; clear qry
 
 qry.wlinf=wl;
