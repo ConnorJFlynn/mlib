@@ -15,7 +15,7 @@ if ~isavar('good')||isempty(good)
    good = ~isnan(X)&~isnan(Y);
 end
    N = 1;
-if ~isavar('M')
+if ~isavar('M')||isempty(M)
    M = 6;
 end
 if ~isavar('pct')||isempty(pct)
