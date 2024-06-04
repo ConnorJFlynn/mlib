@@ -1,6 +1,6 @@
-function [all_legs, ttau] = afit_tau_set_AGU(ttau, show)
-% [lang_legs, ttau] = afit_tau_set_AGU(ttau, show)
-% Modifying afit_lang_tau_series_sgp to use for AGU, zenradcal stuff.
+function [all_legs, ttau] = afit_tau_set_guc(ttau, show)
+% [lang_legs, ttau] = afit_tau_set_guc===guc(ttau, show)
+% Modifying afit_lang_tau_series_sgp to use for guc, zenradcal stuff.
 % Removing Langley related.  Just use initial part to aggregate AOD from Cimel and
 % MFRSR7nch.  Must use cloud-screened version of both.
 
@@ -10,6 +10,7 @@ function [all_legs, ttau] = afit_tau_set_AGU(ttau, show)
 % step 4: Once they agree well enough, return AOD 415 time series.
 % step 5: Merge with MFRSR DDR time series
 % step 6: Compute SSA (and zrad?)
+% Modifying for use at GUC. Disabling filter6 and filter7 from MFRSR
 
 
 % https://aeronet.gsfc.nasa.gov/cgi-bin/print_web_data_zenith_radiance_v3?site=ARM_SGP&year=2023&month=1&day=1&year2=2023&month2=12&day2=31&ZEN00=1&AVG=10&if_no_html=1
