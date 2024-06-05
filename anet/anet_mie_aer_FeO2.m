@@ -8,6 +8,21 @@ function anet_mie_aer
 % 1) an aod-weighted average of Re @ 1020 nm = 1.5 ==> Re @ 10um 1.7 
 % 2) interpolated Im between 1.2-> 2 and 0.05 -> 0.02 via Re from 1.3->1.6
 
+% I attempted to explicitly assign the index of refraction at 10 um based on the value at 1020 um with the assumption that the aerosol most impacting the optical properties at 10 um could be represented as a mixture of aqueous and mineral dust aerosol as described below.
+% 
+% 1.	Identified 86 Aeronet lv 1.5 retrievals of refractive index and size distribution within 1 hr of the 453 AER cases. 
+% 2.	Extended the retrieval results to include a value for refractive index at 10 um by:
+% a.	Assuming that AOD at 10 um will be most impacted by the fraction of the PSD in the coarse mode.
+% b.	Assuming that the AOD in the coarse mode could be represented as some external mixture of aqueous aerosol (n_Re(1020nm) = 1.3) and mineral dust (n_Re(1020nm) = 1.6. (Maximum n_Re from Aeronet retrieval).
+% c.	Projected this mixture to 10 um with water n* = 1.2 + 0.05i and mineral dust (Fe2O3) having n* = 2 + 0.02i. (This is a common but not the only mineral type for Oklahoma but fortunately for the scope of this exploration it isn’t strongly absorbing until ~20 um.)
+% d.	Computed AOD with Mie theory for 32 wavelengths wl = [325..(+50)..1050, 1100..(+200)..1900, 2000..(+500)..4500, 5000..(+1000)..10000];
+% e.	Regressed AOD(10um) vs PWV[cm], excluding values with coarse/fine mean volume ratio > 5.5 (black filled circles below) on the premise that water-dominated aerosols will not be exclusively coarse mode. (Including all points makes a small difference yielding Y = 5.3e-3 PWV + 5.8e-3.
+
+% Considering Dave Ts remark that montmorillonite is common to SGP, attempting to
+% incorporate n* for that. 
+% n_*(montmorillonite) =  n_Re(1020nm) + n_Im(1020nm) = 1.518 + 1.15e-3i Arakawa 1994
+% n_*(montmorillonite) =  n_Re(1020nm) + n_Im(1020nm) = 1.518 + 1.15e-3i Arakawa 1994
+
 % rm=[0.050000,0.065604,0.086077,0.112939,0.148184,0.194429,0.255105,0.334716,0.439173,0.576227,0.756052,0.991996,1.301571,1.707757,2.240702,2.939966,3.857452,5.061260,6.640745,8.713145,11.432287,15.000000];
 % dVdlnr = [0.000321,0.002708,0.010422,0.018989,0.018266,0.011193,0.005670,0.003155,0.002377,0.002548,0.003535,0.005525,0.008811,0.013720,0.020467,0.028187,0.032764,0.028586,0.017028,0.006553,0.001587,0.000240];
 % dVdlnr= [0.000799	0.000783	0.001214	0.00283	0.008527	0.025265	0.052488	0.056106	0.03332	0.017428	0.011672	0.010808	0.012044	0.01447	0.017286	0.018461	0.017036	0.013154	0.008418	0.004531	0.002083	0.000823];
@@ -34,8 +49,6 @@ aer_cases_used.time = datenum(aer_cases_used.data(:,1),aer_cases_used.data(:,2),
     aer_cases_used.data(:,3),aer_cases_used.data(:,4),aer_cases_used.data(:,5),...
     zeros(size(aer_cases_used.data(:,1))));
 
-wl = [rin.lambda];
-
 good = all(rin.Refractive_Index_Real_Part>0,2)&all(rin.Refractive_Index_Imaginary_Part>0,2); 
 goods = find(good);
 
@@ -43,7 +56,7 @@ goods = find(good);
 aer_cases_used.bina = bina;
 
 wl = [325:25:1050 1100:100:1900 2000:250:4250 4500:500:10000];
-wl = [325:50:1050 1100:200:1900 2000:500:4500 sort([5000:1000:10000, 7690,8333,9091,11111,12500])];
+wl = [325:50:1050 1100:200:1900 2000:500:4500 sort([5000:1000:10000, 7690,8333,9091,11111,12500])]; %Eli's request
 wl_1700_ij = interp1(wl, [1:length(wl)],1700,'nearest');
 % wl = [325:25:1700];
 % ni = interp1(lambda, n_i, wl, 'linear','extrap');
