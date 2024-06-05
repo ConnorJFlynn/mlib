@@ -5,7 +5,7 @@ function [good,P,S,mu] = rpoly_mad(X,Y,N,M,good);
 % re-compute best line fit excluding points with absolute deviation
 % greater than 6 MAD (or specified M).
 % Iterate until no points removed
-if ~exist('good','var')
+if ~isavar('good')
    good = true(size(X));
 end
 if ~exist('N','var')
