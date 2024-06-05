@@ -60,7 +60,7 @@ ab = patch_ab(ax,ay,bx,by);% ay(1) = 0; ay(end) = 0;
 figure_(4); plot(vis.vdata.wavelength, vis_lang_resp,'r*', ...
    vis.vdata.wavelength(good_Io==0), vis_lang_resp(good_Io==0),'g*',...
    hou_vis2.lambda_nm(gtz), hou_vis2.resp(gtz).*max_Ro./resp_max,'k-','markersize',8);
-lg = legend('Langley (all)','Langley (good)', 'Lamp'); lg.Location = 'NorthWest';
+lg = legend('Langley (all)','Langley (robust)', 'Lamp'); lg.Location = 'NorthWest';
 xlabel('wavelength [nm]'); ylabel('Si CCD responsivity');
 xlim([325,1040]); xlv = xlim;
 
