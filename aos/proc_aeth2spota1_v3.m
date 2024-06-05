@@ -1,4 +1,4 @@
-function aeth = proc_aeth2spota1_v2
+function aeth = proc_aeth2spota1_v3
 
 
 % Aetheometer mass absorption cross-sections
@@ -92,7 +92,17 @@ disp('Be patient, the integral and smoother take a little while');
 tic
 % the new idea 2023-03-18
 % new idea is to smooth Tr, recompute ATN, 
+% smooth_Bab is basically unnecessary now that the Ae33 is at 1-min resolution.
 [Bab_1_raw_1m, dV1_ss, dL1_ss] = smooth_Bab(aeth.time, aeth.vdata.sample_flow_rate_spot_1, Tr_1,60, spot_area);
+
+% Let's take a look at AAE by computing a second-order fit to log(Bab) vs log(wl),
+% taking the polyder, and evaluating it for each WL and time.
+% Then look at time series of AAE at selected WLs as well as WL dependence at
+% selected times.
+
+
+
+
 % [Bab_1_raw_1m, Tr_1m, dV_1m, dL_1m] = smooth_Tr_i_Bab(aeth.time, aeth.vdata.sample_flow_rate_spot_1, Tr_1,60, spot_area);
 % ATN1_1m = -100.*log(Tr_1m);
 toc

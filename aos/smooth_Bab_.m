@@ -7,9 +7,8 @@ function [Bab, dV_ss, dL_ss] = smooth_Bab(time, sample_flow, Tr,ss, spot_area);
 % optional "spot_area" is in units of mm^2, def 17.81 for PSAP
 % Modified 2020/01/31 to accept N-dimensioned Tr for aethalometer
 % 2024-03-08: this is currently NOT WORKING, all NAN or zero, possibly due to changes
-% in the instrument sample interval which went from "fast" (~1s?) to "slow" (=1min)
-% 2024-03-08: I think I fixed it by prepopulating abs_ss with diff2 (line 24)
-% So much of this code is unnecessary!
+% in the instrument sample interval which went from "fast" (~1s) to "slow" (~1min?)
+% Working on smooth_Bab_ as a result
 
 if ~exist('spot_area','var')||isempty(spot_area)
    spot_area = 17.81;
@@ -20,9 +19,9 @@ if spot_area <1e-4 % probaby in m^2
 elseif spot_area < 1 % probably in cm^2
     spot_area = spot_area * 1e2;
 end
-dt = ss./(24*60*60); 
-dV_ss = sample_flow;
-abs_ss = zeros(size(Tr));abs_ss = -diff2(log(Tr'))';
+dt = ss./(24*60*60); % factor of 2 to go from half-width to full-width
+dV_ss = zeros(size(sample_flow));
+abs_ss = zeros(size(Tr));
 if all(size(sample_flow)==size(Tr))
     for tt = (ss):length(sample_flow)-1
         dt_ = time> time(tt)-dt & time <= time(tt);
@@ -47,16 +46,13 @@ else
         % Compute volume of air drawn through filter over each window
         if st>2 
             dV_ss(tt) = trapz(time(dt_)*24*60, sample_flow(dt_))';
-            abs_ss(:,tt) = log(Tr(:,tt-st+1)./Tr(:,tt));
-        % elseif st==1
-        %    dV_ss(tt) = sample_flow(dt_);
         end
         % Compute absorbance as log of ratio of transmittances
 %     end
 %     for tt = (ss):length(sample_flow)-1
 %         st = sum(dt_);
         % Compute absorbance as log of ratio of transmittances
-
+        abs_ss(:,tt) = log(Tr(:,tt-st+1)./Tr(:,tt));
     end
     %Compute "length" of air, that is volume/spot_size_area
     % Convert from mm to meters
