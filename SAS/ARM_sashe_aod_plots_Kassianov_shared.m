@@ -3,22 +3,22 @@ function ARM_sashe_aod_plots_Kassianov_shared % Current situation with HOU compa
 % MFR and SAS about some date.  
 % This may be related to banding issues that could be improved using the MFR 
 % direct/diffuse approach, but we'll just exclude it for expediency
-
+% 2024-05-18, cjf, modified to include 1019 nm channel from UV/VIS
 cim = rd_anetaod_v3;
 if foundstr(cim.site,'High')
    mfr = load('D:\aodfit_be\pvc\pvcmfrsraodM1.c1.filt.mat');
-   sasv = load('D:\aodfit_be\pvc\pvcsashevisaodM1.c1.aod_filt.20120629_20130620.mat');
+   sasv = load('D:\aodfit_be\pvc\pvcsashevisaodM1.c1.aod_filt2.20120629_20130620.mat');
    sasn = load('D:\aodfit_be\pvc\pvcsasheniraodM1.c1.aod_filt.20120629_20130609.mat');
    ddr_corr = load('D:\aodfit_be\pvc\pvc_ddrcorr_v3.mat');
 elseif foundstr(cim.site,'Jolla')
-   mfr = load('D:\epc\epcmfrsr7nchM1.b1.filtered.mat');
-   sasv = load('D:\epc\epcsashevisaodM1.c1.aod_filt.20230117_20230809.mat');
-   sasn = load('D:\epc\epcsasheniraodM1.c1.ddr_filt.20230113_20230810.mat');
-   ddr_corr = load(['D:\epc\epc_ddrcorr_v3.mat']);
-   ddr_nir_corr = load(['D:\epc\epc_nirddrcorr_v3.mat']);
+   mfr = load('D:\aodfit_be\epc\epcmfrsr7nchM1.b1.filtered.mat');
+   sasv = load('D:\aodfit_be\epc\epcsashevisaodM1.c1.aod_filt2.20230117_20230809.mat');
+   sasn = load('D:\aodfit_be\epc\epcsasheniraodM1.c1.ddr_filt.20230113_20230810.mat');
+   ddr_corr = load(['D:\aodfit_be\epc\epc_ddrcorr_v3.mat']);
+   ddr_nir_corr = load(['D:\aodfit_be\epc\epc_nirddrcorr_v3.mat']);   
 else
    mfr = load('D:\aodfit_be\hou\houmfrsr7nchaod1michM1.c1.filtered.mat');
-   sasv = load('D:\aodfit_be\hou\housashevisaodM1.c1.aod_filt.20210922_20221001.mat');
+   sasv = load('D:\aodfit_be\hou\housashevisaodM1.c1.aod_filt2.20210922_20221001.mat');
    sasn = load('D:\aodfit_be\hou\housasheniraodM1.c1.aod_filt.20210922_20221001.mat');
    ddr_corr = load('D:\aodfit_be\hou\hou_ddrcorr_v3.mat');
 end
@@ -40,6 +40,9 @@ vers = 'v3'; % Correct computation of ddr_corr
 
 %These will be overwritten by lines 42-43 with an intersecting subset
 % but we may want to SAS and MFR comparisons even without matching aeronet
+[ainb, bina] =nearest(sasv.time, sasn.time);
+sasv = anc_sift(sasv, ainb); sasn = anc_sift(sasn, bina);
+
 [mins, sinm] = nearest(mfr.time, sasv.time);
 [minns, sinnm] = nearest(mfr.time, sasn.time); % for sasnir
 
@@ -131,10 +134,16 @@ Y = sasv.vdata.aerosol_optical_depth(7,sinc);
 x_str = 'Aeronet AOD'; y_str = 'SASHe AOD'; nm_str = '870 nm';
 plot_aod(X,Y,x_str, y_str, site_str, nm_str,fig_path);
 
+X = cim.AOD_1020nm_AOD(cins)+cim.AOD_1020nm_WaterVapor(cins);
+Y = sasv.vdata.aerosol_optical_depth(8,sinc);
+x_str = 'Aeronet TOD - Rayleigh'; y_str = 'SASHe TOD - Rayleigh'; nm_str = '1019 nm';
+plot_aod(X,Y,x_str, y_str, site_str, nm_str,fig_path);
+
+
 % sasn compared to cim
 Y = sasn.vdata.aerosol_optical_depth(1,sinnc);
 X = cim.AOD_1020nm_AOD(cinns)+cim.AOD_1020nm_WaterVapor(cinns);
-y_str = 'SASHe OD - Rayleigh'; x_str = 'Aeronet AOD + H2O'; nm_str = '1020 nm';
+y_str = 'SASHe TOD - Rayleigh'; x_str = 'Aeronet TOD - Rayleigh'; nm_str = '1020 nm';
 plot_aod(X,Y,x_str, y_str, site_str, nm_str,fig_path);
 
 Y = sasn.vdata.aerosol_optical_depth(5,sinnc);
@@ -209,7 +218,7 @@ function plot_aod(X,Y,x_str, y_str, site_str, nm_str, pname);
       xl = xlim; yl = ylim; xlim([0,round(10.*min([xl(2),yl(2)]))./10]);ylim(xlim); axis('square');
       hold('on'); xl = xlim; li = plot(xl, xl, 'k:','linewidth',4); hold('off')
       [good, P_bar] = rbifit(X,Y,3,0); hold('on');  plot(xl,polyval(P_bar,xl),'b-', 'linewidth',3); hold('off')
-      [gt,txt, stats] = txt_stat(X(good), Y(good),P_bar); set(gt,'color','b');
+      [txt, stats, gt] = txt_stat(X(good), Y(good),P_bar); set(gt,'color','b');
       gt.Units = 'Normalized'; gt.Position = round(gt.Position.*10)./10; gt.BackgroundColor = [.975,.975,.975]; 
       zoom('on');
       if isavar('pname')&&isadir(pname)

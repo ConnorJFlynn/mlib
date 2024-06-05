@@ -46,6 +46,9 @@ ddr_corr.ddr = ddr_corr_hou.ddr;
 
 %These will be overwritten by lines 42-43 with an intersecting subset
 % but we may want to SAS and MFR comparisons even without matching aeronet
+[ainb, bina] =nearest(sasv.time, sasn.time);
+sasv = anc_sift(sasv, ainb); sasn = anc_sift(sasn, bina);
+
 [mins, sinm] = nearest(mfr.time, sasv.time);
 [minns, sinnm] = nearest(mfr.time, sasn.time); % for sasnir
 
