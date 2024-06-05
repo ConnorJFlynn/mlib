@@ -1,4 +1,4 @@
-function cos_corr = cos_correction_sashe(angle_corrs, zen);
+function cos_corr = cos_correction_sashe(angle_corrs, zen)
 %cos_corr = cos_correction_sashe(angle_corrs, az, zen, lat)
 %angle_corrs contains bench angle with SN and WE corrections (flipped
 %if in southern hemisphere) and broken into cardinal directions
@@ -28,7 +28,7 @@ W_cor = interp1(angle_corrs.zenith_angle, angle_corrs.W, 90-zen);
 
 %  disp('NE quadrant');
 Q1 = find(az>=0 & az<90);
-if length(Q1>0)
+if ~isempty(Q1>0)
    phi = az(Q1);
    cor_WE(Q1) = (phi/90)./E_cor(Q1);
    cor_SN(Q1) = ((90-phi)/90)./N_cor(Q1);
