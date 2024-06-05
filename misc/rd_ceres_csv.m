@@ -1,17 +1,14 @@
 function ceres = rd_ceres_csv
 
-% N,Unnamed,STID,TIME,PRES,TAIR,TMIN,TMAX,TDEW,RELH,WDIR,WSPD,WMAX,RAIN,SRAD_x,DATE,YEAR,MONTH,DAY,HOUR,MINUTE,DATES,HOUR_UTC,lon_x,lat_x,
-% DT,DT_UTC,CERES_STID,DT_CERES,lon_y,lat_y,DIST,INDEX,SRAD_y,CFRAC,Year
-% 0,1326,ACME,2019-01-05T14:30,28.64,63,-999,-999,40,42,163,7,9,0.4,482,2019-01-05 14:30:00,2019,1,5,14,30,2019-01-05 14:30:00,20,-98.02325,34.80833
-%DT,DT_UTC,CERES_STID,DT_CERES,lon_y,lat_y,DIST,INDEX,SRAD_y,CFRAC,Year
-% ,2019-01-05 14:30:00,2019-01-05 20:30:00,ACME,2019-01-05 20:30:00,-98.15427,34.820324,12.034709476408429,2486,480.0627,38.0,2019
-infile = getfullname('C:\Users\flyn0011\OneDrive - University of Oklahoma\Desktop\Aqua_Joined_CORR.csv','ceres');
+% Col1,Col2,Col3,ID,TIME,PRES,TAIR,TMIN,TMAX,TDEW,RELH,WDIR,WSPD,WMAX,RAIN,SRAD,DATE,YEAR,MONTH,DAY,HOUR,MINUTE,DATES,HOUR_UTC,lon_x,lat_x,DT,DT_UTC,CERES_STID,Overpass_t,DT_CERES,lon_y,lat_y,DIST,INDEX,CERES_lon,CERES_lat,CRS_SRAD,SSF_SRAD,CFRAC
+% 81,81,43648,ACME,2019-06-01T13:20,28.63,69,-999,-999,64,83,358,26,35,0.06,128,2019-06-01 13:20:00,2019,6,1,13,20,2019-06-01 13:20:00,19,-98.02325,34.80833,2019-06-01 13:20:00,2019-06-01 19:20:00,ACME,2019-06-01 19:21:00,2019-06-01 19:20:00,-97.904144,34.684235,17.5737674954934,82545,-97.904144,34.684235,465.9,538.2035,0.47111517
+infile = getfullname('C:\Users\Connor Flynn\OneDrive - University of Oklahoma\Desktop\xdata\1_xfer _tmp\brad\Aqua_JJA_SSF_CRS.csv','ceres');
 
 
 fid = fopen(infile,'r');
 this = fgetl(fid);
 AA = textscan(this, '%s','Delimiter',',');AA=AA{:};
-A = textscan(fid, ['%d %d %d %s %s %f %f %f %f %f %f %f %f %f %f %f %s %f %f %f %f %f %s %f %f %f %s %s %s %s %f %f %f %f %f %f %f %s %s %s %s %f %f %f %f %f %f %f %*[^\n]'],'delimiter',',');
+A = textscan(fid, ['%d %d %d %s %s %f %f %f %f %f %f %f %f %f %f %f %s %f %f %f %f %f %s %f %f %f %s %s %s %s %s %f %f %f %f %f %f %f %f %f %*[^\n]'],'delimiter',',');
 
 fclose(fid)
 
