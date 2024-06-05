@@ -8,7 +8,9 @@ end
 
 %%
 aip = read_cimel_aip(infile);
-
+if isfield(aip,'SolarZenithAngle_degrees_')
+   aip.Solar_Zenith_Angle_Degrees_ = aip.SolarZenithAngle_degrees_;
+end
 %%
 aip.waves_rounded = (round(aip.Nominal_Wavelength_nm_.*100)./100);
 aip.wave_rounded = unique(aip.waves_rounded);

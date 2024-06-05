@@ -1,5 +1,6 @@
-function cimel = read_cimel_cloudrad(filename)
+function cimel = read_cimel_cloudrad_v3(filename)
 %cimel = read_cimel_cloudrad(filename);
+% https://aeronet.gsfc.nasa.gov/cgi-bin/print_web_data_zenith_radiance_v3?site=Cart_Site&year=2024&month=4&day=26&year2=2024&month2=4&day2=28&ZEN00=1&AVG=10&if_no_html=1
 if ~exist('filename', 'var')
    filename = getfullname('*.*','cimel_cloud');
 elseif ~exist(filename,'file')
@@ -9,6 +10,7 @@ end
 fname = [fname,ext];
 
 fid = fopen(filename,'r');
+blah =  webwrite(httpUrl,data);
 blah = char(fread(fid,'uchar=>uchar'))';
 fclose(fid);
 blah = strrep(blah,',<br>',''); blah = strrep(blah,'<br>','');
@@ -38,9 +40,11 @@ if fid>0
          end
          if (findstr(tmp,'Date(')&findstr(tmp,'Time(')) | (findstr(tmp,'Date (')&findstr(tmp,'Time ('))
             label_line = tmp;
+            header_rows = header_rows -1;
          end
+         tmp = fgetl(fid);
       end
-      tmp = [];
+      
    end
    if ~isavar('loc_line')
       loc_line = [];
@@ -74,20 +78,22 @@ if fid>0
    end
    cimel.label_line = label_line;
 
-   label{1} = 'Date'; label{2} = 'Time';
+   label{1} = 'Site'; label{2} = 'Date'; label{3} = 'Time';
    %Strip date and time from label_line, also remove trailing comma-delimiter
    [tok,label_line] = strtok(label_line,',');
    label_line = label_line(2:end);
    [tok,label_line] = strtok(label_line,',');
    label_line = label_line(2:end);
-   format_str = '%s %s ';
-   lab = 3;
+   [tok,label_line] = strtok(label_line,',');
+   label_line = label_line(2:end);
+   format_str = '%s %s %s ';
+   lab = 4;
    while ~isempty(label_line)
       [tmp,label_line] = strtok(label_line,',');
       label_line = label_line(2:end);
       tmp = legalizename(tmp);
       label{lab} = tmp;
-      if ~isempty(findstr(lower(label{lab}),'date'))||~isempty(findstr(label{lab},'DATA_TYPE'))
+      if ~isempty(findstr(lower(label{lab}),'date'))||~isempty(findstr(lower(label{lab}),'time'))||~isempty(findstr(label{lab},'Sky_Scan'))||~isempty(findstr(label{lab},'AERONET_Site'))
          format_str = [format_str '%s '];
       else 
          format_str = [format_str '%f '];
@@ -102,6 +108,7 @@ if fid>0
          disp('Mismatch between number of labels and number of columns')
          return
       else
+         txt(1) = [];label(1) = [];
          this = txt{1};
          txt(1) = [];label(1) = [];
          that = txt{1};
@@ -130,6 +137,21 @@ if fid>0
             txt(1) = [];
             label(1) = [];
          end
+         % From aeronet_zenith_radiance for PPL
+         cimel.zenrad_units = 'mW/(m^2 nm sr)';
+         flds = fieldnames(cimel);
+         for f = length(flds):-1:1;
+            fld = flds{f};
+            if (strcmp(fld(1),'K')||strcmp(fld(1),'A'))&&strcmp(fld(end-1:end),'nm')
+               cimel.(fld) = 10.*cimel.(fld);
+            end
+         end
+         % Original units µW/cm^2/sr/nm = mW/cm^2/sr/um
+         % 1e-3 * 1e4
+         % Desire radiance units W/(m^2 um sr)
+         % aip.sky_rad = aip.sky_rad * 10;
+
+
       end
    end
    fclose(fid);
