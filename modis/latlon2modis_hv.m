@@ -11,7 +11,8 @@ function [h,v]= latlon2modis_hv(lat, lon);
 A = A_grid;
 for L = length(lat):-1:1
 A_sub = A(lon(L) >= A(:,3) & lon(L) <= A(:,4) & lat(L) >= A(:,5) & lat(L) <= A(:,6),:);
-v(L) = A_sub(1,1) h(L) = A_sub(1,2);
+v(L) = A_sub(1,1);
+h(L) = A_sub(1,2);
 end
 
 function A = A_grid;
