@@ -1,5 +1,5 @@
-function diffuse = difcor(angle_corrs);
-%diffuse = difcor(angle_corrs);
+function dif_corr = difcor(angle_corrs);
+%diffuse = dif_corr(angle_corrs);
 % Calculates the correction required of the diffuse hemispheric due to
 % non-lambertian sensor response
 % Assumes that the supplied angle corrections are correct for the
@@ -65,11 +65,11 @@ hemisp_corr(5)=hemisp_corr(5)/hemisp_corr(4) ;%//Rayleigh sza=0
 hemisp_corr(7)=hemisp_corr(7)/hemisp_corr(6) ;%//Rayleigh sza=45
 hemisp_corr(9)=hemisp_corr(9)/hemisp_corr(8) ;%//Rayleigh sza=90
 
-diffuse.isotropic = hemisp_corr(1);
-diffuse.moonspencer = hemisp_corr(3);
-diffuse.Rayleigh0 = hemisp_corr(5);
-diffuse.Rayleigh45 = hemisp_corr(7);
-diffuse.Rayleigh90 = hemisp_corr(9);
-diffuse.mean45zen = angle_corrs.diffuse.mean45zen;
-diffuse.mean_all = mean([diffuse.isotropic,diffuse.moonspencer,diffuse.Rayleigh0,diffuse.Rayleigh45,diffuse.Rayleigh90,diffuse.mean45zen]);
+dif_corr.isotropic = hemisp_corr(1);
+dif_corr.moonspencer = hemisp_corr(3);
+dif_corr.Rayleigh0 = hemisp_corr(5);
+dif_corr.Rayleigh45 = hemisp_corr(7);
+dif_corr.Rayleigh90 = hemisp_corr(9);
+dif_corr.mean45zen = angle_corrs.diffuse.mean45zen;
+dif_corr.mean_all = mean([dif_corr.isotropic,dif_corr.moonspencer,dif_corr.Rayleigh0,dif_corr.Rayleigh45,dif_corr.Rayleigh90,dif_corr.mean45zen]);
 
