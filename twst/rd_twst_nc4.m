@@ -8,6 +8,10 @@ if ~iscell(in_file) && isafile(in_file)
 end
 try
 twst = twst4_to_struct(in_file{1});
+if ~isfield(twst,'fname')
+   [pname, fname, ext] = fileparts(in_file{1});
+   twst.pname = [pname, filesep]; twst.fname = [fname, ext];
+end
 if length(in_file)>1
    twst2 = rd_twst_nc4(in_file(2:end)); disp(length(twst.time))
    [twst.time, ind] = unique([twst.time, twst2.time]);
@@ -19,6 +23,10 @@ if length(in_file)>1
    twst.zenrad_A = tmp(:,ind);
    tmp = [twst.zenrad_B, twst2.zenrad_B];
    twst.zenrad_B = tmp(:,ind);
+   tmp = [twst.sig_A, twst2.sig_A];
+   twst.sig_A = tmp(:,ind);
+   tmp = [twst.sig_B, twst2.sig_B];
+   twst.sig_B = tmp(:,ind);
    tmp = [twst.raw_A, twst2.raw_A];
    twst.raw_A = tmp(:,ind);
    tmp = [twst.raw_B, twst2.raw_B];

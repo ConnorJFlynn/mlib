@@ -8,6 +8,7 @@ function ab = patch_ab(ax,ay,bx,by)
 % 
 bay = interp1(bx, by, ax,'linear'); % this is "by" on the "ax" grid
 bay(isnan(bay)) = interp1(bx, by, ax(isnan(bay)),'nearest','extrap');
+% bay(isnan(bay)) = interp1(bx(~isnan(by)), by(~isnan(by)), ax(isnan(bay)),'nearest','extrap');
 ab = ay;
 lenx = length(ax);
 ii = 1;

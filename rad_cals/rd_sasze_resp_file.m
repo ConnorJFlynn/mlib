@@ -6,7 +6,7 @@ end
 pname = [pname, filesep];
 emanp = fliplr(pname); lamp = emanp(6);
 % lamp_cal.lamps = sscanf(lamp,'%d');
-C = textscan(fname, '%s', 'delimiter','.'); C = C{:}
+C = textscan(fname, '%s', 'delimiter','.'); C = C{:};
 lamp_cal.sas_unit = C{1};
 % lamp_cal.spec_type = C{4};
 % if strcmp(lamp_cal.spec_type,'si')
@@ -15,7 +15,7 @@ lamp_cal.sas_unit = C{1};
 %     lamp_cal.spec_type = 'InGaAs';
 % end
 % lamp_cal.t_int = sscanf(C{5},'%fms');
-lamp_cal.first_date = datenum(C{3},'yyyymmddHHMM');
+lamp_cal.first_date = datenum(C{3},'yyyymmdd_HHMM');
 lamp_cal.first_datestr = datestr(lamp_cal.first_date,'yyyy-mm-dd HH:MM');
 
 fid = fopen(infile,'r');
@@ -76,9 +76,9 @@ if strcmp(lamp_cal.spec_type,'si')
 else
     lamp_cal.spec_type = 'InGaAs';
 end
-labels = textscan(inline,'%s');
-labels = labels{:};
-C = textscan(fid,'%d %f %f %f %f %f %f %f \n');
+labels = textscan(inline,'%s','delimiter',',');
+labels = deblank(labels); labels=labels{:};
+C = textscan(fid,'%d %f %f %f %f %f %f %f %f \n','delimiter',',');
 fclose(fid);
 for L = length(labels):-1:1
     lamp_cal.(labels{L}) = C{L};

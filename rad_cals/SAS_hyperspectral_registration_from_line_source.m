@@ -3,7 +3,7 @@ function GSFC_lamp_cals_hdf_reads
 
 % line_lib = getfullname('*.h5');
 line_lib = 'D:\case_studies\radiation_cals\spectral_lines_library.h5';
-if ~exist(line_lib,'file')
+if ~isafile(line_lib)
     line_lib = getfullname('*.h5','spectral_line_library','Select spectra lines library.');
 end
     

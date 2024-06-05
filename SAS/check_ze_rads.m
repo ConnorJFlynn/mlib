@@ -4,7 +4,7 @@ ze = anc_sift(ze, ze.vdata.zenith_radiance_500nm>0);
 % Read anet cloudmode file
 cim_cld = read_cimel_cloudrad;
 % Read anet PPL file
-cim_zenrad = anet_zen_rad_via_ppl;
+cim_zenrad = aeronet_zenith_radiance;
 
 figure; plot(ze.time, ze.vdata.zenith_radiance_500nm, 'b-', ...
    cim_cld.time, cim_cld.A500nm,'gx',cim_cld.time, cim_cld.K500nm,'go',...

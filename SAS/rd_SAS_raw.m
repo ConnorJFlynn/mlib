@@ -2,6 +2,7 @@ function sas = rd_SAS_raw(ins,plots)
 % Read SAS instrument-raw data
 % sas = rd_raw_SAS(infile, plots)
 % 2022 updating to handle files with irregular lengths
+% 2024 updating during TASZERS to handle files files with dual int
 if ~isavar('ins')||isempty(ins)
    ins = getfullname_('*raw*.csv','sas', 'Select raw sas/sws file(s)');
 end
@@ -125,8 +126,8 @@ else
       end
       
 %       figure_(199); plot(sas.time(sas.Shutter_open_TF==0), sas.spec(sas.Shutter_open_TF==0,100),'-',sas.time, sas.darks(:,100),'.')
-%       sas.sig = sas.spec - sas.darks;
-%       sas.rate = sas.sig ./ (sas.t_int_ms * ones([1,cols]));
+      sas.sig = sas.spec - sas.darks;
+      sas.rate = sas.sig ./ (sas.t_int_ms * ones([1,cols]));
       % This line added to handle Zeiss / Tec5 (SWS) spectrometers with
       % flipped InGaAs arrays
       if sas.wl(1)>sas.wl(2)

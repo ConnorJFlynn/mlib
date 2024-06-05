@@ -1,17 +1,17 @@
-function [pix,nms,P,S]= fit_wl(nm,spec,nm_in,N); 
-% [pix, nms, P,S]= fit_wl(nm,spec,nm_in);
+function [pix,nms,P,S,Mu,nm_out]= fit_wl2(nm,spec,nm_in,N); 
+% [pix, nms, P,S,Mu]= fit_wl(nm,spec,nm_in);
 % Supplied with a measured spectra and list of peak locations allows the
 % user to cycle through the supplied list, selecting those that are
 % represented in the data for use in generating an Nth order polynomial
 % fit.
-if ~exist('N','var');
-   N = 4;
+if ~isavar('N');
+   N = 2;
 end
 ind = size(nm_in,1);
 done = false;
 figure(99);
 [tmp,A] = unique(nm_in(:,1));
-nm_in = nm_in(A,:);
+nm_in = nm_in(A,:); nm_in_uniq = nm_in;
 nm_in((nm_in(:,1)<min(nm))|(nm_in(:,1)>max(nm)),:)= [];
 ii = 1;
 nms = [];
@@ -30,14 +30,22 @@ while ~done
    plot(nm,spec,'k-');
    yl = ylim;
    line([nm_in(:,1)';nm_in(:,1)'],[yl'*ones([1,length(nm_in(:,1)')])],'color','red');
-   line([nm_in(ii,1);nm_in(ii,1)],yl','color','blue');
-   title(['Reference wavelength: ',sprintf('%3.2f nm',nm_in(ii,1)), '  relative intensity ',num2str(nm_in(ii,2))]);
-   nm_ = nm>=((nm_in(ii,1)-10))&nm<=((nm_in(ii,1)+10));
-   nm_in_ = nm_in(:,1)>=((nm_in(ii,1)-10))&nm_in(:,1)<=((nm_in(ii,1)+10));
+   line([nm_in(ii,1);nm_in(ii,1)],yl','color','blue'); 
+   if ~isempty(nms)
+      line([nms;nms],[yl'*ones([1,length(nms)])],'color','green');
+   end
+   title({['Reference wavelength: ',sprintf('%3.2f nm',nm_in(ii,1)), '  relative intensity ',num2str(nm_in(ii,2))];['Source lines remaining: ',num2str(length(nm_in(:,1)))]});
+   nm_ = nm>=((nm_in(ii,1)-20))&nm<=((nm_in(ii,1)+20));
+   nm_in_ = nm_in(:,1)>=((nm_in(ii,1)-20))&nm_in(:,1)<=((nm_in(ii,1)+20));
    sb(2) = subplot(4,1,2);
    if sum(nm_)>3
       plot(nm(nm_),spec(nm_),'k-');
       line([nm_in(nm_in_,1)';nm_in(nm_in_,1)'],[ylim'*ones([1,length(nm_in(nm_in_,1)')])],'color','red');
+      if ~isempty(nms)
+         yl2 = ylim; xl = xlim;
+         line([nms;nms],[yl2'*ones([1,length(nms)])],'color','green');
+         xlim(xl);
+      end
       line([nm_in(ii,1);nm_in(ii,1)],ylim','color','blue')
       xlim([nm_in(ii,1)-10,nm_in(ii,1)+10]);
       title(['Select peak with left mouse button, exit with right mouse button']);
@@ -46,7 +54,7 @@ while ~done
            while ~ok
      [x,y,button] = ginput(1);
      if button==1
-        if exist('ln','var')&ishandle(ln)
+        if isavar('ln')&ishandle(ln)
            delete(ln);
         end
      pix_ = interp1(nm,[1:length(nm)], x, 'nearest');
@@ -55,6 +63,8 @@ while ~done
         ok = true;
      end
            end
+   else
+      disp('why?')
    end
 
   k = menu('Use this peak?','Use it', 'Delete it','Skip it','Done!');
@@ -66,15 +76,19 @@ while ~done
 %      [pix,IJ] = sort(pix);
 %      nms = nms(IJ);
      if length(nms)>N+1
-        [P,S] = polyfit(pix,nms,N);
+        [P,S,Mu] = polyfit(pix,nms,N);
+        nm_new = polyval(P,[1:length(nm)],S,Mu); 
+        if all(size(nm)~=size(nm_new))
+           nm_new = nm_new';
+        end
         sb(3) = subplot(4,1,3);
-        plot(nm,polyval(P,[1:length(nm)],S), '-b');
+        plot(nm,nm_new, '-b');
         sb(4) = subplot(4,1,4);
-        plot(nm,nm-polyval(P,[1:length(nm)],S), '-ro');
+        plot(nm,nm-nm_new, 'xr');
      end
      nm_in(ii,:) = [];
      nm_in = flipud(nm_in);
-  elseif k==2
+  elseif k==2 %delete it
      nm_in(ii,:) = [];
   elseif k==3
        ii = ii +1;
@@ -85,12 +99,21 @@ while ~done
   if ii > length(nm_in(:,1))
      ii = 1;
   end
-  if length(nm_in(:,1))<=1
+  if length(nm_in(:,1))<1
      done = true;
   end
  
 end
 [nms, ij] = sort(nms);
 pix = pix(ij);
+out_ij = interp1(nm_in_uniq(:,1), [1:length(nm_in_uniq(:,1))],nms,'nearest','extrap');
+nm_out = nm_in_uniq(out_ij,1);
+
+% figure;
+% plot(polyval(P,[1:length(nm)],S,Mu), spec,'-');hold('on');plot(nm, spec, '-','color',[.7,.7,.7]);
+%ys = ylim'; ys(1) = 1e-6.*ys(2);
+% line([nm_out,nm_out]',(ys*ones(size([nm_out']))),'color','green'); hold('off')
+% legend('new fit','old','reference')
+
 
 return
