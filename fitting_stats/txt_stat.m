@@ -1,4 +1,4 @@
-function [gt,txt, stats] = txt_stat(x,y,P,S,mu)
+function [txt, stats, gt] = txt_stat(x,y,P,S,mu)
 % Returns a number of statistics from the supplied N-order polynomial
 % stats = fit_stat(x,y,P,S,Mu);
 %
@@ -46,15 +46,17 @@ stats.adj_R_sqrd = 1 - ((stats.SSE./stats.SST)*(length(x)-1)/S.df);
 stats.RMSE = sqrt(stats.SSE/S.df);
 
 txt = {
-['slope = ',sprintf('%1.3g',stats.slope)], ...    
+['slope = ',sprintf('%0.02f',stats.slope)], ...    
 ['Y_i_n_t = ', sprintf('%0.02g',stats.y_int)],...
-['bias (y-x) =  ',sprintf('%1.1g',stats.bias)], ... 
+['bias (y-x) =  ',sprintf('%0.02g',stats.bias)], ... 
 ['mean(x) = ',sprintf('%1.3g',stats.x_bar)],...
 ['mean(y) = ',sprintf('%1.3g',stats.y_bar)],...
 ['RMSE = ',sprintf('%1.3f',stats.RMSE)],...
 ['N = ', num2str(stats.N)]};
-display('Select figure to add stats')
-gt = gtext(txt); 
+if nargout ==3
+   display('Select figure to add stats')
+   gt = gtext(txt);
+end
 % set(gt, 'Units','norm', 'interp','tex', 'position',[.1,.9], 'BackgroundColor','w');
 
 
