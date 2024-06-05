@@ -21,12 +21,12 @@ end
 if isafile(projname)
     fid = fopen(projname,'r');
     while ~feof(fid)
-        line = fgetl(fid);
+        line = fgetl(fid); line = strrep(line,'<ClientData EditorFileName="',''); line = strrep(line,'"/>','');
         if isafile(line)
                 edit(line);
         else
-            [~,line] = filepartsh(line);
-            if ~isempty(which(line))
+            [~,fname,ext] = fileparts(line);
+            if ~isempty(which(fname))
                disp(['Could not find "',line,'" on explicit path.'])
                disp(['Opening version found within Matlab path.'])
                edit([fname,ext]);
