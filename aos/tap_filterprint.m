@@ -1,6 +1,5 @@
 % Trying to devise a finger-print for TAP filter
-% Taking 
-% Known white filter
+% Taking known white filter
 tap = rd_tap_tty(getfullname('*.log','tap_tty'));
 mean_ref_blue = (mean(tap.signal_blue(9:10,:)));
 mean_ref_green = (mean(tap.signal_green(9:10,:)));

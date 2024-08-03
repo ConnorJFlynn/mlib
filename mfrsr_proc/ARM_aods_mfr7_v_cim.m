@@ -1,4 +1,4 @@
-
+function ARM_aods_mfr7_v_cim
 
 cim = rd_anetaod_v3;
 if ~isfield(cim,'AOD_1640_nm_AOD')&&~isfield(cim,'AOD_1640nm')
@@ -83,7 +83,7 @@ xlabel('wavelength'); ylabel('AOD'); legend('MFRSR','Cimel')
 title({'EPC MFRSR7AOD and Cimel lv 1.5 AOD';datestr(mean(mfr.time(xl_)),'yyyy-mm-dd HH:MM UT')})
 
 figure; hist(ang(ang>0&ang<4), 50)
-figure; plot(mfr.time, [ang; ang_fit],'.'); dynamicDateTicks; 
+% figure; plot(mfr.time, [ang; ang_fit],'.'); dynamicDateTicks; 
 
 figure; plot(cim.time(cim.AOD_1640nm>-1), cim.AOD_1640nm(cim.AOD_1640nm>-1),'k.'); dynamicDateTicks; legend('Aeronet 1.6u')
 
@@ -331,3 +331,4 @@ xlabel(x_str); ylabel(y_str);
 xl = xlim; yl = ylim; xlim([0,floor(10.*min([xl(2),yl(2)]))./10]);ylim(xlim); axis('square')
 
 
+end

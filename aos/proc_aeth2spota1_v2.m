@@ -1,5 +1,5 @@
-function aeth = proc_aeth2spota1_v2
-
+function ae33 = pack_ae33(ins)
+% ae33 = pack_ae33(ins)
 
 % Aetheometer mass absorption cross-sections
 % These aren't final form.

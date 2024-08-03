@@ -133,7 +133,7 @@ C = textscan(fid, format_str);
            end
        end
        
-       % Now to get nass flow parameters from SS = 21,22,23
+       % Now to get mass flow parameters from SS = 21,22,23
        mf_p= find(psapi.I_SS==21,1,'first');
        if length(psapi.time)>= mf_p+2
            % "21,007c499f0a,00ced7cb9e,04b5f0,00,mf0p0=1000"

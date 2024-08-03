@@ -1,5 +1,7 @@
 function D = den2plot(X,Y,d)
-
+% For equal-sized vectors X and Y returns the number of points within a distance "d"
+% of each X,Y pair. In essense, this is the local density in the neighborhood d
+% surrounding each X,Y pair.
 if isrowvector(X)
    X = X';
 end 
@@ -25,8 +27,9 @@ X = X./maxd; Y = Y./maxd;
 % 
 % toc
 % tic
-% % This is faster but computationally less efficient in that it does not take
-% % advantage of the diagonal symmetry ds(i,j) == ds(j,i)
+% % Strangely, although the below is computationally less efficient than the above (in that it does not take
+% % advantage of the diagonal symmetry ds(i,j) == ds(j,i)) in Matlab it executes
+% faster.
 xX = [X;X]; yY = [Y;Y];
 for n = N:-1:1
   XX = xX(n:(N+n-1)); 

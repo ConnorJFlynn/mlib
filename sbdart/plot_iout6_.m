@@ -1,56 +1,8 @@
-function out = plot_iout6(input,w,fig)
+function out = plot_iout6_(out,QRY,fig)
 rows = find(w==10);
 %First several rows are useless to us
 % Fourth row has nphi, nuzen
 
-A = textscan(w(rows(3):rows(4)),'%f'); A = A{1};
-out.wl =A(1); out.ffv = A(2);
-out.BOTDN = A(6); out.BOTDIR = A(8);
-out.BOTDIF = out.BOTDN-out.BOTDIR; out.DIRN2DIF = out.BOTDIR./out.BOTDIF;
-
-str = w(rows(4):rows(5));
-[nphi, count, errmsg, nextindex] = sscanf(str,'%d',1);
-[nuzen, count, errmsg, nextindex] = sscanf(str(nextindex:end),'%d',1);
-str = w(rows(5):end);
-[phi, count, errmsg, nextindex] = sscanf(str,'%e',nphi);
-str = str(nextindex:end);
-[uzen, count, errmsg,nextindex] = sscanf(str, '%e', nuzen);
-out.zen =(180 - uzen); out.zen = [out.zen; -flipud(out.zen)];
-str = str(nextindex:end);
-uurs = zeros([nphi, nuzen]);
-[temp, count, errmsg,nextindex] = sscanf(str, '%e', nphi*nuzen);
-uurs(:) = temp;
-uurs = uurs';
-out.SZA = input.SZA;
-if isfield(input,'TBAER')
-   out.aod = input.TBAER;
-elseif isfield(input,'QBAER')
-   out.aod = input.QBAER;
-end
-if ~isfield(input,'ABAER')
-   if isfield(input,'QBAER')&&length(input.QBAER)>1
-      input.ABAER = ang_exp(input.QBAER(1), input.QBAER(2),input.WLBAER(1),input.WLBAER(2));
-   elseif isfield(input,'TBAER')&&length(input.TBAER)>1
-      input.ABAER = ang_exp(input.TBAER(1), input.TBAER(2),input.WLBAER(1),input.WLBAER(2));
-   else
-      input.ABAER = 1;
-   end
-end
-if isfield(input,'QBAER')
-   tau = input.QBAER;
-elseif isfield(input,'TBAER')
-   tau = input.TBAER;
-end
-out.aod = ang_coef(tau(1), input.ABAER, input.WLBAER(1), out.wl);
-if length(input.WLBAER)>1 & length(input.WBAER)>1
-   out.ssa = polyval(polyfit(input.WLBAER, input.WBAER, 1),out.wl);
-else
-   if isfield(input,'WBAER')
-      out.ssa = input.WBAER;
-   else
-      out.ssa = .95;
-   end
-end
 if (nphi > 1)&&(nuzen==1) % then it is PPL?
    zen = (180 - uzen);
    PHI = [zeros(size(zen))+phi(1); zeros(size(zen))+phi(2)];

@@ -20,20 +20,30 @@ elseif spot_area < 1 % probably in cm^2
     spot_area = spot_area * 1e2;
 end
 
-tim = [time(1):(1./(24.*60.*60)):time(end)]; % create tim in 1-second intervals
+tim = [time(1):(1./(24.*60.*60)):time(end)]'; % create tim in 1-second intervals
 sflow = interp1(time, sample_flow,tim,'linear');
 sflow(isnan(sflow)) =interp1(time(~isnan(sample_flow)), sample_flow(~isnan(sample_flow)), tim(isnan(sflow)),'nearest','extrap');
 
 sTr = interp1(time, Tr, tim, 'linear'); 
-sTr(isnan(sTr)) = interp1(time(~isnan(Tr)), Tr(~isnan(Tr)), tim(isnan(sTr)),'nearest','extrap');
-
-% build a 2D version of flow to vectorize trapz below, huge speed increase
-ii = [1:length(tim)-ss]; jj = [ss+1:length(tim)];
-for tt = length(ii):-1:1
-   flows(tt,:) = sflow(ii:jj);
+if any(size(Tr)==1)
+   sTr(isnan(sTr)) = interp1(time(~isnan(Tr)), Tr(~isnan(Tr)), tim(isnan(sTr)),'nearest','extrap');
+else
+   nansTr = any(isnan(sTr),2);
+   nanTr = any(isnan(Tr),2); 
+   sTr(nansTr,:) = interp1(time(~nanTr), Tr(~nanTr,:), tim(nansTr),'nearest','extrap');
 end
-dV = trapz(tim(1:ss+1)*24*60,flows,2)';
-abs_s = real(log(sTr(ii)./sTr(jj))); % Need to check this line for n-dim Tr for Aeth
+% build a 2D version of flow to vectorize trapz below, huge speed increase
+ii = [1:length(tim)-ss]'; jj = [ss+1:length(tim)]';
+for tt = length(ii):-1:1
+   flows(tt,:) = sflow(ii(tt):jj(tt));
+end
+dV = trapz(tim(1:ss+1)*24*60,flows,2);
+if any(size(sTr)==1)
+   abs_s = real(log(sTr(ii)./sTr(jj))); % Need to check this line for n-dim Tr for Aeth
+else
+   abs_s = real(log(sTr(ii,:)./sTr(jj,:))); % Need to check this line for n-dim Tr for Aeth
+end
+
 dL_s = 1000.*dV./spot_area;
 Bap = 1e6.*abs_s./dL_s;
 Bap = interp1(tim(1+ss./2:end-ss./2), Bap, time,'linear');

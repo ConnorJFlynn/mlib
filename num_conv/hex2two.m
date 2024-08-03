@@ -16,4 +16,4 @@ function IntVal = hex2two(hexstr)
 % -32767 <---> '8001'
 % -32768 <---> '8000'
 
-IntVal = hex2dec(hexstr) - 65536*(hex2dec(hexstr)>=hex2dec('8000'));
+IntVal = hex2dec(hexstr) - 16.^(size(hexstr,2))*(hex2dec(hexstr)>=hex2dec('8000'));

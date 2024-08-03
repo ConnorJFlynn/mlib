@@ -4,7 +4,7 @@
 % different filters, and for filter-errors (two filters, filter upside
 % down)
 
-[tap, raw] = rd_tap_tty(getfullname('*.log','tap_tty'));
+[tap, raw] = rd_tap_putty(getfullname('*.log','tap_tty'));
 
 % figure; 
 % sb(1) = subplot(2,1,1); 
