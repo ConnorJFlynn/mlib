@@ -1,5 +1,5 @@
 function psap_txt = rd_psap_aaf_txt(ins);
-if ~exist('ins','var') || ~exist(ins,'file')
+if ~isavar('ins') || ~isafile(ins)
     ins = getfullname_('*psap.txt','aaf_psap');
 end
 [psap_txt.pname,psap_txt.fname,ext] = fileparts(ins);
@@ -9,7 +9,7 @@ if ~exist(matdir,'dir')
     mkdir(matdir);
     matdir = [matdir, filesep];
 end
-if exist([matdir, psap_txt.fname(1:10), 'psap_txt.mat'],'file')
+if isafile([matdir, psap_txt.fname(1:10), 'psap_txt.mat'])
     psap_txt = load([matdir, psap_txt.fname(1:10), 'psap_txt.mat']);
 else
     % yyyy,mm,dd,HH,MM,SS.fff,doy.fff, secs,P_r, B_g, B_b, Tr_r, Tr_g, Tr_b, flow_lpm, flow_mv,Avg_time, status_flag, string,"09,8722c07707,811393009f,453d50,5b,0.770"
