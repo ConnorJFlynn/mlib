@@ -44,13 +44,14 @@ sa = []; sky_rad = [];
 for f = 1:length(fields)
     if any(~isempty(strfind(fields{f},'pos'))|| ~isempty(strfind(fields{f},'neg_')))
         fld = fields{f};
-        fld = strrep(fld,'pt','.'); fld = strrep(fld,'pos',''); fld = strrep(fld,'neg_','-');
+        fld = strrep(fld,'pt','.');fld = strrep(fld,'d','.'); fld = strrep(fld,'pos',''); fld = strrep(fld,'neg_','-');
         sa(end+1) = sscanf(fld,'%f');
         sky_rad(:,end+1) = aip.(fields{f});
     end
 end
 [aip.SA, ii] = sort(sa);
 aip.sky_rad = sky_rad(:,ii);
+aip.sky_rad(aip.sky_rad<-100) = NaN;
 % Original units µW/cm^2/sr/nm = mW/cm^2/sr/um
 % 1e-3 * 1e4
 % Desire radiance units W/(m^2 um sr)
