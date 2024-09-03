@@ -20,7 +20,7 @@ bad_aod = bad_aod |anc_qc_impacts(houmfr.vdata.qc_aerosol_optical_depth_filter7,
 houmfr = anc_sift(houmfr, ~bad_aod);
 
 [hina, ainh] = nearest(houmfr.time, anet.time);
-[good, P_bar] = rbifit(anet.AOD_1640nm(ainh), houmfr.vdata.aerosol_optical_depth_filter7(hina)',2.5,0, []);
+[good, P_bar] = rbifit(anet.AOD_1640nm_AOD(ainh), houmfr.vdata.aerosol_optical_depth_filter7(hina)',2.5,0, []);
 xlabel('Aeronet AOD');ylabel('ARM AOD');
 title('Aeronet and ARM AOD 1.6 um')
 
@@ -30,16 +30,16 @@ title('Aeronet and ARM AOD 500 nm')
 
 plots_ppt; 
 
-bad_aod_ = houmfr.vdata.aerosol_optical_depth_filter7<0.007;
+bad_aod_ = houmfr.vdata.aerosol_optical_depth_filter7<0.0007;
 houmfr_ = anc_sift(houmfr, ~bad_aod_);
 [hina_, ainh_] = nearest(houmfr_.time, anet.time);
 
-[good, P_bar] = rbifit(anet.AOD_1640nm(ainh_), houmfr_.vdata.aerosol_optical_depth_filter7(hina_)',3,0, []);
+[good, P_bar] = rbifit(anet.AOD_1640nm_AOD(ainh_), houmfr_.vdata.aerosol_optical_depth_filter7(hina_)',3,0, []);
 xlabel('Aeronet AOD');ylabel('ARM AOD');
 title('Aeronet and ARM AOD 1.6 um')
  xlim([0,.15]); ylim(xlim); axis('square')
-[gt,txt, stats] = txt_stat(anet.AOD_1640nm(ainh_(good)), houmfr_.vdata.aerosol_optical_depth_filter7(hina_(good))',P_bar);
-hold('on'); plot(anet.AOD_1640nm(ainh_(~good)), houmfr_.vdata.aerosol_optical_depth_filter7(hina_(~good))','k.'); hold('off');
+[gt,txt, stats] = txt_stat(anet.AOD_1640nm_AOD(ainh_(good)), houmfr_.vdata.aerosol_optical_depth_filter7(hina_(good))',P_bar);
+hold('on'); plot(anet.AOD_1640nm_AOD(ainh_(~good)), houmfr_.vdata.aerosol_optical_depth_filter7(hina_(~good))','k.'); hold('off');
 
 figure; plot(anet.AOD_1640nm(ainh_), houmfr_.vdata.aerosol_optical_depth_filter7(hina_)','k.')
  xlim([0,.15]); ylim(xlim); axis('square')
