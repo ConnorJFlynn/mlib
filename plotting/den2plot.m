@@ -2,12 +2,14 @@ function D = den2plot(X,Y,d)
 % For equal-sized vectors X and Y returns the number of points within a distance "d"
 % of each X,Y pair. In essense, this is the local density in the neighborhood d
 % surrounding each X,Y pair.
-if isrowvector(X)
-   X = X';
-end 
-if isrowvector(Y)
-   Y = Y';
-end
+% if isrowvector(X)
+%    X = X';
+% end 
+% if isrowvector(Y)
+%    Y = Y';
+% end
+C = size(X); if
+
 
 N = length(X);
 % ds = zeros(N,N);XX = ds; YY = ds;

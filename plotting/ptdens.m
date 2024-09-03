@@ -9,10 +9,11 @@ if ~isavar('d')
    d = 1./sqrt(N);
 end
 D = zeros(size(X));
-if isrowvector(X)
+
+if size(X,1)==1 && size(X,2)>1
    X = X';
 end 
-if isrowvector(Y)
+if size(Y,1)==1
    Y = Y';
 end
 
@@ -24,7 +25,6 @@ for n = N:-1:1
   end
 end
 D = D./n;
-
 end
 
 
