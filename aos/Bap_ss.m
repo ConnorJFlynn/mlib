@@ -22,7 +22,7 @@ end
 
 tim = [time(1):(1./(24.*60.*60)):time(end)]'; % create tim in 1-second intervals
 sflow = interp1(time, sample_flow,tim,'linear');
-sflow(isnan(sflow)) =interp1(time(~isnan(sample_flow)), sample_flow(~isnan(sample_flow)), tim(isnan(sflow)),'nearest','extrap');
+% sflow(isnan(sflow)) =interp1(time(~isnan(sample_flow)), sample_flow(~isnan(sample_flow)), tim(isnan(sflow)),'nearest','extrap');
 
 sTr = interp1(time, Tr, tim, 'linear'); 
 if any(size(Tr)==1)
@@ -30,7 +30,7 @@ if any(size(Tr)==1)
 else
    nansTr = any(isnan(sTr),2);
    nanTr = any(isnan(Tr),2); 
-   sTr(nansTr,:) = interp1(time(~nanTr), Tr(~nanTr,:), tim(nansTr),'nearest','extrap');
+   % sTr(nansTr,:) = interp1(time(~nanTr), Tr(~nanTr,:), tim(nansTr),'nearest','extrap');
 end
 % build a 2D version of flow to vectorize trapz below, huge speed increase
 ii = [1:length(tim)-ss]'; jj = [ss+1:length(tim)]';

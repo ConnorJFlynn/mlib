@@ -74,8 +74,20 @@ else
       ma.Pumpdrive = raw.Pumpdrive;
       ma.Temp_C = raw.ReportingTemp_lpar_C_rpar_;
       ma.Pres_PA = raw.ReportingPressure_lpar_Pa_rpar_;
-      ma.Tr1 = ma.Sen1./ma.Ref;
-      ma.Tr2 = ma.Sen2./ma.Ref;
+
+
+      [tape, tape_ii] = unique(ma.tape); tape_ii = tape_ii+2;
+      ma.nref = ma.Ref./ma.Ref(1,:);
+      ma.nor1 = ma.Sen1./ma.Sen1(1,:);
+      ma.nor2 = ma.Sen2./ma.Sen2(1,:);
+      for ii = tape_ii'
+         ma.nref(ii:end,:) = ma.Ref(ii:end,:)./ma.Ref(ii,:);
+         ma.nor1(ii:end,:) = ma.Sen1(ii:end,:)./ma.Sen1(ii,:);
+         ma.nor2(ii:end,:) = ma.Sen2(ii:end,:)./ma.Sen2(ii,:);
+      end
+
+      ma.Tr1 = ma.nor1./ma.nref;
+      ma.Tr2 = ma.nor2./ma.nref;
 
    else
       disp('No valid file selected.')

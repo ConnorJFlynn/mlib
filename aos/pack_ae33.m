@@ -45,7 +45,7 @@ spec_attn.EC.P = polyfit(log(spec_attn.EC.nm./1000), log(spec_attn.EC.sigma), 1)
 
 %From Aeth33 manual, still current in V1.70, March 2024
 spec_attn.AE33.nm = [370,470,520,590,660,880,950];
-spec_attn.AE33.sigma = [18.47, 14.54, 13.14, 11.58, 10.35, 7.77, 7.19];
+spec_attn.AE33.sigma = [18.47, 14.54, 13.14, 11.58, 10.35, 7.77, 7.19];% m2/g
 spec_attn.AE33.P = polyfit(log(spec_attn.AE33.nm./1000), log(spec_attn.AE33.sigma), 1);P.AE33 = spec_attn.AE33.P;
 
 % ATN = -100*log(I/Io) = -100*log(T)
@@ -67,16 +67,25 @@ for ch = 7:-1:1
    ae33.BC2(:,ch) =aeth.(['BC',num2str(ch),'2']);
    ae33.K(:,ch) = aeth.(['K',num2str(ch)]);
 end
-ae33.Tr1 = ae33.Sen1./ae33.Ref;
-ae33.Tr2 = ae33.Sen2./ae33.Ref;
+% ae33.Tr1 = ae33.Sen1./ae33.Ref;
+% ae33.Tr2 = ae33.Sen2./ae33.Ref;
 
-ii = find( ~bitget(aeth.Status,1) & bitget(aeth.Status,2))';
-if isempty(ii) ii = 1; end
+ae33.nor1 = ae33.Sen1;
+ae33.nor2 = ae33.Sen2; 
+ae33.nref = ae33.Ref;
+first = find(all(ae33.nor1>0 & ae33.nor2>0 &ae33.nref>0,2),1,'first');
+ii = sort([first, find( ~bitget(aeth.Status,1) & bitget(aeth.Status,2))']);
+% if isempty(ii) ii = 1; end
 
 for aa = ii
-    ae33.Tr1(aa:end,:) = ae33.Tr1(aa:end,:)./(ones(size(aeth.time(aa:end)))*ae33.Tr1(aa,:));
-    ae33.Tr2(aa:end,:) = ae33.Tr2(aa:end,:)./(ones(size(aeth.time(aa:end)))*ae33.Tr2(aa,:));
+    ae33.nor1(aa:end,:) = ae33.nor1(aa:end,:)./ae33.nor1(aa,:);
+    ae33.nor2(aa:end,:) = ae33.nor2(aa:end,:)./ae33.nor2(aa,:);
+    ae33.nref(aa:end,:) = ae33.nref(aa:end,:)./ae33.nref(aa,:);
+
 end
+ae33.Tr1 = ae33.nor1./ae33.nref;
+ae33.Tr2 = ae33.nor2./ae33.nref;
+
 instrument_status = bitset(aeth.Status,17,false);
 ae33.Tr1(instrument_status>0,:) = NaN; ae33.Tr2(instrument_status>0,:) = NaN;
 ae33.ATN_1 = -100.*log(ae33.Tr1);
@@ -130,13 +139,47 @@ ae33.Wein_C = 1.39; % C consistent with lab testing at TROPOS in Leipzig.
 %  % 60s) and my 1m comparable value computed from raw intensities with
 %  % Wein_C = 1.39 and zeta correction applied. 
 ae33.zeta_leak = 0.025; 
-ae33.Bap1_raw = Bap_ss(ae33.time, ae33.Flow1.*(1-ae33.zeta_leak), ae33.Tr1, 60, ae33.spot_area);
+ae33.Bap1_raw = Bap_ss(ae33.time, ae33.Flow1.*(1-ae33.zeta_leak)./1000, ae33.Tr1, 60, ae33.spot_area);
+figure; plot(ae33.time, ae33.Bap1_raw,'-'); dynamicDateTicks; sgtitle('AE33'); 
+menu('Zoom in to desired region and hit OK when done','OK');
+xl = xlim; xl_ = ae33.time>xl(1)&ae33.time<xl(2);
+
+   Bap = Bap_ss(ae33.time, ae33.Flow1.*(1-ae33.zeta_leak)./1000, ae33.Tr1(:,3), 1, ae33.spot_area);
+   time = ae33.time(xl_); 
+   Bap = Bap(xl_); 
+   bad = isnan(Bap); Bap(bad) = interp1(time(~bad), Bap(~bad),time(bad),'linear'); 
+   bad = isnan(Bap); Bap(bad) = interp1(time(~bad), Bap(~bad),time(bad),'nearest','extrap'); 
+   v.time = time; 
+   v.Bap = Bap;
+   DATA.freq= v.Bap; DATA.rate = 1;
+   v.retval = allan(DATA, 'AE33');
+
+
+
+
 ae33.Bap2_raw = Bap_ss(ae33.time, ae33.Flow2.*(1-ae33.zeta_leak), ae33.Tr2, 60, ae33.spot_area);
 ae33.Bap_raw = (ae33.Bap1_raw.*ae33.Flow1  +  ae33.Bap2_raw.*ae33.Flow2)./ae33.FlowC; 
+for t = length(ae33.time):-1:1
+   P_aae = polyfit(log(ae33.wl), log(ae33.Bap1_raw(t,:)),2);
+   P_aae = polyder(P_aae);
+   ae33.AAE1(t,:) = -real(polyval(P_aae,log(ae33.wl)));
+   ae33.AAE_500(t) = -real(polyval(P_aae,log(500)));
+end
+figure; plot(ae33.time, ae33.AAE1,'.', ae33.time, ae33.AAE1_,'k.');dynamicDateTicks
+
+
+
 figure; plot(ae33.time, ae33.Bap_raw,'-'); dynamicDateTicks
 figure; plot(ae33.time, ae33.Tr1,'-'); dynamicDateTicks
 ae33.Bap2_Wein_1p39 = ae33.Bap2_raw./ae33.Wein_C; 
+Bap = (ae33.BC./1e3).*(ones(size(ae33.time))*spec_attn.AE33.sigma);
+figure; sb(1) = subplot(2,1,1);
+plot(ae33.time, smooth(Bap(:,3),300), 'g-'); dynamicDateTicks
+ sb(2) = subplot(2,1,2);
+plot(ae33.time, smooth(ae33.BC(:,3),300), 'k.',ae33.time, smooth(ae33.BC(:,7),300), 'r.'); dynamicDateTicks
+linkaxes(sb,'x');
 
+% nanmean(smooth(ae33.BC(:,6),300)./smooth(Bap(:,5),300))
 % 
 % % psap1s = anc_load;
 % % figure; plot(aeth.time, Bab_1_raw_1m(2,:), '-x', psap1s.time, psap1s.vdata.Ba_B_raw,'kx-'); dynamicDateTicks

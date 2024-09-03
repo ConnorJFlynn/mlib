@@ -1,18 +1,15 @@
-function [pxap, resets] = rd_pxapo(infile);
+function [resets,raw] = rd_pxapo(infile);
 
 if ~isavar('infile')
    infile = getfullname('P*AP*.o.*dat','pxap_amice','Select AMICE PXAP "o" file.');
 end
 
 if iscell(infile)&&length(infile)>1
-   [pxap, raw] = rd_pxapo(infile{1});
-   raw.time = pxap.time; pxap.fname = raw.fname; 
-   [pxap2, raw2] = rd_pxapo(infile(2:end));
-   raw2.time = pxap2.time;pxap2.fname = raw2.fname;
-%    xap_.fname = unique([xap.fname,xap2.fname]);
+   [resets,raw] = rd_pxapo(infile{1});
+   [resets2, raw2] = rd_pxapo(infile(2:end));
    raw_.fname = unique([raw.fname, raw2.fname]);
    raw = cat_timeseries(raw, raw2);raw.fname = raw_.fname;
-   pxap = cat_timeseries(pxap, pxap2); pxap.fname = raw.fname; pxap.pname = raw.pname;
+   resets.fname = raw.fname; resets.pname = raw.pname;
 else
    if iscell(infile); infile = infile{1}; end
    if isafile(infile)
@@ -30,8 +27,7 @@ else
    end
    [~, fname] = fileparts(raw.fname);
 
-   raw.pname = {[raw.pname, filesep]}; raw.fname = {[raw.fname, ext]};
-   pxap.fname = raw.fname; pxap.pname = raw.pname;
+   raw.pname = {[raw.pname, filesep]}; raw.fname = {[fname, ext]};
    
    n = 1;
    fmt_str = ''; 
@@ -49,47 +45,59 @@ else
 
   Aa = textscan(fid,fmt_str); fclose(fid);
   Dd = Aa{1}; Tt = Aa{2};
+  bad = foundstr(Dd,'999');
   for dt = length(Dd):-1:1 
-     DT(dt) = {[Dd{dt}, Tt{dt}]};
+     DT(dt) = {[Dd{dt},' ', Tt{dt}]};
   end
-  raw.time = datenum(DT,'yyyy-mm-dd,HH:MM:SS,');
-  raw.itime = Aa{3};
+  DT = DT(~bad);
+  try
+     raw.time = datenum(DT,'yyyy-mm-dd, HH:MM:SS,');
+  catch
+     raw.time = datenum(DT,'yyyy-mm-dd HH:MM:SS');
+  end
+  raw.itime = Aa{3}; raw.itime(bad) = [];
 
 
   Aa(1:3) = [];
-  raw.Ba_B = Aa{1}; raw.Ba_G = Aa{2}; raw.Ba_R = Aa{3}; 
+  raw.Ba_B = Aa{1}; raw.Ba_G = Aa{2}; raw.Ba_R = Aa{3};  
+  raw.Ba_B(bad) = []; raw.Ba_G(bad) = []; raw.Ba_R(bad) = []; 
   Aa(1:3) = [];
   raw.Tr_B = Aa{1}; raw.Tr_G = Aa{2}; raw.Tr_R = Aa{3}; 
+    raw.Tr_B(bad)=[]; raw.Tr_G(bad)=[]; raw.Tr_R(bad)=[]; 
   Aa(1:3) = [];
   raw.flow_LPM = Aa{1}; raw.flow_AD = Aa{2}; raw.Avg_S = Aa{3}; raw.status = Aa{4};
+    raw.flow_LPM(bad)=[]; raw.flow_AD(bad)=[]; raw.Avg_S(bad)=[]; raw.status(bad)=[];
   Aa(1:4) = [];
   raw.I_str = Aa{1}; raw.I_str = strrep(raw.I_str,'"','');
+    raw.I_str(bad)=[]; 
+
   
   raw.i_sec = rem(raw.itime,100);
-  ios = find(raw.i_sec==4);
-  for ii = 1:length(ios)
+  ios = find(raw.i_sec==4); 
+  ios((ios+3)>length(raw.i_sec)) = [];
+% try
+   ios = ios(raw.i_sec(ios+1)==5 & raw.i_sec(ios+2)==6 & raw.i_sec(ios+3)==7);
+% catch
+% 
+%    ios = ios(raw.i_sec(ios+1)==5 & raw.i_sec(ios+2)==6 & raw.i_sec(ios+3)==7);
+% end
+  for ii = length(ios):-1:1
      io = ios(ii);
-     I_str = raw.I_str{io};
-     I_str = textscan(I_str,'%*f %*x %*x %*x %*x %*x %*x %s', 'delimiter',','); I_str = I_str{1};
-     resets.itime(ii) = datenum(I_str,'yymmddHHMMSS');
-     B_str = raw.I_str{io+1}; B = textscan(B_str,'%*f %x %x %x %x %f', 'delimiter',',');
-     resets.Io(ii,1) = B{end};
-     resets.Bo(ii) = (double(B{1})-double(B{3}-B{4})*256)./ (double(B{2})-double(B{3}-B{4})*256);    
-     G_str = raw.I_str{io+2}; G = textscan(G_str,'%*f %x %x %x %x %f', 'delimiter',',');
-     resets.Go(ii) = (double(G{1})-double(G{3}-G{4})*256)./ (double(G{2})-double(G{3}-G{4})*256);
-     resets.Io(ii,2) = G{end};
-     R_str = raw.I_str{io+3}; R = textscan(R_str,'%*f %x %x %x %x %f', 'delimiter',',');
-     resets.Ro(ii) = (double(R{1})-double(R{3}-R{4})*256)./ (double(R{2})-double(R{3}-R{4})*256);
-     resets.Io(ii,3) = R{end};
-
-     (double(B{1})-double(B{3}-B{4})*256)./ (double(B{2})-double(B{3}-B{4})*256);
-     (double(B{1}))./ (double(B{2}));
-
-
+     I4_str = raw.I_str{io}; I5_str = raw.I_str{io+1}; I6_str = raw.I_str{io+2}; I7_str = raw.I_str{io+3}; 
+     reset.time(ii) = raw.time(io);
+     reset.itime_str(ii) = {fliplr(strtok(fliplr(I4_str),','))};
+     reset.Bo(ii) = sscanf(fliplr(strtok(fliplr(I5_str),',')),'%f');
+     reset.Go(ii) = sscanf(fliplr(strtok(fliplr(I6_str),',')),'%f');
+     reset.Ro(ii) = sscanf(fliplr(strtok(fliplr(I7_str),',')),'%f');
   end
-
-  pxap = raw;
-  pxap.nm = [470, 522, 660];
+  [tmp,ii] = unique(reset.itime_str);
+  resets.time = reset.time(ii);
+  resets.itime_str = reset.itime_str{ii};  
+  resets.Bo = reset.Bo(ii);
+  resets.Go = reset.Go(ii);
+  resets.Ro = reset.Ro(ii);
+  raw.nm = [470, 522, 660];
+  resets.itime = datenum(resets.itime_str,'yymmddHHMMSS');
  
 end
 

@@ -32,16 +32,22 @@ else
    end
    [raw.pname,raw.fname, ext] = fileparts(infile); raw.fname = [raw.fname, ext];
    if iscell(raw.fname)
-      raw.fname = raw.fname{1}; 
+      raw.fname = raw.fname{1};
    end
    [~, fname] = fileparts(raw.fname);
-      enamf = fliplr(fname); [emit, etad] = strtok(enamf, '.');
-      time_str = fliplr(emit); etad = strtok(etad,'.'); d_str = fliplr(etad);
-      start_time = datenum([d_str, ' ',time_str],'yyyymmdd HHMMSS');
 
+   enamf = fliplr(fname); [emit, etad] = strtok(enamf, '.');
+   time_str = fliplr(emit); etad = strtok(etad,'.'); d_str = fliplr(etad);
+   if length(time_str)==6
+      start_time = datenum([d_str, ' ',time_str],'yyyymmdd HHMMSS');
+   elseif length(time_str)==2
+      start_time = datenum([d_str, ' ',time_str],'yyyymmdd HH');
+   else
+      error(['Time string in filename ',fname,' is not recognized.'])
+   end
    raw.pname = {[raw.pname, filesep]}; raw.fname = {[raw.fname, ext]};
    clap.fname = raw.fname; clap.pname = raw.pname;
-   
+
    n = 1;
    fmt_str = ''; 
    % 	03, 0000, 000187da, 00cb,
@@ -99,7 +105,7 @@ else
    
    % myriad flows that actually come from other files but for QL quality we'll
    % use these nominal values.
-   
+   clap.time =  (raw.secs_hex-raw.secs_hex(1))./(24*60*60)';
    clap.time = (start_time + (raw.secs_hex-raw.secs_hex(1))./(24*60*60))';
    clap.flags = uint16(raw.flags_hex)';
    clap.spot_active = raw.spot';

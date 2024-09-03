@@ -1,9 +1,9 @@
 function [tap, raw] = rd_xap_nohdr(infile);
 % Reads "xap" (TAP or CLAP) datafiles that don't have a leading header.
-if ~exist('infile','var')
+if ~isavar('infile')
    infile = getfullname('*AP*.dat','xap_amice','Select XAP no-header file collected during AMICE 1.');
 end
-if exist(infile,'file')
+if isafile(infile)
    %   2024-07-24, 16:38:07, 03, 0402, 000000f5, 0043, 01, 0.000, 0.000000, 33.82, 37.15, c303403e, 49581a85, 488fd70f, 491d5c86, c343a6c6, 4913142e, 483f56f2, 48bcc99f, c2dfc3f6, 492f51c6, 48589f93, 48e215b3, c2ef47aa, 491dd2cc, 4847c64b, 48de5118, c367dde6, 491545fe, 483a3ba6, 48c1ea0d, c365ee80, 49159cc6, 4838dafb, 48c3d5a3, c38218e8, 4916ad07, 4849f8dd, 48c05c9f, c38311ee, 49125a56, 483c996e, 48b4efb5, c262cf2e, 48f286cb, 4815cf3e, 4894569d, c29dc28e, 4948bc71, 4888536b, 490b384c 
 
    fid = fopen(infile);

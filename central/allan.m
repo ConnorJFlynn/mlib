@@ -1,6 +1,6 @@
-function [retval, s, errorb, tau] = allan(data,tau,name,verbose)
+function [retval, s, errorb, tau] = allan(data,name,tau,verbose)
 % ALLAN  Compute the Allan deviation for a set of time-domain frequency data
-% [RETVAL, S, ERRORB, TAU] = ALLAN(DATA,TAU,NAME,VERBOSE)
+% [RETVAL, S, ERRORB, TAU] = ALLAN(DATA,NAME,TAU,VERBOSE)
 %
 % Inputs:
 % DATA should be a structure and have the following fields:
@@ -169,8 +169,9 @@ versionstr = 'allan v2.24';
 
 % defaults
 if nargin < 4, verbose=2; end
-if nargin < 3, name=''; end
-if nargin < 2 || isempty(tau), tau=2.^(-10:10); end
+if nargin < 3 || isempty(tau), tau=2.^(-10:10); end; tau = tau ./ data.rate;
+if nargin < 2, name=''; end
+
 
 % plot "tau bins"? #TAUBIN
 TAUBIN = 0; % set 0 or 1 % WARNING: this has a significant impact on performance
@@ -544,7 +545,7 @@ if verbose >= 1 % show ADEV results
         %errorbar(tau,sm,sme,'.-b'); set(gca,'XScale','log');
         % this is a hack to approximate the error bars
         hold on; plot([tau; tau],[sm+sme; sm-sme],'-k','LineWidth',max(plotlinewidth-1,2));
-
+        legend(name)
         grid on;
         title(['Allan Deviation: ' name],'FontSize',FontSize+2,'FontName',FontName);
         %set(get(gca,'Title'),'Interpreter','none');
