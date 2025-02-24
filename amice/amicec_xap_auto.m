@@ -1,29 +1,28 @@
-function [xap_filt, xap] = amice_xap_auto(xap)
+function [xap_filt,xap] = amicec_xap_auto(xap)
 % automatically processes CLAP and TAP files from AMICE including flow cal.
 % 2024-08-15: CJF, updating to incorporate new normalization approach
 % This approach does not depend on "white" filter and instead normalizes all spots to
 % themselves after a spot-advance, and then re-normalizes the active spot against
 % all-nine signals to remove light source variation.  Also normalizes each reference
 % spot to track leaks
-% 2024-12-25: CJF, modifying to use fgetl read to screen fragments during AMICE 1c
 % Maybe explore applying a sliding median or IQ to determine the initial normalization
 % value after a spot-advance.
-% 2025-01-20: CJF, backtracking on fget1, only using it for AMICE-1c
+% 2024-12-25, CJF: modified to use fgetl to screen fragments during 1c
 
 if ~isavar('xap')
-   xap = rd_xap3;
+   xap = rd_xap3_c;
 elseif ~isstruct(xap)
-   xap = rd_xap3(xap);
+   xap = rd_xap3_c(xap);
 end
 if ~isfield(xap,'xap_name')
    emanp = fliplr(xap.pname{1});
    xap_name = fliplr(strtok(emanp,filesep));
    xap.xap_name = xap_name;
 end
-LPM = round(median(unique(xap.flow_lpm(~isnan(xap.flow_lpm)))))
+LPM = round(median(unique(xap.flow_lpm(~isnan(xap.flow_lpm)))));
 xap.flow_LPM = xap.flow_lpm;
-P_LPM = get_flowcal(xap_name, LPM);
-xap.flow_LPM = polyval(P_LPM, xap.flow_lpm);
+% P_LPM = get_flowcal(xap_name, LPM);
+% xap.flow_LPM = polyval(P_LPM, xap.flow_lpm);
 % TAP 640 (25); 520 (35); 465 (22)
 xap.wl = [465, 520, 640];
 xap = xap_cast(xap);

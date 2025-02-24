@@ -1,6 +1,6 @@
-% Compare Amice_B nearest
+% Compare Amice_1B nearest
 
-air_neph = rd_in102_raw; % air_neph.time = air_neph.time + 1;
+air_neph = rd_in102_putty; % air_neph.time = air_neph.time + 1;
 tsi_neph = rd_bnl_tsv4;
 caps = rd_capsdaq;
 time_offset = floor(mean(air_neph.time))-floor(mean(caps.time));

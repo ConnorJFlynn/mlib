@@ -9,11 +9,15 @@ function [Bap] = Bap_ss(time, sample_flow, Tr,ss, spot_area);
 % Modified again ~06/06/2023 to vectorize trapz.  May have broken N-dim Tr above, but
 % worth the price if so.  Test this!
 
+%2024-12-25, CJF: add "unique" before interp1
+
 
 if ~exist('spot_area','var')||isempty(spot_area)
-   spot_area = 17.81; % Default for PSAP
+   spot_area = 17.81; %mm^2 % Default for PSAP
 end
-
+% PSAP and CLAP == 17.81 mm2
+% TAP = 30.66 mm2 by manual
+% MA = 3 mm diam = 0.3 cm diam == Area = 7.0686 mm^2
 if spot_area <1e-4 % probaby in m^2 
     spot_area = spot_area * 1e6;
 elseif spot_area < 1 % probably in cm^2
@@ -23,7 +27,6 @@ end
 tim = [time(1):(1./(24.*60.*60)):time(end)]'; % create tim in 1-second intervals
 sflow = interp1(time, sample_flow,tim,'linear');
 % sflow(isnan(sflow)) =interp1(time(~isnan(sample_flow)), sample_flow(~isnan(sample_flow)), tim(isnan(sflow)),'nearest','extrap');
-
 sTr = interp1(time, Tr, tim, 'linear'); 
 if any(size(Tr)==1)
    sTr(isnan(sTr)) = interp1(time(~isnan(Tr)), Tr(~isnan(Tr)), tim(isnan(sTr)),'nearest','extrap');
@@ -45,7 +48,7 @@ else
 end
 
 dL_s = 1000.*dV./spot_area;
-Bap = 1e6.*abs_s./dL_s;
-Bap = interp1(tim(1+ss./2:end-ss./2), Bap, time,'linear');
+Bap = 1e6.*abs_s./(dL_s*ones(1,size(abs_s,2)));
+Bap = interp1(tim((1+ceil(ss./2)):(end-floor(ss./2))), Bap, time,'linear');
 
 return

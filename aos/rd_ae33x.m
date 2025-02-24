@@ -72,6 +72,8 @@ else
    end
 end
 
-
+ae.zeta_leak = 0.025;
+% % % Also according MaGee according to Gunnar, AE33 spot size is 10 mm diam
+ae.spot_area = pi .* 5.^2;
  return
 

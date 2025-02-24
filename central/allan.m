@@ -267,8 +267,14 @@ if isfield(data,'rate') && data.rate > 0 % if data rate was given
     if verbose >= 1, fprintf(1, 'allan: regular data (%g data points @ %g Hz)\n',length(data.freq),data.rate); end
     
     % string for plot title
-    name=[name ' (' num2str(data.rate) ' Hz)'];
-    
+    if data.rate>=1
+       name=[name ' (' num2str(data.rate) ' Hz)'];
+    else
+       avg = 1./data.rate;
+       name = [name, sprintf(' (%2.f s avg)',avg)];
+    end
+
+
     % what is the time interval between data points?
     tmstep = 1/data.rate;
    

@@ -1,4 +1,4 @@
-function [ae33, aeth] = pack_ae33(ins)
+function [ae33, aeth] = pack_ae33x(ins)
 % [ae33, aeth] = pack_ae33(ins)
 % 2024-06-29: preparing for AMICE
 
@@ -26,11 +26,11 @@ function [ae33, aeth] = pack_ae33(ins)
 % I think the issue is in smooth_Bab, but not sure.  Starting _v3 for now.
 
 if ~isavar('ins')||isempty(ins)
-   ins = getfullname_('*aeth2spot*.tsv','bnl_ae33','Select a raw BNL AE33 tsv file.');
+   ins = getfullname_('AE33_*.dat','ae33x','Select an AE33 export dat file.');
 end
 
 if ~isstruct(ins)
-  aeth = rd_bnl_tsv4(ins);
+  aeth = rd_ae33x(ins);
 else 
    aeth = ins;
 end
@@ -140,21 +140,19 @@ ae33.Wein_C = 1.39; % C consistent with lab testing at TROPOS in Leipzig.
 %  % Wein_C = 1.39 and zeta correction applied. 
 ae33.zeta_leak = 0.025; 
 ae33.Bap1_raw = Bap_ss(ae33.time, ae33.Flow1.*(1-ae33.zeta_leak)./1000, ae33.Tr1, 60, ae33.spot_area);
-LPM = round(median(ae33.FlowC./1000))
-ae33.LPM = LPM; 
-% figure; plot(ae33.time, ae33.Bap1_raw,'-'); dynamicDateTicks; sgtitle('AE33'); 
-% menu('Zoom in to desired region and hit OK when done','OK');
-% xl = xlim; xl_ = ae33.time>xl(1)&ae33.time<xl(2);
-% 
-%    Bap = Bap_ss(ae33.time, ae33.Flow1.*(1-ae33.zeta_leak)./1000, ae33.Tr1(:,3), 1, ae33.spot_area);
-%    time = ae33.time(xl_); 
-%    Bap = Bap(xl_); 
-%    bad = isnan(Bap); Bap(bad) = interp1(time(~bad), Bap(~bad),time(bad),'linear'); 
-%    bad = isnan(Bap); Bap(bad) = interp1(time(~bad), Bap(~bad),time(bad),'nearest','extrap'); 
-%    v.time = time; 
-%    v.Bap = Bap;
-%    DATA.freq= v.Bap; DATA.rate = 1;
-%    v.retval = allan(DATA, 'AE33');
+figure; plot(ae33.time, ae33.Bap1_raw,'-'); dynamicDateTicks; sgtitle('AE33'); 
+menu('Zoom in to desired region and hit OK when done','OK');
+xl = xlim; xl_ = ae33.time>xl(1)&ae33.time<xl(2);
+
+   Bap = Bap_ss(ae33.time, ae33.Flow1.*(1-ae33.zeta_leak)./1000, ae33.Tr1(:,3), 1, ae33.spot_area);
+   time = ae33.time(xl_); 
+   Bap = Bap(xl_); 
+   bad = isnan(Bap); Bap(bad) = interp1(time(~bad), Bap(~bad),time(bad),'linear'); 
+   bad = isnan(Bap); Bap(bad) = interp1(time(~bad), Bap(~bad),time(bad),'nearest','extrap'); 
+   v.time = time; 
+   v.Bap = Bap;
+   DATA.freq= v.Bap; DATA.rate = 1;
+   v.retval = allan(DATA, 'AE33');
 
 
 
@@ -170,7 +168,7 @@ ae33.LPM = LPM;
 % figure; plot(ae33.time, ae33.AAE1,'.', ae33.time, ae33.AAE_500,'k.');dynamicDateTicks
 
 
-% 
+
 % figure; plot(ae33.time, ae33.Bap_raw,'-'); dynamicDateTicks
 % figure; plot(ae33.time, ae33.Tr1,'-'); dynamicDateTicks
 % ae33.Bap2_Wein_1p39 = ae33.Bap2_raw./ae33.Wein_C; 

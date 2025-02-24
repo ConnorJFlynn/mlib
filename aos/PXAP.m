@@ -1,10 +1,10 @@
-function PXAP
+function PXAP_VI
 % Prompts for PSAP from which to collect data
 % Checks for existence of data directory.
 % If not found, prompt with getfullpath
 % 2024-07-25: Significant rework. Using xap.NumBytesAvailable<461 and
 % isgraphics(H_fig) seems to be helping responsiveness a lot
-
+% 2024-12-20: Adding display (similar to IN102_VI) and 
 
 me = menu('Select PSAP to collect from:','PSAP 77','PSAP 110','PSAP123', 'Test');
 if me==1
@@ -183,3 +183,7 @@ delete(serialportfind)
 
 return
 
+
+function adjust_xlim(src,event )
+menu('Adjust xlim as desired, press OK when done','OK');
+return

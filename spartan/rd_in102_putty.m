@@ -1,6 +1,6 @@
 function out = rd_in102_putty(infile);
-% out = rd_in102_raw(infile);
-% Reads a supplied or selected Air Photon IN102 Nephelometer file
+% out = rd_in102_putty(infile);
+% Reads a supplied or selected IN102 Nephelometer file captured through puTTY
 % Written by Connor Flynn, OU, 2024-08-19, working
 % TBD: make recursive to bundle multiple selected files.
 

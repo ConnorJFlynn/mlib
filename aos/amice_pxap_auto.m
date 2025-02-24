@@ -19,14 +19,14 @@ pxap.P_LPM = P_LPM;
 pxap.flow_LPM = polyval(P_LPM, pxap.flow_lpm);
 pxap.flow_LPMsm = smooth(pxap.flow_LPM,300);
 pxap.Bap_raw = Bap_ss(pxap.time, pxap.flow_LPMsm, pxap.Tr, 300);
-figure; plot(pxap.time, pxap.Bap_raw,'-'); sgtitle(pxap.pxap_name); dynamicDateTicks
+% figure; plot(pxap.time, pxap.Bap_raw,'-'); sgtitle(pxap.pxap_name); dynamicDateTicks
 
 
 
 return
 
 function P_LPM = get_flowcal(xap_name);
-flowcal_path = getfilepath('AMICE_flowcals');
+flowcal_path = getnamedpath('AMICE_flowcals');
 if  strcmpi(xap_name, 'psap77')
    flowcal = load([flowcal_path,'psap77.mat']);
 elseif strcmpi(xap_name, 'psap110')

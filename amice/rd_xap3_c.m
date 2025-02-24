@@ -1,6 +1,6 @@
-function raw = rd_xap3(infile);
+function raw = rd_xap3_c(infile);
 % raw = rd_xap3(infile);
-% testing swapping order or recursion to test speed
+% testing swapping order of recursion to test speed
 
 if ~isavar('infile')
    infile = getfullname('*AP*.dat','xap_amice','Select TAP or CLAP from AMICE.');
@@ -9,7 +9,7 @@ end
 if ~(iscell(infile)&&length(infile)>1)
    if iscell(infile); infile = infile{1}; end
    if isafile(infile)
-      %   Detailed explanation goes here
+      disp(['Opening ',infile])
       fid = fopen(infile);
    else
       disp('No valid file selected.')
@@ -39,34 +39,50 @@ if ~(iscell(infile)&&length(infile)>1)
    fmt_str = [fmt_str, '%s %s %s %s %s %s %s %s ']; %DRGB6, DRGB7 8
    %         c36c1a80, 4944378e, 48d0b032, 494fdd63, c380221a, 494180e2, 48ce59e6, 4942d85f
    fmt_str = [fmt_str, '%s %s %s %s %s %s %s %s ']; %DRGB8, DRGB9 8
- 
 
-   while ~feof(fid)
-         [A,last] = textscan(fid,fmt_str,'delimiter',',' );
-         if ~feof(fid)
-            c = 1; 
-            while length(A{c})~=length(A{end})
-               B = A{c}; B = B(1:length(A{end}));A(c) = {B}; 
-               c = c + 1;
-            end
-            if ~isavar('A_')
-              A_ = A;
-            else
-               for c = length(A):-1:1
-                  X = A_{c}; Y = A{c};
-                  A_(c) = {[X; Y]};
-               end
-            end
-            fgetl(fid);
-         end
-   end; fclose(fid);
-   if isavar('A_')
-      for c = length(A):-1:1
-         X = A_{c}; Y = A{c};
-         A(c) = {[X; Y]};
+while ~feof(fid)
+   inline = fgetl(fid); 
+   inline = deblank(inline); enil = fliplr(inline); 
+   enil = deblank(enil); inline = fliplr(enil);
+   if length(inline)>480 && strcmp(inline(1:2),'20')
+      Aa_ = textscan(inline, fmt_str,'delimiter',',');
+      if isavar('Aa')
+         c =1; while c<=length(Aa_); Aa(c) = {[Aa{c};Aa_{c}]}; c = c + 1; end
+      else
+         Aa = Aa_;
       end
-      clear A_
    end
+end
+fclose(fid);
+
+
+   % while ~feof(fid)
+   %       [A,last] = textscan(fid,fmt_str,'delimiter',',' );
+   %       if ~feof(fid)
+   %          c = 1; 
+   %          while length(A{c})~=length(A{end})
+   %             B = A{c}; B = B(1:length(A{end}));A(c) = {B}; 
+   %             c = c + 1;
+   %          end
+   %          if ~isavar('A_')
+   %            A_ = A;
+   %          else
+   %             for c = length(A):-1:1
+   %                X = A_{c}; Y = A{c};
+   %                A_(c) = {[X; Y]};
+   %             end
+   %          end
+   %          fgetl(fid);
+   %       end
+   % end; fclose(fid);
+   % if isavar('A_')
+   %    for c = length(A):-1:1
+   %       X = A_{c}; Y = A{c};
+   %       A(c) = {[X; Y]};
+   %    end
+   %    clear A_
+   % end
+   A = Aa; clear Aa;
    if length(A)==50 && ~isempty(A{end})
 
       YY = A{1}; HH = A{2}; 
@@ -111,8 +127,8 @@ if ~(iscell(infile)&&length(infile)>1)
    % xap.T_case = raw.T_case';
    % xap.T_sample = raw.T_sample';
 else
-   raw2 = rd_xap3(infile(2:end));
-   raw = rd_xap3(infile{1});
+   raw2 = rd_xap3_c(infile(2:end));
+   raw = rd_xap3_c(infile{1});
    % raw.time = xap.time; xap.fname = raw.fname;
    % raw2.time = xap2.time;xap2.fname = raw2.fname;
    %    xap_.fname = unique([xap.fname,xap2.fname]);

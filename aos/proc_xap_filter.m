@@ -39,39 +39,45 @@ for sa = 1:length(spot_adv);
    xap.Tr(xr,:) = [xap.Tr_B(xr,aspot),xap.Tr_G(xr,aspot),xap.Tr_R(xr,aspot)]; 
    % plot(xr, Tr_blue(xr),'-'); hold('on')
 end
-bad = diff2(xap.spot); bad(abs(bad)>0) = NaN; bad(2:end) = bad(1:end-1)+bad(2:end);
+bad = diff2(xap.spot); bad(2:end) = bad(1:end-1)+bad(2:end); bad = bad~=0;
 % figure; plot([1:length(xap.time)],xap.Tr(:,1),'-',find(isnan(bad)),xap.Tr(isnan(bad),1),'ro');
-xap.Tr(isnan(bad),:)=NaN; 
+xap.Tr(bad,:)=NaN; 
 xap.Tr(xap.Tr>1)= NaN;
-xap.flow_LPM(isnan(bad)) = NaN;
+xap.flow_LPM(bad) = NaN;
 W = 120;
 xap.flow_LPM_sm = filter(1/W*ones(W,1), 1, xap.flow_LPM);
 xap.flow_LPM_sm = smooth(xap.flow_LPM,120,'moving');
 
 % Bap_B = Bap_ss(xap.time, xap.flow_LPM_sm, Tr, 30);
 xap.ATN = -100.*log(xap.Tr);
-xap.Bap = Bap_ss(xap.time, xap.flow_LPM_sm, xap.Tr, 300);
+
+xap.Bap = NaN(size(xap.Tr));
+[time, ij] = unique(xap.time);
+tmp = Bap_ss(time, xap.flow_LPM_sm(ij), xap.Tr(ij,:), 30);
+xap.Bap(ij,:) = tmp;
+
+% xap.Bap = Bap_ss(xap.time, xap.flow_LPM_sm, xap.Tr, 300);
  % xap.Bap(xap.Bap<=0) = NaN;
-figure; plot(xap.time, xap.Bap,'-' ); dynamicDateTicks; sgtitle(xap.xap_name)
-menu('Zoom in to desired region and hit OK when done','OK');
-xl = xlim; xl_ = xap.time>xl(1)&xap.time<xl(2);
-
-   Bap = Bap_ss(xap.time, xap.flow_LPM_sm, xap.Tr(:,2), 1, 30);
-   time = xap.time(xl_); 
-   Bap = Bap(xl_); 
-   bad = isnan(Bap); Bap(bad) = interp1(time(~bad), Bap(~bad),time(bad),'linear'); 
-   bad = isnan(Bap); Bap(bad) = interp1(time(~bad), Bap(~bad),time(bad),'nearest','extrap'); 
-   v.time = time; 
-   v.Bap = Bap;
-   DATA.freq= v.Bap; DATA.rate = 1;
-   v.retval = allan(DATA, xap.xap_name);
-
+% figure_(44); plot(xap.time, xap.Bap,'-' ); dynamicDateTicks; sgtitle(xap.xap_name)
+% menu('Zoom in to desired region and hit OK when done','OK');
+% xl = xlim; xl_ = xap.time>xl(1)&xap.time<xl(2);
+% 
+%    Bap = Bap_ss(xap.time, xap.flow_LPM_sm, xap.Tr(:,2), 1, 30);
+%    time = xap.time(xl_); 
+%    Bap = Bap(xl_); 
+%    bad = isnan(Bap); Bap(bad) = interp1(time(~bad), Bap(~bad),time(bad),'linear'); 
+%    bad = isnan(Bap); Bap(bad) = interp1(time(~bad), Bap(~bad),time(bad),'nearest','extrap'); 
+%    v.time = time; 
+%    v.Bap = Bap;
+%    DATA.freq= v.Bap; DATA.rate = 1;
+%    v.retval = allan(DATA, xap.xap_name);
+% 
 for t = length(xap.time):-1:1
    P_aae = polyfit(log(xap.wl), log(xap.Bap(t,:)),2);
    P_aae = polyder(P_aae);
    xap.AAE(t,:) = -real(polyval(P_aae,log(xap.wl)));
    xap.AAE_500(t) = -real(polyval(P_aae,log(500)));
 end
-figure; plot(xap.time, xap.AAE,'.', xap.time, xap.AAE_500,'k.');dynamicDateTicks
+% figure; plot(xap.time, xap.AAE,'.', xap.time, xap.AAE_500,'k.');dynamicDateTicks
 
 end

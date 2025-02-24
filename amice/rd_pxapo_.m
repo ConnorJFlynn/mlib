@@ -1,12 +1,16 @@
-function [resets,raw] = rd_pxapo(infile);
-
+function [resets,raw] = rd_pxapo_(infile);
+% [resets,raw] = rd_pxapo_
+% 2024-12-24: Connor, modifying rd_pxapo to use line-by-line read
+% Interactivity introduced in AMICE 1c have generated fragmented packets.
+% Shifting to slower line-by-line read of file to screen out partial packets
+% 
 if ~isavar('infile')
    infile = getfullname('P*AP*.o.*dat','pxap_amice','Select AMICE PXAP "o" file.');
 end
 
 if iscell(infile)&&length(infile)>1
-   [resets,raw] = rd_pxapo(infile{1});
-   [resets2, raw2] = rd_pxapo(infile(2:end));
+   [resets,raw] = rd_pxapo_(infile{1});
+   [resets2, raw2] = rd_pxapo_(infile(2:end));
    raw_.fname = unique([raw.fname, raw2.fname]);
    raw = cat_timeseries(raw, raw2);raw.fname = raw_.fname;
    resets.fname = raw.fname; resets.pname = raw.pname;
@@ -15,6 +19,7 @@ else
    if isafile(infile)
       %   Detailed explanation goes here
       % 2024-07-26, 20:16:02, 240727005804   -3.04   -2.77   -2.11  .768  .789  .818  .106  1085  60 0084 "04,08,00375ccc,0d08,fffffa,ffffff,04,240725210812"
+      disp(['Opening ',infile])
       fid = fopen(infile);
    else
       disp('No valid file selected.')
@@ -29,7 +34,6 @@ else
 
    raw.pname = {[raw.pname, filesep]}; raw.fname = {[fname, ext]};
    
-   n = 1;
    fmt_str = ''; 
    % 2024-07-26, 20:16:02, 240727005804   -3.04   -2.77   -2.11  .768  .789  .818  .106  1085  60 0084 "04,08,00375ccc,0d08,fffffa,ffffff,04,240725210812"
    %  2024-07-26, 20:16:02, 240727005804
@@ -41,14 +45,31 @@ else
    % .106  1085  60 0084 
   fmt_str = [fmt_str, '%f %f %f %x %s']; % flow_LPM, flow_AD, avg status
    %"04,08,00375ccc,0d08,fffffa,ffffff,04,240725210812" 
-  [Aa,rst] = textscan(fid,fmt_str);
-  c =1;  while length(Aa{c})>length(Aa{end}); Aa{c}(end) = []; c = c+1; end
-  while ~feof(fid)
-     [Bb,rst] = textscan(fid,fmt_str); 
-     c =1; while length(Bb{c})>length(Bb{end}); Bb{c}(end) = []; c = c+1; end
-     c =1; while c<=length(Bb); Aa(c) = {[Aa{c};Bb{c}]}; c = c + 1; end
-  end
+ 
+   while ~feof(fid)
+      inline = fgetl(fid);
+      inline = deblank(inline); enil = fliplr(inline);
+      enil = deblank(enil); inline = fliplr(enil);
+      if length(inline)>131 && strcmp(inline(1:2),'20') && strcmp(inline(21),'2')
+         % e75 = findstr(inline,'e75');
+         try
+             % disp(inline)
+           Aa_ = textscan(inline, fmt_str);
+         catch
+            disp(inline);
+            clear Aa_
+         end
+         if isavar('Aa_') && ~isempty(Aa_{end})
+            if isavar('Aa')
+               c =1; while c<=length(Aa_); Aa(c) = {[Aa{c};Aa_{c}]}; c = c + 1; end
+            else
+               Aa = Aa_;
+            end
+         end
+      end
+   end
    fclose(fid);
+
   Dd = Aa{1}; Tt = Aa{2};
   bad = foundstr(Dd,'999')|~foundstr(Dd,'-');
   for dt = length(Dd):-1:1 
@@ -62,17 +83,6 @@ else
      raw.time = datenum(DT,'yyyy-mm-dd, HH:MM:SS,');
   catch
      raw.time = datenum(DT,'yyyy-mm-dd HH:MM:SS');
-  end
-  if length(Aa{3})~=length(bad)
-     Dd = Aa{1}; Tt = Aa{2};
-     bad = foundstr(Dd,'999')|~foundstr(Dd,'-');
-     for dt = length(Dd):-1:1
-        DT(dt) = {[Dd{dt},' ', Tt{dt}]};
-     end
-     DT = DT(~bad);
-     if any(bad)
-        c = 1; while c<=length(Aa); Aa{c} = Aa{c}(~bad); c = c+1; end
-     end
   end
   raw.itime = Aa{3}; raw.itime(bad) = [];
 
@@ -95,21 +105,32 @@ else
   ios = find(raw.i_sec==4); 
   ios((ios+3)>length(raw.i_sec)) = [];
 % try
-   ios = ios(raw.i_sec(ios+1)==5 & raw.i_sec(ios+2)==6 & raw.i_sec(ios+3)==7);
+   ios = ios(raw.i_sec(ios)==4 & raw.i_sec(ios+1)==5 & raw.i_sec(ios+2)==6 & raw.i_sec(ios+3)==7);
 % catch
 % 
 %    ios = ios(raw.i_sec(ios+1)==5 & raw.i_sec(ios+2)==6 & raw.i_sec(ios+3)==7);
 % end
-  for ii = length(ios):-1:1
-     io = ios(ii);
-     I4_str = raw.I_str{io}; I5_str = raw.I_str{io+1}; I6_str = raw.I_str{io+2}; I7_str = raw.I_str{io+3}; 
-     reset.time(ii) = raw.time(io);
-     reset.itime_str(ii) = {fliplr(strtok(fliplr(I4_str),','))};
-     reset.Bo(ii) = sscanf(fliplr(strtok(fliplr(I5_str),',')),'%f');
-     reset.Go(ii) = sscanf(fliplr(strtok(fliplr(I6_str),',')),'%f');
-     reset.Ro(ii) = sscanf(fliplr(strtok(fliplr(I7_str),',')),'%f');
-  end
-  [tmp,ii] = unique(reset.itime_str);
+for ii = length(ios):-1:1
+   io = ios(ii);
+   I4_str = raw.I_str{io}; I5_str = raw.I_str{io+1}; I6_str = raw.I_str{io+2}; I7_str = raw.I_str{io+3};
+   tmp  = {fliplr(strtok(fliplr(I4_str),','))};
+   if length(tmp{:})==12
+      reset.itime_str(ii) = tmp;
+      reset.time(ii) = raw.time(io);
+      reset.Bo(ii) = sscanf(fliplr(strtok(fliplr(I5_str),',')),'%f');
+      reset.Go(ii) = sscanf(fliplr(strtok(fliplr(I6_str),',')),'%f');
+      reset.Ro(ii) = sscanf(fliplr(strtok(fliplr(I7_str),',')),'%f');
+   else
+      if isavar('reset')&&isfield(reset,'time')
+         reset.itime_str(ii) = [];
+         reset.time(ii) = [];
+         reset.Bo(ii) = [];
+         reset.Go(ii) = [];
+         reset.Ro(ii) = [];
+      end
+   end
+end
+[tmp,ii] = unique(reset.itime_str);
   resets.time = reset.time(ii);
   resets.itime_str = reset.itime_str{ii};  
   resets.Bo = reset.Bo(ii);

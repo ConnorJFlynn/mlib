@@ -33,7 +33,10 @@ else
       fmt_str = strrep(fmt_str,' ','');fmt_str = strrep(fmt_str,'%',' %');
       fid = fopen(infile);
       hdr = fgetl(fid); hdr = strrep(hdr,'"',''); hdr = strrep(hdr,' ','');
-      tmp = char(fread(fid,'char'))'; tmp = strrep(tmp,'"','');tmp = strrep(tmp,' ','');
+      % tmp = char(fread(fid,'char'))';
+      tmp = fread(fid,'char')'; 
+      fclose(fid);
+      tmp = strrep(tmp,'"','');tmp = strrep(tmp,' ','');
       % start = ftell(fid); fseek(fid,start,-1)
       labls = textscan(hdr,'%s','delimiter',','); labls = labls{:};
       test2 = textscan(tmp,[fmt_str, '%*[^\n]'],'delimiter',',','EmptyValue',NaN);
