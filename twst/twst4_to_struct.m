@@ -35,6 +35,8 @@ if ischar(in_file)&&isafile(in_file)
    lv0_id = Grp(foundstr(GrpName,'level_0')); % level_0
    lv1_id = Grp(foundstr(GrpName,'level_1')); % level_1
    cal_id = Grp(foundstr(GrpName,'calibration'));
+   sza_id = netcdf.inqVarID(lv1_id,'sza');
+   twst.sza = netcdf.getVar(lv1_id,sza_id)';
    cod_id = netcdf.inqVarID(lv1_id,'cod');
    twst.cod = netcdf.getVar(lv1_id,cod_id)';
    netcdf.inqVarID(lv0_id,'wavelength_vis');

@@ -1,4 +1,4 @@
-function [good,P,S,mu] = rpoly_mad(X,Y,N,M,good);
+function [good,P,S,mu] = rpoly_mad(X,Y,N,M,good)
 % [good,P,S,mu] = rpoly_mad(X,Y,N,M,good);
 % compute a best line fit
 % compute the mean absolute deviation from this best line
@@ -15,7 +15,7 @@ if ~exist('M','var')
    M = 6;
 end
 
-if nargout >2
+if nargout >3
     [P,S,mu] = polyfit(X(good),Y(good),N);
     val = polyval(P,X,S,mu);
 else
@@ -29,11 +29,11 @@ new_good = (AD < (M.*MAD));
 if any(good ~= new_good)&&sum(good)>N
    good = rpoly_mad(X,Y,N,M,new_good);
 end
-if nargout >2
+if nargout >3
     [P,S,mu] = polyfit(X(good),Y(good),N);
     val = polyval(P,X,S,mu);
 else
-    P = polyfit(X(good),Y(good),N);
+    [P,S] = polyfit(X(good),Y(good),N);
     val = polyval(P,X);
 end
 

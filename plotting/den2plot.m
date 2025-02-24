@@ -8,7 +8,7 @@ function D = den2plot(X,Y,d)
 % if isrowvector(Y)
 %    Y = Y';
 % end
-C = size(X); if
+C = size(X); 
 
 
 N = length(X);

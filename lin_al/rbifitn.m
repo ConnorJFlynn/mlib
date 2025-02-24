@@ -10,7 +10,7 @@ if ~isavar('good')||isempty(good)
    good = true(size(X));
    good = ~isnan(X)&~isnan(Y);
 end
-if ~isavar('N')||isempty(N)
+if ~isavar('N') || isempty(N)
    N = 1;
 end
 if ~isavar('M')

@@ -9,10 +9,10 @@ if ~isavar('d')
    d = 1./sqrt(N);
 end
 D = zeros(size(X));
-if isrowvector(X)
+if isrow(X)
    X = X';
 end 
-if isrowvector(Y)
+if isrow(Y)
    Y = Y';
 end
 

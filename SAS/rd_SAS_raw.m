@@ -48,6 +48,11 @@ else
       %%
       fseek(fid,0,-1);
       txt = textscan(fid,(repmat('%f ',size(labels'))),'headerlines',r,'delimiter',',','treatAsEmpty','Infinity');
+      x = 1; 
+      while length(txt{x})>length(txt{end})
+        txt(x) = {txt{x}(1:end-1)};
+        x = x+1;
+      end
       fclose(fid);
       %%
       sas.time = datenum([txt{1},txt{2},txt{3},txt{4},txt{5},txt{6}]);

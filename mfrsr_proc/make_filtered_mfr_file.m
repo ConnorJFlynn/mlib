@@ -1,5 +1,5 @@
 function mfr = make_filtered_mfr_mat;
-mfr_files = getfullname('*mfrsr*aod*.cdf');
+mfr_files = getfullname('*mfrsr*aod*.nc');
 mfr_ = anc_load(mfr_files{1});
 [~, mfr_] = anc_sift(mfr_, mfr_.time<mfr_.time(1));
 for m = 2:length(mfr_files)
@@ -16,10 +16,10 @@ for m = 2:length(mfr_files)
    mfr_ = anc_cat(mfr_, mfr);
    disp(length(mfr_.time))
    end
-   disp(['file: ',num2str(m)])
+   disp(['file: ',num2str(length(mfr_files)-m)])
 end
 
-save(['D:\aodfit_be\hou\houmfrsr7nchaod1michM1.c1.filtered2.mat'],'-struct','mfr_')
+% save(['D:\aodfit_be\hou\houmfrsr7nchaod1michM1.c1.filtered2.mat'],'-struct','mfr_')
 end
 
 function blah 

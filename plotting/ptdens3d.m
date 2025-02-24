@@ -1,6 +1,6 @@
-function D = ptdens(X,Y,d)
-% D = ptdens(X,Y,d)
-% ptdens computes point density of X,Y pairs as number N / distance d
+function D = ptdens3d(X,Y,Z,d)
+% D = ptdens3d(X,Y,Z,d)
+% ptdens computes point density of X,Y,Z pairs as number N / distance d
 if length(X)~=length(Y)
    error('X and Y must be equal length');
 end
@@ -16,15 +16,21 @@ end
 if size(Y,1)==1
    Y = Y';
 end
-
+if size(Z,1)==1
+   Z = Z';
+end
 for n = N:-1:1
-   D(n) = sum((abs(X-X(n))<d)&(abs(Y-Y(n))<d));
+   dX = (abs(X-X(n))<d); 
+   dY = (abs(Y-Y(n))<d);
+   dZ = (abs(Z-Z(n))<d);
+   % D(n) = sum(dX.*dY.*dZ);
+   D(n) = sum(dX&dY&dZ);
    % D(n) = sum((sqrt((X-X(n)).^2)<d)&(sqrt((Y-Y(n)).^2)<d));
   if rem(n,10000)==0
      disp(n./10000)
   end
 end
-D = D./n;
+D = D./d.^3;
 end
 
 
