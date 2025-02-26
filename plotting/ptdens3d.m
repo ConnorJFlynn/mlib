@@ -6,7 +6,7 @@ if length(X)~=length(Y)
 end
 N = length(X);
 if ~isavar('d')
-   d = 1./sqrt(N);
+   d = (max([max(X),max(Y),max(Z)])-min([min(X),min(Y),min(Z)]))./100;
 end
 D = zeros(size(X));
 
